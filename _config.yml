@@ -1,2 +1,18 @@
+name: Diethard Steiner On Business Intelligence
+description: Rock it with data!
+author: Diethard Steiner
+url: http://diethardsteiner.github.io
+baseurl: 
+markdown: kramdown
+kramdown:
+  input: GFM
 pygments: true
-github: 
+github: http://www.github.com/diethardsteiner
+twitter: http://twitter.com/diethardsteiner
+googleplus: https://plus.google.com/u/0/+DiethardSteiner/postsx
+facebook: 
+linkedin: http://www.linkedin.com/in/diethardsteiner
+email: 
+location: London United Kingdom
+disqus: diethardsteiner
+
