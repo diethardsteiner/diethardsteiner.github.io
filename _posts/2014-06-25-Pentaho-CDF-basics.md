@@ -1,8 +1,10 @@
 ---
 layout: post
 title:  "Pentaho Dashboard Framework Basics"
-date:   2014-06-25 22:20:57
+date:   2014-06-25
 categories: Dashboards
+tags: Pentaho CDF CDE Dashboards
+published: true
 ---
 
 # Getting Started
