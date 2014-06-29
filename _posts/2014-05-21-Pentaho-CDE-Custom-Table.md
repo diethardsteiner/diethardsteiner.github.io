@@ -185,7 +185,7 @@ Do a preview and make use of your browser’s developer tools to see the generat
                 $.each(myData[i], function( j, value ){
                 
                     // add cells within row       
-                    $('#tableeditor > table > tbody > tr:last').append('<td><span contenteditable>' + value + '</td>');       
+                    $('#tableeditor > table > tbody > tr:last').append('<td>' + value + '</td>');       
                 
                 });
             });
