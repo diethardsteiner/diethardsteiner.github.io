@@ -55,7 +55,7 @@ In this post I’ll briefly talk you through how to source some data and then to
 		     document.getElementById('test').innerHTML = JSON.stringify(select_result[0][0]);
 		}
 		
-And the preview looks like this: 
+    And the preview looks like this: 
 
     ![](/images/pentaho-cde-custom-table-5.png)
 
