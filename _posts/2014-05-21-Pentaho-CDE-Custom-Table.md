@@ -197,7 +197,6 @@ Do a preview and make use of your browser’s developer tools to see the generat
         
         function(){
             buildTable(select_result,this.metadata);
-            establishListeners();
         }
         
 
