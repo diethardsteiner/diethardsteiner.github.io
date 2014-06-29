@@ -13,7 +13,9 @@ In this post I’ll briefly talk you through how to source some data and then to
 1. In CDE, register a **Datasource**. In example create a *sql over sqlJndi* datasource, provide a Name i.e. *qry_generic_select*, choose *SampleData* for JNDI and specify following query: 
 
 		SELECT customername, customernumber, phone FROM customers
-![](/images/pentaho-cde-custom-table-1.png)
+
+    ![](/images/pentaho-cde-custom-table-1.png)
+
 2. In the component section, add a **Query Component**. This component is most commonly used for displaying simple results, like one number in a dashboard (i.e. max temperature). Here we will use this component to retrieve a bigger result set.
 3. Click on **Advanced Properties**.
 4. For the *Datasource property* specify the datasource you created in step 1 (i.e. qry_generic_select)
@@ -42,14 +44,21 @@ In this post I’ll briefly talk you through how to source some data and then to
 		function() {
 		     document.getElementById('test').innerHTML = JSON.stringify(select_result[0]);
 		}
-And the preview looks like this: ![](/images/pentaho-cde-custom-table-4.png)
+		
+    And the preview looks like this: 
+    
+    ![](/images/pentaho-cde-custom-table-4.png)
+    
 12. Let’s change the *Post Execution* function to return only the first entry from the first record:
 
 		function() {
 		     document.getElementById('test').innerHTML = JSON.stringify(select_result[0][0]);
 		}
+		
 And the preview looks like this: 
-![](/images/pentaho-cde-custom-table-5.png)
+
+    ![](/images/pentaho-cde-custom-table-5.png)
+
 13. Let’s extend our *Post Execution* function to create a basic table:
 
 		function() {
