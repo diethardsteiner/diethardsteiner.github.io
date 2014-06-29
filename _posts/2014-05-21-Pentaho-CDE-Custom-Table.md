@@ -59,10 +59,15 @@ And the preview looks like this:
 		  var myTd = document.createElement('td');
 		myContainer.appendChild(myTable).appendChild(myTr).appendChild(myTd).innerHTML = select_result[0][0];
 		}
-Do a preview and make use of your browser’s developer tools to see the generated HTML:
-![](/images/pentaho-cde-custom-table-6.png)
+
+    Do a preview and make use of your browser’s developer tools to see the generated HTML:
+
+    ![](/images/pentaho-cde-custom-table-6.png)
+
 14. Ok, now that this is working, let’s add some very basic design. Click on **Settings** in the main CDE menu:
-![](/images/pentaho-cde-custom-table-7.png)
+
+    ![](/images/pentaho-cde-custom-table-7.png)
+    
 15. Choose *bootstrap* from the **Dashboard Type** pull down menu:
 
     ![](/images/pentaho-cde-custom-table-8.png)
