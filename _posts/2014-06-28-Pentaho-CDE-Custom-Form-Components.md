@@ -3,7 +3,7 @@ layout: post
 title:  "Pentaho Dashboards (CDE): Bootstrap styled custom selects"
 date:   2014-06-28
 categories: Dashboards
-tags: Pentaho CDF CDE Dashboards
+tags: Pentaho CDF CDE Dashboards JQuery
 published: true
 ---
 
@@ -19,6 +19,10 @@ If you need more flexibility with form controls, then this simple approach might
 On a side note, it would be nice if the standard CDE form controls had a CSS Class, so that you could apply the the bootstrap styles directly. 
 
 In any case, this article is not only about applying bootstrap styles, but also about adding some additional functionality to the form controls.
+
+We will try to create this dynamic cascading input:
+
+<iframe width="420" height="315" src="//www.youtube.com/embed/pQveo2Ku15E" frameborder="0" allowfullscreen="allowfullscreen">My Video</iframe>
 
 The approach outlined above is fairly simple, apart from maybe the last one, which I will discuss in detail here:
 
@@ -58,7 +62,7 @@ function(){
 }
 ```
 
-This is the very basic and simple function and a good starting point to add additional functionality.
+This is the very basic and simple function and a good starting point to add additional functionality. This is pure **JavaScript** - we will have a look at using **JQuery** later on to make things a lot easier.
 
 Let's do a preview:
 
@@ -97,62 +101,42 @@ Now the question is of course, how can my custom form components interact with o
 
 ```javascript
 function bissolCreateSelect(myCdeContainerId, myDashboardObjectId, myLabelText, myData, cdeParam){
-    var myContainer = document.getElementById(myCdeContainerId);
-    var myLabel = document.createElement('label');
-    var mySelect = document.createElement('select');
-    var myOption = document.createElement('option');
-    var myLabelTextNode = document.createTextNode(myLabelText);
-    myLabel.setAttribute('for', myDashboardObjectId);
-    mySelect.className = "form-control";
-    mySelect.id = myDashboardObjectId;
-    // avoid having a default value preselected
-    var myDefaultOption = '<option disabled selected>Please select an option...</option>';
+    //document.getElementById('html_db_connection_picker').innerHTML = JSON.stringify(result_fetch_db_connections);
+    
     console.log(myDashboardObjectId + " with following values: " + JSON.stringify(myData));
-
+    
     // 1. Check if data is available
-    if(myData.length > 0){  
-
-        mySelect.innerHTML = myDefaultOption;
-
-        for(var i = 0; i < myData.length; i++) {
-            var myValue = document.createTextNode(myData[i][0]);
-            mySelect.appendChild(myOption.cloneNode()).appendChild(myValue);
-        }
-
-        // 2. Check if select exists - !! checks for a truthy value 
+    if(myData.length > 0){ 
+        
+        var myLabel = '<label for="' + myDashboardObjectId + '">' + myLabelText + '</label>';
+        
+        var myOptions = '<option disabled selected>Please select an option...</option>';
+        
+        $.each(myData, function(i, val){
+           myOptions += '<option>' + val + '</option>'; 
+        });      
+        
+        var mySelect = '<select id="' + myDashboardObjectId  + '" class="form-control">' 
+            + myOptions + '</select>';
+            
+        // Check if select exists 
         // if it exists ...
-        if(!!document.getElementById(myDashboardObjectId)){
-            myContainer.replaceChild(mySelect,document.getElementById(myDashboardObjectId));
-            bissolEstablishSelectListener(myDashboardObjectId, cdeParam);
+        if($('#' + myDashboardObjectId).length){
             Dashboards.fireChange(cdeParam,null);
-        }
-        // if it doesnt exist ...
-        else {
-            myContainer.appendChild(myLabel.cloneNode()).appendChild(myLabelTextNode);
-            myContainer.appendChild(mySelect);
-            bissolEstablishSelectListener(myDashboardObjectId, cdeParam);
-        }
+        } 
+                       
+        $('#' + myCdeContainerId).empty() // empty in case there is already a select
+        $('#' + myCdeContainerId).append(myLabel + mySelect);
+        
+        $('#' + myDashboardObjectId).on('change', function(){
+            Dashboards.fireChange(cdeParam, $( this ).find('option:selected').val());
+        });
     } 
     // if no data is available remove any existing selects
     else {
-        //myContainer.removeChild(document.getElementById(myDashboardObjectId));
-        myContainer.innerHTML = '';
+        $('#' + myCdeContainerId).empty();
         Dashboards.fireChange(cdeParam,null);
     }   
-}
-
-function bissolPropagateSelectSelection(evt){
-    Dashboards.fireChange(evt.target.cdeParam, evt.target.options[evt.target.selectedIndex].text);
-    console.log('Setting parameter ' + evt.target.cdeParam + ' to: ' + evt.target.options[evt.target.selectedIndex].text);
-}
-
-function bissolEstablishSelectListener(myDashboardObjectId, cdeParam){
-    var select = document.getElementById(myDashboardObjectId);
-    // add arguments to pass on to event
-    //select.selectedText = select.options[select.selectedIndex].text; // dont set it here as the changes wont be picked up - set in function which the event listener calls
-    select.cdeParam = cdeParam;
-    select.addEventListener('change', bissolPropagateSelectSelection, false);
-    console.log('Adding event listener for id: ' + myDashboardObjectId);
 }
 ```
 
@@ -190,105 +174,52 @@ Our JavaScript version (part of the resource file) could look something like thi
 
 ```javascript
 function bissolCreateCheckboxSet(myCdeContainerId, myDashboardObjectId, myLabelText, myData, cdeParam){
-    var myContainer = document.getElementById(myCdeContainerId);
-    var myLabel = document.createElement('label');
-
+    
     // create main container which holds all the checkboxes
-    var myCheckboxSetContainer = document.createElement('div');
-    myCheckboxSetContainer.id = myDashboardObjectId;    
-    var myMainLabelTextNode = document.createTextNode(myLabelText);
-    myCheckboxSetContainer.appendChild(myLabel.cloneNode()).appendChild(myMainLabelTextNode);
-
-    // create structure for one checkbox
-    var myCheckboxContainer = document.createElement('div');
-    myCheckboxContainer.className = 'checkbox';
-    var myCheckbox = document.createElement('input');   
-    myCheckbox.setAttribute('type','checkbox');
-
+    var myCheckboxSetContainer = '<div id="' + myDashboardObjectId + '"><label>' + myLabelText + '</label></div>';
+    
     // 1. Check if data is available
     if(myData.length > 0){  
-
-
-        for(var i = 0; i < myData.length; i++) 
-        {
-            var myCheckboxLabel = document.createTextNode(myData[i][0]);
+        
+        var myCheckboxes = '';
+        $.each(myData, function(i, val){
+            myCheckboxes += 
+            '<div class="checkbox">' + 
+            '<label>' + 
+            '<input type="checkbox" name="' + cdeParam + '" value="' + myData[i][0] + '"></input>' +
+            myData[i][0] + '</label>' +
+            '</div>'; 
+        });
+        
+        // Check if checkbox exists       
+        if($('#' + myDashboardObjectId).length){
+            Dashboards.fireChange(cdeParam,'');        
+        } 
+        
+        $('#' + myCdeContainerId).empty(); //if checkbox exists remove
+        $('#' + myCdeContainerId).append(myCheckboxSetContainer);
+        $('#' + myDashboardObjectId).append(myCheckboxes);
+              
+        $('#' + myDashboardObjectId).find('input[type=checkbox]').on('change', function(){
             
-            var myC = myCheckbox.cloneNode();
-            myC.setAttribute('name', cdeParam);
-            myC.setAttribute('value', myData[i][0]);
+            var myCheckedValues = [];
             
-            var myL = myLabel.cloneNode();
-            myL.appendChild(myCheckboxLabel);
-            myL.appendChild(myC);
-            
-            myCheckboxSetContainer.appendChild(myCheckboxContainer.cloneNode()).appendChild(myL);
-        }
+            $('#' + myDashboardObjectId + ' input:checkbox:checked').each(function() {
+                myCheckedValues.push($(this).val());
+            });
+ 
+            // fire change
+            Dashboards.fireChange(cdeParam,myCheckedValues);
+            console.log('Setting parameter ' + cdeParam + ' to: ' + myCheckedValues);
+        });
 
-        // 2. Check if checkbox exists - !! checks for a truthy value 
-        // if it exists ...
-        if(!!document.getElementById(myDashboardObjectId)){
-            myContainer.replaceChild(myCheckboxSetContainer,document.getElementById(myDashboardObjectId));
-            bissolEstablishCheckboxListener(myDashboardObjectId, cdeParam);
-            //Dashboards.fireChange(cdeParam,null);
-            Dashboards.fireChange(cdeParam,'');
-        }
-        // if it doesnt exist ...
-        else {
-            myContainer.appendChild(myCheckboxSetContainer);
-            bissolEstablishCheckboxListener(myDashboardObjectId, cdeParam);
-        }
     } 
     // if no data is available remove any existing selects
     else {
-        //myContainer.removeChild(document.getElementById(myDashboardObjectId));
-        myContainer.innerHTML = '';
-        //Dashboards.fireChange(cdeParam,null);
+        $('#' + myCdeContainerId).empty();
         Dashboards.fireChange(cdeParam,'');
     }
 } 
-
-// - when a checkbox is ticked, add value to cde param array
-// - when a checkbox is unticked, remove value from cde param array
-
-function bissolEstablishCheckboxListener(myDashboardObjectId, cdeParam){
-    var myDashboardObject = document.getElementById(myDashboardObjectId);
-    var checkboxes = myDashboardObject.getElementsByTagName('input');
-    // establish listener for each checkbox
-    for(var i = 0; i < checkboxes.length; i++){
-        var checkbox = checkboxes[i];
-        checkbox.cdeParam = cdeParam;
-        checkbox.addEventListener('change', bissolPropagateCheckboxSelection, false);
-        console.log('Adding event listener for id: ' + myDashboardObjectId +', checkbox: ' + i );        
-    }
-}
-
-function bissolPropagateCheckboxSelection(evt){
-    console.log('The target value is: ' + evt.target.value);   
-    var myCheckedValues = [];    
-    if(Dashboards.getParameterValue(evt.target.cdeParam) === ''){
-        //myCheckedValues = [];
-    } else {
-        myCheckedValues = Dashboards.getParameterValue(evt.target.cdeParam);    
-    }
-
-    console.log('My previously checked values are: ' + myCheckedValues);
-
-    if(evt.target.checked){
-        myCheckedValues.push(evt.target.value);
-        Dashboards.fireChange(evt.target.cdeParam,myCheckedValues);
-        console.log('Setting parameter ' + evt.target.cdeParam + ' to: ' + myCheckedValues);
-    } else {
-        // find element in array
-        var index = myCheckedValues.indexOf(evt.target.value);
-        // remove element from array
-        if (index > -1) {
-            myCheckedValues.splice(index, 1);
-        }
-        // fire change
-        Dashboards.fireChange(evt.target.cdeParam,myCheckedValues);
-        console.log('Setting parameter ' + evt.target.cdeParam + ' to: ' + myCheckedValues);
-    }
-}
 ```
 
 And you can call this function via the **Post Execution** property of the **Query Component** like this:
@@ -308,27 +239,22 @@ The idea is that as soon as a user ticks a checkbox, the subsequent form item or
 The last thing to do is to write the `JavaScript` which displays a **submit** button once a checkbox is ticked. Let's create the button structure:
 
 ```
-function bissolCreateButton(myCdeContainerId, myLabelText, cdeParamIncoming){
-    //console.log('param_db_column values is: ' + Dashboards.getParameterValue(cdeParamIncoming));
-    var myContainer = document.getElementById(myCdeContainerId);
+function bissolCreateButton(myCdeContainerId, myDashboardObjectId, myLabelText, cdeParamIncoming, cdeParam){
 
-    var myButton = document.createElement('button');
-    var myButtonText = document.createTextNode(myLabelText);
-    myButton.className = 'btn btn-primary bissolConfigSubmit';
-    myButton.setAttribute('type','submit');
-    myButton.appendChild(myButtonText);
-
-    var myExistingButtons = myContainer.getElementsByTagName('button');
-
+    var myExistingButtons = $('#' + myDashboardObjectId);
+    
     if(!!Dashboards.getParameterValue(cdeParamIncoming) && Dashboards.getParameterValue(cdeParamIncoming).length > 0){
         // check if select already exists otherwise create   
-        if(myExistingButtons == 'undefined' || myExistingButtons.length === 0){
-            myContainer.appendChild(myButton);
+        if(myExistingButtons.length === 0){           
+            $('#' + myCdeContainerId).append('<button type="submit" id="' + myDashboardObjectId + '" class="btn btn-primary bissolConfigSubmit">' + myLabelText + '</button>');
+            
+            $('#' + myDashboardObjectId).on('click', function(){
+                Dashboards.fireChange(cdeParam,'save');
+            });
         }
     } else {
-        console.log('Removing button ...');
         // remove button
-        myContainer.innerHTML = '';
+        $('#' + myCdeContainerId).empty();
     }
 
 }
@@ -340,12 +266,33 @@ An easy way to implement this is to use the **Freeform Component**. Just set its
 
 ```
 function(){
-    bissolCreateButton('html_submit','Submit','param_db_column');
+    bissolCreateButton('html_submit','config-submit','Submit','param_db_column','param_config_save');
 }
 ```
 
 Now our dynamic form should be working!
 
 ![](/images/pentaho-cde-custom-form-components-5.png)
+
+Just to recap: This is how the **Components** were set up:
+
+![](/images/pentaho-cde-custom-form-components-6.png)
+
+This is the HTML code I used within the `html` element in the **Layout Structure**:
+
+```
+<div class="panel panel-default bissolConfigBox">
+  <div class="panel-heading">
+    <h3 class="panel-title">Configuration</h3>
+  </div>
+  <div class="panel-body">
+    <div id="html_db_connection_picker"></div>
+    <div id="html_db_schema_picker"></div>
+    <div id="html_db_table_picker"></div>
+    <div id="html_db_column_picker"></div>
+  </div>
+  <div id="html_submit"></div>
+</div> 
+```
 
 I hope this tutorial gave you a good idea on how flexible **Pentaho Community Dashboards** really are. And the really exciting point is that you can all implement this using standard HTML technologies!
