@@ -41,6 +41,10 @@ table tr:nth-child(2n) {
         font-size:0.8em;
 }
 
+.taglink {
+        text-decoration:none;
+        text-shadow:0px 0px;
+}
 
 /* ----- my own stuff end ---*/
 
