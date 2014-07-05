@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Pentaho Dashboard Framework Basics"
+summary: This article explains how to set up Pentaho CDF and describes the folder structure as well as how to create a basic dashboard.
 date:   2014-06-25
 categories: Dashboards
 tags: Pentaho CDF CDE Dashboards

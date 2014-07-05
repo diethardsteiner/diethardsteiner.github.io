@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Pentaho Dashboards CDE: Create your custom Bootstrap table"
+summary: This article covers the basic of using Bootstrap with Pentaho Dashboards.
 date:   2014-05-21
 categories: Dashboards
 tags: Pentaho CDF CDE Dashboards Bootstrap
