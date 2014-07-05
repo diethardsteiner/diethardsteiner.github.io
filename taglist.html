@@ -7,7 +7,7 @@ layout: taglist
   
         <ul class="posts">
             {% for tag in site.tags %}		
-                <li><span><a href="/tags/{{ tag[0] }}">{{ tag[0] }}</a><span></li>
+                <li><span><a href="{{ site.url }}/tags/{{ tag[0] }}">{{ tag[0] }}</a><span></li>
             {% endfor %}
         </ul>
   </div>
