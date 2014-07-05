@@ -1,0 +1,14 @@
+---
+layout: taglist
+---
+<div class="container">
+  <div id="article">
+  <h1>Topics</h1>
+  
+        <ul class="posts">
+            {% for tag in site.tags %}		
+                <li><span><a href="/tags/{{ tag[0] }}">{{ tag[0] }}</a><span></li>
+            {% endfor %}
+        </ul>
+  </div>
+</div>
