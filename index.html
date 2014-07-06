@@ -2,26 +2,38 @@
 layout: default
 ---
 
-  <div class ="container">
-
-  </div>
 
   <div class="recent-posts">
-  <h1>Recent Posts</h1>
+    <h1>Recent Posts</h1>
 
-    <ul class="homepage-posts most-recent">
-    {% for post in site.posts limit:1 %}
-    <li><span><h4><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>&nbsp;<span class="badge"><smaller>FRESH</smaller></span><time class="pull-right">{{ post.date | date: '%B %d, %Y' }}</h4></time></span></h4></span></li>
-    {% endfor %}
+      <ul class="homepage-posts most-recent">
+      {% for post in site.posts limit:1 %}
+        <li>
+          <span>
+            <h4>
+              <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>&nbsp;
+              <span class="badge"><smaller>FRESH</smaller></span>
+              <time class="pull-right">{{ post.date | date: '%B %d, %Y' }}</time>
+            </h4>
+          </span>
+        </li>
+      {% endfor %}
 
-	{% for post in site.posts offset:1 limit:4 %}
-    <ul class="homepage-posts">
- 	  <li><span><h4><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a><time class="pull-right">{{ post.date | date: '%B %d, %Y'}}</h4></time></span></h4></span></li>
-    </ul>
-	{% endfor %}
+	    {% for post in site.posts offset:1 limit:4 %}   
+   	    <li>
+   	      <span>
+   	        <h4>
+   	          <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+   	          <time class="pull-right">{{ post.date | date: '%B %d, %Y'}}</h4></time>
+            </h4>
+          </span>
+        </li>
+	    {% endfor %}
 
-    <ul>
-      <a href="{{ site.baseurl }}/list.html">View More...</a>
-	</ul>
+        <li>
+          <a href="{{ site.baseurl }}/list.html">View More...</a>
+        </li>
+	    </ul>
   </div>
+
 
