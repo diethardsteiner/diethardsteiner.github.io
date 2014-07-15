@@ -69,4 +69,12 @@ CREATE SCHEMA etl AUTHORIZATION etl;
 ALTER USER etl SET SCHEMA dma;
 ```
 
+# MonetDB Client Utility 
+
+And now we can create tables etc and query them by using the handy command line utility:
+
+```shell
+ mclient -p54321 -umonetdb -dsls
+ ```
+
 For more detailed info I recommend taking a look at the [MonetDB Documentation](https://www.monetdb.org/Documentation).
