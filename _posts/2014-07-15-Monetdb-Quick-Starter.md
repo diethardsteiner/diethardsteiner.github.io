@@ -42,7 +42,7 @@ monetdbd start ~/myMonetDBFarm
 
 # Create dedicated DB
 
-Make sure you pay attention to the command line utility name: In this case we are using `monetdb` and not the deamon `monetdbd` ... notice the **d** at the end! This is quite often the first hurdle users are confronted with when installing **MonetDB**.
+Make sure you pay attention to the command line utility name: In this case we are using `monetdb` and not the daemon `monetdbd` ... notice the **d** at the end! This is quite often the first hurdle users are confronted with when installing **MonetDB**.
 
 ```shell
 monetdb create sls
