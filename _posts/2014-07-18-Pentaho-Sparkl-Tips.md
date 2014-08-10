@@ -100,7 +100,7 @@ From the **Sparkl Editor** page open up one of your dashboards to **edit** and c
 
 At the bottom of the **Settings** pop-up window you find a **Style** picker:
 
-![Dashboard Settings](/images/cde_settings_style.png)
+![Dashboard Settings](/images/cde_settings_styles.png)
 
 Choose the template we just created and click **Save**.
 
