@@ -2,7 +2,7 @@
 layout: post
 title:  "Pentaho Dashboards (CDE): Bootstrap styled custom selects"
 summary: This article explains how to create custom bootstrap styled cascading selectors using JQuery.
-date:   2014-06-28
+date: 2014-06-28
 categories: Dashboards
 tags: Pentaho CDF CDE Dashboards JQuery
 published: true
