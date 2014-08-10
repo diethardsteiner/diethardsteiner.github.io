@@ -138,7 +138,8 @@ In this case I just wanted to source the **JSON file** uninterpretated. One simp
 
 ```javascript
 // source existing JSON file
-var existingJsonFilePath = 'myFile.json';
+var workingDir = getEnvironmentVar('Internal.Transformation.Filename.Directory');
+var existingJsonFilePath = workingDir + '/myFile.json';
 var existingJson;
 
 if(isFile(existingJsonFilePath)){
