@@ -96,11 +96,11 @@ First make sure your refresh the plugin files by clicking the **Refresh** icon o
 
 From the **Sparkl Editor** page open up one of your dashboards to **edit** and click on **Settings** once the new page opens:
 
-![CDE Main Menu](images/cde_main_menu_settings.png)
+![CDE Main Menu](/images/cde_main_menu_settings.png)
 
 At the bottom of the **Settings** pop-up window you find a **Style** picker:
 
-![Dashboard Settings](images/cde_settings_style.png)
+![Dashboard Settings](/images/cde_settings_style.png)
 
 Choose the template we just created and click **Save**.
 
