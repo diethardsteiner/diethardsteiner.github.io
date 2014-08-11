@@ -30,7 +30,7 @@ First make sure you have proper **time dimension** defined (like the one shown b
 </Dimension>
 ```
 
-Then use MDX functions [`OPENINGPERIOD()`](http://msdn.microsoft.com/en-us/library/ms145992.aspx) or [`CLOSINGPERIOD()`](http://msdn.microsoft.com/en-us/library/ms145584.aspx). Let's test these functions:
+Then use MDX functions [`OPENINGPERIOD()`](http://msdn.microsoft.com/en-us/library/ms145992.aspx) or [`CLOSINGPERIOD()`](http://msdn.microsoft.com/en-us/library/ms145584.aspx). Let's test these function for the day, month, quarter and year level. Note that we define first a calculated member which will return the sum of subscribers for the first day in a given period using the `OPENINGPERIOD()` function in this example:
 
 ```
 WITH
