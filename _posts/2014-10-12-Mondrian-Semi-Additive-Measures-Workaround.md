@@ -208,8 +208,8 @@ FROM [Subscriber Base]
 The results are correct. Let's implement this in our **Mondrian OLAP Schema**:
 
 ```
-<CalculatedMember name="Subbase Monthly Calendar" formatString="#,##0" caption="Subbase" description="Subbase at the first day of the period" formula="(OPENINGPERIOD([Date.Monthly Calendar].[Date], [Date.Monthly Calendar].CurrentMember), [Measures].[Subscribers])" dimension="Measures" visible="false"/>
-<CalculatedMember name="Subbase Weekly Calendar" formatString="#,##0" caption="Subbase" description="Subbase at the first day of the period" formula="(OPENINGPERIOD([Date.Weekly Calendar].[Date], [Date.Weekly Calendar].CurrentMember), [Measures].[Subscribers])" dimension="Measures" visible="false"/>
+<CalculatedMember name="Subbase Monthly Calendar" formatString="#,##0"  formula="(OPENINGPERIOD([Date.Monthly Calendar].[Date], [Date.Monthly Calendar].CurrentMember), [Measures].[Subscribers])" dimension="Measures" visible="false"/>
+<CalculatedMember name="Subbase Weekly Calendar" formatString="#,##0"  formula="(OPENINGPERIOD([Date.Weekly Calendar].[Date], [Date.Weekly Calendar].CurrentMember), [Measures].[Subscribers])" dimension="Measures" visible="false"/>
 <CalculatedMember name="Subbase" formatString="#,##0" caption="Subbase" description="Subbase at the first day of the period" formula="IIF([Date.Monthly Calendar].currentmember.level.ordinal > 0, [Measures].[Subbase Monthly Calendar], [Measures].[Subbase Weekly Calendar])" dimension="Measures" visible="true"/>
 ```
 
