@@ -8,6 +8,15 @@ tags: Pentaho
 published: true
 ---
 
+We are up to an exciting **Mondrian** adventure:
+
+1) Adding Semi-Additive Measures
+2) Making these measures work across multiple date dimension hierachies
+
+Can't wait? So let's get start!
+
+## Adding Semi-Additive Measures
+
 Currently **Mondrian** doesn't offer a way to define **semi-additive** measures (see as well [this Jira case](http://jira.pentaho.com/browse/MONDRIAN-962)). However, Vladislav Krakhalev proposed a workaround using `OPENINGPERIOD()` or `CLOSINGPERIOD()` **MDX** functions. Thanks a lot! 
 
 So what are **semi-additive measures**? Let's best explain this based on an example:
@@ -88,7 +97,9 @@ Our test tells us that the logic is working as expected, so the next step is to 
 
 This looks like a very simple workaround and should help solving quite a lot of scenarios.
 
-Ok, are you up to the next challenge? With one hiearchy only in the date dimensions things are fairly straight forward. But what happens if we add a new hierarchy for the week?
+## Making Calculated Measure work across multiple Date Dimension Hierarchies
+
+Ok, one problem solved, are you up to the next challenge? With one hiearchy only in the date dimensions things are fairly straight forward. But what happens if we add a new hierarchy for the week?
 
 ```
 <Dimension name="Date" type="TimeDimension" visible="true" highCardinality="false">
@@ -128,7 +139,7 @@ OPENINGPERIOD([Date.Weekly Calendar].[Date]) On Columns,
 FROM [Subscriber Base]
 ```
 
-In my case this didn't return anything: no result and no date member. So let's check if we get a result with the `CLOSINGPERIOD()` function:
+In my case this didn't return anything: no measure value and no date member. So let's check if we get a result with the `CLOSINGPERIOD()` function:
 
 ```
 SELECT
@@ -137,7 +148,7 @@ CLOSINGPERIOD([Date.Weekly Calendar].[Date]) On Columns,
 FROM [Subscriber Base]
 ```
 
-This time I got a date member returned: 2019-12 (which happened to be the last month in my date dimension), but no value. But hold on ... why do we get a month returned when we run the function on the **Weekly Calendar** hierarchy? My guess is that this happens because the **Monthly Calendar** happens to be the default hierarchy.
+This time I got a date member returned: 2019-12 (which happened to be the last month in my date dimension), but no measure value. But hold on ... why do we get a month returned when we run the function on the **Weekly Calendar** hierarchy? My guess is that this happens because the **Monthly Calendar** happens to be the default hierarchy.
 
 We can fix this by specifying the optional **Member Expression** for the `OPENINGPERIOD()` function:
 
