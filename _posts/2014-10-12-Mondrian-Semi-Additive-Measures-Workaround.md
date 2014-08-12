@@ -10,8 +10,8 @@ published: true
 
 We are up to an exciting **Mondrian** adventure:
 
-1) Adding Semi-Additive Measures
-2) Making these measures work across multiple date dimension hierachies
+1. Adding Semi-Additive Measures
+2. Making these measures work across multiple date dimension hierachies
 
 Can't wait? So let's get start!
 
