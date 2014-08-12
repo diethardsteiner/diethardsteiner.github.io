@@ -97,7 +97,7 @@ Our test tells us that the logic is working as expected, so the next step is to 
 
 This looks like a very simple workaround and should help solving quite a lot of scenarios.
 
-## Making Calculated Measure work across multiple Date Dimension Hierarchies
+## Making Calculated Measures work across multiple Date Dimension Hierarchies
 
 Ok, one problem solved, are you up to the next challenge? With one hiearchy only in the date dimensions things are fairly straight forward. But what happens if we add a new hierarchy for the week?
 
