@@ -12,6 +12,7 @@ We are up to an exciting **Mondrian** adventure:
 
 1. Adding Semi-Additive Measures
 2. Making these measures work across multiple date dimension hierachies
+3. Calculated Measures based on the Semi-Additive Measure
 
 Can't wait? So let's get start!
 
@@ -226,3 +227,32 @@ The results are correct. Let's implement this in our **Mondrian OLAP Schema**:
 
 As you can see we specified the first two calculated measures as hidden (they are intermediate steps and should not be exposed to the end-user).
 The beauty of this is that now our end-user only has to deal with one measure (irrespective of whatever date hiearchy they choose).
+
+## Calculated Measures based on the Semi-Additive Measure
+
+Next we want to analyse the **subscriber base changes** from one period to the next. We will create a new calculated measure therefor. 
+
+This is the point where things get a bit tricky. We have to add a logic again which figures out which particular **date dimension hierarchy** is used. Now ideally this shouldn't be the case, because - remember - we already defined this logic for our **semi-additive measure**. I supposed this is one of the disadvantages of have no built-in support for **semi-additive measures** in **Mondrian**.
+
+Let's first create the **Calculated Member** for the amout of subscribers for the pervious period:
+
+```
+<CalculatedMember name="Subscribers Previous Period" 
+formula="IIF([Date.Monthly Calendar].currentmember.level.ordinal > 0,
+([Date.Monthly Calendar].[Date].CurrentMember.PrevMember,[Measures].[Subscribers]), 
+([Date.Weekly Calendar].[Date].CurrentMember.PrevMember,[Measures].[Subscribers]))" 
+dimension="Measures" visible="false"/>
+```
+
+Next define the formula to calculate the **delta**:
+
+```
+<CalculatedMember name="Subscriber Base Change" 
+formula="IIF(
+ISEMPTY([Measures].[Subscribers]) OR [Measures].[Subscribers Previous Period] = 0
+, NULL
+, ([Measures].[Subscribers] - [Measures].[Subscribers Previous Period]))" 
+dimension="Measures" visible="true"/>
+```
+
+We do a few thorough checks to make sure the results are as expected - after which we happily clap our hands and call it a day!
