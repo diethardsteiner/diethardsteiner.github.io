@@ -11,12 +11,7 @@ published: true
 You want to implement something in your dashboard that is not covered by the out-of-the-box dashboard components? Luckily, with Pentaho CDE the world is open: CDE makes use of the standard web technologies (CSS, JavaScript, HTML), so theoretically you can implement whatever is in the realm of these technologies. Obviously you will need some basic knowledge of these technologies (setup is not as easy any more as filling out some config dialogs), but the possibilities are endless.
 In this post I’ll briefly talk you through how to source some data and then to create a custom table with it (which you can easily do with one of the CDE components as well, but that’s not the point here … imagine what else you could do):
 
-1. In CDE, register a **Datasource**. In example create a *sql over sqlJndi* datasource, provide a Name i.e. *qry_generic_select*, choose *SampleData* for JNDI and specify following query: 
-
-		SELECT customername, customernumber, phone FROM customers
-
-    ![](/images/pentaho-cde-custom-table-1.png)
-
+1. In CDE, register a **Datasource**. In example create a *sql over sqlJndi* datasource, provide a Name i.e. *qry_generic_select*, choose *SampleData* for JNDI and specify following query: `SELECT customername, customernumber, phone FROM customers`. ![](/images/pentaho-cde-custom-table-1.png)
 2. In the component section, add a **Query Component**. This component is most commonly used for displaying simple results, like one number in a dashboard (i.e. max temperature). Here we will use this component to retrieve a bigger result set.
 3. Click on **Advanced Properties**.
 4. For the *Datasource property* specify the datasource you created in step 1 (i.e. qry_generic_select)
@@ -28,9 +23,7 @@ In this post I’ll briefly talk you through how to source some data and then to
 		} 
 
 7. We will only use this function for now to test if the query is working. Later on we will change it.
-8. The setup so far should look like this: 
-
-    ![](/images/pentaho-cde-custom-table-2.png)
+8. The setup so far should look like this: ![](/images/pentaho-cde-custom-table-2.png)
 
 9. In the **Layout Panel** create a basic structure which should at least have one column. Name the column test as we referenced it already in our JavaScript function. 
 

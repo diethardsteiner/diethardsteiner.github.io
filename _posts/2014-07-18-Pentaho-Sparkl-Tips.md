@@ -169,7 +169,29 @@ Sample output:
 
 Currently (2014-08-01), you have to explicitly define the CDE Kettle endpoint output format as Json as well for job endpoints - something you don't have to do for transformation endpoints. I asked that this behaviour is standardized (see [this Jira case](http://jira.pentaho.com/browse/SPARKL-66)).
 
-# Upgrading the CPK/Sparkl core for your plugin
+## Consideration with Kettle Output Type
+
+When you add a Kettle endpoint to the Sparkl CDE data sources, the default output type is set to *Inferred*. This output type has an inconsistent behaviour which you should be aware of:
+
+If the output dataset only contains **one** value, then the resultset will be like this in example:
+
+```
+SampleData
+```
+
+However, if there is more than one value, the resultset looks like this:
+
+```json
+{"metadata":[{"colIndex":0,"colType":"String","colName":"connectionName"}],"queryInfo":{"totalRows":2},"resultset":[["SampleData"],["mysql"]]}
+```
+
+For this reason I strongly suggest that you set the **Output Type** to **Json** if the size of your dataset varies. Doing so will return the same structure no matter how many rows and values your resultset holds:
+
+```json
+{"metadata":[{"colIndex":0,"colType":"String","colName":"connectionName"}],"queryInfo":{"totalRows":1},"resultset":[["SampleData"]]}
+```
+
+## Upgrading the CPK/Sparkl core for your plugin
 
 Once you create a **Sparkl plugin**, the project folder structure and required base files get created for you automatically. Required libraries are stored in the `lib` folder.
 
@@ -185,6 +207,58 @@ Next restart the server so that you can start using this new library.
 
 Update 2014-08-10: The latest build of Sparkl provides this functionality via the Web UI.
 
+## Preparing your plugin for the Marketplace
+
+See [Marketplace documentation](https://github.com/webdetails/marketplace-metadata) for details. To get a good understanding of the required information, you can find all existing Marketplace entries [here](https://raw.githubusercontent.com/pentaho/marketplace-metadata/master/marketplace.xml).
+
 I am planning to add more info to this article over time, so watch out this space!
 
+## Returning Database Error Messages
 
+In general it would be nice to show any database error message to the end users via the Sparkl plugin UI. This is currently possible to some extend, especially for transformations which write back data using the **Table Output** or **Update** steps. These steps support **Error Handling** and can supply the **DB error message**. However, the **Table Input** step currently does not support this functionality ([Jira raised](http://jira.pentaho.com/browse/PDI-12719)).
+
+Approach for transformations which do not output any data, we have to make sure that an output is return in any case, even if it is an empty data set. We must define an **error handling** stream so that the whole transformation does not fail in case of an error.
+
+1. Add an additional dummy stream to your transfromation. Use a **Generate Rows** step with **no fields** and **1 row** defined.
+2. Add a **Dummy** step and a **Cartesian Join** step.
+3. Connect the **database** step with the **Dummy** step and define make sure you set the hop as **Error Handling** hop.
+4. Right click on the **DB** step and choose **Define Error Handling ...**. Define a name for the **Error description fieldname**, in example *db_error_message*.
+5. Connect the **Dummy** step to the **Cartesian Join** step.
+6. Add a **Write to Log** step and connect the **Cartesian Join** step to it. Double click on it and make sure the **db_error_message** field value gets logged.
+7. Add another **Dummy** step, rename it to **OUTPUT** and connect to to the previous step. This must be the only **OUTPUT** step in your transformation.
+8. In **CDE** define this transformation as a new **datasource** and set the **Output Type** to **Json**.
+9. Add in example a **Query Component**, specify all the usual settings and then set the **Post Execution function this this:
+
+```
+function(){
+   
+    // in case database is down
+    if(typeof result_generic_update == 'undefined'){
+        alert('Something went wrong! Check JavaScript Console and/or Server Log.');
+    }
+    
+    // in case database returns error
+    else if(result_generic_update.length > 0){
+        alert('Something went wrong!!!! The database error message is: "'
+        + result_generic_update[0][0]
+        + ' In addition check JavaScript Console and/or Server Log.');
+    }
+}
+```
+
+In this example `result_generic_update` is the **Result Var**.
+
+![Error Handling](/images/sparkl-db-error-handling.png)
+
+
+## Adding dependent Kettle plugins
+
+In your Sparkl project you might make us of external Kettle plugins, which are not part of the standard biserver distribution. Currently Sparkl does not install them automatically.
+
+A workaround is to include zipped versions of these plugins in a directory within your Sparkl project directory and created a dedicated Kettle job which copies these zip files to the dedicated biserver kettle folder.
+
+> **Important**: It is recommended to include a zipped version of the plugins as Sparkl scans all directories for plugin.xml files. In this case the Kettle plugin plugin.xml files would interfere with the ones from Sparkl. Alternatively you could also rename them.
+
+## Executing a Kettle transformation or job on startup
+
+Sometimes your plugin might have to do some work upfront, e.g. create folders, copy files etc. To have the Kettle job execute on startup, go to the job / transformations settings and enable the `cpk.executeAtStart` parameter. You find this parameter already in the list of predefined but commented parameters: Just remove the hash at the beginning of the name and set its value to `true`.

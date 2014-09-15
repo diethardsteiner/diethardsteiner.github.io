@@ -206,7 +206,8 @@ MEMBER [Measures].[Subbase Weekly Calendar] AS
 )
 MEMBER [Measures].[Subbase Final] AS
 (
-	IIF([Date.Monthly Calendar].currentmember.level.ordinal > 0
+	IIF(
+		[Date.Monthly Calendar].currentmember.level.ordinal > 0
 		, [Measures].[Subbase Monthly Calendar]
 		, [Measures].[Subbase Weekly Calendar]
 	)
@@ -227,6 +228,40 @@ The results are correct. Let's implement this in our **Mondrian OLAP Schema**:
 
 As you can see we specified the first two calculated measures as hidden (they are intermediate steps and should not be exposed to the end-user).
 The beauty of this is that now our end-user only has to deal with one measure (irrespective of whatever date hiearchy they choose).
+
+**Note**: There are also other approaches to define which measure to apply for a specific **date dimension hierarchy**:
+
+```
+MEMBER [Measures].[Subbase Final] AS
+(
+	IIF(
+		[Date.Weekly Calendar].currentmember.level.name = 'Date' 
+		OR [Date.Weekly Calendar].currentmember.level.name = 'Week' 
+		OR [Date.Weekly Calendar].currentmember.level.name = 'Year'
+		, [Measures].[Subbase Weekly Calendar]
+		, [Measures].[Subbase Monthly Calendar]
+	)
+)
+```
+
+or even:
+
+```
+MEMBER [Measures].[Subbase Final] AS
+(
+	CASE 
+		WHEN 
+			(
+			[Date.Weekly Calendar].currentmember.level.name = 'Date' 
+			OR [Date.Weekly Calendar].currentmember.level.name = 'Week'
+			OR [Date.Weekly Calendar].currentmember.level.name = 'Year'
+			)
+		THEN [Measures].[Subbase Weekly Calendar]
+		ELSE [Measures].[Subbase Monthly Calendar]
+	END
+)
+```
+
 
 ## Calculated Measures based on the Semi-Additive Measure
 
