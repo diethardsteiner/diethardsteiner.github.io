@@ -426,7 +426,7 @@ svg.append("text")
 
 That's actually quite straight forward and the result looks like this:
 
-!()[/images/d3_line_chart_with_event_1.png]
+![](/images/d3_line_chart_with_event_1.png)
 
 Let's improve this a bit by moving the essential data points start and end date to dedicated variables. Also, we will define the horizontal line length based on the chart height and a few pixels added so that it reaches below the x-axes. And finally we put everything into an SVG `g` (short for group) element so that we can treat all the elements as one.
 
@@ -541,7 +541,7 @@ eventInd.append("text")
 
 Our chart looks like this now:
 
-!()[/images/d3_line_chart_with_event_2.png]
+![](/images/d3_line_chart_with_event_2.png)
 
 Our current setup works fine as long as no events are overlapping. Let's make this a bit more flexible by introducing different colors for each event and also varying the height of the horizontal lines. We also add some more margin at the bottom to have more space for the event labels. Here is the complete code (also available as [gist](https://gist.github.com/diethardsteiner/6e683d426165b17cb4df#file-d3_line_chart_with_events-html)):
 
@@ -730,7 +730,7 @@ eventInd.append("text")
 
 ```
 
-!()[/images/d3_line_chart_with_event_3.png]
+![](/images/d3_line_chart_with_event_3.png)
 
 As you can see it is fairly straight forward implementing these requirements with **D3js**. 
 
@@ -756,7 +756,7 @@ In a nutshell:
 2. Create a **datasource**. This one should point to the table which holds the daily closing data for the chart (the first dataset in our previous example).
 3. In the **Components** tab, from the left hand side choose **D3 Components > D3 Component**. Provide a name in the properties section and link it to the datasource and html object. Then click on the ellipsis icon next to **Custom Chart Script**. Start off by writing `function(dataset){}` and paste the JavaScript code from our previous example inside the curly brackets. It's a good time now to save the chart and click the **Preview** icon on the upper right hand corner. You will see that our chart is now rendered properly. 
 
-	!()[/images/d3_line_chart_with_event_3.jpeg)
+	![](images/d3_line_chart_with_event_3.jpeg)
 
 	Next we want to use the data returned by the CDE datasource. The output of this datasource is a bit different from the one we have used in our previous sample, so I just quickly added some code to transform it respectively:
 
