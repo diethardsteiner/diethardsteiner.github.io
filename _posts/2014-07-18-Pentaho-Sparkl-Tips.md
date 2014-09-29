@@ -76,6 +76,7 @@ If your template has any external dependencies, they can be referenced by using 
     <link rel="icon" type="image/x-icon" href="../../../api/repos/<sparkl-plugin-name>/static/custom/img/test.ico">
     <link rel="stylesheet" type="text/css" href="../../../api/repos/<sparkl-plugin-name>/static/custom/css/test.css" />
 
+> **Note**: there is no longer a need for using the absolute path for accessing resources from a CDE dashboard: simply use `${system:/static/custom/css/my.css}`. Thanks to Carlos Russo for pointing this out!
     
 Also keep in mind that you can reference any of the **JavaScript** files and libraries **Pentaho CDF** makes use of:
 
@@ -211,7 +212,34 @@ Update 2014-08-10: The latest build of Sparkl provides this functionality via th
 
 See [Marketplace documentation](https://github.com/webdetails/marketplace-metadata) for details. To get a good understanding of the required information, you can find all existing Marketplace entries [here](https://raw.githubusercontent.com/pentaho/marketplace-metadata/master/marketplace.xml).
 
-I am planning to add more info to this article over time, so watch out this space!
+Additional points:
+
+### Rebase regularly
+
+Make sure you rebase your fork / keep it up-to-date with pentaho-metadata. Add the upstream repo to your local repo, fetch it and then rebase it:
+
+```
+cd marketplace-metadata
+git remote add upstream https://github.com/pentaho/marketplace-metadata.git
+git fetch upstream
+git rebase upstream/master
+```
+
+The last step might result in some merge conflicts. Git provides enough info on the command line to resolve this.
+
+If for some reason your local repo is messed up and you want to start from scratch again, you can clean up your local fork repo and restart it from upstream like this:
+
+```
+git fetch upstream
+git checkout master
+git reset --hard upstream/master  
+git push origin master --force 
+```
+
+### Where to host the plugin files
+
+You can host the plugin files anywhere you want (as long as it is accessible for everyone). Zip your plugin and make sure the original main folder name does not include any version number.
+
 
 ## Returning Database Error Messages
 
