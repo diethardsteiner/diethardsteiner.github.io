@@ -351,15 +351,6 @@ svg.selectAll(".bar")
   .attr("y", function(d) { return y(d.sales); })
   .attr("height", function(d) { return height - y(d.sales); });
 
-// draw a line: start event
-// https://www.dashingd3js.com/svg-basic-shapes-and-d3js
-svg.append("line")
-    .attr("x1", 50)
-    .attr("y1", 0)
-    .attr("x2", 50)
-    .attr("y2", 465)
-    .attr("class","eventlineborder");
-
 function type(d) {
   d.sales = +d.sales;
   return d;
@@ -397,7 +388,7 @@ Most of the styling requirements can be implemented by using CSS:
 }
 ```
 
-And now let's add the specific d3 JavaScript code:
+And now let's add the specific **d3** JavaScript code:
 
 ```javascript
 // draw a line: end event
