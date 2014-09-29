@@ -756,7 +756,7 @@ In a nutshell:
 2. Create a **datasource**. This one should point to the table which holds the daily closing data for the chart (the first dataset in our previous example).
 3. In the **Components** tab, from the left hand side choose **D3 Components > D3 Component**. Provide a name in the properties section and link it to the datasource and html object. Then click on the ellipsis icon next to **Custom Chart Script**. Start off by writing `function(dataset){}` and paste the JavaScript code from our previous example inside the curly brackets. It's a good time now to save the chart and click the **Preview** icon on the upper right hand corner. You will see that our chart is now rendered properly. 
 
-	![](images/d3_line_chart_with_event_3.jpeg)
+	![](/images/d3_line_chart_with_event_4.jpeg)
 
 	Next we want to use the data returned by the CDE datasource. The output of this datasource is a bit different from the one we have used in our previous sample, so I just quickly added some code to transform it respectively:
 
