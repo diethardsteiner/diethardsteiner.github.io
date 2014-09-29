@@ -10,9 +10,9 @@ published: true
 
 Often charts just show quantitative data, but what if you could enrich your chart by showing related information, like in example events happening at the same time?
 
-Some time ago Pentaho published their [Fine Art of Business Intelligence](http://www.pentaho.com/fine-art-business-intelligence) dashboard showcase. Among the sample dashboards there was one [particular chart](http://www.pentaho.com/understand-social-impact), which I thought was very interesting: A line chart showing related campaign information. It looked really cool ... so certainly I wanted to know how this one was created. I set out on a journey to find out the secret. I was first under the impression that this chart was created using the CCC, but a bit later I discovered that this use case is not really covered by CCC. As protovis, the charting framework which CCC is based on, is no longer in active developement and the d3js the official success, in the end I set out to solve this challenge with this charting framework. 
+Some time ago Pentaho published their [Fine Art of Business Intelligence](http://www.pentaho.com/fine-art-business-intelligence) dashboard showcase. Among the sample dashboards there was one [particular chart](http://www.pentaho.com/understand-social-impact), which I thought was very interesting: A line chart showing related campaign information. It looked really cool ... so certainly I wanted to know how this one was created. I set out on a journey to find out the secret. I was first under the impression that this chart was created using the **CCC**, but a bit later I discovered that this use case is not really covered by **CCC**. As **protovis**, the charting framework which **CCC** is based on, is no longer in active developement and the **d3js** the official successor, in the end I set out to solve this challenge with this charting framework. 
 
-But upfront I share some interesting things I learnt about showing events in CCC:
+But upfront I share some interesting things I learnt about showing events in **CCC**:
 
 # Show daily events
 
@@ -20,7 +20,7 @@ If you would like to add daily event information to your charts, the **CCC** pro
 
 > **Note**: As mentioned, this works for one day events only (and cannot be used for events that last several days).
 
-The `markEvent` function accepts three arguements is meant to enrich **timeseries charts** with additional event information: 
+The `markEvent` function accepts three arguements and is meant to enrich **timeseries charts** with additional event information: 
 
 ```
 markEvent(date, label, options);
@@ -182,7 +182,7 @@ Many thanks to **Duarte Cunha Leão** from the **Pentaho Webdetails** team for p
 In this example we will try to show information for charts that lasted for a specific period. There are various approaches to solving this:
 
 - ranges: We could highlight ranges in the chart area. This works fine as long as there are not too many overlapping events. The other disadvantage of this approach is that the classic ranges usually do not allow us to show an event name.
-- upside-down bar chart: A trick would be to use a bar chart. Strickly speaking or events do not have any quantitative data, but we can just make up the bar height. This approach also allows us to show labels.
+- upside-down bar chart: A trick would be to use a bar chart. Strickly speaking our events do not have any quantitative data, but we can just make up the bar height. This approach also allows us to show labels.
 - (grid) lines
 - our custome solution
 
@@ -359,7 +359,7 @@ function type(d) {
 </script>
 ```
 
-Let's keep it simple first and just one static event. There are following tasks:
+Let's keep it simple first and add just one static event. There are following tasks:
 
 - Draw a horizontal dashed line for the start and end of the event
 - Draw one vertical solid line on the bottom which connects the start and end dates
@@ -419,7 +419,7 @@ That's actually quite straight forward and the result looks like this:
 
 ![](/images/d3_line_chart_with_event_1.png)
 
-Let's improve this a bit by moving the essential data points start and end date to dedicated variables. Also, we will define the horizontal line length based on the chart height and a few pixels added so that it reaches below the x-axes. And finally we put everything into an SVG `g` (short for group) element so that we can treat all the elements as one.
+Let's improve this a bit by moving the essential data points start and end date to dedicated variables. Also, we will define the horizontal line length based on the chart height and add a few pixels so that it reaches below the x-axes. And finally we put everything into an **SVG** `g` (short for group) element so that we can treat all the elements as one.
 
 ```javascript
 var eventPeriod = svg.append("g"),
@@ -461,7 +461,7 @@ eventPeriod.append("text")
     .text("Summer Event");
 ```
 
-Currently we are not using an real date to define the start and end points for the event indicator, just pixel locations. So let's change this:
+Currently we are not using a real date to define the start and end points for the event indicator, just pixel locations. So let's change this:
 
 ```javascript
 var eventPeriod = svg.append("g"),
@@ -727,7 +727,7 @@ As you can see it is fairly straight forward implementing these requirements wit
 
 # Using D3js Charts on the Pentaho BI Server
 
-The first step is to install following components from the **Pentaho Marketplace**
+The first step is to install following components from the **Pentaho Marketplace**:
 
 - Community Dashboard Framework
 - Community Data Access
@@ -738,18 +738,18 @@ The installation is very simple, so I will not cover it in more detail here.
 
 Restart the server.
 
-Next log in again and choose **File > New > CDE Dashboard**. I will not discuss any details about how the create these dashboards, because there are already plenty of tutorial available about this topi, but instead focus on the d3js part.
+Next log in again and choose **File > New > CDE Dashboard**. I will not discuss any details about how the create these dashboards, because there are already plenty of tutorials available about this topi, but instead focus on the d3js part.
 
 In a nutshell:
 
 1. Create a **layout structure**. 
-2. Still on the same tab, click the **Add Resource** icon and add an inline (*code snippet*) CSS. Copy the **CSS** from our original chart in there. 
+2. Still on the same tab, click the **Add Resource** icon and add an inline (*code snippet*) CSS. Copy the **CSS** code from our original chart in there. 
 2. Create a **datasource**. This one should point to the table which holds the daily closing data for the chart (the first dataset in our previous example).
 3. In the **Components** tab, from the left hand side choose **D3 Components > D3 Component**. Provide a name in the properties section and link it to the datasource and html object. Then click on the ellipsis icon next to **Custom Chart Script**. Start off by writing `function(dataset){}` and paste the JavaScript code from our previous example inside the curly brackets. It's a good time now to save the chart and click the **Preview** icon on the upper right hand corner. You will see that our chart is now rendered properly. 
 
 	![](/images/d3_line_chart_with_event_4.jpeg)
 
-	Next we want to use the data returned by the CDE datasource. The output of this datasource is a bit different from the one we have used in our previous sample, so I just quickly added some code to transform it respectively:
+	Next we want to use the data returned by the CDE datasource. The output of this datasource is a bit different from than the one we used in our previous sample, so I just quickly added some code to transform it respectively:
 
 	
 ```javascript
