@@ -99,7 +99,7 @@ new pvc.LineChart({
 .render();
 ```
 
-![](../images/cc-events-timeseries-chart1.jpeg)
+![](/images/cc-events-timeseries-chart1.jpeg)
 
 > **Pro Tip**: If you want a quick way to try this out with hardly any setup required (no Pentaho BA-Server etc), just create a simple **HTML** file like the one shown below:
 
