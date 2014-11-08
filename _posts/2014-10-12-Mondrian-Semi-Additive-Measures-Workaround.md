@@ -262,6 +262,41 @@ MEMBER [Measures].[Subbase Final] AS
 )
 ```
 
+This is the one I finally decided on (unrated to the examples given above):
+
+```
+<!-- Subscribers Semi-Additive Measure -->
+<CalculatedMember name="Subscribers Monthly Calendar" formatString="#,##0"
+    formula="(OPENINGPERIOD([Date.Monthly Calendar].[Day of the Month], [Date.Monthly Calendar].CurrentMember), [Measures].[Subscribers Non Additive])" 
+    dimension="Measures" visible="false"/>
+<CalculatedMember name="Subscribers Weekly Calendar" formatString="#,##0"
+    formula="(OPENINGPERIOD([Date.Weekly Calendar].[Day of the Week], [Date.Weekly Calendar].CurrentMember), [Measures].[Subscribers Non Additive])" 
+    dimension="Measures" visible="false"/>
+<CalculatedMember name="Subscribers" formatString="#,##0" caption="Subscribers" description="Subbase at the first day of the period" 
+    formula="IIF([Date.Monthly Calendar].currentmember.level.ordinal > 0
+    , [Measures].[Subscribers Monthly Calendar]
+    , IIF([Date.Weekly Calendar].currentmember.level.ordinal > 0
+    , [Measures].[Subscribers Weekly Calendar]
+    , NULL
+    ))"
+    dimension="Measures" visible="true"/>
+```
+
+**Note**: the else case in the above statement has to be NULL and not [Measures].[Subscribers Non Additive] because we do not want the partially aggregated measure to be summed up in any case. This is especially important in case you write a MDX query like the one shown below, which shows results for a few weeks and then a total at the end:
+
+```
+WITH 
+SET WEEKS AS ([Date.Weekly Calendar].[2014].[W35] : [Date.Weekly Calendar].[2014].[W38])
+MEMBER [Date.Weekly Calendar].[TotalWeeks] as AGGREGATE(WEEKS)
+SELECT
+    { WEEKS,  [Date.Weekly Calendar].[TotalWeeks] } * [Measures].[Subscribers] ON COLUMNS
+    , {[Brand].Members} ON ROWS
+FROM [Subscriber Base]
+```
+
+In this case we used the `AGGREGATE()` function to retrieve the **total**. The important point here is, that this **will not return any results**: So you will see an empty total column. I would say that you either want the total column to be empty in this care to have again the first of the period displayed. In my case, the first scenario was acceptable.
+
+
 
 ## Calculated Measures based on the Semi-Additive Measure
 

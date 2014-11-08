@@ -769,4 +769,6 @@ for(var i=0; i < dataset.resultset.length; i++){
 }
 ```
 
+> **Note**: In some d3js samples Webdetails used a `cdaResultToD3Array()` to do just do the same. 
+
 Our chart works smoothly with the dynamic datasource now on the **Pentaho BI Server**. As a final exercise you can make the datasource for the events dynamic, but I'll leave this up to you.

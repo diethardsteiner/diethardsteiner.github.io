@@ -34,3 +34,9 @@ keyborad shortcut | description
 ------------------|------------
 SHIFT + CDM + Space | Show variables list
 SHIFT + CTRL + arrow | Align steps/job entries
+ALT + CMD + up or down arrow | Move row up or down in a config table (e.g. Select Values step)
+fn + DEL | Delete row in a config table
+
+## Text and icons too small on the Retina display
+
+That's an easy one: Just go to **Tools > Options ... > Look & Feel** and adjust the icon and font size.
