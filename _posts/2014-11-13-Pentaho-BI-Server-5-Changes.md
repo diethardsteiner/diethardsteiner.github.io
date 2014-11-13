@@ -82,15 +82,11 @@ So do not use the full path any more! Instead the name defined in `pentaho-solut
 
 ### Accessing Pentaho Solution files within the JCR repo
 
-Old way:
-
-
+New way:
 
 ```
 /pentaho/api/repos/:public:test:image.png/content
 ```
-
-
 
 
 ### Referencing Files in CDE Dashboards inside HTML snippets
