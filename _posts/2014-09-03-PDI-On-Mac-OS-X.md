@@ -40,3 +40,10 @@ fn + DEL | Delete row in a config table
 ## Text and icons too small on the Retina display
 
 That's an easy one: Just go to **Tools > Options ... > Look & Feel** and adjust the icon and font size.
+
+## Data Grid and other configuration options
+
+With the **Data Grid** step you will have to hit **Enter** once a value was entered, otherwise it will just disappear. Marcello Pontes also mentioned that you can use the **Tab** key instead as well.
+
+Nelson Sousa mentioned: "When you have a field active to edit, press enter before clicking anywhere else. If not you get one of those array out of bounds things. Ignore it, continue with spoon, save and restart. :)"
+

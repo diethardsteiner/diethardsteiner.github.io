@@ -27,7 +27,7 @@ js | contains files of various *JavaScript* frameworks (i.e. **bootstrap** and *
 lib | contains the java binary files.
 resources | contains various other resources like *images*.
 resources\*.properties | list all *JavaScript* and *CSS* resources that will be included in the dashboard HTML document.
-template-dashboard.html and template-dashboard-\*.html | The first one is the standard **outer/document template** which gets applied to your dashboard content. Other templates have to be named following this pattern: template-dashboard-\*.html
+template-dashboard.html and template-dashboard-\*.html | The first one is the default **outer/document template** which gets applied to your dashboard content. Other templates have to be named following this pattern: `template-dashboard-\*.html`. These templates can be referenced using the `<style>` tag (and only your custom suffix). In CDE you can reference it via the **Style** setting. 
 
 If you want to have a deeper understand of which external frameworks a special component is using, this folder is the right place to start your search.
 
@@ -144,15 +144,15 @@ You can put your resources directly under the `pentaho-solutions` folder.
 
 # Customization
 
-## Creating your own outer/document template
+## Creating your own document template
 
-Take a look at any of the template files in `pentaho-solutions/system/pentaho-cdf`. It should be fairly easy to understand how to create your own templates based on this.
+Take a look at any of the template files in `pentaho-solutions/system/pentaho-cdf/template-dashboard*.html`. It should be fairly easy to understand how to create your own templates based on this.
 > **Outer/document templates** are used to define common artifacts that are used across dashboards. A typical example of this is a navigation, images, styles etc.
 
 You basically prepare a skeleton of an HTML document and use placeholders for the CDF entities, in example: `{content}`, `{isAdmin}`, `{isLoggedIn}`.
 
 The outer template can be referenced within the `.xcdf` file using the `Style` tag. Make sure you only use the costum name of your template: If your template is named `template-dashboard-dwh.html`, then reference `dwh` for the `Style`.
 
-The outer template is complemented by the inner/**content template**. An example was shown further up in the article.
+The outer template is complemented by the **content (inner) template**. An example was shown further up in the article.
 
-What you read here is these days mostly relevant as background info. Use the **Community Dashboard Editor** to design your dashboards in an effective manner.
+What you read here is these days mostly relevant as background info. Use the **Community Dashboard Editor** to design your dashboards in an effective manner. 

@@ -22,7 +22,7 @@ If you would like to add daily event information to your charts, the **CCC** pro
 
 The `markEvent` function accepts three arguements and is meant to enrich **timeseries charts** with additional event information: 
 
-```
+```javascript
 markEvent(date, label, options);
 ```
 
@@ -48,6 +48,7 @@ You can override following **options**:
 Example:
 
 ```javascript
+
 var ds_relational = {
     "resultset": [
         ["2011-07-03", 72],
@@ -97,6 +98,7 @@ new pvc.LineChart({
         })
         .setData(ds_relational, {crosstabMode: false})
 .render();
+
 ```
 
 ![](/images/cc-events-timeseries-chart1.jpeg)

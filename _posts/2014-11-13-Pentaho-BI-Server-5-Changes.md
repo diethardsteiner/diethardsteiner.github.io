@@ -67,6 +67,8 @@ Could not load dashboard: exception while getting data for file with id "7040380
 
 Harris suggested changing the **style** in the dashboard **Settings**. This prooved to be the right solution. If you want to reapply the same style, just click on another one and the on the old one again and only then save the file.
 
+The reason for this error is a missing style template file.
+
 ## CDA
 
 Referencing Mondrian OLAP Schemas works now like this:
@@ -309,6 +311,28 @@ If you change the CDE dashboard style template, make sure you reasign it via **C
 Hm, this doesn't seem to be the case all the time ...
 maybe it was just chached then.
 
+# Common Errors
 
+## org.postgresql.util.PSQLException: ERROR: syntax error at or near "RUNSCRIPT"
+
+If you get an error like this:
+
+```
+16:47:00,564 ERROR [EmbeddedQuartzSystemListener] EmbeddedQuartzSystemListener.ERROR_0007_SQLERROR
+org.postgresql.util.PSQLException: ERROR: syntax error at or near "RUNSCRIPT"
+```
+
+... just create a table like this:
+
+```
+CREATE TABLE "QRTZ"
+(
+NAME VARCHAR(200) NOT NULL,
+PRIMARY KEY (NAME)
+);
+```
+
+This is because all the table names are in small letters, but the Pentaho `EmbeddedQuartzSystemListener` checks for capital table names.
+[Source](http://forums.pentaho.com/showthread.php?153231-Pentaho-ce-5-Initialization-Exception)
     
 

@@ -2,7 +2,7 @@
 layout: post
 title:  "Installing Columnar DB MonetDB"
 summary: Very brief instructions on how to install MonetDB
-date:   2014-07-15
+date: 2014-07-01
 categories: Pentaho
 tags: Pentaho Database
 published: true
@@ -18,7 +18,7 @@ The instructions vary by OS, please find specific instruction on the [MonetDB we
 
 For **Fedora**:
 
-```shell
+```bash
 sudo yum install http://dev.monetdb.org/downloads/Fedora/MonetDB-release-1.1-1.monetdb.noarch.rpm
 sudo yum install MonetDB-SQL-server5 MonetDB-client
 ```
@@ -27,14 +27,14 @@ sudo yum install MonetDB-SQL-server5 MonetDB-client
 
 We start by creating our DB farm:
 
-```shell
+```bash
 monetdbd create ~/myMonetDBFarm
 monetdbd get all ~/myMonetDBFarm
 ```
 
 Set the port number, check that this is reflected in the settings and then start the DB farm:
 
-```shell
+```bash
 monetdbd set port=54321 ~/myMonetDBFarm
 monetdbd get all ~/myMonetDBFarm
 monetdbd start ~/myMonetDBFarm
@@ -44,7 +44,7 @@ monetdbd start ~/myMonetDBFarm
 
 Make sure you pay attention to the command line utility name: In this case we are using `monetdb` and not the daemon `monetdbd` ... notice the **d** at the end! This is quite often the first hurdle users are confronted with when installing **MonetDB**.
 
-```shell
+```bash
 monetdb create sls
 monetdb start sls
 monetdb release sls
@@ -55,13 +55,13 @@ monetdb status
 
 We will create a user named *etl*, 3 schemata called *dma*, *agile* and *etl* and finally assign a default schema to user *etl*:
 
-```shell
+```bash
 mclient -p54321 -umonetdb -dsls
 ```
 
 When promted for the password, the default password is: *monetdb*
 
-```
+```sql
 CREATE USER etl WITH PASSWORD 'etl' NAME 'etlsuperuser' SCHEMA sys;
 CREATE SCHEMA dma AUTHORIZATION etl;
 CREATE SCHEMA agile AUTHORIZATION etl;
@@ -73,7 +73,7 @@ ALTER USER etl SET SCHEMA dma;
 
 And now we can create tables etc and query them by using the handy command line utility:
 
-```shell
+```bash
  mclient -p54321 -umonetdb -dsls
 ```
 
