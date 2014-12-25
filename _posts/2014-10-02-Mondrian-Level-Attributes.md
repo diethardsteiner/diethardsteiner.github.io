@@ -1,3 +1,13 @@
+---
+layout: post
+title:  "Mondrian: The meaning of column, columnName and captionColumn Level Attributes"
+summary: This article explains the various level attributes in detail.
+date:   2014-08-12
+categories: Mondrian
+tags: Pentaho
+published: true
+---
+
 ## Mondrian: The meaning of column, columnName and captionColumn Level Attributes
 
 As quick intro let's quickly have a look at the essential attributes of a **Mondrian Level** element.
@@ -56,7 +66,7 @@ Let's define the **Quarter Level**:
 </Level>
 ```
 
-This means that in a client like **Saiku** or **Pentaho Analyzer** the user will see in example *2014-Q1*, but if we had to manually write our MDX query, we would have to write it this way (using the key `column` value):
+This means that in an OLAP client like **Saiku** or **Pentaho Analyzer** the user will see in example *2014-Q1*, but if we had to manually write our MDX query, we would have to write it this way (using the key `column` value):
 
 ```
 {[Start Date.Monthly Calendar].[2014].[201402]}
