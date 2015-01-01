@@ -34,7 +34,7 @@ As you can see, we use a use sum to aggregate this measure ... but this not quit
 
 First make sure you have proper **time dimension** defined (like the one shown below), so that the rollup works correctly:
 
-```
+```xml
 <Dimension type="TimeDimension" visible="true" highCardinality="false" name="Date">
 	<Hierarchy name="Monthly Calendar" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
 		<Table name="dim_date" schema="dma_subscriber_base"/>
@@ -48,7 +48,7 @@ First make sure you have proper **time dimension** defined (like the one shown b
 
 Then use MDX functions [`OPENINGPERIOD()`](http://msdn.microsoft.com/en-us/library/ms145992.aspx) or [`CLOSINGPERIOD()`](http://msdn.microsoft.com/en-us/library/ms145584.aspx). Let's test these function for the day, month, quarter and year level. Note that we define first a calculated member which will return the sum of subscribers for the first day in a given period using the `OPENINGPERIOD()` function in this example:
 
-```
+```sql
 WITH
 MEMBER [Measures].[Subbase] AS
 (
@@ -92,7 +92,7 @@ FROM [Subscriber Base]
 
 Our test tells us that the logic is working as expected, so the next step is to add a `CalculatedMember` to the OLAP Schema:
 
-```
+```xml
 <CalculatedMember name="Subbase" formatString="#,##0" caption="Subbase" description="Subbase at the first day of the period" formula="(OPENINGPERIOD([Date.Monthly Calendar].[Date]), [Measures].[Subscribers])" dimension="Measures" visible="true"/>
 ```
 
@@ -102,7 +102,7 @@ This looks like a very simple workaround and should help solving quite a lot of 
 
 Ok, one problem solved, are you up to the next challenge? With one hiearchy only in the date dimensions things are fairly straight forward. But what happens if we add a new hierarchy for the week?
 
-```
+```xml
 <Dimension name="Date" type="TimeDimension" visible="true" highCardinality="false">
 	<Hierarchy name="Monthly Calendar" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
 		<Table name="dim_date" schema="dma_subscriber_base"/>
@@ -122,7 +122,7 @@ Ok, one problem solved, are you up to the next challenge? With one hiearchy only
 
 If we want to get the weekly stats now like shown below we will get no result:
 
-```
+```sql
 SELECT
 [Measures].[Subbase] On Columns,
 Non Empty({[Date.Weekly Calendar].[Year].Members}) On Rows
@@ -133,7 +133,7 @@ This is because we defined our calculated member to only work with the **Monthly
 
 Let's just make sure that our `OPENINGPERIOD()` is still returning the expected results with these two date hierarchies:
 
-```
+```sql
 SELECT
 OPENINGPERIOD([Date.Weekly Calendar].[Date]) On Columns,
 [Measures].[Subscribers] On Rows
@@ -142,7 +142,7 @@ FROM [Subscriber Base]
 
 In my case this didn't return anything: no measure value and no date member. So let's check if we get a result with the `CLOSINGPERIOD()` function:
 
-```
+```sql
 SELECT
 CLOSINGPERIOD([Date.Weekly Calendar].[Date]) On Columns,
 [Measures].[Subscribers] On Rows
@@ -153,7 +153,7 @@ This time I got a date member returned: 2019-12 (which happened to be the last m
 
 We can fix this by specifying the optional **Member Expression** for the `OPENINGPERIOD()` function:
 
-```
+```sql
 SELECT
 OPENINGPERIOD([Date.Weekly Calendar].[Date],[Date.Weekly Calendar].[2014]) On Columns,
 [Measures].[Subscribers] On Rows
@@ -169,7 +169,7 @@ In both cases we get the expected results now.
 
 Next we have to find a way to get the calculated measures working **across all the hiearchies**. We could try to achieve this by creating a new calculated measure and using a **IIF** statement. Let's just simply check if this would work:
 
-```
+```sql
 WITH
 MEMBER [Measures].[Subbase Monthly Calendar] AS
 (
@@ -220,7 +220,7 @@ FROM [Subscriber Base]
 
 The results are correct. Let's implement this in our **Mondrian OLAP Schema**:
 
-```
+```xml
 <CalculatedMember name="Subbase Monthly Calendar" formatString="#,##0"  formula="(OPENINGPERIOD([Date.Monthly Calendar].[Date], [Date.Monthly Calendar].CurrentMember), [Measures].[Subscribers])" dimension="Measures" visible="false"/>
 <CalculatedMember name="Subbase Weekly Calendar" formatString="#,##0"  formula="(OPENINGPERIOD([Date.Weekly Calendar].[Date], [Date.Weekly Calendar].CurrentMember), [Measures].[Subscribers])" dimension="Measures" visible="false"/>
 <CalculatedMember name="Subbase" formatString="#,##0" caption="Subbase" description="Subbase at the first day of the period" formula="IIF([Date.Monthly Calendar].currentmember.level.ordinal > 0, [Measures].[Subbase Monthly Calendar], [Measures].[Subbase Weekly Calendar])" dimension="Measures" visible="true"/>
@@ -231,7 +231,7 @@ The beauty of this is that now our end-user only has to deal with one measure (i
 
 **Note**: There are also other approaches to define which measure to apply for a specific **date dimension hierarchy**:
 
-```
+```sql
 MEMBER [Measures].[Subbase Final] AS
 (
 	IIF(
@@ -246,7 +246,7 @@ MEMBER [Measures].[Subbase Final] AS
 
 or even:
 
-```
+```sql
 MEMBER [Measures].[Subbase Final] AS
 (
 	CASE 
@@ -262,9 +262,9 @@ MEMBER [Measures].[Subbase Final] AS
 )
 ```
 
-This is the one I finally decided on (unrated to the examples given above):
+This is the one I finally decided on (unrelated to the examples given above):
 
-```
+```xml
 <!-- Subscribers Semi-Additive Measure -->
 <CalculatedMember name="Subscribers Monthly Calendar" formatString="#,##0"
     formula="(OPENINGPERIOD([Date.Monthly Calendar].[Day of the Month], [Date.Monthly Calendar].CurrentMember), [Measures].[Subscribers Non Additive])" 
@@ -284,7 +284,7 @@ This is the one I finally decided on (unrated to the examples given above):
 
 **Note**: the else case in the above statement has to be NULL and not [Measures].[Subscribers Non Additive] because we do not want the partially aggregated measure to be summed up in any case. This is especially important in case you write a MDX query like the one shown below, which shows results for a few weeks and then a total at the end:
 
-```
+```sql
 WITH 
 SET WEEKS AS ([Date.Weekly Calendar].[2014].[W35] : [Date.Weekly Calendar].[2014].[W38])
 MEMBER [Date.Weekly Calendar].[TotalWeeks] as AGGREGATE(WEEKS)
@@ -306,7 +306,7 @@ This is the point where things get a bit tricky. We have to add a logic again wh
 
 Let's first create the **Calculated Member** for the amout of subscribers for the pervious period:
 
-```
+```xml
 <CalculatedMember name="Subscribers Previous Period" 
 formula="IIF([Date.Monthly Calendar].currentmember.level.ordinal > 0,
 ([Date.Monthly Calendar].[Date].CurrentMember.PrevMember,[Measures].[Subscribers]), 
@@ -316,7 +316,7 @@ dimension="Measures" visible="false"/>
 
 Next define the formula to calculate the **delta**:
 
-```
+```xml
 <CalculatedMember name="Subscriber Base Change" 
 formula="IIF(
 ISEMPTY([Measures].[Subscribers]) OR [Measures].[Subscribers Previous Period] = 0
