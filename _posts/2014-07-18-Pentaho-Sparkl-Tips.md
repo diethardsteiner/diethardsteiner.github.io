@@ -133,7 +133,10 @@ Example result set:
 
 ### How to reference a step from a transformation which is called by the Metadata Injector step
 
-Sometimes things get a bit more complex and you want to use the **Metadata Injector** step to be extremly dynamic. In this case, just feed the output of the called transfromation back to this step (this can be configured within the **Metadata Injector** step settings). From here the approach is the as mentioned above.
+Sometimes things get a bit more complex and you want to use the **Metadata Injector** step to be extremly dynamic. 
+
+1. Just feed the output of the called (template) transfromation back to this step. This can be configured within the **Metadata Injector** step settings: Go to the **Options** tab and specify the **Template step to read from**. If the output of your template template transformation is dynamic, then do not fill out the **Expoect source step output** table. Thankfully the **Metadata Injector** step is clever enough to figure this out on its own.
+2. Add a **Dummy** step after the **Metadata Injector** step and set its name to **OUTPUT**.
 
 ### How to reference a step from a job
 

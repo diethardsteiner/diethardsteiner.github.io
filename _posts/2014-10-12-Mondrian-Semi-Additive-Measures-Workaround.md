@@ -4,7 +4,7 @@ title:  "Mondrian semi-additive measures"
 summary: This article explains a workaround you can use to implement semi-additive measures in Mondrian
 date:   2014-08-12
 categories: Mondrian
-tags: Pentaho
+tags: Pentaho, MDX, OLAP
 published: true
 ---
 
@@ -26,7 +26,7 @@ Imagine you have to prepare a **subscriber base analysis** for a telecom provide
 
 In our **OLAP** Schema the subscriber base measure currently looks like this:
 
-```
+```xml
 <Measure name="Subscribers" column="subscribers" datatype="Integer" formatString="#,###" aggregator="sum" visible="false" />
 ``` 
 
