@@ -20,7 +20,7 @@ Now you cannot treat the different media (print, screen) completely the same: Yo
 
 The styling for the dashboard is achieved using **CSS**. Why not use CSS for print/pdf as well? Is it possible? This is the main question that had to be answered. 
 
-Luckily, the **W3C** has a ** working draft** on this subject: [W3C CSS3 Paged Media](http://dev.w3.org/csswg/css-page-3/). While **CSS2** introduced already a few features for print (see [W3C CSS2 Paged Media](http://www.w3.org/TR/WD-CSS2-971104/page.html)), the new working draft for **CSS3** includes a huge bunch of features that will make CSS a serious contendor for styling print documents.
+Luckily, the **W3C** has a **working draft** on this subject: [W3C CSS3 Paged Media](http://dev.w3.org/csswg/css-page-3/). While **CSS2** introduced already a few features for print (see [W3C CSS2 Paged Media](http://www.w3.org/TR/WD-CSS2-971104/page.html)), the new working draft for **CSS3** includes a huge bunch of features that will make CSS a serious contendor for styling print documents.
 
 Ok, so that's great, there is a working draft, but has anyone implemented it yet? Currently there doesn't seem to be a browser support for it (there are some conflicting messages on the internet about it, but in a nutshell it seem like right now, there is no support). There are some commericial products available that support it partially (e.g. Prince), but this is not an option for us. All lost? No. Luckily, there is an open source tool of the name **WeasyPrint** available, which implements the W3C working draft. **WeasyPrint** is an html-to-pdf converter writting in Python, which will use the `@media print` rule in your CSS to style to PDF.
 
