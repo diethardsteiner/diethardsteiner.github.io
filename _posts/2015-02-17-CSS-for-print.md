@@ -30,7 +30,7 @@ This open source converter supports already the [W3C CSS3 Paged Media](http://de
 
 > **Note**: WeasyPrint doesn't support **JavaScript** or `<canvas>`, so you have to preprocess the files somehow to emit HTML/CSS or SVG.
 
-## Intallation
+## Installation
 
 Please find [here](http://weasyprint.org/docs/install/#mac-os-x) the install instructions.
 
