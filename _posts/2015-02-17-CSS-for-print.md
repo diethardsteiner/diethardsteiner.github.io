@@ -446,7 +446,7 @@ node index.js > result.svg
 
 If you decide not to use Pentaho CDE for creating the charts and prefer coding the charts (d3js or CCC) directly in your HTML or separate JavaScript file, make sure you preprocess everything before handing it over to WeasyPrint. NodeJS should offer you enough tools to do this. Currently WeasyPrint does not have support for inline SVG.
 
-### Thoughs
+### Thougths
 
 In theory you could process everything on the server side using **NodeJS** and use **WebSocket** or **socket.io** (the later one will support both WebSocket where available and provide Polyfills otherwise) to "transport" the PDF to the client.
 
