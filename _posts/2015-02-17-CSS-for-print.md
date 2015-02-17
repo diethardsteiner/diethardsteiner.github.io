@@ -464,6 +464,12 @@ Here some interesting, related blog posts:
 
 I put together a very basic example of using CSS for creating PDF reports. The code can be found [here on Github](https://github.com/diethardsteiner/css-for-print).
 
+# Conclusion
+
+**CSS3 for paged media** is a very promising standard, which will be hopefully implemented be more open source/free solutions in the future. Currently WeasyPrint seems to be the only open source tool available and it allows us to freely explore the new CSS3 features. It is very handy that it comes with a demo server to quickly preview the PDF output.
+
+Is **WeasyPrint** a viable additation to the Pentaho BA Server environment? This has to be very wisely thought about: WeasyPrint is writting in **Python** and this fact doesn't naturally make fit it into the **Java** world Pentaho relies on. There could be ways to integrate it, so that easy solutions are possible, but someone would first have to build this bridge. In general it would be great if there was an open source tool based on **Java** or **JavaScript** around, which could be easily integrated - however, there isn't one right now. Another hope is that in future **web browsers** will natively support the CSS3 for paged media specification/recommendation. This would certainly be the best case scenario. I am hoping for the latter on to happen. 
+
 # Sources
 
 - [6 Things I Learned About Print Stylesheets From HTML5 Boilerplate](http://designshack.net/articles/css/6-thinks-i-learned-about-print-stylesheets-from-html5-boilerplate/)
