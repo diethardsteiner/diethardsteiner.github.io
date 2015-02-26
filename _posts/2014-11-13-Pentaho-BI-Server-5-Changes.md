@@ -311,6 +311,21 @@ If you change the CDE dashboard style template, make sure you reasign it via **C
 Hm, this doesn't seem to be the case all the time ...
 maybe it was just chached then.
 
+# Enable URL Authentication
+
+As of BA server version 5.3 there is an easy way to enable this (in general only recommended for local testing): Pedro posted about this [here](http://pedroalves-bi.blogspot.pt/2015/02/useful-tips-easy-authentication-in.html). In a nutshell:
+
+Go to the  biserver-ee/pentaho-solutions/system directory and open the security.properties file.
+Define:
+
+```
+requestParameterAuthenticationEnabled=true
+```
+
+Save and close the file.
+Stop and restart the BA Server.
+This way, by passing the usual `?userid=admin&password=password` parameters, you'll be able to see the content you're interested in.
+
 # Common Errors
 
 ## org.postgresql.util.PSQLException: ERROR: syntax error at or near "RUNSCRIPT"

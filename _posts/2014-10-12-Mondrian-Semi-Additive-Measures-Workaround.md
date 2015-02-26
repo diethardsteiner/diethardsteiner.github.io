@@ -18,7 +18,9 @@ Can't wait? So let's get start!
 
 ## Adding Semi-Additive Measures
 
-Currently **Mondrian** doesn't offer a way to define **semi-additive** measures (see as well [this Jira case](http://jira.pentaho.com/browse/MONDRIAN-962)). However, Vladislav Krakhalev proposed a workaround using `OPENINGPERIOD()` or `CLOSINGPERIOD()` **MDX** functions. Thanks a lot! 
+Currently **Mondrian** doesn't offer a way to define **semi-additive** measures (see as well [this Jira case](http://jira.pentaho.com/browse/MONDRIAN-962)). However, Vladislav Krakhalev suggested using using the `OPENINGPERIOD()` or `CLOSINGPERIOD()` **MDX** functions as a workaround. Thanks a lot! 
+
+This article explains how I implemented semi-additive measures in a **Mondrian Schema**. Using the `OPENINGPERIOD()` or `CLOSINGPERIOD()` **MDX** functions is actually just the start of the whole adventure!
 
 So what are **semi-additive measures**? Let's best explain this based on an example:
 
