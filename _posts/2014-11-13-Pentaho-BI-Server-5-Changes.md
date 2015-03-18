@@ -151,6 +151,14 @@ var cssUrl = "/pentaho/api/repos/" + Dashboards.context.path.replace(".wcdf",".c
 $("head").append("<link rel='stylesheet' href='" + cssUrl + "'>"); 
 ```
 
+### Referencing Files inside CSS
+
+If you want to reference an image which is e.g. located in an `images` sub-folder within the dashboard directory, then you can use this e.g.:
+
+```css
+background-image: url('images/arrow-left.svg');
+```
+
 ### CDF Navigation Result
 
 Old one:
@@ -283,23 +291,26 @@ Latino Joel provided the solution to this: You have to change `pentaho-solutions
 
 Just add following snippet e.g.:
 
-```
-      <MimeTypeDefinition mimeType="application/json" hidden="false">
-        <extension>json</extension>
-        <extension>saiku</extension>
-      </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/vnd.ms-fontobject" hidden="true">
-        <extension>eot</extension>
-      </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/x-font-ttf" hidden="true">
-        <extension>ttf</extension>
-      </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/font-woff" hidden="true">
-        <extension>woff</extension>
-      </MimeTypeDefinition>
-      <MimeTypeDefinition mimeType="application/font-sfnt" hidden="true">
-        <extension>otf</extension>
-      </MimeTypeDefinition> 
+```xml
+ <MimeTypeDefinition mimeType="application/json" hidden="false">
+   <extension>json</extension>
+   <extension>saiku</extension>
+ </MimeTypeDefinition>
+ <MimeTypeDefinition mimeType="application/vnd.ms-fontobject" hidden="true">
+   <extension>eot</extension>
+ </MimeTypeDefinition>
+ <MimeTypeDefinition mimeType="application/x-font-ttf" hidden="true">
+   <extension>ttf</extension>
+ </MimeTypeDefinition>
+ <MimeTypeDefinition mimeType="application/font-woff" hidden="true">
+   <extension>woff</extension>
+ </MimeTypeDefinition>
+ <MimeTypeDefinition mimeType="application/font-sfnt" hidden="true">
+   <extension>otf</extension>
+ </MimeTypeDefinition> 
+ <MimeTypeDefinition mimeType="image/svg+xml" hidden="true">
+   <extension>svg</extension>
+ </MimeTypeDefinition> 
 ```
 
 By they way: If you change your mind later on about the visibility of the file type, you will have to reimport these files or change the visibility via the PUC! It's not updated dynamically! The visibility/hidden attribute sticks directly with the file!

@@ -293,3 +293,13 @@ A workaround is to include zipped versions of these plugins in a directory withi
 ## Executing a Kettle transformation or job on startup
 
 Sometimes your plugin might have to do some work upfront, e.g. create folders, copy files etc. To have the Kettle job execute on startup, go to the job / transformations settings and enable the `cpk.executeAtStart` parameter. You find this parameter already in the list of predefined but commented parameters: Just remove the hash at the beginning of the name and set its value to `true`.
+
+## Pentaho BA Server REST services
+
+To get an overview of all available REST endpoints for the BA server use this kind of URL:
+
+```
+http://localhost:8080/pentaho/api/application.wadl
+```
+
+This will allow you to understand which kind of REST services Pentaho BA server provides.

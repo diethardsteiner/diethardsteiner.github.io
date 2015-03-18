@@ -485,6 +485,7 @@ Is **WeasyPrint** a viable additation to the Pentaho BA Server environment? This
 - [W3C CSS Generated Content for Paged Media Module](http://www.w3.org/TR/css3-gcpm/)
 - [Building Books with CSS3](http://alistapart.com/article/building-books-with-css3) Extremely informative!
 - There is [NO browser support](http://stackoverflow.com/questions/15797161/browser-support-for-css-page-numbers) for paged media currently.
+- [Designing For Print With CSS](http://www.smashingmagazine.com/2015/01/07/designing-for-print-with-css/)
 
 Open Source HTML to PDF converters
  
