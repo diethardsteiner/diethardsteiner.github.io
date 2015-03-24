@@ -48,7 +48,7 @@ function() {
 } 
 ```
 
-The `timeseries` property of the **charts** has to be set to `true`. `baseAxisFixedMin` and `baseAxisFixedMax` are only supported by **timeseries/continuous scales charts**.
+The `timeSeries` property (Note the captial **S**, otherwise it will be ignored) of the **charts** has to be set to `true`. `baseAxisFixedMin` and `baseAxisFixedMax` are only supported by **timeseries/continuous scales charts**.
 
 An important point to note here is that by using `comp.chart.render()` we bypass the standard **CDF** lifecycle (preExection -> preFetch -> postFetch -> execution -> postExection). You will use this approach if all your data is already cached. Otherwise you will want to set values for the parameters that the main chart is listening to (so that a new query is initiated), e.g.:
 
@@ -75,12 +75,12 @@ focusWindowBaseMovable:   false,
 
 Next we will take a look at the `focusWindowBaseConstraint`, which allows restricting the focus behaviour to certain intervals. The **object** passed to this function has following properties:
 
-- **target**: 'start' or 'end', tells you which focus handle was pulled
+- **target**: 'begin' or 'end', tells you which focus handle was pulled
 - **value**: postition of the focus handle in milliseconds
-- **min**: min value in the dataset
-- **max**: max value in the dataset
-- **minView**: min value in the focus selection
-- **maxView**: max value in the focus selection
+- **min**: begin handle value
+- **max**: end handle value
+- **minView**: min possible beginn handle value to stay in view
+- **maxView**: max possible beginn handle value to stay in view
 - **type**: 
 	- new: on first call and whenever the user clicks outside the focusWindow  (target = 'begin') 
 	- resize-begin: pulling left handle (target = 'begin')
@@ -169,7 +169,7 @@ focusWindowBaseConstraint: function(oper) {
 }
 ```
 
-With `off_focusWindowBaseConstraint` you can specify a function to handle the logic when a user makes a new selection outside the existing one.
+<s>With `off_focusWindowBaseConstraint` you can specify a function to handle the logic when a user makes a new selection outside the existing one.</s> Update: This doesn't actually exist.
 
 Following **events** are available: `focusWindowChanged` and `selectionChangedAction`. The last event is triggered when you stop dragging/moving the focusWindow, and might be preferable in some situations to only refresh the focus chart in here, instead of in `focusWindowChanged`.
 
