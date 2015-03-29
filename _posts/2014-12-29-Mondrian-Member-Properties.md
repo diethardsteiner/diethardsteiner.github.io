@@ -133,6 +133,50 @@ NON EMPTY {[Measures].[Quantity]} ON COLUMNS,
 FROM [Groceries]
 ```
 
+Roland Bouman tested this MDX query below with XMLA4js and got results returned:
+
+```sql
+SELECT 
+	NON EMPTY CrossJoin(
+	    Hierarchize(
+	      {[Time].[Years].Members, [Time].[Quarters].Members}
+	    )
+	  , {[Measures].[Quantity]}
+  ) DIMENSION PROPERTIES PARENT_UNIQUE_NAME ON Axis(0) 
+FROM   [SteelWheelsSales] 
+```
+
+Result:
+
+```xml
+<Tuples>
+  <Tuple>
+    <Member Hierarchy="Time">
+      <UName>[Time].[2003]</UName>
+      <Caption>2003</Caption>
+      <LName>[Time].[Years]</LName>
+      <LNum>1</LNum>
+      <DisplayInfo>65540</DisplayInfo>
+      <PARENT_UNIQUE_NAME>[Time].[All Years]</PARENT_UNIQUE_NAME>
+    </Member>
+    <Member Hierarchy="Measures">
+      <UName>[Measures].[Quantity]</UName>
+      <Caption>Quantity</Caption>
+      <LName>[Measures].[MeasuresLevel]</LName>
+      <LNum>0</LNum>
+      <DisplayInfo>0</DisplayInfo>
+    </Member>
+  </Tuple> 
+ ...
+```
+
+
+Roland also mentioned that there is currently a bug with non-intrinsic context sensitive member properties: See [this jira case](http://jira.pentaho.com/browse/MONDRIAN-2302).
+
+
+
+One thing to keep in mind is that the support for member properties various among "clients". As you can see in the result above, the member property info is directly available as part of the level member. However, with a lot of "client" tools you will have to explicitly create a calculated measure in order to be able to display the member property value.
+
 Finally one filter scenario:
 
 ```sql

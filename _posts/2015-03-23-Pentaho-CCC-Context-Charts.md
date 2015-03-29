@@ -169,7 +169,7 @@ focusWindowBaseConstraint: function(oper) {
 }
 ```
 
-<s>With `off_focusWindowBaseConstraint` you can specify a function to handle the logic when a user makes a new selection outside the existing one.</s> Update: This doesn't actually exist.
+<s>With `off_focusWindowBaseConstraint` you can specify a function to handle the logic when a user makes a new selection outside the existing one.</s> Update: This doesn't actually exist: Duarte just prefixed the property to disable it.
 
 Following **events** are available: `focusWindowChanged` and `selectionChangedAction`. The last event is triggered when you stop dragging/moving the focusWindow, and might be preferable in some situations to only refresh the focus chart in here, instead of in `focusWindowChanged`.
 

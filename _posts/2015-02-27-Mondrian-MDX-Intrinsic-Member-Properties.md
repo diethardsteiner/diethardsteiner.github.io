@@ -26,7 +26,7 @@ The function listed in the first column can be used as an alternative approach.
 | `CurrentMember.Name` | `MEMBER_NAME` | returns `nameColumn` value
 | `CurrentMember.Caption` | `MEMBER_CAPTION` | returns `captionColumn` value
 | `CurrentMember.UniqueName` | `MEMBER_UNIQUE_NAME` | returns the fully qualified member name, e.g. `[Date.Weekly Calendar].[2024].[45]`
-| not available | `MEMBER_TYPE` | **Problem**: returns an integer value when it should return something like this `MDMEMBER_TYPE_REGULAR`
+| not available | `MEMBER_TYPE` | **Problem**: returns an integer. The type of the member: MDMEMBER_TYPE_REGULAR (1), MDMEMBER_TYPE_ALL (2), MDMEMBER_TYPE_MEASURE (3), MDMEMBER_TYPE_FORMULA (4), MDMEMBER_TYPE_UNKNOWN (0). MDMEMBER_TYPE_FORMULA takes precedence over MDMEMBER_TYPE_MEASURE. For example, if there is a formula (calculated) member on the Measures dimension, it is listed as MDMEMBER_TYPE_FORMULA. Thanks to Roland Bouman for finding [this reference](https://technet.microsoft.com/de-de/subscriptions/ms126046%28v=sql.90%29.aspx)
 | not available | `MEMBER_GUID` | **Problem**: does not return anything nor does it throw an error
 | `CurrentMember.Ordinal` | `MEMBER_ORDINAL` | **Problem**: two different values returned: 2 for shortcut and -1 property
 | not available | `DESCRIPTION` | returns description of the member
@@ -135,6 +135,96 @@ FROM [Subscriber Base]
 ```
 
 There are many use case, when **intrinsic member properties** come in handy. I hope this short article made you aware that there are many **intrinsic member properties** available, which you can make good use of in your future **MDX** queries.
+
+Update 2015-03-28: We had an interesting email conversation with **Roland Bouman** and I'd like to share his words and conclusions here:
+
+## Roland Bouman's Thoughts
+
+Today I compared my results with Diethards complete list from his post:
+
+```sql
+SELECT
+  Measures.Quantity
+ON COLUMNS,
+  Time.Years.Members 
+DIMENSION PROPERTIES 
+  MEMBER_KEY,
+  MEMBER_NAME,
+  MEMBER_CAPTION,
+  MEMBER_UNIQUE_NAME,
+  MEMBER_TYPE,    
+  MEMBER_GUID,
+  MEMBER_ORDINAL,
+  DESCRIPTION,
+  CHILDREN_CARDINALITY,
+  PARENT_UNIQUE_NAME,
+  PARENT_COUNT,
+  PARENT_LEVEL,
+  LEVEL_NUMBER,
+  LEVEL_UNIQUE_NAME,
+  HIERARCHY_UNIQUE_NAME,
+  DIMENSION_UNIQUE_NAME,
+  CUBE_NAME,
+  SCHEMA_NAME,
+  CATALOG_NAME
+ON ROWS
+FROM
+  SteelWheelsSales
+```
+
+I run this in pash [Pentaho Analysis Shell], and then used the network tab from my browser developer tools to look at the response. The tuples for the rows axis look like this:
+
+```xml
+<Member Hierarchy="Time">
+ <UName>[Time].[2004]</UName>
+ <Caption>2004</Caption>
+ <LName>[Time].[Years]</LName>
+ <LNum>1</LNum>
+ <DisplayInfo>131076</DisplayInfo>
+ <MEMBER_KEY>2004</MEMBER_KEY>
+ <MEMBER_NAME>2004</MEMBER_NAME>
+ <MEMBER_CAPTION>2004</MEMBER_CAPTION>
+ <MEMBER_UNIQUE_NAME>[Time].[2004]</MEMBER_UNIQUE_NAME>
+ <MEMBER_TYPE>1</MEMBER_TYPE>
+ <MEMBER_ORDINAL>-1</MEMBER_ORDINAL>
+ <CHILDREN_CARDINALITY>4</CHILDREN_CARDINALITY>
+ <PARENT_UNIQUE_NAME>[Time].[All Years]</PARENT_UNIQUE_NAME>
+ <PARENT_COUNT>1</PARENT_COUNT>
+ <PARENT_LEVEL>0</PARENT_LEVEL>
+ <LEVEL_NUMBER>1</LEVEL_NUMBER>
+ <LEVEL_UNIQUE_NAME>[Time].[Years]</LEVEL_UNIQUE_NAME>
+ <HIERARCHY_UNIQUE_NAME>[Time]</HIERARCHY_UNIQUE_NAME>
+ <DIMENSION_UNIQUE_NAME>[Time]</DIMENSION_UNIQUE_NAME>
+ <SCHEMA_NAME>SteelWheels</SCHEMA_NAME>
+</Member>
+```
+
+The lower case properties UName, Caption, LName, LNum and DisplayInfo are always returned, at least when using XML/A
+
+These are the so-called default properties. See [here]( 
+https://msdn.microsoft.com/en-us/library/windows/desktop/ms725398%28v=vs.85%29.aspx).
+
+Of these, an underestimated and frankly quite obscure property is `DisplayInfo`. It is rather useful when rendering pivot tables with toggles to drill up/down.
+It's a 4 byte number that is itself divided in at least 3 fields: 
+
+1. the 2 least significant bytes form a 2 byte number that contains an estimate of the number of children. So if it's 0, you can't drill down.
+2. the first, least significant bit of the 3rd byte is a flag that is set if the member is drilled down.
+3. the second bit of the 3rd byte is also a flag that tells you if the current member has the same parent as the previous member.
+
+(More info in that link above about how to use this to render pivot tables)
+
+The upper case properties are from Diethards post. There are even more: see [here](https://msdn.microsoft.com/en-us/library/ms145528.aspx) (although I would not be surprised if many of these are not supported in Mondrian).
+I get more or less the same results as Diethard, with these differences:
+
+- MEMBER_TYPE works as expected. It's just that the values are an enumeration. See [here](https://technet.microsoft.com/de-de/subscriptions/ms126046%28v=sql.90%29.aspx)
+- I don't see DESCRIPTION, nor CATALOG_NAME
+
+It might be worth pointing out that, at least in the XML/A case, MEMBER_UNIQUE_NAME and UName, LEVEL_NUMBER and LNum, and MEMBER_CAPTION and Caption, and possibly LNum and LEVEL_UNIQUE_NAME are duplicates.
+Also, CHILDREN_CARDINALITY may be an estimate, just like the cardinality part of DisplayInfo. 
+
+In other words, in XML/A one need never ask for these properties explicitly as they are implicitly given already.
+
+
 
 Sources: 
 
