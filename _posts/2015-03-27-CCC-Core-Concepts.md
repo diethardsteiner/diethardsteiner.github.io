@@ -355,10 +355,10 @@ When using a box plot in a line chart, we only have automatically generated "val
 
 ```javascript
 visualRoles: {
-	dataPart: `<yourCol>`
-	, value: `<yourCol>`
-	, category: `<yourCol>`
-	, series: `<yourCol>`
+	dataPart: '<yourCol>'
+	, value: '<yourCol>`'
+	, category: '<yourCol>'
+	, series: '<yourCol>'
 	, ...
 }
 ```
