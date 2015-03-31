@@ -13,7 +13,7 @@ Sometimes you will have to manipulate the presentation of a cell value within th
 
 We will create a very simple **AddIn**, which will actually use two values: one figure for standard display and another one to conditionally display a trend arrow:
 
-![](/images/addin/addin1.png) 
+![](/images/addins/addin1.png) 
 
 Let's quickly create the **AddIn**: Add the below to your JavaScript snippet or external file:
 
@@ -89,7 +89,7 @@ function(){
 }
 ```
 
-![](/images/addin/addin2.png) 
+![](/images/addins/addin2.png) 
 
 There might be a problem, however, if we applied the format to more than one column and only want one of these columns to behave differently. In this case we have to take the column index into account. Also, with this new option, it is possible to make everything more dynamic as well:
 
