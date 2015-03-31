@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Pentaho CCC Core Concepts"
-summary: In this article explains readers, dimensions and visual roles.
+summary: This article explains readers, dimensions and visual roles.
 date:   2015-03-29
 categories: CCC
 tags: CCC, CDE

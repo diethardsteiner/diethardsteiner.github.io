@@ -25,7 +25,7 @@ function(){
 }
 ```
 
-You will also see that there are a few additional properties like `dataAcccessId` (to define the query), which are not available in standard CCC.
+You will also see that there are a few additional properties like `dataAccessId` (to define the query), which are not available in standard CCC.
 
 Our code in CCC JavaScript looks like this (partial extract only):
 
@@ -176,7 +176,6 @@ function initGlobalCccProperties(chartDefinition){
 		, axisOffset: 0
 		, line_interpolate: 'monotone'
 		, area_interpolate: 'monotone'	
-	};
 
 	// Add/override CCC options
 	$.extend(cccOptions, globalCccProperties);	
