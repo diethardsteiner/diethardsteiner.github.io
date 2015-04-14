@@ -28,8 +28,7 @@ One of the easier ways to manipulate the value labels is to use the **Extension 
 
 ```javascript
 label_text: function(obj) { 
-    //console.log(obj);
-    return Dashboards.numberFormat(obj.vars.value.value, '#,###.00');   
+    return Dashboards.numberFormat(obj.vars.value.value, '#,###');   
 }
 ```
 
