@@ -36,6 +36,16 @@ label_text: function(obj) {
 
 > **WARNING**: If you did not define the **valueMask** at all or you use both value and percent in the **valueMask** (e.g. `{value.value} ({value.percent})`) you will see two labels with the same text (the `value.value`) for each slice of the pie when you apply the above script for the `label_text` extension point. Hence make sure you set the `valueMask` to `{value.value}`! If you want to format both value and percentage it is better to use the other approaches listed further down this article.
 
+Or let's say we want to value to take up less space and display it as thousands, millions etc:
+
+```javascript
+function(obj) { 
+    return Dashboards.numberFormat(obj.vars.value.value, '#A');   
+}
+```
+
+![](/images/ccc-bar-chart-text-label-v3.png)
+
 However, there are many other ways to define a format:
 
 You can use the `valueFormat` and `percentValueFormat` properties:
