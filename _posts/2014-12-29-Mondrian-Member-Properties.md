@@ -174,8 +174,37 @@ Result:
 Roland also mentioned that there is currently a bug with non-intrinsic context sensitive member properties: See [this jira case](http://jira.pentaho.com/browse/MONDRIAN-2302).
 
 
-
 One thing to keep in mind is that the support for member properties various among "clients". As you can see in the result above, the member property info is directly available as part of the level member. However, with a lot of "client" tools you will have to explicitly create a calculated measure in order to be able to display the member property value.
+
+We will test one more query:
+
+```sql
+SELECT
+[Measures].[Quantity] ON 0
+, NON EMPTY {[Product].[Product].Members} DIMENSION PROPERTIES [Product].[Product].[Calories] ON 1
+FROM [Groceries]
+```
+
+The support for dimension properties in client tools is a bit of a sad story: **JPivot** doesn't react to the dimension properties data, but you can retrieve all the dimension properties of a given dimension by clicking on the **Show Properties** icon. **Pivot4J** throws an error when running this query. **Saiku** runs the query, but displays no value for the properties. **SQL Workbench** doesn't return the values for the properties either. 
+
+Note that there is a [JIRA case](http://jira.pentaho.com/browse/MONDRIAN-1768) on DIMENSION PROPERTIES SYNTAX not being supported.
+
+
+The query approach below works in most clients:
+
+```sql
+WITH 
+MEMBER [Measures].[Calories] AS
+    [Product].CurrentMember.Properties("Calories")
+SELECT
+{[Measures].[Quantity], [Measures].[Calories]} ON 0
+, NON EMPTY {[Product].[Product].Members}  ON 1
+FROM [Groceries]
+```
+
+In a nutshell: The UI support for properties in clients is non existent (apart from JPivot).
+
+One thing to be aware of is that dimensions properties cannot be just diplayed on their own, but only always with their dimension member. A good example can be found [here](https://msdn.microsoft.com/en-us/library/windows/desktop/ms712957(v=vs.85).aspx). Microsoft has also a good reference on Member Properties [here](https://msdn.microsoft.com/en-us/library/ms145613.aspx).
 
 Finally one filter scenario:
 

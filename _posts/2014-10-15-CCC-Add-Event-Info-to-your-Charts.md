@@ -744,10 +744,20 @@ Next log in again and choose **File > New > CDE Dashboard**. I will not discuss 
 
 In a nutshell:
 
-1. Create a **layout structure**. 
+1. Create a **layout structure**. Name the column, which should house the chart, `d3_chart`.
 2. Still on the same tab, click the **Add Resource** icon and add an inline (*code snippet*) CSS. Copy the **CSS** code from our original chart in there. 
 2. Create a **datasource**. This one should point to the table which holds the daily closing data for the chart (the first dataset in our previous example).
-3. In the **Components** tab, from the left hand side choose **D3 Components > D3 Component**. Provide a name in the properties section and link it to the datasource and html object. Then click on the ellipsis icon next to **Custom Chart Script**. Start off by writing `function(dataset){}` and paste the JavaScript code from our previous example inside the curly brackets. It's a good time now to save the chart and click the **Preview** icon on the upper right hand corner. You will see that our chart is now rendered properly. 
+3. In the **Components** tab, from the left hand side choose **D3 Components > D3 Component**. Provide a name in the properties section and link it to the datasource and html object. Then click on the ellipsis icon next to **Custom Chart Script**. Start off by writing `function(dataset){}` and paste the JavaScript code from our previous example inside the curly brackets. We just have to adjust the `select()` part, so that the chart is rendered in the correct `div`: 
+
+	```javascript
+	...
+	var svg = d3.select("#d3_chart").append("svg")
+	...
+	```
+	
+	Note this binds the chart to the column of the name (in CDE terms - but actually an id) `d3_chart`.
+
+	It's a good time now to save the chart and click the **Preview** icon on the upper right hand corner. You will see that our chart is now rendered properly. 
 
 	![](/images/d3_line_chart_with_event_4.jpeg)
 
@@ -774,3 +784,17 @@ for(var i=0; i < dataset.resultset.length; i++){
 > **Note**: In some d3js samples Webdetails used a `cdaResultToD3Array()` to do just do the same. 
 
 Our chart works smoothly with the dynamic datasource now on the **Pentaho BI Server**. As a final exercise you can make the datasource for the events dynamic, but I'll leave this up to you.
+
+**UPDATE 2015-04-02:** Currently the **D3 Component Library** doesn't seem to be available via the **Marketplace**. This is not a major issue tough: Just upload `d3.min.js` to the **BA Server** and reference it from within your dashboard (Resource: external JavaScript). Then add a **Query Component**. Provide out the usual settings, define a **Result Var** name, e.g. `dataset`. Then you can add all your **D3** code to the **PreExecution** function. Note that with this component, the data has to be prepared similar to the example shown below:
+
+```javascript
+var data = [];
+
+for(var i=0; i < dataset.length; i++){
+    var dataObject = {};
+    dataObject.date = dataset[i][0];
+    dataObject.close = dataset[i][1];
+    data.push(dataObject);
+    }
+```
+
