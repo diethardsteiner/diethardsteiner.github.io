@@ -14,15 +14,20 @@ Our initial pie chart looks like this:
 
 ![](/images/ccc-bar-chart-text-label-v1.png)
 
-First we can define the type of values to be displayed, which can be either the value or percentage or a combination of both. This can be specified using the `valueMask` property:
+First we can define the type of values to be displayed, which can be either the value or percentage or a combination of both. This can be specified using the `valuesMask` property:
 
 ```javascript
 // various possibilities
-valueMask: '{value.percent}'
-valueMask: '{value.value}'
-valueMask: '{value.value} ({value.percent})'
-valueMask: '{category}: {value} EUR' 
+valuesMask: '{value.percent}'
+valuesMask: '{value}'
+valuesMask: '{value} ({value.percent})'
+// the same, but more explicit
+valuesMask: '{value.label} ({value.percent.label})'
+valuesMask: '{category}: {value} EUR' 
 ```
+
+
+
 
 One of the easier ways to manipulate the value labels is to use the **Extension Point** `label_text`, e.g.:
 
@@ -34,7 +39,7 @@ label_text: function(obj) {
 
 ![](/images/ccc-bar-chart-text-label-v2.png)
 
-> **WARNING**: If you did not define the **valueMask** at all or you use both value and percent in the **valueMask** (e.g. `{value.value} ({value.percent})`) you will see two labels with the same text (the `value.value`) for each slice of the pie when you apply the above script for the `label_text` extension point. Hence make sure you set the `valueMask` to `{value.value}`! If you want to format both value and percentage it is better to use the other approaches listed further down this article.
+> **WARNING**: If you did not define the **valuesMask** at all or you use both value and percent in the **valuesMask** (e.g. `{value} ({value.percent})`) you will see two labels with the same text (the `value`) for each slice of the pie when you apply the above script for the `label_text` extension point. Hence make sure you set the `valuesMask` to `{value}`! If you want to format both value and percentage it is better to use the other approaches listed further down this article.
 
 Or let's say we want to value to take up less space and display it as thousands, millions etc:
 
@@ -48,7 +53,7 @@ function(obj) {
 
 However, there are many other ways to define a format:
 
-You can use the `valueFormat` and `percentValueFormat` properties:
+You can use the `valuesFormat` and `percentValueFormat` properties:
 
 ```javascript
 valueFormat: function(v) { 
@@ -59,7 +64,7 @@ percentValueFormat: function(v) {
 } 
 ```
 
-Another approach is to you the `format` property, which is not available in **CDE**. We can, however, just manually add it using the **PreExecution** function:
+Another approach is to use the `format` property, which is not available in **CDE**. We can, however, just manually add it using the **PreExecution** function:
 
 ```javascript
 function(){
