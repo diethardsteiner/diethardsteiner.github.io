@@ -12,7 +12,7 @@ This is a brief overview of how you can use the **MDX** `GENERATE()` function. A
 
 The `GENERATE()` function has two different applications: 
 
-- If the second parameter is a set, it will return the members that exist in both sets ( a `UNION()` of the sets). You can think of it as a kind of for-each function which checks if members in the first set exist in the second. `ALL` can be used as a third parameter to keep any duplicates. 
+- If the second parameter is a set, it will return the members that exist in both sets ( a `UNION()` of the sets). You can think of it as a kind of for-each function which checks if members in the first set exist in the second one. `ALL` can be used as a third parameter to keep any duplicates. 
 - If the second parameter is a string expression then the members will be concatenated.
 
 Examples:
@@ -33,7 +33,7 @@ Country | Sales
 ----|-----
 Australia | 630,623
 
-In this case Australia survives, because it is a member of exists in first as well as in the second set.
+In this case Australia survives, because it is a member of the first as well as in the second set.
 
 For each member of the first set retrieve the first child:
 
