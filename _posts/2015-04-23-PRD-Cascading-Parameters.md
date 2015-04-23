@@ -36,6 +36,6 @@ ORDER BY 1 ASC
 
 The idea is that the second query receives the year parameter value, which will be used to source the available quarters.
 
-Now let's define two parameters: `PARAM_YEAR` and `PARAM_QUARTER`. Define the first one as `Integer` and the second one as `String`. For both set the **Display Type** to *Drop Down* and select the respective **query** to populate these selects. Also tick **Mandatory**.
+Now let's define two parameters: `PARAM_YEAR` and `PARAM_QUARTER`. Make sure you define the year parameter before the quarter paramter - otherwise it will not work. Define the first one as `Integer` and the second one as `String`. For both set the **Display Type** to *Drop Down* and select the respective **query** to populate these selects. Also tick **Mandatory**.
 
 You should be in the position to test the cascading parameters now: Just click the **Preview** button. An example can be downloaded from [here](/sample-files/prd/cascading_parameters.prpt).
