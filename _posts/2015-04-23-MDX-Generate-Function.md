@@ -33,7 +33,7 @@ Country | Sales
 ----|-----
 Australia | 630,623
 
-In this case Australia survives, because it is a member of the first as well as in the second set.
+In this case Australia survives, because it is a member of the first as well as the second set.
 
 For each member of the first set retrieve the first child:
 
