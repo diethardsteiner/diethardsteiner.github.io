@@ -26,6 +26,6 @@ Tick **Make the transformation database transactional**.
 
 > **Note**: This will disable the **Use batch update for insert** option in the **Table Output** step also ignore the **Commit Size** setting. So effectively this will slow down the insert operation.
 
-As you can see, this is really quite easy to setup and might come in hand in a few use cases.
+As you can see, this is really quite easy to setup and might come in hand in a few use cases. An example can be downloaded from [here](/sample-files/pdi/tr_db_transactional_insert.ktr).
 
 [Source1](http://www.ibridge.be/?p=93)
