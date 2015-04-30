@@ -12,7 +12,7 @@ published: true
 
 In this section we will focus on partitioning, which is a special case of using multiple copies of one step.
 
-Take this rather simple transformation: 
+Take this rather simple transformation (which you can download from [here](/sample-files/pdi/partitioning-schema/tr_parallel_and_partitioned.ktr)): 
 
 ![](/images/pdi_parallel_and_partitioned_1.png)
 
@@ -72,7 +72,7 @@ In the **View** panel, right click on **Partition schemas** and choose **New**:
 The **Partitioning Schema Dialog** allows us to define the following properties: 
 
 Partitioner Type | Environment | Description
------|-----
+-----|-----|-----
 **dynamic partitioner** | Cluster | PDI automatically partitions the data that is sent to the slave servers based on the number of slave servers, making sure that records with certain key values are grouped together and are sent to the same slave server. E.g. We want all records with fruit name 'apples' to be part of one particular partition and hence go to one particular slave server.
 **number of partitions** | Cluster | This is similar to **Numbers of copies** which you can define in a non-partitioned setup by right clicking on a step. 
 **partition names** | Single machine | define a static list of partition names - this can be any name  
@@ -87,7 +87,7 @@ For our example we define 3 partitions by listing the partition names, which can
 > **Note**: Using a static value for the number of partitions isn't really a good approach. Set up a parameter for the **partition number**.
 
 
-> **Note**: Currently there is no way to define the number of partitions for single machine execution (as opposed to defining the names). I create a [Jira case](http://jira.pentaho.com/browse/PDI-13771) for this.
+> **Note**: Currently there is no way to define the number of partitions for single machine execution (as opposed to defining the names). I created a [Jira case](http://jira.pentaho.com/browse/PDI-13771) for this.
 
 Right click on the **Memory Group by** step and choose **Partitioning**. Now you will be asked for the **Partitioning Method**:
 
@@ -166,7 +166,7 @@ For each of the servers **Spoon** will open a monitoring tab. Check the log in e
 
 If all that went well, go to **Partition Schemas** and change the settings of our previously defined schema: Remove all the partition names and then tick **Dynamically create the schema definion** and set the **number of partitions per slave** to `1`.
 
-Next right click on the **Memory Group by** step and choose **Clusterings**. Choose the cluster you just defined. The transformation should look like this now:
+Next right click on the **Memory Group by** step and choose **Clusterings**. Choose the cluster you just defined. The transformation should look like this now (You can also download the transformation from download from [here](/sample-files/pdi/partitioning-schema/tr_parallel_and_partitioned_and_clustered.ktr)):
 
 ![](/images/pdi_parallel_and_partitioned_13.png)
 
@@ -217,6 +217,8 @@ So there are at least two use cases for partitioning:
 The example shown below has two partitioning schemas defined: The important point is that the first step that runs on the cluster (**Add constants**) has only one copy defined, whereas the following one has two copies defined:
 
 ![](/images/pdi_parallel_and_partitioned_14.png)
+
+You can also download the transformation from download from [here](/sample-files/pdi/partitioning-schema/tr_parallel_and_partitioned_and_clustered_alt.ktr).
 
 To summarise the partition methods for this last example:
 
