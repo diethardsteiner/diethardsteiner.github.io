@@ -18,9 +18,11 @@ In this post I’ll briefly talk you through how to source some data and then to
 5. Provide a name for the **Result Var**. This is the variable, which will hold the output data of your datasource.
 6. Write a *Post Execution* function, in example: 
 
-		function() {
-		     document.getElementById('test').innerHTML = JSON.stringify(select_result);
-		} 
+	```
+	function() {
+	     document.getElementById('test').innerHTML = JSON.stringify(select_result);
+	}
+	``` 
 
 7. We will only use this function for now to test if the query is working. Later on we will change it.
 8. The setup so far should look like this: ![](/images/pentaho-cde-custom-table-2.png)
@@ -35,13 +37,15 @@ In this post I’ll briefly talk you through how to source some data and then to
 
 11. Let’s change the Post Execution function to return only the first record:
 
-		function() {
-		     document.getElementById('test').innerHTML = JSON.stringify(select_result[0]);
-		}
+	```
+	function() {
+	     document.getElementById('test').innerHTML = JSON.stringify(select_result[0]);
+	}
+	```
 		
-    And the preview looks like this: 
+	And the preview looks like this: 
     
-    ![](/images/pentaho-cde-custom-table-4.png)
+	![](/images/pentaho-cde-custom-table-4.png)
     
 12. Let’s change the *Post Execution* function to return only the first entry from the first record:
 

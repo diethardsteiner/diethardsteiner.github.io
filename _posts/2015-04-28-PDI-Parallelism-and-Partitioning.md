@@ -261,6 +261,6 @@ Sources:
 - [Partitioning data on clustered Pentaho Kettle ETL transformations](http://diethardsteiner.blogspot.co.uk/2013/03/partitioning-data-on-clustered-pentaho.html)
 - [Partitioning in Kettle](http://type-exit.org/adventures-with-open-source-bi/2011/09/partitioning-in-kettle/)
 - [PDI Partition Method Plugin Development](http://wiki.pentaho.com/display/EAI/PDI+Partition+Method+Plugin+Development)
-- Special thanks to Matt Burgess and Dan Keeley
+- Special thanks to [Matt Burgess](http://funpdi.blogspot.co.uk) and [Dan Keeley](http://dankeeley.wordpress.com)
 
 
