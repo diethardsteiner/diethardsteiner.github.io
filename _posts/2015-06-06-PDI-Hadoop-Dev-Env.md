@@ -759,11 +759,11 @@ In **Spoon** create a new database connection:
 - **Username**: currently logged in user ?? or user running the hive server2 process?? e.g. diethardsteiner
 - **Password**: password
 
-![](./img/pentaho-pdi-hadoop-1.png)
+![](/images/pentaho-pdi-hadoop-1.png)
 
 Click the **Test** button to make sure the connection details are correct. The database connection test should return a message similar to this one: `Connection to database [hive-localhost] is OK.`. Click **OK** twice. Then right click on the connection we just created and choose **Share**:
 
-![](./img/pentaho-pdi-hadoop-2.png)
+![](/images/pentaho-pdi-hadoop-2.png)
 
 Next right click again on the connection name and choose **Explore**. This will open a new dialog window which will allow you to see the existing schemas and tables (among other things). You can e.g. right on a table name and see the first 100 rows, which is a very useful feature to get a bit accustomed to the available data.
 
