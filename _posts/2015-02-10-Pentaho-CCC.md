@@ -54,7 +54,7 @@ Sometimes you will require the charts to be in a different size then originally 
 
 Awesome, isn't it?!
 
-Keep in mind though that other features of the charts like labels, title etc should scale as well respecitively. Here is an example on how to scale the bar chart value label using an extension point (`label_font`). In my scenario only the height of the chart could change:
+Keep in mind though that other features of the charts like labels, title etc should scale as well respecitively. Here is an example on how to scale the bar chart value label using an **extension point** (`label_font`). In my scenario only the height of the chart could change:
 
 ```javascript
 function(){
