@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title:  "Pentaho Data Integration: How to fix the GLib-CRITICAL problem"
