@@ -12,7 +12,7 @@ Since upgrading to Fedora 22 Spoon (the client tool of PDI) was not working prop
 
 On this wonderful Sunday morning - clear blue sky in Britain - I finally figured out how to fix this dilemma: 
 
-1. Go to the [Eclipse Download Page](https://www.eclipse.org/downloads/) and download the latest 64bit verion of **Eclipse IDE for Java EE Developers**.
+1. Go to the [Eclipse Download Page](https://www.eclipse.org/downloads/) and download the latest 64bit verion of **Eclipse IDE for Java EE Developers**. Note: There is a separate download area for SWT, however, for Linux there is no 64 bit version available. The only way to get one is to build it yourself. So I just went the easier way and downloaded Eclipse instead.
 2. Unzip the file and search for **swt**. A search result will show a few files, but the ones interesting for us are (your version number might be different): `org.eclipse.swt_3.103.2.v20150203-1313.jar` and `org.eclipse.swt.gtk.linux.x86_64_3.103.2.v20150203-1351.jar`.
 3. Copy the first one of these files into `<PDI_HOME>/libswt/linux/x86` and the second into `<PDI_HOME>/libswt/linux/x86_64`.
 4. Both folders still have the original jar files in them. Rename them to `swt-jar-old` (Note: no extension, so that they are not picked up).
