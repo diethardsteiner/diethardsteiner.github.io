@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<gmd:fileIdentifier>
+		<gco:CharacterString>{5B6A9F7C-2CAB-4529-9757-6A6C699791AE}</gco:CharacterString>
+	</gmd:fileIdentifier>
+	<gmd:language>
+		<gmd:LanguageCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode" codeListValue="eng">eng</gmd:LanguageCode>
+	</gmd:language>
+	<gmd:hierarchyLevel>
+		<gmd:MD_ScopeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="service">service</gmd:MD_ScopeCode>
+	</gmd:hierarchyLevel>
+	<gmd:contact>
+		<gmd:CI_ResponsibleParty>
+			<gmd:organisationName>
+				<gco:CharacterString>Office for National Statistics</gco:CharacterString>
+			</gmd:organisationName>
+			<gmd:contactInfo>
+				<gmd:CI_Contact>
+					<gmd:address>
+						<gmd:CI_Address>
+							<gmd:electronicMailAddress>
+								<gco:CharacterString>ons.geography@ons.gsi.gov.uk</gco:CharacterString>
+							</gmd:electronicMailAddress>
+						</gmd:CI_Address>
+					</gmd:address>
+				</gmd:CI_Contact>
+			</gmd:contactInfo>
+			<gmd:role>
+				<gmd:CI_RoleCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode>
+			</gmd:role>
+		</gmd:CI_ResponsibleParty>
+	</gmd:contact>
+	<gmd:dateStamp>
+		<gco:Date>2014-03-07</gco:Date>
+	</gmd:dateStamp>
+	<gmd:metadataStandardName>
+		<gco:CharacterString>UK GEMINI</gco:CharacterString>
+	</gmd:metadataStandardName>
+	<gmd:metadataStandardVersion>
+		<gco:CharacterString>2.1</gco:CharacterString>
+	</gmd:metadataStandardVersion>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>27700</gco:CharacterString>
+					</gmd:code>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:identificationInfo>
+		<srv:SV_ServiceIdentification>
+			<gmd:citation>
+				<gmd:CI_Citation>
+					<gmd:title>
+						<gco:CharacterString>Westminster parliamentary constituencies (GB) 2013 Boundaries (Generalised, Clipped)</gco:CharacterString>
+					</gmd:title>
+					<gmd:alternateTitle>
+						<gco:CharacterString>Westminster parliamentary constituencies (GB) 2013 Boundaries (Gen, Clipped)</gco:CharacterString>
+					</gmd:alternateTitle>
+					<gmd:alternateTitle>
+						<gco:CharacterString>PCON_2013_GB_BGC</gco:CharacterString>
+					</gmd:alternateTitle>
+					<gmd:date>
+						<gmd:CI_Date>
+							<gmd:date>
+								<gco:Date>2013-12-31</gco:Date>
+							</gmd:date>
+							<gmd:dateType>
+								<gmd:CI_DateTypeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+							</gmd:dateType>
+						</gmd:CI_Date>
+					</gmd:date>
+				</gmd:CI_Citation>
+			</gmd:citation>
+			<gmd:abstract>
+				<gco:CharacterString>This file contains the digital vector boundaries for Westminster parliamentary constituencies in Great Britain as at December 2013.
+Westminster parliamentary constituencies are used to elect Members of Parliament to the House of Commons. The 573 constituencies in England and Wales (533 in England and 40 in Wales) came into force at the May 2010 General Election.  In Scotland, the 72 constituencies were reduced to 59 in May 2005.
+This product contains both the nine character codes as well as the old style three character codes. For further information, please see the Code History Database (CHD) (Link below).
+The boundaries are Intermediate/Generalised (20m). Intermediate datasets are designed for high quality mapping, preserving much of the original detail from the full dataset, but typically 10% of the file size. They are great when used in conjunction with the OS raster products and for producing detailed regional and local maps, or large wall maps. They are also suitable for non-demanding GIS analyses (such as buffering). Intermediate datasets are a good compromise between detail and small file size.  They have also been clipped to the coastline (Mean High Water mark), giving the coastline a more orthodox appearance.
+Please note that this product contains both Ordnance Survey and ONS Intellectual Property Rights.</gco:CharacterString>
+			</gmd:abstract>
+			<gmd:pointOfContact>
+				<gmd:CI_ResponsibleParty>
+					<gmd:individualName>
+						<gco:CharacterString>ONS Geography Customer Services</gco:CharacterString>
+					</gmd:individualName>
+					<gmd:organisationName>
+						<gco:CharacterString>Office for National Statistics</gco:CharacterString>
+					</gmd:organisationName>
+					<gmd:contactInfo>
+						<gmd:CI_Contact>
+							<gmd:phone>
+								<gmd:CI_Telephone>
+									<gmd:voice>
+										<gco:CharacterString>+44 (0)1329 444971</gco:CharacterString>
+									</gmd:voice>
+								</gmd:CI_Telephone>
+							</gmd:phone>
+							<gmd:address>
+								<gmd:CI_Address>
+									<gmd:deliveryPoint>
+										<gco:CharacterString>Segensworth Road, Titchfield</gco:CharacterString>
+									</gmd:deliveryPoint>
+									<gmd:city>
+										<gco:CharacterString>Fareham</gco:CharacterString>
+									</gmd:city>
+									<gmd:administrativeArea>
+										<gco:CharacterString>Hampshire</gco:CharacterString>
+									</gmd:administrativeArea>
+									<gmd:postalCode>
+										<gco:CharacterString>PO15 5RR</gco:CharacterString>
+									</gmd:postalCode>
+									<gmd:country>
+										<gco:CharacterString>United Kingdom</gco:CharacterString>
+									</gmd:country>
+									<gmd:electronicMailAddress>
+										<gco:CharacterString>ons.geography@ons.gsi.gov.uk</gco:CharacterString>
+									</gmd:electronicMailAddress>
+								</gmd:CI_Address>
+							</gmd:address>
+							<gmd:onlineResource>
+								<gmd:CI_OnlineResource>
+									<gmd:linkage>
+										<gmd:URL>https://mapping.statistics.gov.uk/arcgis/services/PCON/PCON_DEC_2013_GB_BGC/MapServer/WMSServer?request=GetCapabilities&amp;service=WMS</gmd:URL>
+									</gmd:linkage>
+								</gmd:CI_OnlineResource>
+							</gmd:onlineResource>
+						</gmd:CI_Contact>
+					</gmd:contactInfo>
+					<gmd:role>
+						<gmd:CI_RoleCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact">pointOfContact</gmd:CI_RoleCode>
+					</gmd:role>
+				</gmd:CI_ResponsibleParty>
+			</gmd:pointOfContact>
+			<gmd:resourceMaintenance>
+				<gmd:MD_MaintenanceInformation>
+					<gmd:maintenanceAndUpdateFrequency>
+						<gmd:MD_MaintenanceFrequencyCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_MaintenanceFrequencyCode" codeListValue="annually">annually</gmd:MD_MaintenanceFrequencyCode>
+					</gmd:maintenanceAndUpdateFrequency>
+				</gmd:MD_MaintenanceInformation>
+			</gmd:resourceMaintenance>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword>
+						<gco:CharacterString>infoMapAccessService</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:thesaurusName>
+						<gmd:CI_Citation>
+							<gmd:title>
+								<gco:CharacterString>ISO 19119 service taxonomy</gco:CharacterString>
+							</gmd:title>
+							<gmd:date>
+								<gmd:CI_Date>
+									<gmd:date>
+										<gco:Date>2003</gco:Date>
+									</gmd:date>
+									<gmd:dateType>
+										<gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+									</gmd:dateType>
+								</gmd:CI_Date>
+							</gmd:date>
+						</gmd:CI_Citation>
+					</gmd:thesaurusName>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword>
+						<gco:CharacterString>Administrative units</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>Geographical names</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:thesaurusName>
+						<gmd:CI_Citation>
+							<gmd:title>
+								<gco:CharacterString>GEMET - Concepts, version 2.4</gco:CharacterString>
+							</gmd:title>
+							<gmd:date>
+								<gmd:CI_Date>
+									<gmd:date>
+										<gco:Date>2010-01-13</gco:Date>
+									</gmd:date>
+									<gmd:dateType>
+										<gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+									</gmd:dateType>
+								</gmd:CI_Date>
+							</gmd:date>
+						</gmd:CI_Citation>
+					</gmd:thesaurusName>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword>
+						<gco:CharacterString>Westminster parliamentary constituency</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>parlicon</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>WPC</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>PCON</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>Great Britain</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>GB</gco:CharacterString>
+					</gmd:keyword>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:resourceConstraints>
+				<gmd:MD_Constraints>
+					<gmd:useLimitation>
+						<gco:CharacterString>Licence, http://www.nationalarchives.gov.uk/doc/open-government-licence/, Contains National Statistics data © Crown copyright and database right [2014], http://www.ordnancesurvey.co.uk/oswebsite/docs/licences/os-opendata-licence.pdf, Contains Ordnance Survey data © Crown copyright and database right [2014]</gco:CharacterString>
+					</gmd:useLimitation>
+				</gmd:MD_Constraints>
+			</gmd:resourceConstraints>
+			<gmd:resourceConstraints>
+				<gmd:MD_LegalConstraints>
+					<gmd:accessConstraints>
+						<gmd:MD_RestrictionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
+					</gmd:accessConstraints>
+					<gmd:otherConstraints>
+						<gco:CharacterString>Other restrictions</gco:CharacterString>
+					</gmd:otherConstraints>
+				</gmd:MD_LegalConstraints>
+			</gmd:resourceConstraints>
+			<srv:serviceType>
+				<gco:LocalName>download</gco:LocalName>
+			</srv:serviceType>
+			<srv:extent>
+				<gmd:EX_Extent>
+					<gmd:geographicElement>
+						<gmd:EX_GeographicBoundingBox>
+							<gmd:westBoundLongitude>
+								<gco:Decimal>-7.875</gco:Decimal>
+							</gmd:westBoundLongitude>
+							<gmd:eastBoundLongitude>
+								<gco:Decimal>3.7841</gco:Decimal>
+							</gmd:eastBoundLongitude>
+							<gmd:southBoundLatitude>
+								<gco:Decimal>49.3466</gco:Decimal>
+							</gmd:southBoundLatitude>
+							<gmd:northBoundLatitude>
+								<gco:Decimal>62.7443</gco:Decimal>
+							</gmd:northBoundLatitude>
+						</gmd:EX_GeographicBoundingBox>
+					</gmd:geographicElement>
+					<gmd:temporalElement>
+						<gmd:EX_TemporalExtent>
+							<gmd:extent>
+								<gml:TimePeriod gml:id="Temporal">
+									<gml:beginPosition>2013-12-31</gml:beginPosition>
+									<gml:endPosition>2014-12-31</gml:endPosition>
+								</gml:TimePeriod>
+							</gmd:extent>
+						</gmd:EX_TemporalExtent>
+					</gmd:temporalElement>
+				</gmd:EX_Extent>
+			</srv:extent>
+			<srv:couplingType gco:nilReason="missing"/>
+			<srv:containsOperations gco:nilReason="missing"/>
+			<srv:operatesOn xlink:href="https://mapping.statistics.gov.uk/arcgis/services/PCON/PCON_DEC_2013_GB_BGC/MapServer/WMSServer?request=GetCapabilities&amp;service=WMS"/>
+		</srv:SV_ServiceIdentification>
+	</gmd:identificationInfo>
+	<gmd:distributionInfo>
+		<gmd:MD_Distribution>
+			<gmd:distributionFormat>
+				<gmd:MD_Format>
+					<gmd:name>
+						<gco:CharacterString>ArcGIS</gco:CharacterString>
+					</gmd:name>
+					<gmd:version>
+						<gco:CharacterString>10.1</gco:CharacterString>
+					</gmd:version>
+				</gmd:MD_Format>
+			</gmd:distributionFormat>
+			<gmd:transferOptions>
+				<gmd:MD_DigitalTransferOptions>
+					<gmd:onLine>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>https://mapping.statistics.gov.uk/arcgis/services/PCON/PCON_DEC_2013_GB_BGC/MapServer/WMSServer?request=GetCapabilities&amp;service=WMS</gmd:URL>
+							</gmd:linkage>
+							<gmd:function>
+								<gmd:CI_OnLineFunctionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode" codeListValue="information">information</gmd:CI_OnLineFunctionCode>
+							</gmd:function>
+						</gmd:CI_OnlineResource>
+					</gmd:onLine>
+					<gmd:onLine>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>https://geoportal.statistics.gov.uk/Docs/Boundaries/Westminster_parliamentary_constituencies_(GB)_2013_Boundaries_(Generalised_Clipped).zip</gmd:URL>
+							</gmd:linkage>
+							<gmd:function>
+								<gmd:CI_OnLineFunctionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode" codeListValue="download">download</gmd:CI_OnLineFunctionCode>
+							</gmd:function>
+						</gmd:CI_OnlineResource>
+					</gmd:onLine>
+					<gmd:onLine>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>http://www.ons.gov.uk/ons/guide-method/geography/products/names--codes-and-look-ups/code-history-database/index.html</gmd:URL>
+							</gmd:linkage>
+							<gmd:function>
+								<gmd:CI_OnLineFunctionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode" codeListValue="information">information</gmd:CI_OnLineFunctionCode>
+							</gmd:function>
+						</gmd:CI_OnlineResource>
+					</gmd:onLine>
+					<gmd:onLine>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>http://www.ons.gov.uk/ons/guide-method/geography/beginner-s-guide/electoral/index.html</gmd:URL>
+							</gmd:linkage>
+							<gmd:function>
+								<gmd:CI_OnLineFunctionCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode" codeListValue="information">information</gmd:CI_OnLineFunctionCode>
+							</gmd:function>
+						</gmd:CI_OnlineResource>
+					</gmd:onLine>
+				</gmd:MD_DigitalTransferOptions>
+			</gmd:transferOptions>
+		</gmd:MD_Distribution>
+	</gmd:distributionInfo>
+	<gmd:dataQualityInfo>
+		<gmd:DQ_DataQuality>
+			<gmd:scope>
+				<gmd:DQ_Scope>
+					<gmd:level>
+						<gmd:MD_ScopeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="service">service</gmd:MD_ScopeCode>
+					</gmd:level>
+				</gmd:DQ_Scope>
+			</gmd:scope>
+			<gmd:report>
+				<gmd:DQ_DomainConsistency>
+					<gmd:result>
+						<gmd:DQ_ConformanceResult>
+							<gmd:specification>
+								<gmd:CI_Citation>
+									<gmd:title>
+										<gco:CharacterString>COMMISSION REGULATION (EU) No 1089/2010 of 23 November 2010 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards interoperability of spatial data sets and services</gco:CharacterString>
+									</gmd:title>
+									<gmd:date>
+										<gmd:CI_Date>
+											<gmd:date>
+												<gco:Date>2010-12-08</gco:Date>
+											</gmd:date>
+											<gmd:dateType>
+												<gmd:CI_DateTypeCode codeSpace="ISOTC211/19115" codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+											</gmd:dateType>
+										</gmd:CI_Date>
+									</gmd:date>
+								</gmd:CI_Citation>
+							</gmd:specification>
+							<gmd:explanation>
+								<gco:CharacterString>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:EN:PDF</gco:CharacterString>
+							</gmd:explanation>
+							<gmd:pass>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:pass>
+						</gmd:DQ_ConformanceResult>
+					</gmd:result>
+				</gmd:DQ_DomainConsistency>
+			</gmd:report>
+			<gmd:lineage>
+				<gmd:LI_Lineage>
+					<gmd:statement>
+						<gco:CharacterString>This dataset was built from ONS Geography&apos;s corrected version of Ordnance Survey BoundaryLine 2013.</gco:CharacterString>
+					</gmd:statement>
+				</gmd:LI_Lineage>
+			</gmd:lineage>
+		</gmd:DQ_DataQuality>
+	</gmd:dataQualityInfo>
+</gmd:MD_Metadata>
+

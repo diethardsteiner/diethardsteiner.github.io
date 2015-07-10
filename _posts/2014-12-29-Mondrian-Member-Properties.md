@@ -228,7 +228,7 @@ For me the following open questions remain in using properties with Mondrian:
 2. Is the **DIMENSION PROPERTIES** syntax supported?
 3. Properties defined with data type of Numeric are not displayed as numeric (so in example 2.23 is displayed as 2). I assume I could just use data type Sting instead as a workaround, but if the data type had to be Numeric, how would I resolve this problem?
 
-**UPDATE 2015-05-01**: After some further discussion with **Roland Bouman** - while testing his **Pentaho Analysis Shell** (PASH) BA Server plugin - he pointed out that Mondrian actually fully supports the `WITH PROPERTIES` syntax, it is just that currently clients do know what to do with the results. You can check this yourself:
+**UPDATE 2015-05-01**: After some further discussion with **Roland Bouman** - while testing his **Pentaho Analysis Shell** (PASH) BA Server plugin - he pointed out that Mondrian actually fully supports the `WITH PROPERTIES` syntax, it is just that currently clients do not know what to do with the results. You can check this yourself:
 
 in Chrome, simply open the developer tools and click on the **Network** tab. Then run in example this query in **PASH**:
 
