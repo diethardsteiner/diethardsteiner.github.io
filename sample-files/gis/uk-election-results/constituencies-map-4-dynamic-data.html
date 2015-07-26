@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+        /* define style for map */
+        .states {
+            fill: #e5e5e5;
+            stroke: #fff;
+            stroke-width: 2px;
+        }  
+        </style>
+    </head>
+    <body>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
+	<script>
+var data = [
+    ['W28','rgba(23, 177, 48, 1)']
+    ,['W12','rgba(23, 177, 48, 0.7)']
+    ,['W11','rgba(23, 177, 48, 0.5)']
+    ,['W10','rgba(23, 177, 48, 0.3)']
+    ,['W9','rgba(23, 177, 48, 0.2)']
+    ,['W8','rgba(23, 177, 48, 0.1)']
+    ,['W27','rgba(23, 177, 48, 0.1)']
+    ,['W24','rgba(23, 177, 48, 0.6)']
+    ,['W23','rgba(23, 177, 48, 0.1)']
+    ,['W21','rgba(23, 177, 48, 0.9)']
+    ,['W26','rgba(23, 177, 48, 1)']
+    ,['W25','rgba(23, 177, 48, 0.2)']
+]
+;
+
+// create map
+var width = 700,
+    height = 1000;
+
+var projection = d3.geo.albers()
+    //.center([0, 55.4])
+    .center([3, 54])
+    .rotate([4.4, 0])
+    .parallels([50, 60])
+    .scale(4000)
+    .translate([width / 2, height / 2])
+    //.translate(200,200)
+    ;
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select('body').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+d3.json('constituencies.topo.json', function(error, topology) {
+    // create a polygon for every constituency
+    svg.selectAll('.constituency')
+    // retrieve the features so that we can access the id
+    	.data(topojson.feature(topology, topology.objects.constituencies).features)
+    	.enter().append('path')
+    	.attr('class', function(d) { return 'constituency ' + d.id; })
+    	.attr('d', path)
+    	// fill color for each polygon
+    	// .attr('fill', function(d) { 
+    	// 	if(data[0][0] === d.id) { return 'red'; }
+    	// })
+    	;
+
+    //svg.select('.W28').attr('fill','red');
+
+    // dynamic coloring
+    data.forEach(function(elt, i) {
+      console.log(elt[0] + ': ' + elt[1]);
+      console.log(svg.select(elt[0]));
+      svg.select('.' + elt[0]).attr('fill',elt[1]);
+    }); 
+});
+	</script>
+    </body>
+</html> 

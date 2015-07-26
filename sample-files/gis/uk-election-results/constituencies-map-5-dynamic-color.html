@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<meta charset='utf-8'>
+<style>
+/*
+.constituency.W28 { fill: rgba(23, 177, 48, 1); }
+*/
+</style>
+<body>
+<script src='http://d3js.org/d3.v3.min.js'></script>
+<script src='http://d3js.org/topojson.v1.min.js'></script>
+<script>
+var myData = [
+    ['W28',3223534]
+    ,['W12',234255]
+    ,['W11',2352332]
+    ,['W10',563452]
+    ,['W9',234]
+    ,['W8',563432]
+    ,['W27',23455]
+    ,['W24',462342]
+    ,['W23',978465]
+    ,['W21',67456]
+    ,['W26',1232543]
+    ,['W25',764343]
+]
+;
+
+// dynamic color shades
+var measures = [];
+
+myData.forEach(function(elt, i) {
+    measures.push(elt[1]);
+})
+;
+
+var countItmes = myData.length;
+var measuresMin = Math.min.apply(Math,measures);
+var measuresMax = Math.max.apply(Math,measures) + 1; // added plus 1 so that we can use >= and < in range checks further down 
+var range = measuresMax - measuresMin;
+var unit = range / countItmes;
+var ranges = [];
+
+for(i=0;i<countItmes;i++){
+    var range = [];
+    // min
+    range.push(measuresMin + (unit * i));
+    // max
+    range.push(measuresMin + (unit * (i+1)));
+    // color: opacity must not be lower than 0.1
+    // not really the best algorithm, but it works for now
+    range.push('rgba(23, 177, 48, ' + ( 0.1 + ((0.9 / countItmes) * ( i + 1 ) )) + ')');
+    ranges.push(range);
+}
+
+myData.forEach(function(row, i) {
+    ranges.forEach(function(elt, z) {
+        if( row[1] >= elt[0] && row[1] < elt[1] ) {
+            // add range color to dataset
+            // console.log('The value ' + row[1] + 'falls between ' + elt[0] + ' and ' + elt[1]);
+            row.push(elt[2]);
+        }
+    });
+});
+
+// create map
+var width = 700,
+    height = 1000;
+
+var projection = d3.geo.albers()
+    //.center([0, 55.4])
+    .center([3, 54])
+    .rotate([4.4, 0])
+    .parallels([50, 60])
+    .scale(4000)
+    .translate([width / 2, height / 2])
+    //.translate(200,200)
+    ;
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select('body').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+d3.json('constituencies.topo.json', function(error, topology) {
+  // create a polygon for every constituency
+  svg.selectAll('.constituency')
+    // retrieve the features so that we can access the id
+    .data(topojson.feature(topology, topology.objects.constituencies).features)
+    .enter().append('path')
+    .attr('class', function(d) { return 'constituency ' + d.id; })
+    .attr('d', path)
+    ;
+
+    // add colors
+    myData.forEach(function(elt, i) {
+        svg.select('.' + elt[0]).attr('fill',elt[2]);
+    });
+
+});
+
+</script>

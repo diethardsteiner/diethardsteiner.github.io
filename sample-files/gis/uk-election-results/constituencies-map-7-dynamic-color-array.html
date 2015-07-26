@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <style>
+/* color codes for our map */
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
+        </style>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+        <script>
+
+var myData = [
+    ['W28',3223534]
+    ,['W12',234255]
+    ,['W11',2352332]
+    ,['W10',563452]
+    ,['W9',234]
+    ,['W8',563432]
+    ,['W27',23455]
+    ,['W24',462342]
+    ,['W23',978465]
+    ,['W21',67456]
+    ,['W26',1232543]
+    ,['W25',764343]
+]
+;
+
+// create map
+
+var width = 700,
+    height = 1000;
+
+var myDataMin = d3.min(myData, function(d, i) { return myData[i][1]; });
+var myDataMax = d3.max(myData, function(d, i) { return myData[i][1]; });
+// d3.max(data, function(d) { return d.votes; })
+
+console.log('The range of my data is: ' + myDataMin + ' - ' + myDataMax);
+
+var quantize = d3.scale.quantize()
+    .domain([myDataMin, myDataMax]) 
+    .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }))
+    // Note 9 define in the range() function relates to the 9 CSS styles we defined above
+    ;
+
+var projection = d3.geo.albers()
+    //.center([0, 55.4])
+    .center([3, 54])
+    .rotate([4.4, 0])
+    .parallels([50, 60])
+    .scale(4000)
+    .translate([width / 2, height / 2])
+    //.translate(200,200)
+    ;
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select('body').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+d3.json('constituencies.topo.json', function(error, topology) {
+    // create a polygon for every constituency
+    svg.selectAll('.constituency')
+    // retrieve the features so that we can access the id
+        .data(topojson.feature(topology, topology.objects.constituencies).features)
+        .enter().append('path')
+        .attr('class', function(d) { return 'constituency ' + d.id; })
+        .attr('d', path)
+        ;
+    
+    // add colors 
+    // [OPEN]: try to move this to the bit above as shown in the d3.map() function
+    myData.forEach(function(elt, i) {
+        //console.log(elt[0] + ': ' + elt[1] + ' -> color: ' + quantize(elt[1]));
+        svg.select('.' + elt[0]).attr('class', quantize(elt[1]));
+    });
+});
+
+        </script>
+    </body>
+</html>

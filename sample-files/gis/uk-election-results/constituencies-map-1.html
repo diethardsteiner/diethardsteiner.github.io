@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+        /* define style for map */
+        .states {
+            fill: #e5e5e5;
+            stroke: #fff;
+            stroke-width: 2px;
+        }  
+        </style>
+    </head>
+    <body>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
+	<script>
+        // Create SVG element
+	var width = 500,
+	height = 500;
+
+	var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);	
+
+	// Load Map from File
+	d3.json("constituencies.topo.json", function(error, topology) {
+            if (error) return console.error(error);
+            // Create Path based on Map data
+            svg.append("path")
+                // adjust topology reference objects.constituencies
+                .datum(topojson.feature(topology, topology.objects.constituencies))
+                .attr("d", d3.geo.path().projection(d3.geo.mercator()));
+	});
+	</script>
+    </body>
+</html> 
