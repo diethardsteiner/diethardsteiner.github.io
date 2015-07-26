@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  "Big Data: Snapshot and Accumulating Snapshot"
-summary: 
-date: 2015-05-23
-categories: Data Modeling
-tags: Snapshot, Kimball
-published: false
----
+title:  "Big Data Snapshot and Accumulating Snapshot"
+summary: This article explains how to implement an accumulating snapshot on Hadoop
+date: 2015-07-27
+categories: data-modeling
+tags: Kimball
+published: true
+--- 
 
 In this article we will have a look at various approaches on how to create snapshot tables with varying degrees of flexibility. We will start by taking a brief look at the classic **Kimball** approaches, then discuss a different approach for a Big Data environment and finally take a look at an alternative approach which I came up with. This article is more of a theoretical nature - initially I tried to include some practical examples, but the article was just getting way too long, so I cut it back to the essential points.
 
@@ -14,12 +14,11 @@ In this article we will have a look at various approaches on how to create snaps
 
 Both the **snapshot** as well as the **accumulating snapshot** rely on a fact table. You can think of them as alternative views on the same data, which allow to answer a different set of questions. 
 
-
 ## Snapshot
 
-A snapshot allows us to easily check at which stage a certain item is: A classic example is an item being delivered from your online merchant to your doorstep. It's a **predefined process** with **given steps**. A classic **Kimball** style **snapshot** would list the ID of your order, any dimensions, a date or timestamp for each of the steps (e.g. *Package ready to be dispatched*, *Arrived at local distribution centre* etc) and there would be a counter of `1` for each of the steps completed. The table row gets updated as the delivery progresses. This works fine for processes that are more of a static nature.
+A snapshot allows us to easily check at which stage a certain item is on a given day: A classic example is an item being delivered from your online merchant to your doorstep. It's a **predefined process** with **given steps**. A classic **Kimball** style **snapshot** would list the ID of your order, any dimensions, a date or timestamp for each of the steps (e.g. *Package ready to be dispatched*, *Arrived at local distribution centre* etc) and there would be a counter of `1` for each of the steps completed. The table row gets updated as the delivery progresses. This works fine for processes that are more of a static nature.
 
-Here an extremely simplified example: The object with id `20` just enters **step 1** in our process, hence we insert a new record populating the respective fields:
+Here an extremely simplified example: The object with id `20` just entered **step 1** in our process, hence we insert a new record populating the respective fields:
 
 
 id | dim_a | step_1_started_tk | step_2_started_tk |step_1_count |step_2_count
@@ -38,13 +37,13 @@ If the process is of a more flexible nature, e.g. it's possible to jump one or s
 
 ## Accumulating Snapshot
 
-**Snapshot** tables allow us to answer the question *How many items entered step/stage X on a certain day?*, however, they do not allow us to answer the question *How many items do we have in a given step/stage of our process on a given day?*: This is what **accumulating snaphots** are for.
+**Snapshot** tables allow us to answer the question *How many items entered step/stage X on a certain day?*, however, they do not allow us to answer the question *How many items do we have in a given step/stage of our process on a given day?*: This is what **accumulating snapshots** are for.
 
 snapshot_date_tk | dim_a | dim_b | quantity_on_hand_eod
 ----|-----|-----|-----|----|
 20150603 | aaa | bbb | 234
 
-The quantity is usually taken at the end of the day. 
+The **quantity** on hand is usually measured at the end of the day. 
 
 **Accumulating Snapshot** saves reporting solutions the computing intensive task of having to calculate for each day how many objects entered and exited a certain stage/step since the very beginning. 
 
@@ -52,13 +51,13 @@ The **ETL** process has less to do as well to create a new record: We only have 
 
 # Creating an event table
 
-On a recent project the task was to store any event in a workflow on Hadoop. As most of you will know, Hadoop was not originally designed for updates, hence we had to resort to an alternative strategy - which was suggested by Nelson Sousa: The idea is to **negate** the last event once a new event arrives. The original event has a count of `1` whereas the negating/closing record of the same event has a count of `-1`. When you sum the records, the result will be `0`. 
+On a recent project the task was to store any event in a workflow on Hadoop. As most of you will know, **Hadoop HDFS** was not originally designed for updates, hence we had to resort to an alternative strategy - which was suggested by Nelson Sousa: The idea is to **negate** the last event once a new event arrives. The original event has a count of `1` whereas the negating/closing record of the same event has a count of `-1`. When you sum the records, the result will be `0`. 
 
 Another requirement was that we can record any event: The workflow is not necessarily sequential. Items can jump back and forth several steps several times. This means that **Kimball's accumulating snapshot** approach cannot be applied. 
 
-The basic algorithm will create a closing record for each event once a new one arrives. The closing record's date will be the same as the one of the next event:
+The basic algorithm will create a closing record for each event **once a new one arrives**. The closing record's date will be the same as the one of the next event:
 
-![](./img/events_algorithm.png)
+![](/images/events_algorithm.png)
 
 A second ETL process creates the accumulating snapshot, which we will discuss next.
 
@@ -68,38 +67,38 @@ In order to be able to analyse the amount of items in a certain state on a given
 
 > **Filling the gaps**: The important point to consider is that for a daily snapshot we have to create daily records even if there is no measure available for this particular day and the given combination of dimensions. The fillings are highlighted in the below screenshot in blue:
 
-![](./img/events_snapshot.png)
+![](/images/events_snapshot.png)
 
-A more sensible approach is to not create any records once the cumulative sum of a given combination of dimensions reaches zero - this will safe you some disk space.
+A more sensible approach is to not create **fillers** once the cumulative sum of a given combination of dimensions reaches zero - this will safe you some disk space.
 
-An simple strategy to create these **fillings** is to calculate the difference in amount of days between the current record and the next record and subtract minus 1. Then you can use this number to clone the current record. Care must be taken to set any measures to `NULL` in the **clones** (apart from the cumulative measures).
+A simple strategy to create these **fillings** in the **ETL** is to calculate the difference in amount of days between the current record and the next record and subtract minus 1. Then you can use this number to clone the current record. Care must be taken to set any measures to `NULL` in the **clones** (apart from the cumulative measures).
 
 ## Creating the Cube Definition
 
-Writing the **Mondrian** OLAP Schema for the snapshot and accumulative snapshot tables is quite straight forward. The one noteworthy point is that we should create a derived dimension called **Flow** (based on our `+1` and `-1` counts) in order to better show the in and out movement.
+Writing the **Mondrian** OLAP Schema for the snapshot and accumulating snapshot tables is quite straight forward. The one noteworthy point is that we should create a derived dimension called **Flow** (based on our `+1` and `-1` counts) in order to better show the in and out movement. Another important point is that the end users have to be educated to only analyse **accumulating snapshot** figures on a daily level, as they will not roll up to a higher level (unless you fancy implementing semi-additive measures, which automatically picks the beginning of the month e.g. if you are on a monthly level - this can be quite performance intensive though).
 
 ## Sample Analysis
 
 A very simple report will show the amount of issues added and removed from a certain status on a given day:
 
-![](./img/events_in_and_out.png)
+![](/images/events_in_and_out.png)
 
 The next report is a bit similar, but we set following filters:
 
 - Show all **Status**es except `Opened`
 - Show all statuses for **Flow** `in` only
 
-![](./img/events_daily_status_movement.png)
+![](/images/events_daily_status_movement.png)
 
 Our sample dataset is extremely small, but in real world scenarios you can take the output of the above query for just one day and display it in a **Sankey** or **Alluvial Diagram**. Here is an example based around our use case, just with a  bit more data:
 
-![](./img/events_alluvial_diagram.png)
+![](/images/events_alluvial_diagram.png)
 
 The above diagram was quickly created with [RAW](http://app.raw.densitydesign.org) - a good way to prototype this type of chart. You can later on implement this kind of chart in a **Pentaho CDE** dashboard.
 
 And finally we want to understand how many items there are each day in a given status, which can be answered by our **Accumulating Snapshot** cube:
 
-![](./img/events_daily_snapshot.png)
+![](/images/events_daily_snapshot.png)
 
 `2015-03-01` shows `0` items as in **Status** `opened`. The reason for this is that the snapshot represents the state at the end of the day: One item was opened on `2015-03-01` and assigned on the same day, hence our snapshot shows `0` for `opened` and `1` for `assigned`. 
 
@@ -113,7 +112,7 @@ And finally we want to understand how many items there are each day in a given s
 5. Now we just have to aggregate the merged dataset by all dimensional columns and we have the new cumulative sum.
 6. Filter out the records which have a zero cumulative sum and discard them (if you want to save storage space).
 
-![](./img/events_diagram_etl_snapshot_one_day.png)
+![](/images/events_diagram_etl_snapshot_one_day.png)
 
 ## Basic Strategy - Processing several days at once
 
@@ -122,7 +121,7 @@ The approach below assumes that you do not have any late arriving data.
 1. From the **existing accumulative snapshot data**, get the records for the last/most recent date as we have to have access to the cumulative quantity.
 2. Get the **new data** (all days).
 3. Merge streams in a SQL `UNION ALL` fashion.
-4. **Sort** the data.
+4. **Sort** the data in ascending order.
 5. Create the **cumulative sum**.
 6. From the **new data** we require the **maximum date** (across any combination of dims). 
 7. **Create Fillers**: Calculate the required number of clones between the given record and the next one (in the same dimensional category). If there is no record available for that particular dimensional category for the last day within this dataset, use the maximum date from step 5 to calculate the additional clones. Finally, based on the previously derived required clones number, clone the records (hence creating the fillers).
@@ -130,17 +129,17 @@ The approach below assumes that you do not have any late arriving data.
 
 This is only a very rough outline, there are many more steps required to make this work properly. 
 
-![](./img/events_diagram_etl_snapshot_all.png)
+![](/images/events_diagram_etl_snapshot_all.png)
 
 Why do we need the max date of the new data? Because we have to create **filler** records for any combination of dimensions until this date in case there is no measure for them available. E.g. we might have measures for category X until the most recent date but for category Y we might only have data until 2 days earlier. So even though no changes happened for category Y, we still have to create records for it (in the ideal case only if the cumulative sum is not zero).
 
 It is worth noting that if there is a certain category (combination of dims) in the existing snapshot data but no corresponding new data, we have to keep on creating records for them in the snapshot table for each day (create clones). But this is quite often an overkill, as I don't consider it necessary to show records when there is a cumulative sum of 0.
 
-For all categories (combinations of dims) that we create clones for for each day, the cumulative sum will be the same an the standard sum/quantity has to be set to 0. 
+For all categories (combinations of dims) that we create clones for for each day, the cumulative sum will be the same and the standard sum/quantity has to be set to 0. 
 
 > **In a nutshell**: If there are no new measures for a given day, a snapshot table still has to show a record (if that combination of dims showed up in the past).
 
-![](./img/events_snapshot_cases.png)
+![](/images/events_snapshot_cases.png)
 
 The example above (shown in the screenshot) illustrates some of the considerations we have to take:
 
@@ -152,9 +151,11 @@ The example above (shown in the screenshot) illustrates some of the consideratio
 
 In the case of Hadoop, we cannot just update existing records in case we have late arriving data (and usually it is not a good idea to update records in a any case unless it is a snapshot).
 
-![](./img/events_snapshot_late_arriving_records.png)
+![](/images/events_snapshot_late_arriving_records.png)
 
-In the example shown above, we receive a record on the 8th of June for the 1st of Jun. Snapshot data is already available until the 7th of Jun. As we cannot update the existing records, we just insert new records (highlighted in yellow) for evert day since the 1st of Jun to correct the existing records. It is worth noting that the Mondrian Cube Definition should easily handle this scenario without requiring any changes, however, the ETL might need some adjustment (e.g. when accumulating snapshot figures get sourced, they have to get aggregated).
+In the example shown above, we receive a record on the 8th of June for the 1st of Jun. Snapshot data is already available until the 7th of Jun. As we cannot update the existing records, we just insert new records (highlighted in yellow) for evert day since the 1st of Jun to correct the existing records. This approach was suggested by Nelson Sousa.
+
+It is worth noting that the Mondrian Cube Definition should easily handle this scenario without requiring any changes, however, the ETL might need some adjustment (e.g. when accumulating snapshot figures get sourced, they have to get aggregated). 
 
 # An alternative approach
 
@@ -164,7 +165,7 @@ Here is an alternative approach I came up with, which is good for a quick protot
 
 ## Outline of the Strategy
 
-![](./img/event_my_alt_approach.png)
+![](/images/event_my_alt_approach.png)
 
 You will notice that we keep on creating negating records and the pairs have `+1` and `-1` counters (`quantity_moving`). The difference to the other approaches is that the ETL creates **fillers** for the days in between the entering and exit record. Noteable addition is the `quantity_on_hand` field, which is set to `1` for every day we actually have this object in the given state/event (you guessed it). Now just put a Mondrian Schema on top, et voilá: you have everything! Mondrian will sum up the `quantity_on_hand` for a given day, which will give you the accumulative snapshot figures and at the same time you also have access to figures about items entering and exiting a given status (`quantity_moving`).
 
@@ -184,6 +185,6 @@ Also notice, that for this a particular `issue_id` we had a raw record for 2015-
 - There is only one output table which provides all required results.
 - It should be easy to run this in parallel (partitioning by `issue_id` e.g.).
 
-**OLAP SCHEMA**: When analysing **Quantity On Hand** exclude the status **closed**. Status **closed** is the only status that items never leave. So there is not much use of having a cumulative sum for this status and hence this strategy also does set `quantity_on_hand_eod` to 0 for status **closed** records. In general, we are not interested in having a cumulative sum of closed items since the beginning of the service. We are more likely to ask **How many issues were closed this week?**, which can be answered by using `quantity_moving`. For all other statuses (which have an in and out movement) we require `quantity_on_hand_eod` in order to answer the question **How many issues are in status X on a given day?**. Another advantage of not generating a cumulative sum for status **closed** is that we do not have to create a huge amount of clones/fillers. We only have to create fillers for all other statuses (which have an in and out movement).
+**OLAP SCHEMA**: When analysing **Quantity On Hand** exclude the status **closed**. Status **closed** is the only status that items never leave. So there is not much use of having a cumulative sum for this status and hence this strategy also does set `quantity_on_hand_eod` to 0 for status **closed** records. In general, we are not interested in having a cumulative sum for closed items since the beginning of the service. We are more likely to ask **How many issues were closed this week?**, which can be answered by using `quantity_moving`. For all other statuses (which have an in and out movement) we require `quantity_on_hand_eod` in order to answer the question **How many issues are in status X on a given day?**. Another advantage of not generating a cumulative sum for status **closed** is that we do not have to create a huge amount of clones/fillers. We only have to create fillers for all other statuses (which have an in and out movement).
 
-OPEN: SHOW SOME SCREENSHOTS OF THE CUBE OUTPUT
+![](/images/events_my_alt_approach_cube.png)

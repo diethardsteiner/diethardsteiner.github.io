@@ -785,7 +785,7 @@ for(var i=0; i < dataset.resultset.length; i++){
 
 Our chart works smoothly with the dynamic datasource now on the **Pentaho BI Server**. As a final exercise you can make the datasource for the events dynamic, but I'll leave this up to you.
 
-**UPDATE 2015-04-02:** Currently the **D3 Component Library** doesn't seem to be available via the **Marketplace**. This is not a major issue tough: Just upload `d3.min.js` to the **BA Server** and reference it from within your dashboard (Resource: external JavaScript). Then add a **Query Component**. Provide out the usual settings, define a **Result Var** name, e.g. `dataset`. Then you can add all your **D3** code to the **PreExecution** function. Note that with this component, the data has to be prepared similar to the example shown below:
+**UPDATE 2015-04-02:** Currently the **D3 Component Library** doesn't seem to be available via the **Marketplace**. This is not a major issue tough: Just upload `d3.min.js` to the **BA Server** and reference it from within your dashboard (Resource: external JavaScript). Then add a **Query Component**. Provide out the usual settings, define a **Result Var** name, e.g. `dataset`. Then you can add all your **D3** code to the **PostExecution** function. Note that with this component, the data has to be prepared similar to the example shown below:
 
 ```javascript
 var data = [];
