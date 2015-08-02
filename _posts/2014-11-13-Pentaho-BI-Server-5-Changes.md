@@ -245,6 +245,7 @@ New one:
 
 ```
 /pentaho/api/system/refresh/mondrianSchemaCache
+http://<user>:<password>@<host>:<port>/pentaho/api/system/refresh/mondrianSchemaCache
 ```
 
 ### Rendering a Dashboard

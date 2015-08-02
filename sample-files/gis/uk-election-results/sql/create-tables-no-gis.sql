@@ -42,7 +42,7 @@ ON stg_d3_map.uk_voting_constituencies(press_association_number)
 ;
 
 
-CREATE TABLE stg_d3_map.uk_voting_winners
+CREATE VIEW stg_d3_map.vw_uk_voting_winners
 AS
 SELECT
     constituency_name
@@ -67,13 +67,6 @@ ON
 ;
 
 --- for dashboard
-
--- see how the share of the winner (not very useful to display in map)
-SELECT
-    ons_gss_code
-	, share_votes AS count_votes
-FROM stg_d3_map.uk_voting_winners
-;
 
 -- understand where the strongholds of a given party is
 
