@@ -37,6 +37,7 @@ To add a special **Cell Formatter**, simply nest the `CellFormatter` **XML eleme
 <Measure name="Duration" column="duration" visible="true" aggregator="sum">
     <CellFormatter>
         <Script language="JavaScript">
+            <![CDATA[
             var result_string = '';
             // access Mondrian value
             var sec =  value;
@@ -47,6 +48,7 @@ To add a special **Cell Formatter**, simply nest the `CellFormatter` **XML eleme
             var seconds = Math.floor(sec - (weeks*7*24*60*60) - (days*24*60*60) - (hours*60*60) - (minutes*60));
             result_string = weeks.toString() + 'w ' + days.toString() + 'd ' + hours.toString() + 'h ' + minutes.toString() + 'min ' + seconds.toString() + 'sec';
             return result_string;
+            ]]>
         </Script>
     </CellFormatter>
 </Measure>
@@ -85,3 +87,84 @@ return result_string;
 > **Important**: When adding the `CellFormatter` make sure that you removed the `formatString` attribute from the `Measure` or `CalculatedMeasure` XML Element, otherwise this attribute will take precedence over the `CellFormatter`.
 
 Amazing isn't it? If I had only known about this feature earlier on! A big thanks to Matt Campbell for pointing out that Mondrian has a **Cell Formatter**.
+
+And finally, you can also define the **Cell Formatter** in your MDX query:
+
+```sql
+WITH
+MEMBER [Measures].[t2] AS
+    '[Measures].[t1] * 2.5'
+    , CELL_FORMATTER_SCRIPT_LANGUAGE = "JavaScript"
+    , CELL_FORMATTER_SCRIPT = "var result_string = ''; /*your javascript*/ return result_string;"
+    , MEMBER_ORDINAL = 33
+```
+
+## Global Custom Format Definitions
+
+If you want to use your custom format with several measures or calculated measures, ideally you want to create one global definition for your custom format. In your Mondrian Schema you can define a `UserDefinedFunction` ([Reference](http://mondrian.pentaho.com/api/mondrian/spi/UserDefinedFunction.html)) as child of the `Schema` element (NOT the `Cube` element), which takes care of this. The script has to be adjusted, mainly at the beginning we have to add a few additional lines of code and also slightly change the way the result is returned:
+
+```xml
+<UserDefinedFunction name="TimeToStringDate">
+    <Script language="JavaScript">
+        <![CDATA[
+        function getParameterTypes() {
+            return new Array(mondrian.olap.type.NumericType());
+        }
+        function getReturnType(parameterTypes) {
+            return new mondrian.olap.type.StringType();
+        }
+        function execute(evaluator, arguments) {
+            var value = arguments[0].evaluateScalar(evaluator);
+            var result_string = '';
+            // access Mondrian value
+            var sec =  value;
+            var weeks = Math.floor(sec/(60*60*24*7));
+            var days = Math.floor((sec/(60*60*24)) - (weeks*7));
+            var hours = Math.floor(sec/(60*60) - (weeks*7*24) - (days*24));
+            var minutes = Math.floor((sec/60) - (weeks*7*24*60) - (days*24*60) - (hours*60));
+            var seconds = Math.floor(sec - (weeks*7*24*60*60) - (days*24*60*60) - (hours*60*60) - (minutes*60));
+            if(weeks !== 0){
+                    result_string = weeks.toString() + 'w ' + days.toString() + 'd ' + hours.toString() + 'h ' + minutes.toString() + 'min ' + seconds.toString() + 'sec';
+            } else if(days !== 0){
+                    result_string = days.toString() + 'd ' + hours.toString() + 'h ' + minutes.toString() + 'min ' + seconds.toString() + 'sec';
+            } else if(hours !== 0){
+                    result_string = hours.toString() + 'h ' + minutes.toString() + 'min ' + seconds.toString() + 'sec';
+            } else if(minutes !== 0){
+                    result_string = minutes.toString() + 'min ' + seconds.toString() + 'sec';
+            } else if(seconds !== 0){
+                    result_string = seconds.toString() + 'sec';
+            } else {
+                    // always provide a display value - do not return null
+                    result_string = '0sec';
+            }
+            return "\"" + result_string + "\"";
+        }
+        ]]>
+    </Script>
+</UserDefinedFunction>
+```
+
+
+Now that the global format function is defined, you can use it with **Calculated Measures**, but not directly with **Measures**. **Measures** do lack a property child element: They only have a `formatString` attribute, but you cannot use this one to reference the function:
+
+```xml
+<Measure name='Duration Base' column='duration' aggregator='sum' visible='false'/>
+<CalculatedMeasure name='Duration' formula='[Measures].[Duration Base]' dimension='Measures' visible='true'>
+    <CalculatedMeasureProperty name='FORMAT_STRING' expression='prettyIntervalFormatter([Measures].CurrentMember)'></CalculatedMeasureProperty>
+</CalculatedMeasure>
+```
+
+> **Very Important**: If you have to apply the function to several measures in this way, make sure that you list the **Measures** first and only then the **Calculated Measures**. You must not mix them, otherwise **Mondrian** will exclude any measures listed after the first calculated measure!
+
+You can use the function in your **MDX** query or even in **Analyzer** or other clients when defining a calculated measure. MDX query example:
+
+```sql
+WITH
+MEMBER [Measures].[Test] AS
+    [Measures].[Sales] / 2
+    , FORMAT_STRING = prettyIntervalFormatter([Measures].CurrentMember)
+SELECT
+    [Event Type].Members ON 0
+    , [Measures].[Test] ON 1
+FROM [MyCube]
+```

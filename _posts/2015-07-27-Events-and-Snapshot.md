@@ -147,7 +147,119 @@ The example above (shown in the screenshot) illustrates some of the consideratio
 	- No data between 31 May and Jun 2 (rows with yellow background colour)
 	- No data between 3rd and 6th June (most recent date in the example) (rows with red background colour): For other categories we have data up to the 7th June, so we have to create an extra record for this category / combination of dimensions.
 
-### Handling Late Arriving Data
+### Complications When Adding Age (in Days or Working Days)
+
+On one of the project I was working the requirement was to be able to analyse how many working days a Jira issue was in a certain state. 
+
+issue_id | state | datetime | event_count  
+ ------	| ------	| ------	| ------	|  
+288 | Opened | 2015-09-01 12:31:00 | 1  
+288 | Opened | 2015-09-03 10:11:00 | -1  
+
+Adding the age in days or working days adds further complication to creating a snapshot, as we will see shortly:
+
+issue_id | state | datetime | event_count  | age (days) |
+ ------	| ------	| ------	| ------	|  ----- |
+288 | Opened | 2015-09-01 12:31:00 | 1  | 1
+288 | Opened | 2015-09-03 10:11:00 | -1  | 3  
+
+In our snapshot ETL, in memory, we would expand this dataset to the following:
+
+issue_id | state | datetime | event_count  | age (days) |
+ ------	| ------	| ------	| ------	|  ----- |
+288 | Opened | 2015-09-01 12:31:00 | 1  | 1  
+288 | Opened	| 2015-09-02 00:00:00 | 0 | 2
+288 | Opened | 2015-09-03 10:11:00 | -1  | 3  
+
+Now the problem is that our event count of `+1` and `-1` are not representative any more, because we introduced a deeper granularity by adding the age in days. To correct this, we would have to create a dataset like this:
+
+issue_id | state | datetime | age (days) | event_count  |
+ ------	| ------	| ------	| ------	|  ----- |
+288 | Opened | 2015-09-01 12:31:00 | 1  | 1
+288 | Opened | 2015-09-02 00:00:00 | 1  | -1
+288 | Opened	| 2015-09-02 00:00:00 | 2 | 1
+288 | Opened	| 2015-09-03 10:11:00 | 2 | -1
+288 | Opened | 2015-09-03 10:11:00 | 3 | 1  
+288 | Opened | 2015-09-03 10:11:00 | 3 | -1  
+288 | Assigned | 2015-09-03 10:11:00 | 1 | 1 
+
+Now the key is made up of `issue_id`, `state`, `datetime` and `age (days)`, hence the Jira issue can enter and exit this detailed *state*.
+
+If the requirement is to use **working days**, the strategy is still the same, however, one point worth noting is, that the some key values can exist across several days, e.g. a weekend:
+
+issue_id | state | datetime | age (working days) | event_count  |
+ ------	| ------	| ------	| ------	|  ----- |
+288 | InProgress | 2015-09-04 13:22:00 | 1  | 1
+288 | InProgress | 2015-09-05 00:00:00 | 1  | 0
+288 | InProgress	| 2015-09-06 00:00:00 | 1 | 0  
+288 | InProgress	| 2015-09-07 00:00:00 | 1 | -1
+288 | InProgress	| 2015-09-07 00:00:00 | 2 | 1  
+288 | InProgress | 2015-09-08 00:00:00 | 2 | -1 
+288 | InProgress | 2015-09-08 10:11:00 | 3 | 1  
+288 | InProgress | 2015-09-08 10:11:00 | 3 | -1  
+288 | UnderReview | 2015-09-08 10:11:00 | 1 | 1  
+
+So this is getting fairly complex now. We have to find a better strategy that works with our initial fact events table data:
+
+How about just flagging the rows if they are **on hand** instead of creating the enter-exit (+1 -> -1) combos and using a standard **Sum** instead of an **Cumulative Sum** aggregation? Would this not be easier?
+
+issue_id | state | datetime | event_count  | age (days) | quantity on hand 
+ ------	| ------	| ------	| ------	|  ----- | ----
+288 | Opened | 2015-09-01 12:31:00 | 1  | 1  | 1
+288 | Opened	| 2015-09-02 00:00:00 | 0 | 2 | 1
+288 | Opened | 2015-09-03 10:11:00 | -1  | 3 | 0  
+
+In this case we only have to create one filler record a day for each unique key combination. One important point to consider is that we have to ignore intra-day state changes, e.g.:
+
+issue_id | state | datetime | event_count  | age (days) | quantity on hand 
+ ------	| ------	| ------	| ------	|  ----- | ----
+277 | Opened | 2015-09-01 12:31:00 | 1  | 1  | 0  
+277 | Opened | 2015-09-01 13:33:00 | -1  | 1  | 0  
+277 | Assigned | 2015-09-01 13:33:00 | 1  | 1  | 1  
+277 | Assigned | 2015-09-02 11:23:00 | -1  | 2  | 0  
+277 | InProgress | 2015-09-02 11:23:00 | 1  | 1  | 1
+
+> **Note**: As Jira issue 277 gets opened and then assigned on the same day, the entering and exit records of state `Opened` have both `quantity on hand` set to `0`.
+
+In most cases we do not want to keep the same granularity in the snapshot table as in the fact events table. Usually we would at least get rid of the `issue_id`.
+
+There are some rules to consider when aggregating the data:
+
+- The fact events table needs an additional `age_in_days` fields so that we can accurately detect intra-day state changes (and hence exclude them from the snapshot). `age_in_days` has to be set to `0` for these records. For intra-day state changes, the `-1` has to be respected in the negating record. Also, any age in days values have to be set to `0`.
+- The **negating** (exiting) records (`-1`) have to be treated as `0`. We only want to keep these records in order to create the **fillers** in the ETL (for non-intra-day status changes). Once the fillers are created, we discard these records.
+- When we clone the **entering** (`+1`) row we keep the event count figure to obtain `quantity_on_hand` instead of replacing it by `0` or `NULL`.
+
+![](/images/events_snapshot_strategy_age_on_hand.png)
+
+The values in the white cells in the `Sum (Corrected)` column in the above screenshot would be returned by the input query shown below. The green cells are the **fillers** generated by the ETL. 
+
+An input query for the **Snapshot ETL** could look like this:
+
+```sql
+SELECT
+	status
+	, "user"
+	, age_working_days
+	, cum_age_working_days
+	, CAST(CAST(date_tk AS CHAR(8)) AS DATE) AS date
+	, 1 AS is_new_data
+	, SUM(
+		CASE
+			-- we want to ignore intra day ins and outs 
+			WHEN quantity = -1 AND age_days = 0 THEN - 1
+			WHEN quantity = -1 THEN 0 
+			ELSE 1
+		END
+	) AS quantity_on_hand
+	, CAST('${VAR_NEW_DATA_MAX_DATE}' AS DATE) AS new_data_max_date
+FROM events_dma.fact_events
+WHERE
+	date_tk > ${VAR_SNAPSHOT_MAX_DATE}
+GROUP BY 1,2,3,4,5,6
+ORDER BY 1,2,3,4,5,6
+``` 
+
+## Handling Late Arriving Data
 
 In the case of Hadoop, we cannot just update existing records in case we have late arriving data (and usually it is not a good idea to update records in a any case unless it is a snapshot).
 
@@ -165,11 +277,13 @@ Here is an alternative approach I came up with, which is good for a quick protot
 
 ## Outline of the Strategy
 
-![](/images/event_my_alt_approach.png)
+![](/images/events_my_alt_approach.png)
 
-You will notice that we keep on creating negating records and the pairs have `+1` and `-1` counters (`quantity_moving`). The difference to the other approaches is that the ETL creates **fillers** for the days in between the entering and exit record. Noteable addition is the `quantity_on_hand` field, which is set to `1` for every day we actually have this object in the given state/event (you guessed it). Now just put a Mondrian Schema on top, et voilá: you have everything! Mondrian will sum up the `quantity_on_hand` for a given day, which will give you the accumulative snapshot figures and at the same time you also have access to figures about items entering and exiting a given status (`quantity_moving`).
+You will notice that we keep on creating negating records and the pairs have `+1` and `-1` counters (`quantity_moving`). The difference to the other approaches is that the ETL creates **fillers** for the days in between the entering and exit record. Notable addition is the `quantity_on_hand` field, which is set to `1` for every day we actually have this object in the given state/event. Now just put a Mondrian Schema on top, et voilá: you have everything! Mondrian will sum up the `quantity_on_hand` for a given day, which will give you the accumulative snapshot figures and at the same time you also have access to figures about items entering and exiting a given status (`quantity_moving`).
 
-Also notice, that for this a particular `issue_id` we had a raw record for 2015-06-06 and 2015-06-15, but nothing thereafter. There were other records in the source data available last time we imported, so we had to take the maximum date from the source data and generate rows for this issue up to that date. This will make sure that `quantity_on_hand` figures are correct for all dates.
+Also notice, that for this a particular `issue_id` we had a raw record for 2015-06-06 and 2015-06-15, but nothing thereafter. There were other records in the source data available last time we imported, so we had to take the maximum date from the source data and generate rows for this issue id up to that date. This will make sure that `quantity_on_hand` figures are correct for all dates.
+
+Another point to consider is that if an issue id enters and exists a certain state within the same day, we do not want to consider it for `quantity_on_hand`. The snapshot is taken e.g. at the end of the day, hence intra-day changes are not represented. To detect intra-day changes, the ETL has to generate an `age in days` field based on which the `quantity_on_hands` figure can be calculated correctly.
 
 ## Pros and Cons
 
