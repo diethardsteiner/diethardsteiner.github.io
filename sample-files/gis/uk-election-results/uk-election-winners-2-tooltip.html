@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <style>
+body { 
+    color: #666; 
+    /*background: #f3f3f3;*/
+    font: normal 10px "Helvetica Neue", Helvetica, sans-serif; 
+    /*margin: 2em;*/ 
+}            
+
+.constituency {
+    fill: #e5e5e5;
+    /*
+    stroke: #fff;
+    stroke-width: 0.25px; */   
+}
+
+/* party full colors */
+.conservatives { fill:rgba(5, 117, 201, 1); }
+.labour { fill:rgba(237, 30, 14, 1); }
+.snp { fill:rgba(235, 195, 28, 1); }
+.liberal-democrats { fill:rgba(254, 131, 0, 1); }
+.ukip { fill:rgba(113, 47, 135, 1); }
+.green-party { fill:rgba(120, 195, 30, 1); }
+.plaid-cymru { fill: rgba(78, 159, 47, 1); } /*Plaid Cymru*/
+
+/* tooltip */
+.hidden {
+    display: none;
+}
+
+div.tooltip {   
+    color: #222;
+    background: #fff;
+    padding: .5em;
+    text-shadow: #f5f5f5 0 1px 0;
+    border-radius: 2px; 
+    box-shadow: 0px 0px 2px 0px #a6a6a6; 
+    opacity: 0.9; 
+    position: absolute;
+}
+        </style>
+    </head>
+    <body>
+        <div id='map'></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+        <script src="http://d3js.org/queue.v1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+        <script>
+
+// create map
+
+var width = 700,
+    height = 1000;
+
+var projection = d3.geo.albers()
+    //.center([0, 55.4])
+    .center([3, 54])
+    .rotate([4.4, 0])
+    .parallels([50, 60])
+    .scale(4000)
+    .translate([width / 2, height / 2])
+    //.translate(200,200)
+    ;
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select('#map').append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    ;
+
+var tooltip = d3.select('#map').append('div')
+    .attr('class', 'tooltip')
+;
+
+// load files
+queue()
+    .defer(d3.json, "data/constituencies-cde.topo.json")
+    .defer(d3.tsv, "data/vw_uk_voting_winners_extract.tsv")
+    .await(ready) // ready refers to function below
+;
+
+function ready(error, topology, electionData) {
+    // console.log(topology);
+    // console.log(electionData);
+
+    var constituencies = topojson.feature(topology, topology.objects.constituencies).features;
+    var n = constituencies.length;
+    //console.log(constituencies);
+
+    // join datasets
+    // we will add the missing data points to the consituencies object
+    
+    constituencies.forEach(function(d){
+        /**
+        d.constituencyName = electionData.filter(
+            function(n){ 
+                return d.id == n.ons_gss_code
+            })[0].constituency_name
+            ;
+        **/
+        
+        featureData = electionData.filter(
+        function(n){ 
+            return d.id == n.ons_gss_code
+        })
+        ;
+        
+        d.constituencyName = featureData[0].constituency_name;
+        d.partyName = featureData[0].party_name;
+        d.shareVotes = featureData[0].share_votes;
+    })
+    ;
+    
+    //console.log(constituencies);
+    
+    // create a polygon for every constituency
+    svg.selectAll('.constituency')
+        .data(constituencies)
+        .enter()
+        .insert('path')
+        // assign id from feature data
+        .attr('id', function(d) { return d.id; })
+        //.attr('class', 'constituency')
+        .attr('d', path)
+        .attr('class', function(d){
+            return (d.partyName).toLocaleLowerCase().replace(' ','-')
+                + ' constituency';
+        })   
+        // tooltip
+        .on('mousemove', function(d,i){
+            var mouse = d3.mouse(svg.node()).map(
+                function (d) {
+                    return parseInt(d);
+                }
+            )
+            ;
+            
+            tooltip
+                .classed('hidden', false)
+                .attr('style', 'left:' + (mouse[0]+25) + 'px; top:' + mouse[1] + 'px')
+                // tooltip text:
+                .html(
+                    '<b>' + d.constituencyName + '</b></br>' 
+                    + d.partyName + '</br>' 
+                    + d.shareVotes + '%'
+                )
+            
+        })
+        .on('mouseout', function(d,i){
+            tooltip.classed('hidden', true)
+        })
+        ;
+    
+}
+        </script>
+    </body>
+</html>

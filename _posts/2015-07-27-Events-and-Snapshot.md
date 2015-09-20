@@ -312,8 +312,8 @@ We could write a performance intensive subquery to return these records, but let
 1. Import data in reverse order 
 2. Keep first `+1` record (all records that entered a new status).
 3. Filter out all the other + 1s
-4. Use the `-1` records to get the the age_days, which we can use to create the **required number of clones**. `age_days` start at 0, so we can use it 1 to 1 for the number of required clones.
-For the ones that just entered a new status (latest `+1` records), we use the maximum date of the whole input dataset to calculate the number of clones (so this basically boils down to: `age_days = max_date_input_data - event_start_date`). Then we replace the `event_start_date` with the `max_date_input_data` for these records. Now all records have the same logic.
+4. Use the `-1` records to get the the age_days, which we can use to create the **required number of clones**. `age_days` start at `0`, so we can use it 1 to 1 for the number of required clones.
+For the ones that just entered a new status (latest `+1` records), we use the **maximum date of the whole input dataset** to calculate the number of clones (so this basically boils down to: `age_days = max_date_input_data - event_start_date`). Then we replace the `event_start_date` with the `max_date_input_data` for these records. Now all records have the same logic.
 
 **Example**:
 
