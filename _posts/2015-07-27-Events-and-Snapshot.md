@@ -149,7 +149,9 @@ The example above (shown in the screenshot) illustrates some of the consideratio
 
 ### Complications When Adding Age (in Days or Working Days)
 
-On one of the project I was working the requirement was to be able to analyse how many working days a Jira issue was in a certain state. 
+**THIS SECTION IS WORK IN PROGRESS AND MIGHT BE INCOMPLETE**
+
+On one of the project I was working the requirement was to be able to analyse how many working days a Jira issue was in a certain state. Here an example from `fact_events` (the table which holds the `+1` and `-1` event entries): 
 
 issue_id | state | datetime | event_count  
  ------	| ------	| ------	| ------	|  
@@ -160,28 +162,31 @@ Adding the age in days or working days adds further complication to creating a s
 
 issue_id | state | datetime | event_count  | age (days) |
  ------	| ------	| ------	| ------	|  ----- |
-288 | Opened | 2015-09-01 12:31:00 | 1  | 1
-288 | Opened | 2015-09-03 10:11:00 | -1  | 3  
+288 | Opened | 2015-09-01 12:31:00 | 1  | 0
+288 | Opened | 2015-09-03 10:11:00 | -1  | 2  
 
-In our snapshot ETL, in memory, we would expand this dataset to the following:
+> **Note**: Adding a counter for age working days to `fact_events` is a bit trickier. An efficient way to calculate the difference in working days between one event and the next is to add to the `dim_date` table a counter of working days since first day present in your date dimension. This way you only have to subtract the working days counter of the current event date from the next one.
+
+
+In our snapshot ETL, in memory, we would expand the previously shown dataset to the following:
 
 issue_id | state | datetime | event_count  | age (days) |
  ------	| ------	| ------	| ------	|  ----- |
-288 | Opened | 2015-09-01 12:31:00 | 1  | 1  
-288 | Opened	| 2015-09-02 00:00:00 | 0 | 2
-288 | Opened | 2015-09-03 10:11:00 | -1  | 3  
+288 | Opened | 2015-09-01 12:31:00 | 1  | 0 
+288 | Opened	| 2015-09-02 00:00:00 | 0 | 1
+288 | Opened | 2015-09-03 10:11:00 | -1  | 2 
 
-Now the problem is that our event count of `+1` and `-1` are not representative any more, because we introduced a deeper granularity by adding the age in days. To correct this, we would have to create a dataset like this:
+Now the problem is that our event count of `+1` and `-1` are not representative any more, because we introduced a **deeper granularity** by adding the age in days. To **correct** this, we would have to create a dataset like this:
 
 issue_id | state | datetime | age (days) | event_count  |
  ------	| ------	| ------	| ------	|  ----- |
-288 | Opened | 2015-09-01 12:31:00 | 1  | 1
-288 | Opened | 2015-09-02 00:00:00 | 1  | -1
-288 | Opened	| 2015-09-02 00:00:00 | 2 | 1
-288 | Opened	| 2015-09-03 10:11:00 | 2 | -1
-288 | Opened | 2015-09-03 10:11:00 | 3 | 1  
-288 | Opened | 2015-09-03 10:11:00 | 3 | -1  
-288 | Assigned | 2015-09-03 10:11:00 | 1 | 1 
+288 | Opened | 2015-09-01 12:31:00 | 0  | 1
+288 | Opened | 2015-09-02 00:00:00 | 0  | -1
+288 | Opened	| 2015-09-02 00:00:00 | 1 | 1
+288 | Opened	| 2015-09-03 10:11:00 | 1 | -1
+288 | Opened | 2015-09-03 10:11:00 | 2 | 1  
+288 | Opened | 2015-09-03 10:11:00 | 2 | -1  
+288 | Assigned | 2015-09-03 10:11:00 | 0 | 1 
 
 Now the key is made up of `issue_id`, `state`, `datetime` and `age (days)`, hence the Jira issue can enter and exit this detailed *state*.
 
@@ -189,75 +194,206 @@ If the requirement is to use **working days**, the strategy is still the same, h
 
 issue_id | state | datetime | age (working days) | event_count  |
  ------	| ------	| ------	| ------	|  ----- |
-288 | InProgress | 2015-09-04 13:22:00 | 1  | 1
-288 | InProgress | 2015-09-05 00:00:00 | 1  | 0
-288 | InProgress	| 2015-09-06 00:00:00 | 1 | 0  
-288 | InProgress	| 2015-09-07 00:00:00 | 1 | -1
-288 | InProgress	| 2015-09-07 00:00:00 | 2 | 1  
-288 | InProgress | 2015-09-08 00:00:00 | 2 | -1 
-288 | InProgress | 2015-09-08 10:11:00 | 3 | 1  
-288 | InProgress | 2015-09-08 10:11:00 | 3 | -1  
-288 | UnderReview | 2015-09-08 10:11:00 | 1 | 1  
+288 | InProgress | 2015-09-04 13:22:00 | 0 | 1
+288 | InProgress | 2015-09-05 00:00:00 | 0  | 0
+288 | InProgress	| 2015-09-06 00:00:00 | 0 | 0  
+288 | InProgress	| 2015-09-07 00:00:00 | 0 | -1
+288 | InProgress	| 2015-09-07 00:00:00 | 1 | 1  
+288 | InProgress | 2015-09-08 00:00:00 | 1 | -1 
+288 | InProgress | 2015-09-08 10:11:00 | 2 | 1  
+288 | InProgress | 2015-09-08 10:11:00 | 2 | -1  
+288 | UnderReview | 2015-09-08 10:11:00 | 0 | 1  
 
 So this is getting fairly complex now. We have to find a better strategy that works with our initial fact events table data:
 
 How about just flagging the rows if they are **on hand** instead of creating the enter-exit (+1 -> -1) combos and using a standard **Sum** instead of an **Cumulative Sum** aggregation? Would this not be easier?
 
 issue_id | state | datetime | event_count  | age (days) | quantity on hand 
- ------	| ------	| ------	| ------	|  ----- | ----
-288 | Opened | 2015-09-01 12:31:00 | 1  | 1  | 1
-288 | Opened	| 2015-09-02 00:00:00 | 0 | 2 | 1
-288 | Opened | 2015-09-03 10:11:00 | -1  | 3 | 0  
+ ------	| ------| ------| -----|  ----- | ----
+288 | Opened | 2015-09-01 12:31:00 | 1  | 0  | 1
+288 | Opened | 2015-09-02 00:00:00 | 0 | 1 | 1
+288 | Opened | 2015-09-03 10:11:00 | -1  | 2 | 0  
 
-In this case we only have to create one filler record a day for each unique key combination. One important point to consider is that we have to ignore intra-day state changes, e.g.:
+In this case we have to create **only one filler record** a day for each unique key combination. One important point to consider is that we have to ignore intra-day state changes, e.g.:
 
 issue_id | state | datetime | event_count  | age (days) | quantity on hand 
  ------	| ------	| ------	| ------	|  ----- | ----
-277 | Opened | 2015-09-01 12:31:00 | 1  | 1  | 0  
-277 | Opened | 2015-09-01 13:33:00 | -1  | 1  | 0  
-277 | Assigned | 2015-09-01 13:33:00 | 1  | 1  | 1  
-277 | Assigned | 2015-09-02 11:23:00 | -1  | 2  | 0  
-277 | InProgress | 2015-09-02 11:23:00 | 1  | 1  | 1
+277 | Opened | 2015-09-01 12:31:00 | 1  | 0  | 0  
+277 | Opened | 2015-09-01 13:33:00 | -1  | 0  | 0  
+277 | Assigned | 2015-09-01 13:33:00 | 1  | 0  | 1  
+277 | Assigned | 2015-09-02 11:23:00 | -1  | 1  | 0  
+277 | InProgress | 2015-09-02 11:23:00 | 1  | 0  | 1
 
 > **Note**: As Jira issue 277 gets opened and then assigned on the same day, the entering and exit records of state `Opened` have both `quantity on hand` set to `0`.
 
 In most cases we do not want to keep the same granularity in the snapshot table as in the fact events table. Usually we would at least get rid of the `issue_id`.
 
-There are some rules to consider when aggregating the data:
+#### Why we cannot aggregate straight away
 
-- The fact events table needs an additional `age_in_days` fields so that we can accurately detect intra-day state changes (and hence exclude them from the snapshot). `age_in_days` has to be set to `0` for these records. For intra-day state changes, the `-1` has to be respected in the negating record. Also, any age in days values have to be set to `0`.
-- The **negating** (exiting) records (`-1`) have to be treated as `0`. We only want to keep these records in order to create the **fillers** in the ETL (for non-intra-day status changes). Once the fillers are created, we discard these records.
-- When we clone the **entering** (`+1`) row we keep the event count figure to obtain `quantity_on_hand` instead of replacing it by `0` or `NULL`.
+The problem when we aggregate the input data straight away is that we **lose track of how many clones/fillers are required**. **The number of required clones has to be determined at the lowest granularity** (before aggregating the data). To illustrate this problem, let's have a look at this highly simplified example:
 
-![](/images/events_snapshot_strategy_age_on_hand.png)
+Date | Issue_ID | Status | 
+-----|----------|--------|
+2015-09-01 | 66 | Opened |
+2015-09-03 | 66 | Assigned |
+2015-09-01 | 77 | Opened |
+2015-09-05 | 77 | Assigned |
 
-The values in the white cells in the `Sum (Corrected)` column in the above screenshot would be returned by the input query shown below. The green cells are the **fillers** generated by the ETL. 
+So let's **aggregate** this a bit:
 
-An input query for the **Snapshot ETL** could look like this:
+Date | Status | on_hand
+-----|-------|------
+2015-09-01 | Opened | 2
+2015-09-03 | Assigned | 1
+2015-09-05 | Assigned | 1
 
-```sql
-SELECT
-	status
-	, "user"
-	, age_working_days
-	, cum_age_working_days
-	, CAST(CAST(date_tk AS CHAR(8)) AS DATE) AS date
-	, 1 AS is_new_data
-	, SUM(
-		CASE
-			-- we want to ignore intra day ins and outs 
-			WHEN quantity = -1 AND age_days = 0 THEN - 1
-			WHEN quantity = -1 THEN 0 
-			ELSE 1
-		END
-	) AS quantity_on_hand
-	, CAST('${VAR_NEW_DATA_MAX_DATE}' AS DATE) AS new_data_max_date
-FROM events_dma.fact_events
-WHERE
-	date_tk > ${VAR_SNAPSHOT_MAX_DATE}
-GROUP BY 1,2,3,4,5,6
-ORDER BY 1,2,3,4,5,6
-``` 
+Now we don't know any more how these records are related. How many clones do we have to create for each one of these input rows? The solution is to add a new field called something like **number of required clones** to the input dataset. It is important to remember that this all happens **on the lowest granularity** (same granularity as the `fact_events` table), however, we do not include any other fields than the ones that we want to aggregate on later on. 
+
+Date | Status | Required Clones** | on_hand
+-----|--------|----------------|------------
+2015-09-01 | Opened | 1 | 1
+2015-09-03 | Assigned | 2 | 1
+2015-09-01 | Opened | 3 | 1
+2015-09-05 | Assigned | 0 | 1
+
+> **Note**: You might wonder why for the second record two clones are required? This is because the maximum date of the input dataset is `2015-09-05` and for each composite key we have to create a row until this date!
+
+Based on this dataset we can create the number if required clones:
+
+Date | Status | on_hand | data source
+-----|--------|---------|-----------
+2015-09-01 | Opened | 1 | input data
+2015-09-02 | Opened | 1 | cloned later by ETL
+2015-09-03 | Assigned | 1 | input data
+2015-09-04 | Assigned | 1 | cloned later by ETL
+2015-09-05 | Assigned | 1 | cloned later by ETL
+2015-09-01 | Opened | 1 | input data
+2015-09-02 | Opened | 1 | cloned later by ETL
+2015-09-03 | Opened | 1 | cloned later by ETL
+2015-09-04 | Opened | 1 | cloned later by ETL
+2015-09-05 | Assigned | 1 | input data
+
+
+Once the ETL process created in memory the required clones (ideally in memory), we can **aggregate** this result:
+
+Date | Status | on_hand
+-----|--------|--------
+2015-09-01 | Opened | 2
+2015-09-02 | Opened | 2
+2015-09-03 | Assigned | 1
+2015-09-03 | Opened | 1
+2015-09-04 | Assigned | 1
+2015-09-04 | Opened | 1
+2015-09-05 | Assigned | 2
+
+#### Important Rules
+
+There are some rules to consider when aggregating the fact event data:
+
+- The fact events table needs an additional `age_in_days` fields so that we can derived the required number of clones for the snapshot from it.
+- We have to **exclude intraday records** from our input dataset for the snapshot ETL. The snapshot is taken at the end of the day, so if a given `issue_id` enters and exists a status within the same day, we do not want to count it as on hand. It is important to understand that we for any given day and composite key combination there must be only **one** record in input data set: The item can only be in one state at the end of the day! 
+
+> Important: To determine an intraday change, we get the datetime of the next status/event. We cannot just check of `next_datetime -`datetime` is bigger than one day, as the `next_datetime` could be on the next day theoretically, but what we want to make sure is is to count the on hands issues at the end of to day, so the correct way to do this is to compare that date part of `datetime` with the date part of `next_datetime`. If both dates are the same, then we must consider it as an intraday change! But you might have realised that we don't need an additional `is_intraday_change` field in the fact events table: This is because we can just filter out the record pairs as well that have a negotiating record with `age_days = 0`.
+
+issue_id | state | datetime | event count  | age days |
+ ------	| ------	| ------	| ------	|  ----- |
+367 | Opened | 2015-09-02 12:32:00 | 1  | 0
+367 | Opened | 2015-09-02 13:11:00 | -1  | 0
+
+- We only want to keep the non-intra-day **negating** (exiting) records (`-1`) to create the **fillers** in the ETL. Once the fillers are created, we discard these records.
+
+#### Creating an efficient input query for the ETL
+
+The challenge is to figure out which record is the most recent open one: For this particular record we have to apply a different logic to calculate the required number of clones.
+We could write a performance intensive subquery to return these records, but let's see if we can come up with a better approach:
+
+**Solution**:
+
+1. Import data in reverse order 
+2. Keep first `+1` record (all records that entered a new status).
+3. Filter out all the other + 1s
+4. Use the `-1` records to get the the age_days, which we can use to create the **required number of clones**. `age_days` start at 0, so we can use it 1 to 1 for the number of required clones.
+For the ones that just entered a new status (latest `+1` records), we use the maximum date of the whole input dataset to calculate the number of clones (so this basically boils down to: `age_days = max_date_input_data - event_start_date`). Then we replace the `event_start_date` with the `max_date_input_data` for these records. Now all records have the same logic.
+
+**Example**:
+
+Fact Events Data
+
+date_tk | issue_id | status | age_days | quantity |
+--------|----------|--------|----------|----------|
+20150902 | 377 | Created | 0 | 1 |
+20150902 | 377 | Created | 0 | -1 |  
+20150902 | 377 | Assigned | 0 | 1 |
+20150908| 377 | Assigned | 6 | -1 |
+20150908 | 377 | Resolved | 0 | 1 |  
+
+We sort the dataset in the reverse order and then apply apply the filter condition `age_days = 0`, which has following consequences:
+
+- Intra-day records (both `+1` and `-1` records), which we have to ignore for the snapshot as we take it at the end of the day
+- All +1 records
+
+However, the is not completely correct: We always have one entering/opening (`+1`) record (which is the latest record), which we want to keep. Our dataset is sort in the reversed order by event timestamp, so we can add an index number and set the condition to:
+
+```
+age_days == 0 AND index > 0
+```
+
+date_tk | issue_id | status | age_days_in_state | quantity | max_date_new_data | new_date_tk | required_clones_backwards
+--------|----------|--------|-------------------|----------|-------------------|-------------|--------------------------
+20150908 | 377 | Resolved | 0 | 1 | 20150909 | 20150909 | 1
+20150908 | 377 | Assigned | 6 | -1 |  | 20150908 | 6
+
+
+`20150909` is that max date of the input dataset. `new_date_tk` will be the date we will be working with further down in our ETL stream, whereas we will discard `date_tk`.
+
+For the `+1` record we add the max date of the new dataset to calculate the required clones!
+For the `+1` we have to correct the date_tk because it is the entering date and not exiting date! 
+
+How to calculate the required clones:
+
+- For the `-1` records use age_days as the number of required clones
+- For the `+1` record we can calculate the required clones be subtracting the entering date from max date of the new dataset.
+
+Now all our records have the exiting date and we can create the clones backwards. 
+Also, add the on_hand_quantity and set it to `1` for all records. 
+
+new_date_tk | issue_id | status | age_days_in_state | quantity | quantity_on_hand | required_clones_backwards
+------------|----------|--------|-------------------|----------|------------------|--------------------------
+20150909 | 377 | Resolved | 1 |  | 1 | 1 |
+20150908 | 377 | Resolved | 0 | 1 | 1 |  |
+20150908 | 377 | Assigned | 6 | -1 |  | 6
+20150907 | 377 | Assigned | 5 |  | 1 |  | 
+20150906 | 377 | Assigned | 4 |  | 1 |  | 
+20150905 | 377 | Assigned | 3 |  | 1 |  | 
+20150904 | 377 | Assigned | 2 |  | 1 |  | 
+20150903 | 377 | Assigned | 1 |  | 1 |  | 
+20150902 | 377 | Assigned | 0 |  | 1 |  | 
+
+Once the clones are created, we **have to discard** the `-1` records! 
+
+Also reinstate the original sort order if required!
+
+new_date_tk | issue_id | status | age_days_in_state | age_days_by_issue_id | quantity_on_hand
+------------|----------|--------|-------------------|----------------------|-----------------
+20150902 | 377 | Assigned | 0 | 0 | 1
+20150903 | 377 | Assigned | 1 | 1 | 1
+20150904 | 377 | Assigned | 2 | 2 | 1
+20150905 | 377 | Assigned | 3 | 3 | 1
+20150906 | 377 | Assigned | 4 | 4 | 1
+20150907 | 377 | Assigned | 5 | 5 | 1
+20150908 | 377 | Resolved | 0 | 6 | 1
+20150909 | 377 | Resolved | 1 | 7 | 1
+
+#### Calculating the Correct Amount of Working Days
+
+Another performance point to consider is that we should not use the same strategy for deriving the **amount of working** days in the snapshot ETL as in the fact events ETL. In the fact events ETL we do not fill all the daily gaps between the start and the end of an events/status, hence we the incremental `working_days` number from the date dimension (which is a counter of the number of working days since the first day in the date dimension). Calculating the difference between the start and end of the event requires a windowing function (as we have to get the next or previous `working_days` figure). As in the snapshot ETL we create a filler for every day between the start and end of an event, we should rather use a flag called `is_working_day`. This avoids using a windowing function. We can simply add this flag to the date dimension.
+
+To summarise, we have to add the following fields to the date dimension:
+
+- `is_working_day`: A simple boolean flag.
+- `working_days`: a counter of the number of working days since the first day in the date dimension. 
+
+OPEN: ADD EXAMPLE!
 
 ## Handling Late Arriving Data
 
