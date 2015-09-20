@@ -241,7 +241,7 @@ Date | Issue_ID | Status |
 
 So let's **aggregate** this a bit:
 
-Date | Status | on_hand
+Date | Status | quantity on hand
 -----|-------|------
 2015-09-01 | Opened | 2
 2015-09-03 | Assigned | 1
@@ -249,7 +249,7 @@ Date | Status | on_hand
 
 Now we don't know any more how these records are related. How many clones do we have to create for each one of these input rows? The solution is to add a new field called something like **number of required clones** to the input dataset. It is important to remember that this all happens **on the lowest granularity** (same granularity as the `fact_events` table), however, we do not include any other fields than the ones that we want to aggregate on later on. 
 
-Date | Status | Required Clones** | on_hand
+Date | Status | Required Clones | quantity onhand
 -----|--------|----------------|------------
 2015-09-01 | Opened | 1 | 1
 2015-09-03 | Assigned | 2 | 1
@@ -260,7 +260,7 @@ Date | Status | Required Clones** | on_hand
 
 Based on this dataset we can create the number if required clones:
 
-Date | Status | on_hand | data source
+Date | Status | quantity on hand | data source
 -----|--------|---------|-----------
 2015-09-01 | Opened | 1 | input data
 2015-09-02 | Opened | 1 | cloned later by ETL
@@ -276,7 +276,7 @@ Date | Status | on_hand | data source
 
 Once the ETL process created in memory the required clones (ideally in memory), we can **aggregate** this result:
 
-Date | Status | on_hand
+Date | Status | quantity on hand
 -----|--------|--------
 2015-09-01 | Opened | 2
 2015-09-02 | Opened | 2
@@ -286,14 +286,14 @@ Date | Status | on_hand
 2015-09-04 | Opened | 1
 2015-09-05 | Assigned | 2
 
-#### Important Rules
+**Important Rules**
 
 There are some rules to consider when aggregating the fact event data:
 
 - The fact events table needs an additional `age_in_days` fields so that we can derived the required number of clones for the snapshot from it.
 - We have to **exclude intraday records** from our input dataset for the snapshot ETL. The snapshot is taken at the end of the day, so if a given `issue_id` enters and exists a status within the same day, we do not want to count it as on hand. It is important to understand that we for any given day and composite key combination there must be only **one** record in input data set: The item can only be in one state at the end of the day! 
 
-> Important: To determine an intraday change, we get the datetime of the next status/event. We cannot just check of `next_datetime -`datetime` is bigger than one day, as the `next_datetime` could be on the next day theoretically, but what we want to make sure is is to count the on hands issues at the end of to day, so the correct way to do this is to compare that date part of `datetime` with the date part of `next_datetime`. If both dates are the same, then we must consider it as an intraday change! But you might have realised that we don't need an additional `is_intraday_change` field in the fact events table: This is because we can just filter out the record pairs as well that have a negotiating record with `age_days = 0`.
+> **Important**: To determine an intraday change, we get the datetime of the next status/event. We cannot just check of `next_datetime - datetime` is bigger than one day, as the `next_datetime` could be on the next day theoretically, but what we want to make sure is is to count the on hands issues at the end of to day, so the correct way to do this is to compare that date part of `datetime` with the date part of `next_datetime`. If both dates are the same, then we must consider it as an intraday change! But you might have realised that we don't need an additional `is_intraday_change` field in the fact events table: This is because we can just filter out the record pairs as well that have a negotiating record with `age_days = 0`.
 
 issue_id | state | datetime | event count  | age days |
  ------	| ------	| ------	| ------	|  ----- |
@@ -338,7 +338,7 @@ However, the is not completely correct: We always have one entering/opening (`+1
 age_days == 0 AND index > 0
 ```
 
-date_tk | issue_id | status | age_days_in_state | quantity | max_date_new_data | new_date_tk | required_clones_backwards
+`date_tk` | `issue_id` | status | `age_days_in_state` | quantity | `max_date_new_data` | `new_date_tk` | `required_clones_backwards`
 --------|----------|--------|-------------------|----------|-------------------|-------------|--------------------------
 20150908 | 377 | Resolved | 0 | 1 | 20150909 | 20150909 | 1
 20150908 | 377 | Assigned | 6 | -1 |  | 20150908 | 6
@@ -357,7 +357,7 @@ How to calculate the required clones:
 Now all our records have the exiting date and we can create the clones backwards. 
 Also, add the on_hand_quantity and set it to `1` for all records. 
 
-new_date_tk | issue_id | status | age_days_in_state | quantity | quantity_on_hand | required_clones_backwards
+`new_date_tk` | `issue_id` | status | `age_days_in_state` | quantity | `quantity_on_hand` | `required_clones_backwards`
 ------------|----------|--------|-------------------|----------|------------------|--------------------------
 20150909 | 377 | Resolved | 1 |  | 1 | 1 |
 20150908 | 377 | Resolved | 0 | 1 | 1 |  |
@@ -373,7 +373,7 @@ Once the clones are created, we **have to discard** the `-1` records!
 
 Also reinstate the original sort order if required!
 
-new_date_tk | issue_id | status | age_days_in_state | age_days_by_issue_id | quantity_on_hand
+`new_date_tk` | `issue_id` | status | `age_days_in_state` | `age_days_by_issue_id` | `quantity_on_hand`
 ------------|----------|--------|-------------------|----------------------|-----------------
 20150902 | 377 | Assigned | 0 | 0 | 1
 20150903 | 377 | Assigned | 1 | 1 | 1
