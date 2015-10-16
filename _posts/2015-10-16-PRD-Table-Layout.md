@@ -27,7 +27,7 @@ Details Body > Details | table-row
 
 In **PRD** this looks like this:
 
-![](./images/prd-table-layout-1.png)
+![](/images/prd-table-layout-1.png)
 
 Once you export the report to **HTML**, you get a very nicely strucutred table (very simple example below):
 
