@@ -52,4 +52,10 @@ Once you export the report to **HTML**, you get a very nicely strucutred table (
   </body>
 ```
 
-At the end of this article I'd like to thank **Thomas Morgner** for taking the time to discuss the table layout with me.
+At the end of this article I'd like to thank **Thomas Morgner** for taking the time to discuss the table layout with me. A pro tip by Thomas:
+
+"Normal content is automatically wrapped into a `table-cell` box if there is none there yet. That means each label/field/etc ends up in its own cell. (Same behaviour as in HTML if you have a malformed table).
+
+If you want to combine multiple elements into one cell or want to
+set col-span and row-span, then you'd use a band with layout as
+table-cell to do so."
