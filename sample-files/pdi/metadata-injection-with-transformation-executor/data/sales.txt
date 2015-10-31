@@ -1,0 +1,3 @@
+date, store, amount
+2015-10-31, High Street Kensington, 23233.50
+2015-10-31, Camden, 17232.20

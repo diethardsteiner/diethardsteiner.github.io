@@ -1,0 +1,7 @@
+file_id,field_name,field_type,field_format,field_trim_type,field_null_representation
+1,date,Date,yyyy-MM-dd,both,\N
+1,store,String,,both,\N
+1,amount,Number,,both,\N
+2,date,Date,yyyy-MM-dd,both,\N
+2,product,String,,both,\N
+2,count,Integer,,both,\N

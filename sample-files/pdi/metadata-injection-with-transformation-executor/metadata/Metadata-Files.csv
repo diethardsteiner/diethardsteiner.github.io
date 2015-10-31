@@ -1,0 +1,3 @@
+file_id,input_file_directory,input_file_name_regex,file_type,delimiter,enclosure,has_header,no_header_lines,file_format
+1,${Internal.Transformation.Filename.Directory}/data,sales.txt,CSV,",",,Y,1,Unix
+2,${Internal.Transformation.Filename.Directory}/data,stock.txt,CSV,|,,Y,1,Unix
