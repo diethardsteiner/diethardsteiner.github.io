@@ -131,3 +131,4 @@ Create a **hub** between all the steps. The **important point** here is that you
 
 We have intentionally kept this transformation extremely simple, to just focus on the main setup of this process.
 
+Finally, execute the `tr_master.ktr` transformation with the provided files and you should fine one output file with the content of all input files.
