@@ -51,7 +51,7 @@ What we need:
 3. **The metadata injector**: This transformation which receives the metadata for one file and injects it into the template transformation.
 4. **The template**: This sub-transformation does the actual work: It reads the file and manipulates the data down the stream. This transformation is just a **skeleton**/template, meaning e.g. the **Text Input** step will not have any or only some settings defined.
 
-Does this sound sane? Seeing is believing: [Here](/sample-files/pdi/metadata-injection-with-transformation-executor) is the code to the this setup! Have fun.
+Does this sound sane? Seeing is believing: [Here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/metadata-injection-with-transformation-executor) is the code to the this setup! Have fun.
 
 ## The Master: Sending Metadata Record Groups With the Transformation Executor
 
@@ -131,4 +131,4 @@ Create a **hub** between all the steps. The **important point** here is that you
 
 We have intentionally kept this transformation extremely simple, to just focus on the main setup of this process.
 
-Finally, execute the `tr_master.ktr` transformation with the provided files and you should fine one output file with the content of all input files.
+Finally, execute the `tr_master.ktr` transformation with the provided files ([Download here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/metadata-injection-with-transformation-executor)) and you should fine one output file with the content of all input files.
