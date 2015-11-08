@@ -4,7 +4,7 @@ title: Run SQL Queries on your ETL output
 summary: 
 categories: PDI
 tags: PDI
-published: true
+published: false
 ---
 
 Usually when you write an **ETL process** the output is stored somewhere (in a file or in a database). Some time ago Pentaho opened up a whole lot of new possibilites by letting you define the last step of your ETL process as a **Data Service**. What does this mean exactly?
