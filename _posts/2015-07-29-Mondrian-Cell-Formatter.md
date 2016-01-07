@@ -104,7 +104,7 @@ MEMBER [Measures].[t2] AS
 If you want to use your custom format with several measures or calculated measures, ideally you want to create one global definition for your custom format. In your Mondrian Schema you can define a `UserDefinedFunction` ([Reference](http://mondrian.pentaho.com/api/mondrian/spi/UserDefinedFunction.html)) as child of the `Schema` element (NOT the `Cube` element), which takes care of this. The script has to be adjusted, mainly at the beginning we have to add a few additional lines of code and also slightly change the way the result is returned:
 
 ```xml
-<UserDefinedFunction name="TimeToStringDate">
+<UserDefinedFunction name="prettyIntervalFormatter">
     <Script language="JavaScript">
         <![CDATA[
         function getParameterTypes() {
