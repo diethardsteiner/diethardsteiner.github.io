@@ -20,7 +20,7 @@ So what do I want this tool to primarily do:
 
 Well, this isn't actually that complicated, is it? Our good old trusted **Pentaho Kettle** (aka **PDI**, Pentaho Data Integration) comes to mind to handle this challenge. We can use any **JDBC driver** with it, which basically allows us to connect to any database out there! And there is another big benefit straight away: It is the same tool that we use to create our data integration processes, so there is nothing new to be learnt! So how do we create this process?
 
-I will briefly sketch out the process out here (and will not go into any details). You can download the files from [here](/sample-files/pdi/database-versioning-tool) to understand the process even better.
+I will briefly sketch out the process out here (and will not go into any details). You can download the files from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/database-versioning-tool) to understand the process even better.
 
 `jb_dvm_master.kjb`:
 
