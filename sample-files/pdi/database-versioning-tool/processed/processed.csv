@@ -1,0 +1,5 @@
+0_create_dma_schema.sql
+1_create_dim_date.sql
+2_dim_date_add_quarter.sql
+3_dim_date_add_week.sql
+4_dim_date_remove_week.sql
