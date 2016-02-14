@@ -3,7 +3,7 @@ description: Rock it with data!
 author: Diethard Steiner
 url: http://diethardsteiner.github.io
 baseurl: 
-markdown: redcarpet
+markdown: kramdown
 redcarpet:
   extensions: [tables]
 pygments: true
