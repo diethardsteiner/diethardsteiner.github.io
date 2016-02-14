@@ -19,3 +19,17 @@ On this wonderful Sunday morning - clear blue sky in Britain - I finally figured
 5. Start spoon. There will be a few error messages shown, but so far Spoon is working way better for me then before.
 
 Good luck! Now it's time for me to enjoy some of this splendid sunshine - before clouds come in again - which happens all too often and all too quickly.
+
+**UPDATE 2016-02-08**:
+
+In eclipse-jee-mars I found the relevant files in the `plugins` folder:
+
+Here is a rough outline of the approach:
+
+```bash
+$ ls plugins/*swt*
+$ cd ~/apps/pdi-ce-6.0.1/libswt/linux/x86_64
+$ mv swt.jar swt-old-jar
+$ cp plugins/org.eclipse.swt.gtk.linux.x86_64_3.104.1.v20150825-0743.jar .
+$ cp plugins/org.eclipse.swt_3.104.1.v20150825-0743.jar .
+```

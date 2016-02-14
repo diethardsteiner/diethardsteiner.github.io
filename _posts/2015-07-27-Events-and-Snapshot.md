@@ -293,7 +293,7 @@ There are some rules to consider when aggregating the fact event data:
 - The fact events table needs an additional `age_in_days` fields so that we can derived the required number of clones for the snapshot from it.
 - We have to **exclude intraday records** from our input dataset for the snapshot ETL. The snapshot is taken at the end of the day, so if a given `issue_id` enters and exists a status within the same day, we do not want to count it as on hand. It is important to understand that we for any given day and composite key combination there must be only **one** record in input data set: The item can only be in one state at the end of the day! 
 
-> **Important**: To determine an intraday change, we get the datetime of the next status/event. We cannot just check of `next_datetime - datetime` is bigger than one day, as the `next_datetime` could be on the next day theoretically, but what we want to make sure is is to count the on hands issues at the end of to day, so the correct way to do this is to compare that date part of `datetime` with the date part of `next_datetime`. If both dates are the same, then we must consider it as an intraday change! But you might have realised that we don't need an additional `is_intraday_change` field in the fact events table: This is because we can just filter out the record pairs as well that have a negotiating record with `age_days = 0`.
+> **Important**: To determine an intraday change, we get the datetime of the next status/event. We cannot just check if `next_datetime - datetime` is bigger than one day, as the `next_datetime` could be on the next day theoretically, but what we want to make sure is is to count the **on hands** issues at the end of the given day, so the correct way to do this is to compare that date part of `datetime` with the date part of `next_datetime`. If both dates are the same, then we must consider it as an intraday change! But you might have realised that we don't need an additional `is_intraday_change` field in the fact events table: This is because we can just filter out the record pairs as well that have a negating record with `age_days = 0`.
 
 issue_id | state | datetime | event count  | age days |
  ------	| ------	| ------	| ------	|  ----- |
@@ -311,7 +311,7 @@ We could write a performance intensive subquery to return these records, but let
 
 1. Import data in reverse order 
 2. Keep first `+1` record (all records that entered a new status).
-3. Filter out all the other + 1s
+3. Filter out all the other `+1s`
 4. Use the `-1` records to get the the age_days, which we can use to create the **required number of clones**. `age_days` start at `0`, so we can use it 1 to 1 for the number of required clones.
 For the ones that just entered a new status (latest `+1` records), we use the **maximum date of the whole input dataset** to calculate the number of clones (so this basically boils down to: `age_days = max_date_input_data - event_start_date`). Then we replace the `event_start_date` with the `max_date_input_data` for these records. Now all records have the same logic.
 
@@ -355,7 +355,7 @@ How to calculate the required clones:
 - For the `+1` record we can calculate the required clones be subtracting the entering date from max date of the new dataset.
 
 Now all our records have the exiting date and we can create the clones backwards. 
-Also, add the on_hand_quantity and set it to `1` for all records. 
+Also, add the `on_hand_quantity` and set it to `1` for all records. 
 
 `new_date_tk` | `issue_id` | status | `age_days_in_state` | quantity | `quantity_on_hand` | `required_clones_backwards`
 ------------|----------|--------|-------------------|----------|------------------|--------------------------
