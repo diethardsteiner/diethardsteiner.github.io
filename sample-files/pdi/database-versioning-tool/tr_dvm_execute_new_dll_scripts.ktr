@@ -333,7 +333,7 @@
       <field>
         <name>version</name>
         <type>Integer</type>
-        <format/>
+        <format>&#x23;</format>
         <group/>
         <decimal/>
         <length>-1</length>
