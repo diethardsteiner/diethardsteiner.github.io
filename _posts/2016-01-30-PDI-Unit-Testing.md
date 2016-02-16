@@ -5,8 +5,10 @@ summary: This article explains how to unit test Pentaho Data Integration jobs an
 date: 2016-01-30
 categories: Big Data
 tags: Big Data, PDI
-published: false
+published: true
 ---
+
+About a year ago **Matt Casters**, lead developer of **Pentaho Data Integration** (PDI), managed to get the approval by **Pentaho** to open source one of his internal projects focusing on adding **unit testing** functionality to PDI. This is a first look at what is available so far (as of Feb 2016 it is not feature complete), which should provide you a brief understanding of what has been achieved so far and hopefully get you on board to support this project!
 
 ## Preparing the Sample
 
@@ -21,7 +23,7 @@ For demonstration purposes, let's create an extremely simple **transformation**.
 3. Select Values
 4. Table Output
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-4.png)
+![](/images/pdi-unit-testing-4.png)
 
 In a database of your choice (I use **PostgreSQL** for this example) create two tables as shown below (adjust SQL to your DB dialect):
 
@@ -83,21 +85,21 @@ $ cp ~/git/pentaho-pdi-dataset/dist/pentaho-pdi-dataset-TRUNK-SNAPSHOT.jar .
 
 Start **Spoon**. Right click on a step on the canvas and you should see the **Data Set** option in the **context menu**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-1.png)
+![](/images/pdi-unit-testing-1.png)
 
 ## Creating a Data Set Group
 
 > **Important**: For the next step to work, you have to **share** the database connection (otherwise the database connection pull down menu in the *Data Set Group* dialog will not be populated). Click on the **View** panel, expand the **Database connections** node and right click on the database connection you just created. Choose **share**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-3.png)
+![](/images/pdi-unit-testing-3.png)
 
 Next choose **Tools > Data set > Add data set group**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-2.png)
+![](/images/pdi-unit-testing-2.png)
 
 Provide the required information in the **Data Set Group** dialog:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-5.png)
+![](/images/pdi-unit-testing-5.png)
 
 > **Note**: The menu options to **Edit** or **Delete Data Set Groups** are currently not working. This doesn't mean, however, that you cannot do this at all. The workaround is to navigate on the **Terminal/Command Line** to the **Metastore** as shown below. The **Data Set Groups** are stored as **XML files** there. This way you can easily edit or even remove them:
 
@@ -141,29 +143,29 @@ $ cat ~/.pentaho/metastore/pentaho/Kettle\ Data\ Set\ Group/inventory.xml
 
 ## Creating a Data Set
 
-You can create a new data set either via **Tools > Data Set > Data sets > Add data set** or by right clicking on **PDI step** and choosing **Data set > Define data set with step output**. The last option quite convenient, as it not only allows you to define the columns of the data set, but also source the data from the step.
+You can create a new data set either via **Tools > Data Set > Data sets > Add data set** or by right clicking on **PDI step** and choosing **Data set > Define data set with step output**. The last option is quite convenient, as it not only allows you to define the columns of the data set, but also source the data from the step.
 
 ### Define Data Set with Step Output
 
 Now **right click** on the **Table input** step and choose **Data set > Define data set with step output**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-6.png)
+![](/images/pdi-unit-testing-6.png)
 
 In the **Data Set** dialog provide the name of the the data set, the **Table name** (`qa_inventory`) and the choose the **Data Set Group** (`inventory`). Now we have two options: If we had already created the table `qa_inventory`, we could press **Get Metadata**. In our case though, we want to first make sure that table with the field and column names etc is filled out correctly and then we can press **Create table**. The DDL / `CREATE TABLES` statement will be shown - if you are happy with it press **Execute**. Note that you can adjuste the DDL to your liking before executing it. Once the DDL was executed successfully, click **Close** and then **OK** in the **Data Set** dialog.
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-7.png)
+![](/images/pdi-unit-testing-7.png)
 
 Finally, you have to link this data set to one particular step: Right click on the **Table output** step and choose **Data Set > Select an input data set**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-11.png)
+![](/images/pdi-unit-testing-11.png)
 
 In the next dialog choose the data set we created earlier on. Then you should see an indicator next to the **Table input** step:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-12.png)
+![](/images/pdi-unit-testing-12.png)
 
 ### Define a Data Set based on existing Table and Data
 
-The previous approach is very useful if you already have some sample data in your dev environment. Sometimes you might however prepare your test data upfront, in which case you will have to define the dataset in a different way. Let us do just this for the final output - the **golden** dataset:
+The previous approach is very useful if you already have some sample data in your dev environment. Sometimes you might, however, prepare your test data upfront, in which case you will have to define the dataset in a different way. Let us do just this for the final output - the **golden** dataset:
 
 Execute the **SQL** statements below in your favourite SQL client (adjust to your DB dialect if required):
 
@@ -183,25 +185,27 @@ VALUES
 
 From the main menu choose **Tools > Data Set > Data sets > Add data set**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-8.png)
+![](/images/pdi-unit-testing-8.png)
 
 Provide all the required details in the **Data Set** dialog. Make sure that this time you do not click **Create Table** but instead click **Get Metadata**. If you are interested in what your testing data looks like, click **View**. Finally click **OK**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-9.png)
+![](/images/pdi-unit-testing-9.png)
 
 ## Create a Unit Test
 
 Now there is just one task left to do: Create a **Unit Test**. Right
 click on the the **Table Output** step and choose **Data Set > Create unit test**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-13.png)
+![](/images/pdi-unit-testing-13.png)
 
 In the **Transformation unit test** dialog provide a name and choose the **Data set**. Then click **OK**:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-10.png)
+![](/images/pdi-unit-testing-10.png)
 
 The **Table output** step should have an indicator now:
 
-![](/Users/diethardsteiner/Desktop/pdi-unit-testing-14.png)
+![](/images/pdi-unit-testing-14.png)
+
+And this is where it stops right now ... there is no GUI right now to run a unit test, but as per discussions with **Matt Casters** in Feb 2016 work on implementing this has begun, so I am really looking forward to trying this out! Matt has also fixed the preview bug, however, currently this code is not yet on Github. **Unit Testing** is a very important part of the development workflow, so please show this project some support!
 
 
