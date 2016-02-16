@@ -207,5 +207,3 @@ The **Table output** step should have an indicator now:
 ![](/images/pdi-unit-testing-14.png)
 
 And this is where it stops right now ... there is no GUI right now to run a unit test, but as per discussions with **Matt Casters** in Feb 2016 work on implementing this has begun, so I am really looking forward to trying this out! Matt has also fixed the preview bug, however, currently this code is not yet on Github. **Unit Testing** is a very important part of the development workflow, so please show this project some support!
-
-
