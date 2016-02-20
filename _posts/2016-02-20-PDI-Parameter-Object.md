@@ -132,6 +132,6 @@ setVariable(parameter_name, getVariable(parameter_name + "_OUTER", ""), "r");
 
 Execute `jb_wrapper` again now and you should see that the values are passed down correctly.
 
-We finally got our setup working - what an interesting ride this has been! You can **download** the **PDI jobs and transformation** from [here](/sample-files/pdi/pdi-param-obj).
+We finally got our setup working - what an interesting ride this has been! You can **download** the **PDI jobs and transformation** from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/pdi-param-obj).
 
 
