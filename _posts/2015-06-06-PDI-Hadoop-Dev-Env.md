@@ -591,13 +591,17 @@ It's extremely easy to install PDI: Just download the latest version from [Sourc
 
 This section is a general overview for any Hadoop distro - if you followed the previous Hadoop tutorial, the next section will be the ideal fit!
 
-In order to tell PDI which Hadoop distro you are using, you have to adjust the properties file in `data-integration/plugins/pentaho-big-data-plugin/plugin.properties`.
+1. In order to tell PDI which Hadoop distro you are using, you have to adjust the properties file in `data-integration/plugins/pentaho-big-data-plugin/plugin.properties`. Amend `active.hadoop.configuration` to your respective Hadoop setup (suitable values can be found in the folder names in `data-integration/plugins/pentaho-big-data-plugin/hadoop-configurations`). If you are using any additional Kettle plugins list them in `pmr.kettle.additional.plugins` so that they are distributed across the **HDFS cluster** as well.
+2. Copy all your `*-site.xml` configuration files from your distro (in our case the most of the files we configured earlier on for Apache Hadoop and Hive) into the `data-integration/plugins/pentaho-big-data-plugin/hadoop-configurations/<hadoop-distro>` folder. In our case the `<hadoop-distro>` is `hdp*`, which stands for Hortonworks Hadoop Distro. As there is no Pentaho Big Data Shim for Apache Hadoop and Hive, we use the Hortonworks Shim, as it is the closest match. Copy the following files:
 
-Amend `active.hadoop.configuration` to your respective Hadoop setup (suitable values can be found in the folder names in `data-integration/plugins/pentaho-big-data-plugin/hadoop-configurations`). If you are using any additional Kettle plugins list them in `pmr.kettle.additional.plugins` so that they are distributed across the **HDFS cluster** as well.
+	- `core-site.xml`
+	- `hdfs-site.xml`
+	- `hive-site.xml`
+	- `yarn-site.xml`
 
-If you are using **CDH**, PDI expects a secured/kerberised install. If you install is unsecured, amend `data-integration/plugins/pentaho-big-data-plugin/cdh*/plugin.properties`: comment out all the lines containing: `activator.classes=<anything>`. (This seems to be EE only)
+**PDI EE version Only**: If you are using **CDH**, PDI expects a secured/kerberised install. If you install is unsecured, amend `data-integration/plugins/pentaho-big-data-plugin/cdh*/plugin.properties`: comment out all the lines containing: `activator.classes=<anything>`. (This seems to be EE only)
 
-Next follow [these instructions](http://wiki.pentaho.com/display/BAD/Additional+Configuration+for+YARN+Shims) to configure the YARN access for the shim - This doesn't seem to be necessary if you are using the vanilla hadoop 2.0 shim.
+
 
 Pentaho provides a few examples to get started in the *Next Steps* section on [this page](http://wiki.pentaho.com/display/BAD/Configuring+Pentaho+for+your+Hadoop+Distro+and+Version).
 
@@ -614,7 +618,7 @@ Matt Burgess suggested using the Hortenworks (HDP) shim instead (for the reason 
 
 **How to figure out which version of Hadoop a particular shim uses**: Go into the `<shim>/lib/client` folder and see which version number the `hadoop*` files have. This will help you understand if your vanilla Hadoop distro version is supported or not. In my case I had vanilla Apache Hadoop 2.6.0 installed and required a shim that supported just this version. PDI-CE-5.3 ships with the **hdp21** shim, which seems to support Hadoop 2.4. Luckily Pentaho had already a newer **Hortonworks** shim available: You can browse all the available [Shims on Github](https://github.com/pentaho/pentaho-hadoop-shims) and download a compiled version from [Shims on CI](http://ci.pentaho.org/view/Big%20Data/job/pentaho-hadoop-shims-5.3/) (note this is PDI version specific, see notes further down also for detailed download instructions). The shim that supported the same version was **hdp22**.
 
-Once download, I added this file to the other shims and extracted it. Then I adjusted following shim config files in  `pdi-ce-5.3/plugins/pentaho-big-data-plugin/hadoop-configurations/hdp22` (only amended sections mentioned):
+Once download, I added this file to the other shims and extracted it. Then I adjusted following shim config files in  `pdi-ce-5.3/plugins/pentaho-big-data-plugin/hadoop-configurations/hdp22` (only amended sections mentioned). However what is shown below is not really necessary ... just copy the config files from your Hadoop distro into the shim folder and the job is done. However, I outline what I did alternatively:
 
 `mapred-site.xml`:
 
@@ -785,3 +789,4 @@ Import files into the HDFS for the Hive tables using **Hadoop Copy Files** or us
 ```
 OPT="$OPT .... -DHADOOP_USER_NAME=HadoopNameToSpoof"
 ```
+
