@@ -2,7 +2,7 @@
 layout: post
 title:  "Pentaho Data Integration: The Parameter Object and replacing Parameter Values with Variable Values"
 summary: This article looks at more complex setup where a unique approach has to be chosen to cater for various parameter and variable needs
-date: 2016-02-29
+date: 2016-02-20
 categories: PDI
 tags: PDI
 published: true
