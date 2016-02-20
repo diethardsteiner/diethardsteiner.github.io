@@ -3,10 +3,10 @@ description: Rock it with data!
 author: Diethard Steiner
 url: http://diethardsteiner.github.io
 baseurl: 
-markdown: redcarpet
-redcarpet:
-  extensions: [tables]
-pygments: true
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 github: http://www.github.com/diethardsteiner
 twitter: http://twitter.com/diethardsteiner
 googleplus: https://plus.google.com/u/0/+DiethardSteiner/postsx
