@@ -28,7 +28,7 @@ Let's create the **wrapper** job:
 
 ![](/images/pdi_param_obj_1.png)
 
-Create a new **transformation** and name it `tr_obj_string_to_params`:
+Create a new **transformation** and name it `tr_obj_string_to_vars`:
 
 1. Add a **Get Variables** step. In the step settings define a new field of type String called `param_object_string` which maps to `${PARAM_OBJECT}`: The parameter we defined in the parent job.
 2. Add a **Modified Java Script Value** and link it up with the previous step. Add following script:
@@ -90,7 +90,7 @@ There is one problem though with our setup: We do not always want to run the mai
 
 As soon as we define `PARAM_CITY` and `PARAM_DATE` in our `jb_sample` job, the chain of passing down parameters breaks. **Pentaho Data Integration** does not automatically **substitute** a **parameter** value with a **variable** value if you pass it down from a job in example. **Roland Bouman** wrote an excellent article on how to solve this challenge many years ago on his [blog post](http://rpbouman.blogspot.co.uk/2010/12/substituting-variables-in-kettle.html). We will use the approach he outlined [here](http://wiki.pentaho.com/display/EAI/Substituting+variable+references+in+Job+Parameter+values).
 
-Let's tackle this challenge: As you might know, the PDI job (`.kjb`) and transformation (`.ktr`) files are just **XML** files. Upfront we will source the parameter names directly from **XML file** of the job we want to execute from the wrapper. Once we have the parameter names, we will create variables of the same name and assign the respective values of the variables to them. We will try to keep everything dynamic, hence we will follow mostly Roland's approach here:
+Let's tackle this challenge: As you might know, the PDI job (`.kjb`) and transformation (`.ktr`) files are just **XML** files. We will source the parameter names directly from **XML file** of the job we want to execute from the wrapper. Once we have the parameter names, we will create variables of the same name and assign the respective values of the variables to them. We will try to keep everything dynamic, hence we will follow mostly Roland's approach here:
 
 1. Define the following parameters in `jb_sample`'s job settings: `PARAM_CITY` and `PARAM_DATE`. Do not set any value for them. 
 2. Create a new **transformation** called `tr_substitute_params_with_vars`.
@@ -110,7 +110,7 @@ Now let's turn our attention again to `jb_sample`: Just after the **Start** job 
 
 Now it's time to execute `jb_wrapper` and understand if the new setup paid off!
 
-You will realise that this solution is still not working (Roland's original setup was different to ours). The problem is that you cannot pass down a variable from a job to a child job or transformation if the parameter defined in the **child job** has the same name (so also my previous blog post [ Pentaho Kettle Parameters and Variables: Tips and Tricks ](http://diethardsteiner.blogspot.co.uk/2013/07/pentaho-kettle-parameters-and-variables.html)). So there is an easy workaround to this: We just change the name of the **variables** we set in the **JavaScript** step in `tr_obj_string_to_params` like this:
+You will realise that this solution is still not working (Roland's original setup was different to ours). The problem is that you cannot pass down a variable from a job to a child job or transformation if the parameter defined in the **child job** has the same name (so also my previous blog post [ Pentaho Kettle Parameters and Variables: Tips and Tricks ](http://diethardsteiner.blogspot.co.uk/2013/07/pentaho-kettle-parameters-and-variables.html)). So there is an easy workaround to this: We just change the name of the **variables** we set in the **JavaScript** step in `tr_obj_string_to_vars` like this:
 
 ```javascript
 param_obj = JSON.parse(param_object_string);
@@ -131,6 +131,17 @@ setVariable(parameter_name, getVariable(parameter_name + "_OUTER", ""), "r");
 ```
 
 Execute `jb_wrapper` again now and you should see that the values are passed down correctly.
+
+**Important**: While this is working, it is unnecessarily complicated: We actually do not need `tr_substitute_params_with_vars` at all! All we have to do is to supply a mapping in `jb_sample` which basically sets the variable values set in `tr_obj_string_to_vars` as the default value of the parameters defined in the current job: 
+
+
+Parameter | Default Value | Description
+----------|---------------|------------
+`PARAM_CITY` | `${PARAM_CITY_OUTER}` | 
+`PARAM_DATE` | `${PARAM_DATE_OUTER}` | 
+
+This is a much simpler to setup. However, using `tr_substitute_params_with_vars` saves us though from specifying this mapping. So decide for yourself
+what works better for you.
 
 We finally got our setup working - what an interesting ride this has been! You can **download** the **PDI jobs and transformation** from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/pdi-param-obj).
 

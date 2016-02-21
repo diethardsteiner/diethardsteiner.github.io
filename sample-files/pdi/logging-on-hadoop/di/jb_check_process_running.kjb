@@ -1,27 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
-  <name>jb_wrapper</name>
+  <name>jb_check_process_running</name>
     <description/>
     <extended_description/>
     <job_version/>
     <job_status>0</job_status>
   <directory>&#x2f;</directory>
   <created_user>-</created_user>
-  <created_date>2016&#x2f;02&#x2f;20 14&#x3a;49&#x3a;54.028</created_date>
+  <created_date>2016&#x2f;02&#x2f;09 21&#x3a;00&#x3a;08.518</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2016&#x2f;02&#x2f;20 14&#x3a;49&#x3a;54.028</modified_date>
+  <modified_date>2016&#x2f;02&#x2f;09 21&#x3a;00&#x3a;08.518</modified_date>
     <parameters>
         <parameter>
-            <name>PARAM_JOB_TO_EXECUTE</name>
-            <default_value>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;jb_sample.kjb</default_value>
-            <description/>
-        </parameter>
-        <parameter>
-            <name>PARAM_OBJECT</name>
-            <default_value>&#x7b;&#x22;PARAM_DATE&#x22;&#x3a;&#x22;2016-02-01&#x22;,&#x22;PARAM_CITY&#x22;&#x3a;&#x22;London&#x22;&#x7d;</default_value>
+            <name>VAR_PROCESS_NAME</name>
+            <default_value/>
             <description/>
         </parameter>
     </parameters>
+  <connection>
+    <name>logs</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>1521</port>
+    <username>&#x24;&#x7b;VAR_DB_LOGS_USER_NAME&#x7d;</username>
+    <password>&#x24;&#x7b;VAR_DB_LOGS_PW&#x7d;</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>&#x24;&#x7b;VAR_DB_LOGS_JDBC_DRIVER&#x7d;</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>&#x24;&#x7b;VAR_DB_LOGS_JDBC_URL&#x7d;</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
     <slaveservers>
     </slaveservers>
 <job-log-table><connection/>
@@ -45,6 +66,22 @@
    <shared_objects_file/>
   <entries>
     <entry>
+      <name>SQL - Refresh Table</name>
+      <description/>
+      <type>SQL</type>
+      <sql>REFRESH &#x24;&#x7b;VAR_DB_LOGGING_NAME&#x7d;.&#x24;&#x7b;VAR_TABLE_CUSTOM_PDI_LOGS&#x7d;&#x3b;</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>logs</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>400</xloc>
+      <yloc>240</yloc>
+      </entry>
+    <entry>
       <name>START</name>
       <description/>
       <type>SPECIAL</type>
@@ -61,16 +98,16 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>320</xloc>
-      <yloc>80</yloc>
+      <xloc>208</xloc>
+      <yloc>112</yloc>
       </entry>
     <entry>
-      <name>tr_obj_string_to_vars</name>
-      <description>This step transforms the param_object string into a JavaScript Object and then sets a PDI parameter for each parameter defined.</description>
+      <name>tr_check_process_running</name>
+      <description/>
       <type>TRANS</type>
       <specification_method>filename</specification_method>
       <trans_object_id/>
-      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;tr_obj_string_to_vars.ktr</filename>
+      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;tr_check_process_running.ktr</filename>
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -91,48 +128,63 @@
       <create_parent_folder>N</create_parent_folder>
       <logging_remote_work>N</logging_remote_work>
       <parameters>        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>      <parallel>N</parallel>
+            <parameter>            <name>VAR_DI_PROCESS_NAME</name>
+            <stream_name/>
+            <value>&#x24;&#x7b;VAR_DI_PROCESS_NAME&#x7d;</value>
+            </parameter>      </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>320</xloc>
-      <yloc>192</yloc>
+      <xloc>208</xloc>
+      <yloc>416</yloc>
       </entry>
     <entry>
-      <name>jb_sample</name>
+      <name>Abort job</name>
       <description/>
-      <type>JOB</type>
-      <specification_method>filename</specification_method>
-      <job_object_id/>
-      <filename>&#x24;&#x7b;PARAM_JOB_TO_EXECUTE&#x7d;</filename>
-      <jobname/>
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <slave_server_name/>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <expand_remote_job>N</expand_remote_job>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <parameters>        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>      <set_append_logfile>N</set_append_logfile>
+      <type>ABORT</type>
+      <message/>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>320</xloc>
-      <yloc>320</yloc>
+      <xloc>400</xloc>
+      <yloc>416</yloc>
+      </entry>
+    <entry>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>208</xloc>
+      <yloc>544</yloc>
+      </entry>
+    <entry>
+      <name>Simple evaluation&#x3a; Table requires refresh&#x3f;</name>
+      <description/>
+      <type>SIMPLE_EVAL</type>
+      <valuetype>variable</valuetype>
+      <fieldname/>
+      <variablename>&#x24;&#x7b;VAR_TABLE_REQUIRES_REFRESH&#x7d;</variablename>
+      <fieldtype>string</fieldtype>
+      <mask/>
+      <comparevalue>Y</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successcondition>equal</successcondition>
+      <successnumbercondition>equal</successnumbercondition>
+      <successbooleancondition>false</successbooleancondition>
+      <successwhenvarset>N</successwhenvarset>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>208</xloc>
+      <yloc>240</yloc>
       </entry>
   </entries>
   <hops>
     <hop>
-      <from>tr_obj_string_to_vars</from>
-      <to>jb_sample</to>
+      <from>SQL - Refresh Table</from>
+      <to>tr_check_process_running</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -140,16 +192,82 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
+      <from>tr_check_process_running</from>
+      <to>Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>tr_check_process_running</from>
+      <to>Abort job</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
       <from>START</from>
-      <to>tr_obj_string_to_vars</to>
+      <to>Simple evaluation&#x3a; Table requires refresh&#x3f;</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
+    <hop>
+      <from>Simple evaluation&#x3a; Table requires refresh&#x3f;</from>
+      <to>tr_check_process_running</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Simple evaluation&#x3a; Table requires refresh&#x3f;</from>
+      <to>SQL - Refresh Table</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>SQL - Refresh Table</from>
+      <to>Abort job</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
+    <notepad>
+      <note>&#x3c; Impala only</note>
+      <xloc>496</xloc>
+      <yloc>240</yloc>
+      <width>82</width>
+      <heigth>24</heigth>
+      <fontname>Microsoft Sans Serif</fontname>
+      <fontsize>12</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+      <drawshadow>Y</drawshadow>
+    </notepad>
   </notepads>
 
 </job>

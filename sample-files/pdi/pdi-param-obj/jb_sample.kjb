@@ -13,12 +13,12 @@
     <parameters>
         <parameter>
             <name>PARAM_CITY</name>
-            <default_value/>
+            <default_value>&#x24;&#x7b;PARAM_CITY_OUTER&#x7d;</default_value>
             <description/>
         </parameter>
         <parameter>
             <name>PARAM_DATE</name>
-            <default_value/>
+            <default_value>&#x24;&#x7b;PARAM_DATE_OUTER&#x7d;</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -140,8 +140,8 @@
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>208</xloc>
-      <yloc>208</yloc>
+      <xloc>320</xloc>
+      <yloc>192</yloc>
       </entry>
   </entries>
   <hops>
@@ -159,7 +159,7 @@
       <to>tr_substitute_params_with_vars</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
@@ -168,12 +168,42 @@
       <to>Write To Log - Check Params set</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
-      <enabled>Y</enabled>
+      <enabled>N</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
+    <hop>
+      <from>START</from>
+      <to>Write To Log - Check Params set</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
   </hops>
   <notepads>
+    <notepad>
+      <note>&#x3c; Note&#x3a; Not really required,&#xa;you can just map ithe variables to the parameter &#xa;in the job settings instead&#x3a;&#xa;&#xa;Parameter	Default value	Description&#xa;PARAM_CITY	&#x24;&#x7b;PARAM_CITY_OUTER&#x7d;	&#xa;PARAM_DATE	&#x24;&#x7b;PARAM_DATE_OUTER&#x7d;	&#xa;&#xa;Using tr_substitute_params_with_vars saves though&#xa;from specifying this mapping. So decide for yourself&#xa;what works better for you.</note>
+      <xloc>448</xloc>
+      <yloc>192</yloc>
+      <width>288</width>
+      <heigth>164</heigth>
+      <fontname>Microsoft Sans Serif</fontname>
+      <fontsize>12</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+      <drawshadow>Y</drawshadow>
+    </notepad>
   </notepads>
 
 </job>
