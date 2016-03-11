@@ -8,7 +8,7 @@ tags: PDI
 published: true
 ---
 
-**Unix** **Named Pipes** are a cool feature as they help you avoid writing the data to disk and hence speed up the performance signaficantly. More info on **Named Pipes** can be found [here](https://en.wikipedia.org/wiki/Named_pipe).
+**Unix** **Named Pipes** are a cool feature as they help you avoid writing the data to disk and hence speed up the performance significantly. More info on **Named Pipes** can be found [here](https://en.wikipedia.org/wiki/Named_pipe).
 
 Let's create our own **named pipe**, which is really quite easy:
 
