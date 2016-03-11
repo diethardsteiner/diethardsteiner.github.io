@@ -366,7 +366,7 @@ ORDER BY start_time DESC
 ```
 Values for the properties file:
 
-```
+```properties
 # Setup for PostgreSQL
 VAR_DB_LOGGING_NAME=logs
 VAR_TABLE_CUSTOM_PDI_LOGS=di_process_log

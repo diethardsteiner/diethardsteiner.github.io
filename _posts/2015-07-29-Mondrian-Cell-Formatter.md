@@ -108,7 +108,7 @@ If you want to use your custom format with several measures or calculated measur
     <Script language="JavaScript">
         <![CDATA[
         function getParameterTypes() {
-            return new Array(mondrian.olap.type.NumericType());
+            return new Array(new mondrian.olap.type.NumericType());
         }
         function getReturnType(parameterTypes) {
             return new mondrian.olap.type.StringType();
@@ -168,3 +168,4 @@ SELECT
     , [Measures].[Test] ON 1
 FROM [MyCube]
 ```
+
