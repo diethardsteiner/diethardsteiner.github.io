@@ -212,10 +212,21 @@ OK, you have been real patient :-)
 
 # Update May 2016
 
-https://youtu.be/9bYIUURjf20  (still processing the full HD version right now)
+You can now run the unit tests in Spoon! Command line options will be added at a later stage.
 
-https://github.com/mattcasters/pentaho-pdi-dataset/ (still open source but wait for labs initiative for press releases etc)
+So when you install the latest version, you get a *Click for unit test options* label in the top left corner, but when you left click on it nothing happens. It turns out, actually by just right clicking anywhere on the canvas, you can access the **Unit tests** menu:
 
-https://s3.amazonaws.com/kettle/pentaho-pdi-dataset-TRUNK-SNAPSHOT.jar (throw in plugins/)
+![](/images/pdi-datasets-p2-1.png)
 
-Warning: not ready for prime time, yada yada, may kill you or blow up your nuclear reactor, etc.
+Note: Adding Unit tests via the standard menu bar (**Tools > Datasets > Transformation unit tests**) is still not working.
+
+The workflow should be:
+
+1. Right click anywhere on the canvas and choose **Unit tests > Create unit test**.
+2. Right click on the step which should be populated by the unit test input dataset and choose **Data set > Input data: Select a data set**.
+3. Right click on the step which should be populated by the unit test output dataset and choose **Data set > Golden data: Select a data set**.
+4. Run the transformation in Spoon and you should see the result of the unit test in the log:
+
+![](/images/pdi-datasets-p2-2.png)
+
+There have been quite a few changes. Matt published a new [video on YouTube](https://youtu.be/9bYIUURjf20) to speak you through the new features. 
