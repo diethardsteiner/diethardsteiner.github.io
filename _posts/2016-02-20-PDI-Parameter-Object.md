@@ -146,3 +146,4 @@ what works better for you.
 We finally got our setup working - what an interesting ride this has been! You can **download** the **PDI jobs and transformation** from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/pdi-param-obj).
 
 
+While this is a very interesting example, a more practical and easier approach is to just read a properties file from the sub-job instead (and pass the filepath as a parameter down from the parent job to the sub-job).

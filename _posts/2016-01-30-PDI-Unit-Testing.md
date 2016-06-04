@@ -207,3 +207,15 @@ The **Table output** step should have an indicator now:
 ![](/images/pdi-unit-testing-14.png)
 
 And this is where it stops right now ... there is no GUI right now to run a unit test, but as per discussions with **Matt Casters** in Feb 2016 work on implementing this has begun, so I am really looking forward to trying this out! Matt has also fixed the preview bug, however, currently this code is not yet on Github. **Unit Testing** is a very important part of the development workflow, so please show this project some support!
+
+OK, you have been real patient :-)
+
+# Update May 2016
+
+https://youtu.be/9bYIUURjf20  (still processing the full HD version right now)
+
+https://github.com/mattcasters/pentaho-pdi-dataset/ (still open source but wait for labs initiative for press releases etc)
+
+https://s3.amazonaws.com/kettle/pentaho-pdi-dataset-TRUNK-SNAPSHOT.jar (throw in plugins/)
+
+Warning: not ready for prime time, yada yada, may kill you or blow up your nuclear reactor, etc.

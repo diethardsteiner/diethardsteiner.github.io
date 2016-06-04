@@ -1,0 +1,8 @@
+<vdb name="Karate" version="1">
+
+  
+    <model visible="true" name="Karate" type="PHYSICAL">
+        <source name="pdi-dataservice-karate" translator-name="jdbc-simple" connection-jndi-name="java:/pdi-dataservice-karate-connector"/>
+    </model>
+  
+</vdb>

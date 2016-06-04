@@ -5,22 +5,20 @@ summary: This provides detailled instructions on how to set up PDI Data Services
 date: 2016-05-02
 categories: PDI
 tags: PDI, Docker
-published: false
+published: true
 ---
 
-Questions to Edwin:
-
-- MetaStore: Where can I find a documentation for this? / Based on which reference did you create the files?
-
-
-Some time ago I started writing on a blog post about **Pentaho Data Services**, but then never came around to finish it. A few weeks ago **Edwin Weber** (of PDI Data Vault fame) gave a presentation on this particular topic at Pentaho Netherlands? Meetup. I kindly asked him to send me the slides and discovered that he had made quite some interesting findings, some of which I will describe below, mainly for the reason that information on Pentaho Data Services in the Community Edition seems to be extremely scarce. 
-
+Some time ago I started writing on a blog post about **Pentaho Data Services**, but then never came around to finish it. A few weeks ago **Edwin Weber** (of PDI Data Vault fame) gave a presentation on this particular topic at the Pentaho Netherlands Meetup. I kindly asked him to send me the slides and discovered that he had made quite some interesting findings, some of which I will describe below.
 
 # Setting up the Dev Environment
+
+We will quickly spin up some Docker Containers for MySQL and MongoDB as well as install PDI and Teiid locally. 
 
 ## Docker Containers
 
 ### MySQL
+
+Let's get a Docker Percona container running first. This assumes you have **Docker** installed on your machine:
 
 [Docker Percona MySQL](https://hub.docker.com/_/percona/)
 
@@ -36,7 +34,7 @@ $ docker run \
 -d percona:5.7
 ```
 
-> **Note**: Make sure to provide a port mapping when starting the container, so external clients (so clients on your host system) like PDI can connect to it.
+> **Note**: Make sure to provide a port mapping when starting the container, so external clients (so e.g. clients on your host system) like PDI can connect to it.
 
 To check if the port is correctly exposed, run this:
 
@@ -72,9 +70,9 @@ OS detection performed. Please report any incorrect results at https://nmap.org/
 Nmap done: 1 IP address (1 host up) scanned in 1.99 seconds
 ```
 
-As you can see, the port is correctly exposed (note that we asked docker machine for the IP - this is only necessary on Mac OS X and Windows).
+As you can see, the port is correctly exposed (note that we asked **docker machine** for the IP - this is only necessary on Mac OS X and Windows, on Linux you should be able to just use `localhost`).
 
-Check that MySQL DB is actually working (this creates another container which links to our previous one, you'll land in the mysql command line client):
+Next let's check that MySQL DB is actually working (this creates another container which links to our previous one, you'll land in the mysql command line client):
 
 ```bash
 docker run -it --link some-percona:mysql --rm percona sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
@@ -88,6 +86,8 @@ $ mysql -utest -h192.168.99.100 -P3306
 
 ### MongoDB
 
+Now we also want to spin up a **MongoDB** Docker container:
+
 [Docker Mongo](https://hub.docker.com/_/mongo/)
 
 ```bash
@@ -100,55 +100,56 @@ $ docker run \
 
 Use the mongodb command line tool or an app like [Robomongo](https://robomongo.org) to check if the connection is working.
 
-With the data store services ready, we can now shift our focus to PDI and TEEID, which we will install locally.
+With the data store services ready, we can now shift our focus to **PDI** and **TEEID**, which we will install locally.
 
-> **Note**: If at any point you want to stop the containers, just run `docker stop <containerName>`. And if you want to start time later on again: `docker start <containerName>`.
+> **Note**: If at any point you want to stop the containers, just run `docker stop <containerName>`. And if you want to start them later on again: `docker start <containerName>`.
 
-### PDI
+## PDI
 
 Download the latest version from **Sourceforge** and extract it in a convenient location. Then download the MySQL JDBC driver and add it to the PDI `lib` folder.
 
-### TEIID
+## TEIID
+
+You'll find instructions on how to install TEIID in one of the next sections of this article.
 
 # Making Data available as a Service
 
-For most of the example I will reuse the transfromations shown at the Meetup by Edwin Weber - a big thanks for him for sharing them!
+For most of the example I will reuse the transfromations shown at the Meetup by Edwin Weber - a big thanks to him for sharing them!
 
 Ok, let's get started:
 
-1. Download the example files from [here]().
+1. Download the example files from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/pdi-and-teiid-data-virtualization/my-version).
 2. Extract them in a convenient directory.
 3. Inside the extracted directory you'll find a `my-version` directory. On the command line, move into this directory.
 4. Next run `vi config/dev/.kettle/kettle.properties` and adjust the database settings to your local setup.
 5. Next adjust the `KETTLE_HOME` path: `vi shell-scripts/set-project-variables.sh`. Then execute the same file.
-6. Navigate to your PDI install folder. Start **Spoon**.
+6. Within the same Terminal window, navigate to your PDI install folder. Start **Spoon**.
 7. In **Spoon** connect to the file repository [[OPEN]] open all the jobs and transformations located in our project folder in the `di` folder.
 8. Execute the `job_load_data_for_virt_demo` job.
 
 
 > **Important**: For this exercise we will work with a **PDI file based repository**, which we will register with **Carte**, so that all **Data Services** are available in an easy fashion.
 
-[OPEN]: There are some artefacts in ~/.pentaho like the metastore, which we should ideally have in the project files
-
 ## Web Services (Carte REST service)
 
-This feature has been available in PDI for quite some time and is quite easy to set up: Just tick the *Pass output to servlet* option in the **XML Output**, **JSON Output** and **Text Output** steps. When you run the transformation on a **Carte** server, the step's output will be exposed.
+This feature has been available in **PDI** for quite some time and is fairly easy to set up: Just tick the *Pass output to servlet* option in the **XML Output**, **JSON Output** and **Text Output** steps. When you run the transformation on a **Carte** server, the step's output will be exposed.
 
-
-See for more info [here](http://wiki.pentaho.com/display/EAI/PDI+data+over+web+services).
+Find for more info [here](http://wiki.pentaho.com/display/EAI/PDI+data+over+web+services).
 
 **Example**:
 
-In a new **Terminal** window  and set the `KETTLE_HOME` environment variable using our shell script (see instructions further up).
+In a new **Terminal** window, navigate to the **PDI** install directory and run our `set-project-variables.sh` shell script (see instructions further up).
 
-Navigate to the **PDI** install directory and start the **Carte** server (adjust project path):
+Start the **Carte** server (adjust project path): 
 
 ```bash
+
+source /Users/diethardsteiner/Dropbox/development/code-examples/pentaho/PDI/PDI-and-Teiid-data-virtualization/my-version/shell-scripts/set-project-variables.sh
+
 sh ./carte.sh /Users/diethardsteiner/Dropbox/development/code-examples/pentaho/PDI/PDI-and-Teiid-data-virtualization/my-version/config/dev/carte.config.xml
 ```
 
 The supplied Carte config also registers a PDI file repo, so that jobs and transformations are accessible.
-
 
 ```bash
 http://localhost:9081/kettle/executeTrans/?rep=pdi-data-services-example&user=admin&pass=password&trans=trf_demo_virt_karate_members
@@ -158,7 +159,7 @@ http://localhost:9081/kettle/executeTrans/?rep=pdi-data-services-example&user=ad
 
 Paste this into your favourite web browser and have fun!
 
-![](./img/pdi-data-services-1.png)
+![](/images/pdi-data-services-1.png)
 
 **Alternatively**, if you were **not using a repository**, the approach is the following:
 
@@ -195,7 +196,9 @@ The **XML** file struture is composed of:
 - The `<element>` node moreover has a `<children>` node, which in turn can have nested `<child>` and `<children>` elements. A `<child>` node contains the same basic nodes as the top level element (`<id>`, `<value>`, `<type>` and `<name>`).
 - The `<element>` node also has a `<security>` node, which defines the `<owner>` as well as the `<owner-permissions-list>`, explaining who has which permission to use the element. 
 
-In regards to the metastore file for the **Pentaho Data Service** there seems to be currently a bug/or limition. Edwin Weber notes: "When I worked on a file, not in a file repository!, the metastore file got created when defining a step as a data service. Then I continued in a repository, creating these metastore files by hand."
+In regards to the metastore file for the **Pentaho Data Service** there seems to be currently a bug/or limitation (I filed [this JIRA case](http://jira.pentaho.com/browse/PRD-5751)). Edwin Weber notes: "When I worked on a file, not in a file repository!, the metastore file got created when defining a step as a data service. Then I continued in a repository, creating these metastore files by hand."
+
+I had a look at both the metastore file and the PDI transformation XML file. Surprisingly enough I found metastore details in the PDI transfromation XML file as well, which seemed to be more detailed from what is written to the actual metastore file. I am not quite too sure if this was not just a consequence of me testing both the file repository as well as the normal file based approach or if this is a design feature. Furthermore it didn't seem like the Carte server required the metastore file (I guess because the transformation file has all details in any case it already). 
 
 ### Defining a Pentaho Data Service
 
@@ -214,9 +217,11 @@ The **Data Service** config will be stored in an XML file of the same name as th
 ~/.pentaho/metastore/pentaho/Data\ Service\ Transformation/
 ```
 
+> **Note**: You can customise the location of the **Metastore** by setting following parameters: `PENTAHO_METASTORE_FOLDER`.
+
 Note that once you define a **Data Service** for a given step, this step will show the Data Service icon:
 
-![](./img/pdi-data-services-2.png)
+![](/images/pdi-data-services-2.png)
 
 ## Connecting to the Pentaho Data Source from 3rd Party Clients
 
@@ -226,7 +231,7 @@ As we are working with a PDI repository (which was registered with Carte), we ca
 http://localhost:9081/kettle/listServices/
 ```
 
-![](./img/pdi-data-services-3.png)
+![](/images/pdi-data-services-3.png)
 
 So, let's see if we can query our tables from a **SQL Client**. For this example I'll use **NetBeans**' built-in SQL client, but the approach should be fairly similar with any other JDBC SQL client:
 
@@ -235,23 +240,23 @@ So, let's see if we can query our tables from a **SQL Client**. For this example
 2. In **NetBeans** click on the **Services** tab, then right click on **Databases** and choose **New Connection**.
 3. Define a new Driver and then add the all the required files from the extracted **JDBC Driver** folder:
 
-	![](./img/pdi-data-services-4.png)
+	![](/images/pdi-data-services-4.png)
 	
 	Basically just add all the jar files from the extracted JDBC folder to the Driver definition! Click **Next**.
 
-4. Next provide the connection details: The hostname and port as well as user name and password will be the ones you specified for the **Carte** server, so in my case this translates to: `jdbc:pdi://hostname:port/kettle`. Other SQL clients might also require the JDBC Driver class name: `org.pentaho.di.trans.dataservice.jdbc.ThinDriver`.
+4. Next provide the connection details like so `jdbc:pdi://hostname:port/kettle`. The hostname and port as well as user name and password will be the ones you specified for the **Carte** server, so in my case this translates to: `jdbc:pdi://localhost:9081/kettle`. Other SQL clients might also require the JDBC Driver class name: `org.pentaho.di.trans.dataservice.jdbc.ThinDriver`.
 
-	![](./img/pdi-data-services-5.png)
+	![](/images/pdi-data-services-5.png)
 	
 	Click **Finish** and the connection should work now.
 	
 5. Expand the new connection node in the **Services** panel to see the tables:
 
-	![](./img/pdi-data-services-6.png)
+	![](/images/pdi-data-services-6.png)
 
 6. Right click on the new connection node in the **Services** panel and choose **Execute command**, which will open the SQL Editor. Write and run a query against any of our tables:
 
-	![](./img/pdi-data-services-7.png)
+	![](/images/pdi-data-services-7.png)
 	
 So far so good, what happens, however, if you try to join two tables? It won't work! We shall solve this in a bit based on a solution suggested by Edwin Weber.
 
@@ -274,11 +279,13 @@ Edwin Weber hightlighted that currently the connection type **Pentaho Data Servi
 
 The connection details look like this:
 
-![](./img/pdi-data-services-9.png)
+![](/images/pdi-data-services-9.png)
 
 Open the `tr_test_data_service_connection` transformation and preview the output of the **Table Input** step:
 
-![](./img/pdi-data-services-8.png)
+![](/images/pdi-data-services-8.png)
+
+Jens Bleuel mentioned: "The only difference I can think of you mean, there is a slightly different URL (with the addition of the WebApp name for the DI-Server). For the Carte server, you need to change the Options tab within the Pentaho Data Service connection and remove the webappname parameter. I agree that this is pretty much hidden. This will most likely be simplified in 7.0."
 
 
 ## Teiid - The Virtualisation Layer
@@ -287,7 +294,7 @@ Open the `tr_test_data_service_connection` transformation and preview the output
 
 As we previously learnt, joining two Kettle virtual tables in a SQL Client results in an error. In his meetup talk, Edwin Weber demoed **Teiid** to solve just this issue. The open source project [Teidd](http://teiid.jboss.org) (sponsored by RedHat) is billed as "a data virtualization system that allows appliations to use data from multiple, heterogenous data stores". There is also a dedicated [Teiid Designer](http://teiiddesigner.jboss.org) available for creating and maintaining Teiid metadata (virtual tables). There is even a [Teiid Dashboard](https://github.com/teiid/teiid-dashboard) web application (which is a customised version of [JBoss Dashboard Build](https://docs.jboss.org/drools/release/6.0.0.CR5/dashboard-builder-docs/html_single/)) available. [These slides](http://redhat.slides.com/kennethwpeeples/dvprimer-introduction#/) provide a good introduction to RedHat Data Virtualisation.
 
-![](./img/pdi-data-services-10.png)
+![](/images/pdi-data-services-10.png)
 
 Download the following from [here](http://teiid.jboss.org/downloads/):
 
@@ -317,23 +324,13 @@ Now, on your command line navigate into this folder and run the following:
 sh ./bin/standalone.sh -c=standalone-teiid.xml
 ```
 
-To access the Admin Panel go to following ULR `http://127.0.0.1:9990`. You will see a notice that the server is running but that no user has beeen set up. To remedy this, open a new terminal window/tab, navigate to the server folder and create an **Admin User** by running the following:
+To access the **Admin Panel** go to following ULR `http://127.0.0.1:9990`. You will see a notice that the server is running but that no user has beeen set up. To remedy this, open a new terminal window/tab, navigate to the server folder and create an **Admin User** by running the following:
 
 ```bash
 $ sh ./bin/add-user.sh
 ```
 
-On the first prompt just hit enter, next provide a user name and then a password. The user does not belong to any group. When asked if this new user going to be used for one AS process to connect to another AS process, answer yes. 
-
-
-[[ REMOVE ]]
-
-Is this new user going to be used for one AS process to connect to another AS process? 
-e.g. for a slave host controller connecting to the master or for a Remoting connection for server to server EJB calls.
-yes/no? yes
-To represent the user add the following to the server-identities definition <secret value="c2lzdGVyNDc=" />
-
-[[/ REMOVE ]]
+On the first prompt just hit enter, next provide a user name and then a password. The user does not belong to any group. When asked if this new user is going to be used for one AS process to connect to another AS process, answer yes. 
 
 Once this is done, in your web browser, click on the *Try again* link on the WildFly page. You should then be asked for a user name and password.
 
@@ -380,7 +377,6 @@ Source: [Install a JDBC Driver as a Core Module](https://access.redhat.com/docum
 
 The next step is to add the **Pentaho Data Services JDBC Driver** to **WildFly**: Copy the `pentaho-data-services` folder into `<wildfly-root>/modules`. 
 
-
 Create following folder structure:
 
 ```
@@ -418,14 +414,14 @@ We will have to add a Wildfly specific `module.xml` to this folder (you can copy
 
 Next add all the JDBC driver files to this directory.
 
-> **Important**: It seems like it is best practice to stop the server now and make the config changes. When I was changes `standalone-teeid.xml` while the server as running and later on restarted the server, my changes to the file seemed to have gone.
+> **Important**: It seems like it is best practice to stop the server now and make the config changes. When I was changing `standalone-teeid.xml` while the server as running and later on restarted the server, my changes to the file seemed to have gone.
 
 
 ### Creating Virtual Tables the Manual Way
 
 #### Creating Connections and Drivers
 
-Now we will create a **Virtual Database (VDB)** in **Teiid**, which will access the **Pentaho Virtual Tables** and allow us to query them (both individually as well as in a JOIN). We could also create a table/view in **Teiid** to based on these source tables. 
+Now we will create a **Virtual Database (VDB)** in **Teiid**, which will access the **Pentaho Virtual Tables** and allow us to query them (both individually as well as in a JOIN). We could also create a table/view in **Teiid** to be based on these source tables. 
 
 As the documentation states, the usual workflow is the following:
 
@@ -456,15 +452,13 @@ Just a little bit further down you can find the `<drivers>` section. Add the fol
 </driver>
 ```
 
-[OPEN] WHY ARE THERE TWO DRIVERS DEFINED??? (one is for the web service I think)
-[OPEN] 2nd driver is not available as a module, or is it? ADD!
-
 > **Important**: The `module` name must be the same as the one you defined when adding the JDBC driver in the `module.xml`.
 
 #### Creating the Virtual Database File
 
-Next let's create the **Virtual Database** file: [[ ADD SOME MORE DESCRIPTION ]]
-https://docs.jboss.org/author/display/teiidexamples/Hello+World+Teiid+Data+Federation+Example
+Next let's create the **Virtual Database** file: 
+
+[Docu](https://docs.jboss.org/author/display/teiidexamples/Hello+World+Teiid+Data+Federation+Example)
 
 ```xml
 <vdb name="Karate" version="1">
@@ -523,6 +517,9 @@ java.lang.Integer cannot be cast to java.lang.Long
 	at org.teiid.query.metadata.ChainingMetadataRepository.loadMetadata(ChainingMetadataRepository.java:55)
 ```
 
+As there is already a problem at this stage, there is not much point progressing any further, but for completeness sake, I'll provide a brief description. I spend quite a few hours trying to figure what was going on. The thing is that I couldn't even registered Pentaho Data Services as standard data connection within Eclipse Mars *Data Source Explorer* (part of the  Eclipse Data Tools Platform (DTP)). So this is already very strange. Maybe there is a JDBC driver problem? The PDI EE version however works fine. I created [this Jira case](http://jira.pentaho.com/browse/PDI-15407) therefor. More details in the *Encountered Errors* section further down this article.
+
+
 #### Connecting to the Teiid Virtual DB from a SQL Client
 
 ```
@@ -531,9 +528,9 @@ jdbc:teiid:karate.1@mm://localhost:31000
 
 The JDBC URL starts with `jdbc:teiid:`. This is followed by the VBA Name and version, so `<VBA-NAME>.<VERSION>`. In our example, in the VBA XML we defined this: `<vdb name="Karate" version="1">`, which translates to `Karate.1` for the JDBC URL. Also note that you have to use the **Application user** credentials (not the **Admin user** credentials).
 
-![](./img/pdi-data-services-11.png)
+![](/images/pdi-data-services-11.png)
 
-#### How to resolve problems
+#### How to resolve problems standard Teiid setup problems
 
 If you are having troubles establishing a connection, it is best you stop the server and start it in debug mode to see more detailed error messages:
 
@@ -550,14 +547,98 @@ You might find error messages like this one:
 	at org.teiid.query.metadata.ChainingMetadataRepository.loadMetadata(ChainingMetadataRepository.java:55)
 ```
 
+#### Encounted Errors
+
+If you started WildFly/JBoss in debug mode, you will see following error messages:
+
+```bash
+19:22:32,319 ERROR [stderr] (Worker0_async-teiid-threads0)  Caused by: org.pentaho.di.core.exception.KettleFileException: 
+19:22:32,319 ERROR [stderr] (Worker0_async-teiid-threads0)  
+19:22:32,319 ERROR [stderr] (Worker0_async-teiid-threads0)  Unable to get VFS File object for filename 'plugins' : Could not find file with URI "/Applications/Development/teiid-8.13.4/plugins" because it is a relative path, and no base URI was provided.
+19:22:32,319 ERROR [stderr] (Worker0_async-teiid-threads0)  
+19:22:32,319 ERROR [stderr] (Worker0_async-teiid-threads0)  
+19:22:32,320 ERROR [stderr] (Worker0_async-teiid-threads0)  	at org.pentaho.di.core.vfs.KettleVFS.getFileObject(KettleVFS.java:158)
+19:22:32,320 ERROR [stderr] (Worker0_async-teiid-threads0)  	at org.pentaho.di.core.vfs.KettleVFS.getFileObject(KettleVFS.java:106)
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  	at org.pentaho.di.core.vfs.KettleVFS.getFileObject(KettleVFS.java:102)
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  	at org.pentaho.di.core.plugins.PluginFolder.findJarFiles(PluginFolder.java:124)
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  	... 39 more
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  org.pentaho.di.core.exception.KettleFileException: 
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  Unable to list jar files in plugin folder '/Users/diethardsteiner/.kettle/plugins'
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  Unable to get VFS File object for filename '/Users/diethardsteiner/.kettle/plugins' : Could not find file with URI "/Users/diethardsteiner/.kettle/plugins" because it is a relative path, and no base URI was provided.
+19:22:32,321 ERROR [stderr] (Worker0_async-teiid-threads0)  
+```
+
+And further down:
+
+```bash
+19:22:32,719 WARN  [org.teiid.RUNTIME] (Worker0_async-teiid-threads0)  TEIID50036 VDB Karate.1 model "Karate" metadata failed to load. Reason:TEIID11010 java.sql.SQLException: org.pentaho.di.core.exception.KettleValueException: 
+Unexpected conversion error while converting value [NULLABLE Integer] to an Integer
+java.lang.Integer cannot be cast to java.lang.Long
+: org.teiid.translator.TranslatorException: TEIID11010 java.sql.SQLException: org.pentaho.di.core.exception.KettleValueException: 
+Unexpected conversion error while converting value [NULLABLE Integer] to an Integer
+java.lang.Integer cannot be cast to java.lang.Long
+
+	at org.teiid.translator.jdbc.JDBCExecutionFactory.getMetadata(JDBCExecutionFactory.java:297)
+	at org.teiid.translator.jdbc.JDBCExecutionFactory.getMetadata(JDBCExecutionFactory.java:68)
+	at org.teiid.query.metadata.NativeMetadataRepository.getMetadata(NativeMetadataRepository.java:92)
+	at org.teiid.query.metadata.NativeMetadataRepository.loadMetadata(NativeMetadataRepository.java:60)
+	at org.teiid.query.metadata.ChainingMetadataRepository.loadMetadata(ChainingMetadataRepository.java:55)
+```
+
 #### Final Remarks
 
 As you can see, it is fairly easy to set up Virtualised Tables in Teiid. We only took a look at defining JDBC data sources. In his Meetup Demo Edwin also demoed accessing the PDI Web Service via Teiid, effectively eliminating the need to copy JDBC drivers to the web server. 
 
 ### Using Teiid Designer
 
-There is also a very good [Examples](https://docs.jboss.org/author/display/teiidexamples/Examples) page with instructions on how to connect to various DBs, XML, Flat files, web services etc. We will follow [this guide](https://developer.jboss.org/wiki/HowToModelJDBCDataSource):
+There is a very good [Examples](https://docs.jboss.org/author/display/teiidexamples/Examples) page with instructions on how to connect to various DBs, XML, Flat files, web services etc. We will follow [this guide](https://developer.jboss.org/wiki/HowToModelJDBCDataSource).
 
-Open **Teiid Designer**
+#### Installation
+
+**Teiid Designer** is an **Eclipse** plugin. Download **Eclipse Mars** and make sure it uses **Java 8** by adjusting the `eclipse.ini` (see [here](https://wiki.eclipse.org/Eclipse.ini) for details). Teiid Designer requires Java 8!
+
+Next follow the plugin instructions outlined [here](http://teiiddesigner.jboss.org/designer_summary/downloads.html). Make sure you follow the instructions at the end of the page, just below the heading *Install into Eclipse 4.5 (Mars)*.
+
+Once you installed the plugin switch to the **Teiid Designer** *perspective*.
+
+#### Creating the VDB
+
+First let's register our server:
+
+![](/images/pdi-data-services-12.png)
+
+Click on the **No default server defined** link on the left hand side panel. Just follow the instruction. On the 3rd screen set the path to the Teiid server install directory.
+
+Next click on **Define Teiid Model Project** in the right hand side panel under **Modeling Actions**. Our project's name is *Karate*. Accept all the defaults.
+
+Now click on **Create JDBC Connection** in the right hand side panel under **Modeling Actions**
+
+![](/images/pdi-data-services-13.png)
+
+In the **New Connection Profile** window choose the **Generic JDBC** and provide a name (e.g. *Karate*). 
+
+On the next screen click on the **New Driver Definition** icon:
+
+![](/images/pdi-data-services-14.png)
+
+On the next screen make sure to highlight **Generic JDBC Driver** so that all of the other fields can be edited. Set **Driver Name** to *Pentaho Data Services*.
+
+Click on the **Jar List** tab and then choose **Add jar/zip**. Choose the Pentaho Data Services JDBC extracted zip folder you originally downloaded and add all the jar files. Next click on the **Properties** tab and provide the following:
 
 
+Property          | Value  
+ ---------------	| ------
+Connection URL    |  `jdbc:pdi://hostname:port/kettle` 
+Driver Class      |  `org.pentaho.di.trans.dataservice.jdbc.ThinDriver`
+
+
+Then click **OK**.
+
+Back in the **New Connection Profile** window provide the user name and password (`cluster` and `cluster` in our case). You have to define a value for the **Database** name, which can be anything, as it will not be used. Click the **Test connection** button. All should be fine.
+
+Once I clicked OK I got a StackOverflow error message. Strangely enough I also couldn't get a Pentaho Data Services connection working in DBeaver, which is Eclipse based as well.
+
+Special thanks also to **Dan Keeley** for testing the connection in Eclipse to confirm problem.

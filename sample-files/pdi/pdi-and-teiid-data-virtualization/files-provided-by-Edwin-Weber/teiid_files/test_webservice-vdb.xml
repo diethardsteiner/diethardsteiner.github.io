@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<vdb name="test_webservice-vdb" version="1">
+
+    <description>Shows how to call Web Services</description>
+    
+    <property name="UseConnectorMetadata" value="true" />
+    <!--property name="{http://teiid.org/rest}auto-generate" value="true"/-->
+
+    <model name="ws_karate_ranks" visible="false">
+        <source name="ws_karate_ranks" translator-name="ws" connection-jndi-name="java:/ws_karate_ranks"/>
+    </model>
+    <model name="ws_karate_members"  visible="false">
+        <source name="ws_karate_members" translator-name="ws" connection-jndi-name="java:/ws_karate_members"/>
+    </model> 
+    <model name="ws_combined" type="VIRTUAL">
+        <metadata type="DDL"><![CDATA[
+         CREATE  VIEW demo_virt_karate_ranks AS
+ SELECT
+A.rank_key, A.rank, A.rank_type, A.belt_color, A.remark
+FROM
+(EXEC ws_karate_ranks.invokeHttp('GET',null,'http://cluster:cluster@localhost:8085/kettle/executeTrans/?trans=/media/data1/kff/projects/websol/datavault/code/pentaho_meetup/trf_demo_virt_karate_ranks.ktr', 'TRUE')) 
+AS f, XMLTABLE('/Ranks/Rank' PASSING XMLPARSE(DOCUMENT f.result) 
+COLUMNS rank_key string PATH 'rank_key', rank string PATH 'rank', rank_type string PATH 'rank_type', belt_color string PATH 'belt_color',remark string PATH 'remark') AS A;
+        ]]>
+        </metadata>
+                <metadata type="DDL"><![CDATA[
+         CREATE  VIEW demo_virt_karate_members AS
+ SELECT
+A.karate_member_key, A.karate_member, A.date_of_birth, A.date_start, A.date_end,A.dojo_key, A.dojo, A.dojo_web_address,A.style,A.city, A.date_exam,A.rank,A.dojo_exam,A.city_exam
+FROM
+(EXEC ws_karate_members.invokeHttp('GET',null,'http://cluster:cluster@localhost:8085/kettle/executeTrans/?trans=/media/data1/kff/projects/websol/datavault/code/pentaho_meetup/trf_demo_virt_karate_members.ktr', 'TRUE')) 
+AS f, XMLTABLE('/KarateMembers/KarateMember' PASSING XMLPARSE(DOCUMENT f.result) 
+COLUMNS karate_member_key string PATH 'karate_member_key', karate_member string PATH 'karate_member', date_of_birth string PATH 'date_of_birth', date_start string PATH 'date_start',date_end string PATH 'date_end'
+, dojo_key string PATH 'dojo_key', dojo string PATH 'dojo', dojo_web_address string PATH 'dojo_web_address',style string PATH 'style'
+, city string PATH 'city', date_exam string PATH 'date_exam', rank string PATH 'rank',dojo_exam string PATH 'dojo_exam',city_exam string PATH 'city_exam'
+) AS A;
+        ]]>
+        </metadata>
+    </model>
+</vdb>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repositories>
+  <repository>    <id>KettleFileRepository</id>
+    <name>pdi-data-services-example</name>
+    <description>pdi-data-sources-example</description>
+    <base_directory>&#x2f;Users&#x2f;diethardsteiner&#x2f;Dropbox&#x2f;development&#x2f;code-examples&#x2f;pentaho&#x2f;PDI&#x2f;PDI-and-Teiid-data-virtualization&#x2f;my-version&#x2f;di</base_directory>
+    <read_only>N</read_only>
+    <hides_hidden_files>N</hides_hidden_files>
+  </repository>  </repositories>

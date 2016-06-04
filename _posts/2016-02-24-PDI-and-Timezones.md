@@ -10,9 +10,11 @@ published: false
 
 # Timezones
 
-So I had an interesting chat with Dan Keeley about Timezone support in PDI. He made a few suggestions that I'd like to share with you:
+So I had an interesting chat with Dan Keeley and Nelson Sousa about Timezone support in PDI. He made a few suggestions that I'd like to share with you:
 
-In the **UK** we are on the GMT timezone?? which also incorporates daylight saving. In 2015 clocks went forward on the 29 of March, so let's use this as an example for testing.
+Databases store timestamps in UTC.
+
+In the **UK** we are on the GMT timezone which also incorporates daylight saving. In 2015 clocks went forward on the 29 of March, so let's use this as an example for testing.
 
 "In the UK the clocks go forward 1 hour at 1am on the last Sunday in March, and back 1 hour at 2am on the last Sunday in October. The period when the clocks are 1 hour ahead is called British Summer Time (BST). There's more daylight in the evenings and less in the mornings (sometimes called Daylight Saving Time).
 

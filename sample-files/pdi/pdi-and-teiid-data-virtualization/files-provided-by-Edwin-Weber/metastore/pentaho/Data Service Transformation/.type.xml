@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data-type>
+   <name>Data Service Transformation</name>
+   <description>Pointer to a saved transformation that supplies a data service</description>
+</data-type>

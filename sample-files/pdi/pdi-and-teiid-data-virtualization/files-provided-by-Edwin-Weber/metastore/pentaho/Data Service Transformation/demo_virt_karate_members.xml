@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element>
+   <id>demo_virt_karate_members</id>
+   <value></value>
+   <type>String</type>
+   <children>
+      <child>
+         <id>trans_references</id>
+         <value>org.pentaho.di.trans.dataservice.serialization.ServiceTrans$Reference</value>
+         <type>String</type>
+         <children>
+            <child>
+               <id>0</id>
+               <value></value>
+               <type>String</type>
+               <children>
+                  <child>
+                     <id>transformation_location</id>
+                     <value>/media/data1/kff/projects/websol/datavault/code/pentaho_meetup/trf_demo_virt_karate_members.ktr</value>
+                     <type>String</type>
+                  </child>
+                  <child>
+                     <id>transformation_storage_method</id>
+                     <value>FILE</value>
+                     <type>String</type>
+                  </child>
+               </children>
+            </child>
+         </children>
+      </child>
+   </children>
+   <name>demo_virt_karate_members</name>
+   <security>
+      <owner/>
+      <owner-permissions-list/>
+   </security>
+</element>

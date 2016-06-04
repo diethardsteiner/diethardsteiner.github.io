@@ -1,0 +1,20 @@
+<slave_config>
+  <slaveserver>
+    <name>Slave01</name>
+    <hostname>localhost</hostname>
+    <port>9081</port>
+  </slaveserver>
+
+  <report_to_masters>N</report_to_masters>
+
+  <max_log_lines>10000</max_log_lines>
+  <max_log_timeout_minutes>1440</max_log_timeout_minutes>
+  <object_timeout_minutes>1440</object_timeout_minutes>
+
+	<repository>
+	  <name>pdi-data-services-example</name>
+	  <username>admin</username>
+	  <password>password</password>
+	</repository>
+</slave_config>
+
