@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element>
+   <id>dstest</id>
+   <value></value>
+   <type>String</type>
+   <children>
+      <child>
+         <id>trans_references</id>
+         <value>org.pentaho.di.trans.dataservice.serialization.ServiceTrans$Reference</value>
+         <type>String</type>
+         <children>
+            <child>
+               <id>0</id>
+               <value></value>
+               <type>String</type>
+               <children>
+                  <child>
+                     <id>transformation_location</id>
+                     <value>/tr_data_services_simple_test</value>
+                     <type>String</type>
+                  </child>
+                  <child>
+                     <id>transformation_storage_method</id>
+                     <value>REPO_PATH</value>
+                     <type>String</type>
+                  </child>
+               </children>
+            </child>
+         </children>
+      </child>
+   </children>
+   <name>dstest</name>
+   <security>
+      <owner/>
+      <owner-permissions-list/>
+   </security>
+</element>
