@@ -23,9 +23,9 @@ We will make **Kitchen**, **Pan** and **Spoon** environment and project aware:
 
 Variable     | Description    
 -------------|----------
-PROJECT_NAME | Name of the project
-PROJECT_HOME | Path to the root folder of the project
-PROJECT_ENV  | Environment (dev, test, prod, etc)
+`PROJECT_NAME` | Name of the project
+`PROJECT_HOME` | Path to the root folder of the project
+`PROJECT_ENV`  | Environment (dev, test, prod, etc)
 
 Open `spoon.sh` in a text editor and add following paramters to the `OPT` section:
 
@@ -39,42 +39,25 @@ For PDI-CE-6.1 this should look like this then:
 OPT="$OPT $PENTAHO_DI_JAVA_OPTIONS -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -Djava.library.path=$LIBPATH -DKETTLE_HOME=$KETTLE_HOME -DKETTLE_REPOSITORY=$KETTLE_REPOSITORY -DKETTLE_USER=$KETTLE_USER -DKETTLE_PASSWORD=$KETTLE_PASSWORD -DKETTLE_PLUGIN_PACKAGES=$KETTLE_PLUGIN_PACKAGES -DKETTLE_LOG_SIZE_LIMIT=$KETTLE_LOG_SIZE_LIMIT -DKETTLE_JNDI_ROOT=$KETTLE_JNDI_ROOT -DPROJECT_NAME=$PROJECT_NAME -DPROJECT_HOME=$PROJECT_HOME -DPROJECT_ENV=$PROJECT_ENV -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER"
 ```
 
-The four parameters we added to the **JVM** settings are defined in `shell-scripts/set-project-variable.sh`. This file will be sourced by any other shell file which executes a PDI job - making sure the essential variables get always set. You can think of this file as of containing the core configuration details for a particular project:
+We have to set the basic PDI related variables as well as define the environment (dev, test, prod etc). These are config properties that will be very likely applicable to most projects running on the server:
+
+Variable     | Description    
+-------------|-------------
+`PROJECT_ENV` | Environment (dev, test, prod, etc)
+`KETTLE_HOME` | Directory where PDI stores its config files etc
+`DKETTLE_JNDI_ROOT` | Directory where you store the JNDI defs
+`PENTAHO_METASTORE_FOLDER` | Directory for the Pentaho Metastore
+`PDI_HOME` | PDI root directory
+
+
+Add this to the `bashrc` or `bash_profile` file:
 
 ```bash
-#!/bin/bash
-echo "SETTING ENVIRONMENT VARIABLES ..."
-echo "---------------------------------"
-
-# Define variables
-
-# PROJECT NAME
-export PROJECT_NAME=sample-project
-echo "- PROJECT_NAME: " $PROJECT_NAME
+# ADD THIS TO BASHRC OR BASH_PROFILE
 
 # ENVIRONMENT
-# !!!IMPORTANT!!! THIS MUST BE NORMALLY STORED IN .bashrc - I added it here only for demo purposes to simplify setup
 export PROJECT_ENV=dev
 echo "- PROJECT_ENV: " $PROJECT_ENV
-
-# run the following on the command line and only then start kettle spoon
-
-# get path of current dir based on http://www.ostricher.com/2014/10/the-right-way-to-get-the-directory-of-a-bash-script/
-get_script_dir () {
-     SOURCE="${BASH_SOURCE[0]}"
-     # While $SOURCE is a symlink, resolve it
-     while [ -h "$SOURCE" ]; do
-          DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-          SOURCE="$( readlink "$SOURCE" )"
-          # If $SOURCE was a relative symlink (so no "/" as prefix, need to resolve it relative to the symlink base directory
-          [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-     done
-     DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-     echo "$DIR"
-}
-
-export PROJECT_SHELL_SCRIPTS_FOLDER="$(get_script_dir)"
-export PROJECT_HOME=$PROJECT_SHELL_SCRIPTS_FOLDER/..
 
 # KETTLE HOME LOCATION
 export KETTLE_HOME=$PROJECT_HOME/config/$PROJECT_ENV
@@ -93,6 +76,37 @@ echo "- PENTAHO_METASTORE_FOLDER: " $PENTAHO_METASTORE_FOLDER
 # PDI DIR
 export PDI_HOME=/Applications/Development/pdi-ce-6.1
 echo "- PDI_HOME: " $PDI_HOME
+```
+
+Some of parameters we added to the **JVM** settings are defined in `shell-scripts/set-project-variable.sh`, but we will add also a few other ones. This file will be sourced by any other shell file which executes a PDI job - making sure the essential variables get always set. You can think of this file as of containing the core configuration details for a particular project:
+
+```bash
+#!/bin/bash
+echo "SETTING ENVIRONMENT VARIABLES ..."
+echo "---------------------------------"
+
+# Define variables
+
+# PROJECT NAME
+export PROJECT_NAME=sample-project
+echo "- PROJECT_NAME: " $PROJECT_NAME
+
+# get path of current dir based on http://www.ostricher.com/2014/10/the-right-way-to-get-the-directory-of-a-bash-script/
+get_script_dir () {
+     SOURCE="${BASH_SOURCE[0]}"
+     # While $SOURCE is a symlink, resolve it
+     while [ -h "$SOURCE" ]; do
+          DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+          SOURCE="$( readlink "$SOURCE" )"
+          # If $SOURCE was a relative symlink (so no "/" as prefix, need to resolve it relative to the symlink base directory
+          [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+     done
+     DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+     echo "$DIR"
+}
+
+export PROJECT_SHELL_SCRIPTS_FOLDER="$(get_script_dir)"
+export PROJECT_HOME=$PROJECT_SHELL_SCRIPTS_FOLDER/..
 ```
 
 To cater for the requirements listed above, we only have the create one jobs and one transformation:
