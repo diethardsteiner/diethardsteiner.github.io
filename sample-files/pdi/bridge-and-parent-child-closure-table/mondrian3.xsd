@@ -1,0 +1,236 @@
+<!-- NOTE: This is just a schema automatically derived from a sample mondrian olap xml - it quite likely not complete and it will not enforce everything -->
+<!-- I used following utility: http://devutilsonline.com/xsd-xml/generate-xsd-from-xml AND ADJUSTED IT MANUALLY -->
+<!--<?xml version="1.0"?>-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:element name="Schema" type="SchemaType"/>
+  <xs:complexType name="TableType" mixed="true">
+    <xs:sequence>
+      <xs:element type="AggNameType" name="AggName" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="schema" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="AnnotationType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AnnotationsType">
+    <xs:sequence>
+      <xs:element type="AnnotationType" name="Annotation" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LevelType" mixed="true">
+    <xs:sequence>
+      <xs:element type="AnnotationsType" name="Annotations" minOccurs="0"/>
+      <xs:element type="KeyExpressionType" name="KeyExpression" minOccurs="0"/>
+      <xs:element type="OrdinalExpressionType" name="OrdinalExpression" minOccurs="0"/>
+      <xs:element type="PropertyType" name="Property" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="column" use="optional"/>
+    <xs:attribute type="xs:string" name="nameColumn" use="optional"/>
+    <xs:attribute type="xs:string" name="ordinalColumn" use="optional"/>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="uniqueMembers" use="optional"/>
+    <xs:attribute type="xs:string" name="levelType" use="optional"/>
+    <xs:attribute type="xs:string" name="hideMemberIf" use="optional"/>
+    <xs:attribute type="xs:string" name="table" use="optional"/>
+    <xs:attribute type="xs:string" name="visible" use="optional"/>
+    <xs:attribute type="xs:string" name="approxRowCount" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="HierarchyType">
+    <xs:sequence>
+      <xs:element type="TableType" name="Table" minOccurs="0"/>
+      <xs:element type="LevelType" name="Level" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="caption" use="optional"/>
+    <xs:attribute type="xs:string" name="visible" use="optional"/>
+    <xs:attribute type="xs:string" name="hasAll" use="optional"/>
+    <xs:attribute type="xs:string" name="allMemberName" use="optional"/>
+    <xs:attribute type="xs:string" name="allMemberCaption" use="optional"/>
+    <xs:attribute type="xs:string" name="primaryKey" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="DimensionType" mixed="true">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element type="HierarchyType" name="Hierarchy"/>
+      <xs:element type="TableType" name="Table"/>
+      <xs:element type="DimensionUsageType" name="DimensionUsage">
+        <xs:annotation>
+          <xs:documentation>
+    &lt;DimensionUsage source="Date" name="Estimated Bill Date" caption="Estimated Bill Date" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    &lt;DimensionUsage source="Year" name="Estimated Bill Year" caption="Estimated Bill Year" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    &lt;DimensionUsage source="Quarter" name="Estimated Bill Quarter" caption="Estimated Bill Quarter" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    &lt;DimensionUsage source="Month" name="Estimated Bill Month" caption="Estimated Bill Month" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="DimensionType" name="Dimension"/>
+      <xs:element type="MeasureType" name="Measure"/>
+      <xs:element type="CalculatedMemberType" name="CalculatedMember">
+        <xs:annotation>
+          <xs:documentation> Just for checking </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="visible" use="optional"/>
+    <xs:attribute type="xs:string" name="highCardinality" use="optional"/>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="foreignKey" use="optional"/>
+    <xs:attribute type="xs:string" name="source" use="optional"/>
+    <xs:attribute type="xs:string" name="caption" use="optional"/>
+    <xs:attribute type="xs:string" name="cache" use="optional"/>
+    <xs:attribute type="xs:string" name="enabled" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="AggFactCountType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="column" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AggForeignKeyType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="factColumn" use="optional"/>
+        <xs:attribute type="xs:string" name="aggColumn" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AggMeasureType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="column" use="optional"/>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AggLevelType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="column" use="optional"/>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="collapsed" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AggNameType">
+    <xs:sequence>
+      <xs:element type="AggFactCountType" name="AggFactCount"/>
+      <xs:element type="AggForeignKeyType" name="AggForeignKey" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="AggMeasureType" name="AggMeasure" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="AggLevelType" name="AggLevel"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="ignorecase" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="DimensionUsageType" mixed="true">
+    <!--
+    <xs:sequence>
+      <xs:element type="HierarchyType" name="Hierarchy"/>
+    </xs:sequence>
+    -->
+    <xs:attribute type="xs:string" name="source" use="optional"/>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="caption" use="optional"/>
+    <xs:attribute type="xs:string" name="visible" use="optional"/>
+    <xs:attribute type="xs:string" name="foreignKey" use="optional"/>
+    <xs:attribute type="xs:string" name="highCardinality" use="optional"/>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="MeasureType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="column" use="optional"/>
+        <xs:attribute type="xs:string" name="datatype" use="optional"/>
+        <xs:attribute type="xs:string" name="formatString" use="optional"/>
+        <xs:attribute type="xs:string" name="aggregator" use="optional"/>
+        <xs:attribute type="xs:string" name="visible" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="CalculatedMemberType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="caption" use="optional"/>
+        <xs:attribute type="xs:string" name="formatString" use="optional"/>
+        <xs:attribute type="xs:string" name="formula" use="optional"/>
+        <xs:attribute type="xs:string" name="dimension" use="optional"/>
+        <xs:attribute type="xs:string" name="visible" use="optional"/>
+        <xs:attribute type="xs:string" name="description" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="CubeType" mixed="true">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element type="TableType" name="Table"/>
+      <xs:element type="DimensionUsageType" name="DimensionUsage">
+        <xs:annotation>
+          <xs:documentation>
+    &lt;DimensionUsage source="Date" name="Estimated Bill Date" caption="Estimated Bill Date" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    &lt;DimensionUsage source="Year" name="Estimated Bill Year" caption="Estimated Bill Year" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    &lt;DimensionUsage source="Quarter" name="Estimated Bill Quarter" caption="Estimated Bill Quarter" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    &lt;DimensionUsage source="Month" name="Estimated Bill Month" caption="Estimated Bill Month" visible="true" foreignKey="estimated_bill_date_tk" highCardinality="false"/&gt;
+    </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="DimensionType" name="Dimension"/>
+      <xs:element type="MeasureType" name="Measure"/>
+      <xs:element type="CalculatedMemberType" name="CalculatedMember">
+        <xs:annotation>
+          <xs:documentation> Just for checking </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="HierarchyType" name="Hierarchy"/>
+    </xs:choice>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="visible" use="optional"/>
+    <xs:attribute type="xs:string" name="cache" use="optional"/>
+    <xs:attribute type="xs:string" name="enabled" use="optional"/>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+    <xs:attribute type="xs:string" name="highCardinality" use="optional"/>
+    <xs:attribute type="xs:string" name="foreignKey" use="optional"/>
+    <xs:attribute type="xs:string" name="source" use="optional"/>
+    <xs:attribute type="xs:string" name="caption" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="SQLType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="dialect" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="OrdinalExpressionType">
+    <xs:sequence>
+      <xs:element type="SQLType" name="SQL"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PropertyType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="column" use="optional"/>
+        <xs:attribute type="xs:string" name="type" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="KeyExpressionType">
+    <xs:sequence>
+      <xs:element type="SQLType" name="SQL"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SchemaType">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element type="DimensionType" name="Dimension" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="CubeType" name="Cube" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:choice>
+    <xs:attribute type="xs:string" name="name"/>
+    <xs:attribute type="xs:float" name="metamodelVersion"/>
+  </xs:complexType>
+</xs:schema>

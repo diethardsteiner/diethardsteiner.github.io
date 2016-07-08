@@ -10,7 +10,7 @@ published: true
 
 In this article we will focus on some **advanced data modeling techniques** to cover many-to-many and partent-to-child relationships.
 
-Please note that the examples mentioned below can be downloaded from [here](https://www.dropbox.com/sh/hkczwehh2c2a40g/AACPfi5wcVWK69m4lZaNG1KLa?dl=0). To make the most out if it, prepare the following upfront:
+Please note that the examples mentioned below can be downloaded from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/bridge-and-parent-child-closure-table). To make the most out if it, prepare the following upfront:
 
 - execute the SQL statements
 - upload the Mondrian OLAP Schema to **Pentaho BI Server** or **Saiku** server

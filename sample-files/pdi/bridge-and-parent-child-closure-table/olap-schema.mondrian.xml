@@ -1,0 +1,426 @@
+<Schema name="Tutorial" metamodelVersion='3.0' xsi:noNamespaceSchemaLocation="mondrian3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+ 
+<!-- Level attribute description:
+    
+    * General *
+    - name:
+    - table (optional):
+    - visible (optional):
+
+    * Member Specific *
+    - column: key column
+    - type: data type of the value column
+    - nameColumn (optional): internally used name, e.g. for MDX query
+    - captionColumn (optional): value presented to end user 
+    - ordinalColumn (optional): the column which specifies the order of the members
+    - uniqueMembers 
+    
+    * Level Specific *
+    - caption (optional): A string being displayed instead of the level's name. Can be localized from Properties file using #{propertyname}.
+    - description (optional): Description of this level. Can be localized from Properties file using #{propertyname}.
+    - levelType: Whether this is a regular or a time-related level
+                             
+ -->
+    <Dimension name="Date" type="TimeDimension" visible="true" highCardinality="false">
+        <Hierarchy name="Date" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
+            <Table name="dim_date" schema="tutorial"/>
+            <Level 
+                name="Date" 
+                column="date" 
+                type="Date" 
+                uniqueMembers="true" 
+                levelType="TimeDays" 
+                hideMemberIf="Never" 
+                visible="true">
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy-MM-dd]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+        </Hierarchy> 
+        <Hierarchy name="Monthly Calendar" caption="Monthly Calendar" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
+            <Table name="dim_date" schema="tutorial"/>
+            <Level 
+                name="Year" 
+                column="year" 
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeYears" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                      <![CDATA[[yyyy]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <!-- Note: 
+                We can achieve two different sets of behaviours here:
+                1) If the user doesn't use the parent year in the analysis, the quarter is displayed as 4 distinct values
+                  , repeated over and over again without showing the context of the parent: 
+                    - in this case define only quarter as the key column
+                2) The quarter is displayed in relation to the year: 
+                    - in this case define year and quarter as key column
+                Below the second option is implemented.
+            -->    
+            <Level 
+                name="Quarter" 
+                column="year_quarter"
+                type="Integer"  
+                nameColumn="quarter"
+                captionColumn="year_quarter_label"
+                ordinalColumn="year_quarter"  
+                uniqueMembers="false" 
+                levelType="TimeQuarters" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[Q]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Month" 
+                column="year_month"
+                type="Integer" 
+                nameColumn="month" 
+                captionColumn="year_month_label"
+                ordinalColumn="year_month" 
+                uniqueMembers="false" 
+                levelType="TimeMonths" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[Q].[M]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Day of the Month" 
+                column="date_tk" 
+                type="Integer" 
+                nameColumn="day_of_month"
+                captionColumn="day_of_month" 
+                ordinalColumn="date_tk" 
+                uniqueMembers="true" 
+                levelType="TimeDays"
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[Q].[M].[d]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+        </Hierarchy>	
+        <Hierarchy name="Weekly Calendar" caption="Weekly Calendar" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
+            <Table name="dim_date" schema="tutorial"/>
+            <Level 
+                name="Year" 
+                column="iso8601_year" 
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeYears" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[YYYY]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Week" 
+                column="iso8601_year_week" 
+                type="Integer" 
+                nameColumn="iso8601_week"
+                captionColumn="iso8601_year_week_label"  
+                ordinalColumn="iso8601_year_week" 
+                uniqueMembers="false" 
+                levelType="TimeWeeks" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[YYYY].[w]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Day of the Week" 
+                column="date_tk" 
+                type="Integer" 
+                nameColumn="iso8601_day_of_week" 
+                captionColumn="iso8601_day_of_week"
+                ordinalColumn="date_tk" 
+                uniqueMembers="true" 
+                levelType="TimeDays" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Property name="Label" column="dow_label" type="String"/>
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[w].[e]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+        </Hierarchy>       
+    </Dimension>
+    <Dimension name="Date Alt" type="TimeDimension" visible="true" highCardinality="false">
+        <Hierarchy name="Date" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
+            <Table name="dim_date" schema="tutorial"/>
+            <Level 
+                name="Date" 
+                column="date" 
+                type="Date" 
+                uniqueMembers="true" 
+                levelType="TimeDays" 
+                hideMemberIf="Never" 
+                visible="true">
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy-MM-dd]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+        </Hierarchy> 
+        <Hierarchy name="Monthly Calendar" caption="Monthly Calendar" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
+            <Table name="dim_date" schema="tutorial"/>
+            <Level 
+                name="Year" 
+                column="year" 
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeYears" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                      <![CDATA[[yyyy]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <!-- Note: 
+                We can achieve two different sets of behaviours here:
+                1) If the user doesn't use the parent year in the analysis, the quarter is displayed as 4 distinct values
+                    , which get repeated over and over again, so it is difficult to understand to which year the values belong e.g: 
+                    - in this case define only quarter as the key column
+                2) The quarter is displayed in relation to the year: 
+                    - in this case define year and quarter as key column
+                Below the second option is implemented.
+            -->    
+            <Level 
+                name="Quarter" 
+                column="quarter"
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeQuarters" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[Q]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Month" 
+                column="month"
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeMonths" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[Q].[M]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Day of the Month" 
+                column="day_of_month" 
+                type="Integer" 
+                uniqueMembers="true" 
+                levelType="TimeDays"
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[Q].[M].[d]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+        </Hierarchy>	
+        <Hierarchy name="Weekly Calendar" caption="Weekly Calendar" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total" primaryKey="date_tk">
+            <Table name="dim_date" schema="tutorial"/>
+            <Level 
+                name="Year" 
+                column="iso8601_year" 
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeYears" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[YYYY]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Week" 
+                column="iso8601_week" 
+                type="Integer" 
+                uniqueMembers="false" 
+                levelType="TimeWeeks" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[YYYY].[w]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+            <Level 
+                name="Day of the Week" 
+                column="date_tk" 
+                type="Integer" 
+                nameColumn="iso8601_day_of_week" 
+                captionColumn="iso8601_day_of_week"
+                ordinalColumn="date_tk" 
+                uniqueMembers="true" 
+                levelType="TimeDays" 
+                hideMemberIf="Never" 
+                visible="true" 
+            >
+                <Property name="Label" column="dow_label" type="String"/>
+                <Annotations>
+                    <Annotation name="AnalyzerDateFormat">
+                    <![CDATA[[yyyy].[w].[e]]]>
+                    </Annotation>
+                </Annotations>
+            </Level>
+        </Hierarchy>       
+    </Dimension>
+    <Cube name="Campaign Funnel" visible="true" cache="true" enabled="true">
+        <Table name="vw_fact_campaign_funnel" schema="tutorial"/>
+        <DimensionUsage source="Date" name="Date" caption="Date" visible="true" foreignKey="date_tk"/>
+        <Dimension name="Campaign" type="StandardDimension" visible="true" highCardinality="false">
+            <Hierarchy name="Campaign" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total">
+                <Level name="Campaign" column="campaign_name" visible="true" type="String" levelType="Regular"/>
+            </Hierarchy>
+        </Dimension>
+        <Dimension name="Interest" foreignKey="interest_tk" type="StandardDimension" visible="true" highCardinality="false">
+            <Hierarchy name="Interest" primaryKey="interest_tk" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total">
+                <Table name="dim_interest" schema="tutorial"/>
+                <Level name="Interest" column="interest" visible="true" type="String" levelType="Regular"/>
+            </Hierarchy>
+        </Dimension>
+        <Measure name="Impressions" column="impressions" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+        <Measure name="Clicks" column="clicks" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+        <Measure name="Items in Basket" column="items_bought" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+        <Measure name="Basket Value" column="basket_value" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+    </Cube>
+    <Cube name="Campaign Funnel Impact" visible="true" cache="true" enabled="true">
+        <Table name="vw_fact_campaign_funnel_impact" schema="tutorial"/>
+        <DimensionUsage source="Date" name="Date" caption="Date" visible="true" foreignKey="date_tk"/>
+        <Dimension name="Campaign" type="StandardDimension" visible="true" highCardinality="false">
+            <Hierarchy name="Campaign" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total">
+                <Level name="Campaign" column="campaign_name" visible="true" type="String" levelType="Regular"/>
+            </Hierarchy>
+        </Dimension>
+        <Dimension name="Interest" foreignKey="interest_tk" type="StandardDimension" visible="true" highCardinality="false">
+            <Hierarchy name="Interest" primaryKey="interest_tk" visible="true" hasAll="true" allMemberName="Total" allMemberCaption="Total">
+                <Table name="dim_interest" schema="tutorial"/>
+                <Level name="Interest" column="interest" visible="true" type="String" levelType="Regular"/>
+            </Hierarchy>
+        </Dimension>
+        <Measure name="Impressions" column="impressions" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+        <Measure name="Clicks" column="clicks" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+        <Measure name="Items in Basket" column="items_bought" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+        <Measure name="Basket Value" column="basket_value" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+    </Cube>
+    <Cube name="Sales" visible="true" cache="true" enabled="true">
+        <Table name="fact_sales" schema="tutorial"/>
+        <DimensionUsage source="Date" name="Date" caption="Date" visible="true" foreignKey="date_tk"/>
+        <Dimension name="Employees" foreignKey="employee_tk">
+            <Hierarchy hasAll="true" allMemberName="Total" primaryKey="employee_tk">
+                <Table name="dim_employee" schema="tutorial"/>
+                <Level name="Employee" uniqueMembers="true" type="String"
+                column="employee_tk" nameColumn="full_name" parentColumn="supervisor_tk" nullParentValue="0">
+                    <Closure parentColumn="supervisor_tk" childColumn="employee_tk">
+                        <Table name="employee_closure" schema="tutorial"/>
+                    </Closure>
+                </Level>
+            </Hierarchy>
+        </Dimension>
+        <Measure name="Sales" column="sales" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+    </Cube>
+    
+    
+    <!-- START: snippet taken from http://alex-td.blogspot.co.uk/2013/01/parentchild-dimensions-in-jasper.html
+         slightly adjusted
+    -->
+    <Cube name="Item Expenses">
+        <Table name="fact_item_expense" schema="tutorial" alias="ie" />
+
+        <Dimension name="Item" foreignKey="item_tk" >
+          <Hierarchy hasAll="true" allMemberCaption="Items" primaryKey="item_tk" >
+            <Table name="dim_item" schema="tutorial" alias="i" />
+            <Level name="Item" uniqueMembers="true" column="item_tk" nameColumn="item_name" 
+                type="Numeric" parentColumn="item_parent_tk">
+                <Closure parentColumn="item_parent_tk" childColumn="item_tk">
+                    <Table name="item_closure" schema="tutorial"/>    
+                </Closure>
+            </Level>
+          </Hierarchy>
+        </Dimension>
+ 
+        <Measure name="Expenses" column="amount" aggregator="sum" formatString="#,###.00" />
+    </Cube>
+    <!-- END snippet -->
+    
+    <Cube name="Groceries" visible="true" cache="true" enabled="true">
+        <Table name="fact_grocery_sales" schema="tutorial"/>
+        <DimensionUsage source="Date" name="Date" caption="Date" visible="true" foreignKey="date_tk"/>
+        <Dimension name="Product" foreignKey="product_tk">
+            <Hierarchy name="Products" hasAll="true" allMemberName="Total" primaryKey="product_tk">
+                <Table name="dim_product" schema="tutorial"/>
+                <Level name="Category" column="category" type="String" uniqueMembers="false" levelType="Regular"/>
+                <Level name="Sub-Category" column="sub_category" type="String" uniqueMembers="false" levelType="Regular"/>
+                <Level name="Product" column="product_name" type="String" uniqueMembers="false" levelType="Regular">
+                    <Property name="Retail Price" column="retail_price" type="Numeric"/>
+                    <Property name="Wholesale Price" column="wholesale_price" type="Numeric"/>
+                    <Property name="Calories" column="calories" type="Numeric"/>
+                    <Property name="Fat" column="fat_grams" type="Numeric"/>
+                    <Property name="Carbohydrates" column="carbohydrates_grams" type="Numeric"/>
+                    <Property name="Dietary Fibre" column="dietary_fibre_grams" type="Numeric"/>
+                    <Property name="Protein" column="protein_grams" type="Numeric"/>
+                </Level>
+            </Hierarchy>
+        </Dimension>
+        <Measure name="Quantity" column="quantity" datatype="Numeric" formatString="#,##0" aggregator="sum"/>
+    </Cube>
+    <Cube name="Date Dim Test" visible="true" cache="true" enabled="true">
+        <Table name="fact_dummy" schema="tutorial"/>
+        <DimensionUsage source="Date Alt" name="Date" caption="Date" visible="true" foreignKey="date_tk"/>
+        <Measure name="Quantity" column="quantity" datatype="Numeric" formatString="#,##0.00" aggregator="sum"/>
+    </Cube>
+</Schema>    
