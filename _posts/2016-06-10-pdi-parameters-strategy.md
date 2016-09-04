@@ -230,6 +230,13 @@ Let's execute the grand master job (`jb_sample_grand_master.kjb`), which is supp
 
 Note how the parameters from the parent job take precedence.
 
+> **Important**: It is also possible to **use PDI parameters in properties files**! So you could also do something like this (which might to some extend avoid the need to have one properties file by environment):
+
+```
+# Define path to input file 
+VAR_INPUT_FILE=${VAR_GIT_ROOT_DIR}/input-files/my-file.csv
+```
+
 ## Conclusion
 
 The approach illustrated above is very simple to implement and maintain. It provides various **scope levels** - global, project and job - as well **precendence support**. Finally, all jobs can be run independently without any changes.

@@ -97,9 +97,9 @@ Right click on the **Memory Group by** step and choose **Partitioning**. Now you
 
 So in our case we want to use **Remainder of division** as the **Partitioning Method**. Next you can define the **Partitioning Schema** to use - select the one just created. And finally you can define the partitioning key (**Mod partitioner**): Choose `fruit`.
 
-Our choice will be indicated on the canvas:
+Our choice will be indicated on the canvas, note the `Dx3` and `fruits` labels next to the **Memory Group by** step:
 
-![](/images/pdi_parallel_and_partitioned_4.png)
+![](/images/pdi_parallel_and_partitioned_5.png)
 
 > **Important**: Did you notice that the indicator for **number of copies** disappeared? Remember before we saw a `x3` indicator just above the **Memory Group by** step. The reason for this is that the **partitioning schema** automatically creates the required **number of copies** of a particular step. Each partition will be send to one step copy.
 
