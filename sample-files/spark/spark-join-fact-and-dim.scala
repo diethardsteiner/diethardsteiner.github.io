@@ -28,7 +28,7 @@ val factSalesRDD = sc.parallelize(
   )
 )
 
-// Actually we should use a DataFrame instead
+// Create DataFrame
 
 val dimOfficeDF = List(
   DimOffice(1, 234, "New York")
@@ -42,12 +42,31 @@ val salesDataDF = List(
   , SalesData("2016-01-01",231,41123)
 ).toDF
 
+
+// Create Spark Dataset
+
+val dimOfficeDS = List(
+  DimOffice(1, 234, "New York")
+  , DimOffice(2, 333, "London")
+  , DimOffice(3,231,"Milan")
+).toDS
+
+val salesDataDS = List(
+  SalesData("2016-01-01",333,432245)
+  , SalesData("2016-01-01",234,55432)
+  , SalesData("2016-01-01",231,41123)
+).toDS
+
+
+
 // show internal schema
 salesDataDF.printSchema
 root
  |-- date: string (nullable = true)
  |-- officeId: integer (nullable = false)
  |-- sales: integer (nullable = false)
+
+salesDataDF.columns
 
 // create SQL tables from Spark SQL Datasets - this cannot be done directly from RDD!
 dimOfficeDF.createOrReplaceTempView("dim_office")
@@ -109,6 +128,12 @@ res13: org.apache.spark.sql.Column = date
 scala> salesDataDF.select("date")
 res14: org.apache.spark.sql.DataFrame = [date: string
 
+salesDataDF.select("date").show
+salesDataDS.select("date").show
+
+salesDataDF.select("date", "officeId").show
+salesDataDS.select("date", "officeId").show
+
 // generating the date technical key -- testing
 salesDataDF.map(salesData => salesData
   .getAs[String]("date")
@@ -148,6 +173,56 @@ scala> salesDataTransformedDF.show
 |20160101|     234| 55432|
 |20160101|     231| 41123|
 +--------+--------+------+
+
+// this transformation was a bit complex because we used the untyped dataset API (dataframes)
+// lets convert our initial data to a Dataset now
+
+
+salesDataDS.map(_.date.replace("-","").toInt).show
+// you cant do the same with the dataframe 
+salesDataDF.map(_.date.replace("-","").toInt).show
+
+salesDataDS.map( _ => SalesDataTransformed(_.date.replace("-","").toInt, _.officeId, _.sales)).show
+
+// not working:
+salesDataDF.select(salesDataDF("date").replace("-","").toInt, salesDataDF("officeId"), salesDataDF("sales"))
+
+// working 
+salesDataDF.select(salesDataDF("date"), salesDataDF("officeId"), salesDataDF("sales")*0.79).show
+// not working
+salesDataDS.select(salesDataDF("date"), salesDataDF("officeId"), salesDataDF("sales")*0.79).show
+
+// not working:
+
+salesDataDF.select("date", "officeId", "sales" * 2).show
+salesDataDS.select("date", "officeId", "sales" * 2).show
+
+// see the logical and phsical query plan
+scala> salesDataTransformedDF.explain(true)
+== Parsed Logical Plan ==
+'SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- 'MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- 'DeserializeToObject unresolveddeserializer(createexternalrow(getcolumnbyordinal(0, StringType).toString, getcolumnbyordinal(1, IntegerType), getcolumnbyordinal(2, IntegerType), StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false))), obj#81: org.apache.spark.sql.Row
+      +- LocalRelation [date#14, officeId#15, sales#16]
+
+== Analyzed Logical Plan ==
+dateTk: int, officeId: int, sales: int
+SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
+      +- LocalRelation [date#14, officeId#15, sales#16]
+
+== Optimized Logical Plan ==
+SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
+      +- LocalRelation [date#14, officeId#15, sales#16]
+
+== Physical Plan ==
+*SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- *MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- *DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
+      +- LocalTableScan [date#14, officeId#15, sales#16]
 
 // alternatively use the SQL approach
 sql("""

@@ -20,7 +20,15 @@ And you are ready to go!
 
 > **Note**: All instructions below are for Spark version 2!
 
-## Dataset Structures
+## Dataset APIs
+
+This section will explain how datasets can be stored and manipulated in Apache Spark using three different **APIs**. Spark version 1 provided the **RDD API**, version 1.3 additionally introduced the **DataFrame API** and finally version 1.6 brought the **Dataset API**. In Spark version 2 the **DataFrame API** and **Dataset API** were merged. Note that each API provides its own methods to work with the data. The article [APACHE SPARK: RDD, DATAFRAME OR DATASET?](http://www.agildata.com/apache-spark-rdd-vs-dataframe-vs-dataset/) provides a good overview on when to use which kind of API.
+
+### RDD API
+
+**Definition**: Resilient Distributed Datasets (RDD) is a fundamental data structure of Spark. It is an immutable distributed collection of objects. Each dataset in RDD is divided into logical partitions, which may be computed on different nodes of the cluster. RDDs can contain any type of Python, Java, or Scala objects, including user-defined classes. Formally, an RDD is a read-only, partitioned collection of records.  [Source](http://www.tutorialspoint.com/apache_spark/apache_spark_rdd.htm)
+
+The RDD API is a low level API.
 
 ```scala
 // define schema for inline datasets
@@ -54,15 +62,13 @@ val factSalesRDD = sc.parallelize(
 )
 ```
 
-Did I mention that RDDs are the barebones dataset structure in Spark? These days there are more user friendly classes available like **Datasets** and **DataFrames**.
+Did I mention that RDDs are the barebones, low-level dataset API in Spark? These days there are more user friendly classes available like **Datasets** and **DataFrames**.
 
-We will create Spark SQL Datasets or DataFrame. It does not seem to make any difference if you define them either as DS or DF in our case, as we already provide the names for the columns, both `toDS` and `toDF` methods will convert correctly. As a Dataset per **definition** has no named columns we will use `toDF` here for clarity sake. Here a quick summary ([Source](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes)):
+### DataFrame API (AKA Untyped DataSet API)
 
-- **RDD**: Resilient Distributed Datasets (RDD) is a fundamental data structure of Spark. It is an immutable distributed collection of objects. Each dataset in RDD is divided into logical partitions, which may be computed on different nodes of the cluster. RDDs can contain any type of Python, Java, or Scala objects, including user-defined classes. Formally, an RDD is a read-only, partitioned collection of records.  [Source](http://www.tutorialspoint.com/apache_spark/apache_spark_rdd.htm)
-- **Datasets**: A Dataset is a distributed collection of data. Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine.
-- **DataFrames**: A DataFrame is a Dataset *organized into named columns*. It is conceptually equivalent to a table in a relational database or a data frame in R/Python, but with richer optimizations under the hood. DataFrames can be constructed from a wide array of sources such as: structured data files, tables in Hive, external databases, or existing RDDs. In the **Scala API**, DataFrame is simply a type alias of `Dataset[Row]`.
+**Definition**: A DataFrame is a Dataset *organized into named columns*. It is conceptually equivalent to a table in a relational database or a data frame in R/Python, but with richer optimizations under the hood. DataFrames can be constructed from a wide array of sources such as: structured data files, tables in Hive, external databases, or existing RDDs. In the **Scala API**, DataFrame is simply a type alias of `Dataset[Row]`. It also provides a **Domain Specific Language** (DSL) to project (select), filter, intersect, join, group etc. See also [here](https://jaceklaskowski.gitbooks.io/mastering-apache-spark/content/spark-sql-dataframe.html).
 
-> **Important**: Dataset API and DataFrame API were unified in Spark 2! [Source](https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html). Conceptually, consider DataFrame as an alias for a collection of generic objects `Dataset[Row]`, where a `Row` is a generic **untyped** JVM object. `Dataset`, by contrast, is a collection of **strongly-typed** JVM objects, dictated by a case class you define in Scala or a class in Java.
+We will create a DataFrame. It does not seem to make any difference if you define them either as DS or DF in our case, as we already provide the names for the columns, both `toDS` and `toDF` methods will convert correctly. As a Dataset per **definition** has no named columns we will use `toDF` here for clarity sake. Here a quick summary ([Source](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes)):
 
 ```scala
 val dimOfficeDF = List(
@@ -76,24 +82,53 @@ val salesDataDF = List(
   , SalesData("2016-01-01",234,55432)
   , SalesData("2016-01-01",231,41123)
 ).toDF
+```
 
+### Dataset API (AKA Typed Dataset API)
+
+**Definition**: A Dataset is a distributed collection of data. Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine.
+
+A **Dataset** is **type safe at compile time** whereas a DataFrames's columns will be only evaluated at run time.
+
+> **Important**: Dataset API and DataFrame API were unified in Spark 2! [Source](https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html). Conceptually, consider DataFrame as an alias for a collection of generic objects `Dataset[Row]`, where a `Row` is a generic **untyped** JVM object. `Dataset`, by contrast, is a collection of **strongly-typed** JVM objects, dictated by a case class you define in Scala or a class in Java.
+
+```scala
+// Create Spark Dataset
+
+val dimOfficeDS = List(
+  DimOffice(1, 234, "New York")
+  , DimOffice(2, 333, "London")
+  , DimOffice(3,231,"Milan")
+).toDS
+
+val salesDataDS = List(
+  SalesData("2016-01-01",333,432245)
+  , SalesData("2016-01-01",234,55432)
+  , SalesData("2016-01-01",231,41123)
+).toDS
+```
+
+## Inspecting the Content and Metadata of DataFrames and Datasets
+
+To inspect the contents and metadata of a **DataFrame** or **Dataset**, we can run these commands:
+
+```scala
 // show internal schema
-salesDataDF.printSchema
+scala> salesDataDF.printSchema
 root
  |-- date: string (nullable = true)
  |-- officeId: integer (nullable = false)
  |-- sales: integer (nullable = false)
-```
 
-To inspect the contents of a DataFrame, we can do this:
+scala> salesDataDF.columns
+res80: Array[String] = Array(date, officeId, sales)
 
-```scala
 // create SQL tables from Spark SQL Datasets - this cannot be done directly from RDD!
-dimOfficeDF.createOrReplaceTempView("dim_office")
-salesDataDF.createOrReplaceTempView("sales_data")
+scala> dimOfficeDF.createOrReplaceTempView("dim_office")
+scala> salesDataDF.createOrReplaceTempView("sales_data")
 
 // show contents
-salesDataDF.show
+scala> salesDataDF.show
 +----------+--------+------+
 |      date|officeId| sales|
 +----------+--------+------+
@@ -102,7 +137,7 @@ salesDataDF.show
 |2016-01-01|     231| 41123|
 +----------+--------+------+
 
-dimOfficeDF.show
+scala> dimOfficeDF.show
 +--------+--------+----------+
 |officeTk|officeId|officeName|
 +--------+--------+----------+
@@ -113,25 +148,27 @@ dimOfficeDF.show
 
 
 // show contents using SQL
-sql("SELECT * FROM sales_data s").show
-sql("SELECT * FROM dim_office o").show
+scala> sql("SELECT * FROM sales_data s").show
+scala> sql("SELECT * FROM dim_office o").show
 
 // with huge datasets the following approach is recommended
 
-salesDataDF.first
+scala> salesDataDF.first
 res11: org.apache.spark.sql.Row = [2016-01-01,333,432245]
 
 // or alternative you can provide a row argument with show
-salesDataDF.show(2)
+scala> salesDataDF.show(2)
 +----------+--------+------+
 |      date|officeId| sales|
 +----------+--------+------+
 |2016-01-01|     333|432245|
 |2016-01-01|     234| 55432|
 +----------+--------+------+
+```
 
-// ACCESSING COLUMNS
+## Accessing Columns in DataFrames and Datasets
 
+```
 // access a specific column
 // within functions use this approach
 scala> salesDataDF("date")
@@ -144,6 +181,12 @@ res13: org.apache.spark.sql.Column = date
 // to create a new DF from a selection of columns
 scala> salesDataDF.select("date")
 res14: org.apache.spark.sql.DataFrame = [date: string
+
+scala> salesDataDF.select("date").show
+scala> salesDataDS.select("date").show
+
+scala> salesDataDF.select("date", "officeId").show
+scala> salesDataDS.select("date", "officeId").show
 ```
 
 ## Data Manipulation
@@ -201,6 +244,41 @@ sql("""
 // register as table
 salesDataTransformedDF.createOrReplaceTempView("sales_data_transformed")
 ``` 
+
+> **REPL Auto-Completion**: Especially when you start out with Spark, you will not be familiar with all the methods the API provides. The REPL (interactive shell) provides auto-completion when you hit `tab`. Awesome!
+
+## Inspect Physical and Logic Query Plan
+
+For the very curious person, Spark DataFrames/Datasets get processed under the hood by a query optimizer called **Catalyst**. You can see the logical and **physical query plan** as follows:
+
+```scala
+// see the logical and phsical query plan
+scala> salesDataTransformedDF.explain(true)
+== Parsed Logical Plan ==
+'SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- 'MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- 'DeserializeToObject unresolveddeserializer(createexternalrow(getcolumnbyordinal(0, StringType).toString, getcolumnbyordinal(1, IntegerType), getcolumnbyordinal(2, IntegerType), StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false))), obj#81: org.apache.spark.sql.Row
+      +- LocalRelation [date#14, officeId#15, sales#16]
+
+== Analyzed Logical Plan ==
+dateTk: int, officeId: int, sales: int
+SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
+      +- LocalRelation [date#14, officeId#15, sales#16]
+
+== Optimized Logical Plan ==
+SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
+      +- LocalRelation [date#14, officeId#15, sales#16]
+
+== Physical Plan ==
+*SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
++- *MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
+   +- *DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
+      +- LocalTableScan [date#14, officeId#15, sales#16]
+```
 
 ## Joining Datasets
 
@@ -324,7 +402,7 @@ Spark enables you to read files from many different formats, such as standard te
 I will just quickly show you how to read a CSV file:
 
 ```scala
-val df = spark.read.format("com.databricks.spark.csv").option("header", "true").option("inferSchema", "true").load("file:///Users/diethardsteiner/Documents/test.csv")
+val df = spark.read.format("csv").option("header", "true").option("inferSchema", "true").load("file:///Users/diethardsteiner/Documents/test.csv")
 ```
 
 ### Read Data From a Database Table via JDBC Connection
@@ -429,6 +507,7 @@ Sources:
 - [Using Apache Spark DataFrames for Processing of Tabular Data](https://www.mapr.com/blog/using-apache-spark-dataframes-processing-tabular-data)
 - [Spark: Connecting to a jdbc data-source using dataframes](http://www.infoobjects.com/spark-connecting-to-a-jdbc-data-source-using-dataframes/)
 - [APACHE SPARK: RDD, DATAFRAME OR DATASET?](http://www.agildata.com/apache-spark-rdd-vs-dataframe-vs-dataset/)
+- [Databricks Dataset Scala Notebook](https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/6122906529858466/431554386690871/4814681571895601/latest.html)
 - and many more
 
 
