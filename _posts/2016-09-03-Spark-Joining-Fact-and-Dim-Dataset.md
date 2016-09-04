@@ -62,6 +62,8 @@ We will create Spark SQL Datasets or DataFrame. It does not seem to make any dif
 - **Datasets**: A Dataset is a distributed collection of data. Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine.
 - **DataFrames**: A DataFrame is a Dataset *organized into named columns*. It is conceptually equivalent to a table in a relational database or a data frame in R/Python, but with richer optimizations under the hood. DataFrames can be constructed from a wide array of sources such as: structured data files, tables in Hive, external databases, or existing RDDs. In the **Scala API**, DataFrame is simply a type alias of `Dataset[Row]`.
 
+> **Important**: Dataset API and DataFrame API were unified in Spark 2! [Source](https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html). Conceptually, consider DataFrame as an alias for a collection of generic objects `Dataset[Row]`, where a `Row` is a generic **untyped** JVM object. `Dataset`, by contrast, is a collection of **strongly-typed** JVM objects, dictated by a case class you define in Scala or a class in Java.
+
 ```scala
 val dimOfficeDF = List(
   DimOffice(1, 234, "New York")
@@ -127,6 +129,21 @@ salesDataDF.show(2)
 |2016-01-01|     333|432245|
 |2016-01-01|     234| 55432|
 +----------+--------+------+
+
+// ACCESSING COLUMNS
+
+// access a specific column
+// within functions use this approach
+scala> salesDataDF("date")
+res12: org.apache.spark.sql.Column = date
+
+// same result as above
+scala> salesDataDF.col("date")
+res13: org.apache.spark.sql.Column = date
+
+// to create a new DF from a selection of columns
+scala> salesDataDF.select("date")
+res14: org.apache.spark.sql.DataFrame = [date: string
 ```
 
 ## Data Manipulation
@@ -216,6 +233,9 @@ salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTr
 val result = salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDF("officeId")).select(
   "dateTk", "officeTk","sales"
 )
+
+// note that you can also pass a 3rd argument to join
+// to define the join type, e.g. 'left_join'
 
 
 // alternatively using sql
@@ -354,13 +374,13 @@ $ spark-shell --driver-class-path /Users/diethardsteiner/Dropbox/development/jdb
 
 Construct JDBC URL:
 
-```
+```scala
 scala> val url="jdbc:mysql://localhost:3306/test"
 ```
 
 Create connection properties object with username and password
 
-```
+```scala
 scala> val prop = new java.util.Properties
 scala> prop.setProperty("user","root")
 scala> prop.setProperty("password","root")
@@ -368,7 +388,7 @@ scala> prop.setProperty("password","root")
 
 Load DataFrame with JDBC data-source (url, table name, properties)
 
-```
+```scala
 # pre Spark 2.0
 scala> val people = sqlContext.read.jdbc(url,"person",prop)
 # Spark 2.0 and later
@@ -381,7 +401,7 @@ val jdbcDF = spark.read.format("jdbc").options(
 
 Show the results in a nice tabular format
 
-```
+```scala
 scala> people.show
 ```
 
@@ -408,6 +428,7 @@ Sources:
 - [Introducing DataFrames in Apache Spark for Large Scale Data Science](https://databricks.com/blog/2015/02/17/introducing-dataframes-in-spark-for-large-scale-data-science.html)
 - [Using Apache Spark DataFrames for Processing of Tabular Data](https://www.mapr.com/blog/using-apache-spark-dataframes-processing-tabular-data)
 - [Spark: Connecting to a jdbc data-source using dataframes](http://www.infoobjects.com/spark-connecting-to-a-jdbc-data-source-using-dataframes/)
+- [APACHE SPARK: RDD, DATAFRAME OR DATASET?](http://www.agildata.com/apache-spark-rdd-vs-dataframe-vs-dataset/)
 - and many more
 
 
