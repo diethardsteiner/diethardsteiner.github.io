@@ -17,6 +17,8 @@ There are a lot of guides on how to install Java, so I will not cover this here.
 
 # Flink
 
+> **Note**: This step is optional as we will download the Flink libraries later on any ways when creating our Scala SBT project. However, in general, installing Flink fully locally will give you a better understanding of project.
+
 - [Download](https://flink.apache.org/)
 - [Good getting started Slideshow](http://www.slideshare.net/sbaltagi/stepbystep-introduction-to-apache-flink)
 
@@ -66,8 +68,21 @@ sudo dnf install nmap-ncat.x86_64
 
 If you are interested in what **NMap** is, take a look at this artice: [Netcat Basics](http://www.tutonics.com/2012/05/netcat-basics.html).
 
-### JetBeans IDEA (Community Edition)
+### IntelliJ IDEA (Community Edition)
 
+**IntelliJ IDEA** seems to be the most popular **IDE** these days, however, you can just use [Eclipse](https://www.eclipse.org/downloads/eclipse-packages/) or [NetBeans](https://netbeans.org/downloads/) as well to create a **Scala project**.
+
+Download **IntelliJ IDEA** Community Edition from [here](https://www.jetbrains.com/idea/#chooseYourEdition).
+
+Copy the tar file to a convenient folder and then extract it, e.g.:
+
+```bash
+$ tar -xvzf ideaIC-2016.2.4.tar.gz
+$ cd idea-IC-162.2032.8
+$ ./bin/idea.sh
+```
+
+When starting **IDEA** for the first time, a **Customize IntelliJ IDEA** dialog pops up. It helps you to configure IDEA to your requirements. Fairly at the end of the process there a section called **Download featured plugins**. Make sure you **install the Scala plugin**!
 
 ## Setting Up the Project
 
@@ -78,17 +93,14 @@ The `build.sbt` lists all the dependencies:
 ```
 name := "flink-demo-wordcount"
 
-organization := "test.test"
+organization := "org.myfancyorg"
 
 scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
    "org.apache.flink" %% "flink-streaming-scala"  % "1.1.2",
-   "org.apache.flink" %% "flink-clients"          % "1.1.2",
-   "com.lihaoyi"      %% "utest"                  % "0.4.3" % "test"
+   "org.apache.flink" %% "flink-clients"          % "1.1.2"
 )
-
-testFrameworks += new TestFramework("utest.runner.Framework")
 ```
 
 Make sure you mention the correct **Scala** version. To check which Scala version is installed on your machine, run the following:
@@ -199,12 +211,97 @@ Continue typing words into the *InputStream* tab and you should see a word count
 
 ![](flink-streaming-api-example.png)
 
+There are various SBT plugins to support opening the project with your favourite IDE, e.g.:
+
+- [SBT Eclipse Plugin](https://github.com/typesafehub/sbteclipse)
+
 
 # Taking it Further
 
-## IDE 
+## IDE - IntelliJ IDEA
 
-[SBT Eclipse Plugin](https://github.com/typesafehub/sbteclipse)
+Writing code in a text editor is tough and especially tough for newbies. A good IDE helps you a lot on the way of getting familiar with new libraries / APIs by means of auto-completion etc. We will use **IntelliJ IDEA** here.
+
+Thankfully setting up a **SBT Scala project** in **IntelliJ IDEA** is very well documented, so I strongly suggest you take a look at [their documentation](https://www.jetbrains.com/help/idea/2016.2/getting-started-with-sbt.html). Follow the first part of this docu to create a new **Scala SBT** project.
+
+A few additional notes:
+
+- When setting up the new **Scala SBT project** you will be asked to specify the Scala and SBT versions. Use these commands if you don't know them by hard:
+
+```bash
+$ scala -version
+$ sbt --version
+```
+
+- Tick *Use auto-import*
+
+IDEA will create the full SBT folder structure as well as the required files like `build.sbt`.
+
+You can accesss a dedicated SBT panel under **View > Tool Windows > SBT**.
+
+Double click on the `build.sbt` file and change it to look like this:
+
+```
+name := "WindowWordCount"
+
+version := "1.0"
+
+scalaVersion := "2.10.4"
+
+libraryDependencies ++= Seq(
+  "org.apache.flink" %% "flink-streaming-scala"  % "1.1.2",
+  "org.apache.flink" %% "flink-clients"          % "1.1.2"
+)
+```
+
+Once you save this file **IDEA** will download the required dependencies.
+
+Right click on the `src/main/scala` folder and choose **New > Scala Class**. Click **OK**. Then replace the content of the newly created file with the code shown below:
+
+```scala
+
+
+import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.time.Time
+
+object WindowWordCount {
+  def main(args: Array[String]) {
+
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val text = env.socketTextStream("localhost", 9999)
+
+    val counts = text.flatMap { _.toLowerCase.split("\\W+") filter { _.nonEmpty } }
+      .map { (_, 1) }
+      .keyBy(0)
+      .timeWindow(Time.seconds(5))
+      .sum(1)
+
+    counts.print
+
+    env.execute("Window Stream WordCount")
+  }
+}
+```
+
+After `val text ...` add new lew line:
+
+```
+val test = env.
+```
+
+You will realise that one you enter `.` (dot) IDEA will show you a list of options (methods etc).
+
+![](flink-streaming-api-example-2.png)
+
+Now remove the line you just added. In the top right hand side corner click on the **Make Project** button. This will compile your project.
+
+To run the program, simply right click on the `WindowWordCounter.scala` file and choose **Run 'WindowWordCounter'** from the context menu (make sure that you have `nc -lk 9999` still running in your terminal window):
+
+![](flink-streaming-api-example-3.png)
+
+
+
+
 
 
 
