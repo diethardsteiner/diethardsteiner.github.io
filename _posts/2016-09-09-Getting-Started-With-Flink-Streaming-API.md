@@ -1,9 +1,17 @@
+---
+layout: post
+title:  "Getting Started With Flink Streaming API"
+summary: This article provides a short intro into the fascinating world of Apache Flink
+date: 2016-09-09
+categories: Flink
+tags: Flink
+published: false
+--- 
+
 # Other Good Streaming Examples
 
 - [Demo Applications for Apache Flink DataStream](https://github.com/dataArtisans/flink-streaming-demo)
 
-
-# Getting Started With Flink Streaming API
 
 The motivation behind this article is make the **Flink Streaming API** accessible to people who have only recently started learning Scala or are about the get started. Hence this article covers quite some setup details. We will only try to get you going with the one basic [WordCount example](https://ci.apache.org/projects/flink/flink-docs-master/dev/datastream_api.html) listed on the official API documentation. We also went through the same example at the coding dojo at the recent [Apache Flink London Meetup](https://www.meetup.com/Apache-Flink-London-Meetup/events/233471954/), which was very interesting and I learnt quite some nice tricks from the other participants (and hence they also contributed to this blog post). Note that we will use Scala.
 
