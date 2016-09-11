@@ -123,7 +123,7 @@ Next create `version.sbt`:
 version := "0.1-SNAPSHOT"
 ```
 
-In the same folder you can just create the `WindowWordCount.scala` file. We keep the directory structure to the bare minimum, I recommend checking the [Getting Started Guide](http://www.scala-sbt.org/0.13/docs/Getting-Started.html) on how to set up [the ideal directory structure](http://www.scala-sbt.org/0.13/docs/Directories.html).
+In the same folder you can just create the `WindowWordCount.scala` file. We keep the directory structure to the bare minimum, I recommend checking the [Getting Started Guide](http://www.scala-sbt.org/0.13/docs/Getting-Started.html) on how to set up [the ideal directory structure](http://www.scala-sbt.org/0.13/docs/Directories.html). This program will count the words coming from a web socket in 5 second windows.
 
 The `WordCount.scala` should have following content:
 
@@ -308,7 +308,152 @@ To run the program, simply right click on the `WindowWordCounter.scala` file and
 ![](flink-streaming-api-example-3.png)
 
 
+# Going Even Further
 
+Ok, so you learnt how to setup a Scala SBT project to run Flink code. Let's see if we can actually add some functionality by ourselves. 
+
+> **Note**: It's worth checking the [Class Documentation](https://ci.apache.org/projects/flink/flink-docs-master/api/java/org/apache/flink/streaming/api/datastream/DataStream.html).
+
+Just because we are extremely lazy, we create another scala file in the same project and name it `WordCumCountFromFile.scala`. This time round we will simply try to read in a file from the local filesystme and print out its content (well, that's the start of a short journey): We can use the `readTextFile()` function. We keep it simple, we just want to read the file once, so we only specify the file path as the only argument:
+
+
+```scala
+import org.apache.flink.streaming.api.scala._
+
+object WordCumCountFromFile {
+  def main(args: Array[String]): Unit ={
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val filePath = "/home/dsteiner/git/diethardsteiner.github.io/sample-files/flink/StreamingWordCount/test.csv"
+    val text = env.readTextFile(filePath)
+
+    text.print()
+
+    env.execute("File Reader")
+  }
+}
+```
+
+[StreamExecutionEnvironment](https://ci.apache.org/projects/flink/flink-docs-master/api/java/org/apache/flink/streaming/api/environment/StreamExecutionEnvironment.html) is the class which provides the `readTextFile` function.
+
+The CSV file we are reading in looks like this:
+
+```
+apples,2
+oranges,3
+apples,5
+grapes,5
+apples,9
+oranges,7
+```
+
+Right click on the file and choose **Run**. You should see the contents of the file displayed in the inline console. Ok, that's not very interesting so far, so let's do something with the data. First let's split the lines into properly typed fields and store them in a `Map`. In a bit more detail: The lines from our text file are originally Strings, then when using the `split()` function each `String` value gets converted to an `Array`. While we have managed to separate the values, they are both still of type `String`. As `Array` can only store values of one type (e.g. `String`), we have to use another collection like `Map` to store our values as `String` and `Int`. In the end we want to sum up the count of fruits, so the count has to be of type `Int`. Note that although we make several changes to the originally sourced data, each result gets stored in a `DataStream`.
+
+```scala
+import org.apache.flink.streaming.api.scala._
+
+object WordCumCountFromFile {
+  def main(args: Array[String]): Unit ={
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val filePath = "/home/dsteiner/git/diethardsteiner.github.io/sample-files/flink/StreamingWordCount/test.csv"
+    val text = env.readTextFile(filePath)
+
+//    println( "------ " + text.getClass +  " ---------" )
+
+    // explicit type definition not really required in this case
+
+    val data:DataStream[Array[String]] = text.map { x =>
+//      println( "------ " + x.getClass +  " ---------" )
+      x.split(",")
+    }
+
+//    data.print()
+//    data.map{ x => println( x(0) + " " + x(1) ) }
+//    println( "------ " + data.getClass +  " ---------" )
+
+    // convert Array to String and Int
+    val dataTyped:DataStream[(String, Int)] = data.map { x =>
+      (x(0), x(1).toInt)
+    }
+
+//    dataTyped.print()
+
+    // val sortedData = dataTyped.keyBy(0)
+
+    // create running / cumulative total
+    val result = dataTyped.sum(1)
+
+    result.print
+
+    env.execute("File Reader")
+  }
+}
+```
+
+The output looks like this:
+
+```
+3> (oranges,7)
+3> (grapes,5)
+2> (apples,5)
+2> (apples,7)
+3> (oranges,10)
+2> (apples,16)
+```
+
+As the key value pairs stream through, **Flink** keeps track of the **cumulative total** so far, which is exactly what you can see in the output above.
+
+Let's adapt the above example for our initial streaming example:
+
+```scala
+import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.time.Time
+
+object WindowWordCumCount {
+  def main(args: Array[String]) {
+
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val text = env.socketTextStream("localhost", 9999)
+
+    val data:DataStream[Array[String]] = text.map { x =>
+      x.split(",")
+    }
+
+    // convert Array to String and Int
+    val dataTyped:DataStream[(String, Int)] = data.map { x =>
+      (x(0), x(1).toInt)
+    }
+
+//    dataTyped.print
+
+    val counts = dataTyped
+      .keyBy(0)
+      .timeWindow(Time.seconds(5))
+      .sum(1)
+
+    counts.print
+
+    env.execute("Window Stream Cumulative WordCount")
+  }
+}
+```
+
+Start nmap again:
+
+```bash
+$ nc -lk 9999
+```
+
+Let's paste this into the terminal window:
+
+```
+apples,2
+oranges,3
+apples,5
+```
+
+You will see that the counts get aggregated in 5 sec intervals. 
+
+While these were all very simple and easy examples, mainly intended to get complete newbies started with Flink, you should by now have become curious enough to explore all of Flinks features.
 
 
 
