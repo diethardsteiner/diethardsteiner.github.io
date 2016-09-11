@@ -1,19 +1,14 @@
 ---
 layout: post
-title:  "Getting Started With Flink Streaming API"
+title: "Getting Started With Flink Streaming API"
 summary: This article provides a short intro into the fascinating world of Apache Flink
 date: 2016-09-09
 categories: Flink
 tags: Flink
-published: false
+published: true
 --- 
 
-# Other Good Streaming Examples
-
-- [Demo Applications for Apache Flink DataStream](https://github.com/dataArtisans/flink-streaming-demo)
-
-
-The motivation behind this article is make the **Flink Streaming API** accessible to people who have only recently started learning Scala or are about the get started. Hence this article covers quite some setup details. We will only try to get you going with the one basic [WordCount example](https://ci.apache.org/projects/flink/flink-docs-master/dev/datastream_api.html) listed on the official API documentation. We also went through the same example at the coding dojo at the recent [Apache Flink London Meetup](https://www.meetup.com/Apache-Flink-London-Meetup/events/233471954/), which was very interesting and I learnt quite some nice tricks from the other participants (and hence they also contributed to this blog post). Note that we will use Scala.
+The motivation behind this article is to make the **Flink Streaming API** accessible to people who have only recently started learning Scala or are about the get started with Apache Flink. Hence this article covers quite some setup details. We will only try to get you going with the one basic [WordCount example](https://ci.apache.org/projects/flink/flink-docs-master/dev/datastream_api.html) listed on the official API documentation. I also went through the same example at the coding dojo at the recent [Apache Flink London Meetup](https://www.meetup.com/Apache-Flink-London-Meetup/events/233471954/), which was very interesting and I learnt quite some nice tricks from the other participants (and hence they also contributed to this blog post). Note that we will use Scala.
 
 ## Initial Setup
 
@@ -150,7 +145,7 @@ object WindowWordCount {
 }
 ```
 
-As previously mentioned, this example was taking directly from the [Flink Streaming API Documentation](https://ci.apache.org/projects/flink/flink-docs-master/dev/datastream_api.html). This site offers a good explanation of what the code does. This blog post only focuses mainly on the project setup.
+As previously mentioned, this example was taken directly from the [Flink Streaming API Documentation](https://ci.apache.org/projects/flink/flink-docs-master/dev/datastream_api.html). This site offers a good explanation of what the code does. This blog post focuses mainly on the project setup.
 
 Once we compile our code it will be output to the `target` folder. As we store our code on **git**, we want to make sure that this folder does not get added to git (version controlled). So just create a `.gitignore` file with following content inside our **WordCount** folder:
 
@@ -217,7 +212,7 @@ Finally run this in the **SBT interactive shell**:
 
 Continue typing words into the *InputStream* tab and you should see a word count appearing in the **SBT interactive shell**, e.g.:
 
-![](flink-streaming-api-example.png)
+![](/images/flink-streaming-api-example-1.png)
 
 There are various SBT plugins to support opening the project with your favourite IDE, e.g.:
 
@@ -267,8 +262,6 @@ Once you save this file **IDEA** will download the required dependencies.
 Right click on the `src/main/scala` folder and choose **New > Scala Class**. Click **OK**. Then replace the content of the newly created file with the code shown below:
 
 ```scala
-
-
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.time.Time
 
@@ -299,13 +292,13 @@ val test = env.
 
 You will realise that one you enter `.` (dot) IDEA will show you a list of options (methods etc).
 
-![](flink-streaming-api-example-2.png)
+![](/images/flink-streaming-api-example-2.png)
 
 Now remove the line you just added. In the top right hand side corner click on the **Make Project** button. This will compile your project.
 
 To run the program, simply right click on the `WindowWordCounter.scala` file and choose **Run 'WindowWordCounter'** from the context menu (make sure that you have `nc -lk 9999` still running in your terminal window):
 
-![](flink-streaming-api-example-3.png)
+![](/images/flink-streaming-api-example-3.png)
 
 
 # Going Even Further
@@ -453,7 +446,11 @@ apples,5
 
 You will see that the counts get aggregated in 5 sec intervals. 
 
-While these were all very simple and easy examples, mainly intended to get complete newbies started with Flink, you should by now have become curious enough to explore all of Flinks features.
+While these were all very simple and easy examples, mainly intended to get complete newbies started with Flink, you should by now have become curious enough to explore more Flink features.
+
+# Other Good Streaming Examples
+
+- [Demo Applications for Apache Flink DataStream](https://github.com/dataArtisans/flink-streaming-demo)
 
 
 

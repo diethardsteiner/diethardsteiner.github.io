@@ -134,7 +134,63 @@ salesDataDS.select("date").show
 salesDataDF.select("date", "officeId").show
 salesDataDS.select("date", "officeId").show
 
-// generating the date technical key -- testing
+// GENERATING THE DATE TECHNICAL KEY
+
+salesDataDS.select("date", "officeId", "sales").show // works
+salesDataDS.select("date", "officeId", "sales" * 2).show // does not work
+
+// working - full dataset reference required when manipulating values
+salesDataDF.select(salesDataDF("date"), salesDataDF("officeId"), salesDataDF("sales")*0.79).show
+salesDataDS.select(salesDataDS("date"), salesDataDS("officeId"), salesDataDS("sales")*0.79).show
+
+// not working: using standard Scala methods like replace on Spark SQL column - use API methods instead
+salesDataDS.select(salesDataDF("date").replace("-","").toInt, salesDataDF("officeId"), salesDataDF("sales"))
+// see: https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Column
+
+
+// works
+translate(salesDataDS("date"),"-","")
+// returns type org.apache.spark.sql.Column
+// let's convert the result to int now as well
+translate(salesDataDS("date"),"-","").cast("int")
+// construct the full new dataset
+
+// adding a new column holding a transformed value of an existing column
+scala> salesDataDS.withColumn("dateTk", translate(salesDataDS("date"),"-","").cast("int")).show 
++----------+--------+------+--------+
+|      date|officeId| sales|  dateTk|
++----------+--------+------+--------+
+|2016-01-01|     333|432245|20160101|
+|2016-01-01|     234| 55432|20160101|
+|2016-01-01|     231| 41123|20160101|
++----------+--------+------+--------+
+
+// or alternatively use this approach
+scala> salesDataDS.select(salesDataDS("date"), salesDataDS("officeId"), salesDataDS("sales"), translate(salesDataDS("date"),"-","").cast("int").name("dateTk")).show
++----------+--------+------+--------+
+|      date|officeId| sales|  dateTk|
++----------+--------+------+--------+
+|2016-01-01|     333|432245|20160101|
+|2016-01-01|     234| 55432|20160101|
+|2016-01-01|     231| 41123|20160101|
++----------+--------+------+--------+
+
+scala> salesDataDS.select(translate(salesDataDS("date"),"-","").cast("int").name("dateTk"), salesDataDS("officeId"), salesDataDS("sales")).show
+
++--------+--------+------+
+|  dateTk|officeId| sales|
++--------+--------+------+
+|20160101|     333|432245|
+|20160101|     234| 55432|
+|20160101|     231| 41123|
++--------+--------+------+
+
+// for more complex endeavours you can make use of the map function
+// Note the below approach of using `getAs` (a Row function) 
+// will **only** work with the **untyped** DataFrame
+// Once we retrieve the field with the `getAs` row function 
+// we can apply standard Scala functions
+
 salesDataDF.map(salesData => salesData
   .getAs[String]("date")
   .replace("-","")
@@ -148,8 +204,6 @@ salesDataDF.map(salesData => salesData
 |20160101|
 +--------+
 
-salesDataDF.map(salesData => salesData.col("date").replace("-","").toInt).show
-
 // define new schema
 case class SalesDataTransformed (
   dateTk: Int
@@ -157,15 +211,15 @@ case class SalesDataTransformed (
   , sales:Int
 )
 
-// create new DataFrame
-val salesDataTransformedDF= salesDataDF.map(salesData => SalesDataTransformed(
-    salesData.getAs[String]("date").replace("-","").toInt
-    , salesData.getAs[Int]("officeId")
-    , salesData.getAs[Int]("sales")
+// create new DataSet
+val salesDataTransformedDS = salesDataDF.map( s => SalesDataTransformed(
+    s.getAs[String]("date").replace("-","").toInt
+    , s.getAs[Int]("officeId")
+    , s.getAs[Int]("sales")
   )
 )
 
-scala> salesDataTransformedDF.show
+scala> salesDataTransformedDS.show
 +--------+--------+------+
 |  dateTk|officeId| sales|
 +--------+--------+------+
@@ -174,31 +228,34 @@ scala> salesDataTransformedDF.show
 |20160101|     231| 41123|
 +--------+--------+------+
 
-// this transformation was a bit complex because we used the untyped dataset API (dataframes)
-// lets convert our initial data to a Dataset now
-
-
+// Trying to perform the same map transformation on the Dataset
 salesDataDS.map(_.date.replace("-","").toInt).show
-// you cant do the same with the dataframe 
-salesDataDF.map(_.date.replace("-","").toInt).show
+// same thing just more verbose
+salesDataDS.map(s => s.date.replace("-","").toInt).show
 
-salesDataDS.map( _ => SalesDataTransformed(_.date.replace("-","").toInt, _.officeId, _.sales)).show
+val salesDataTransformedDS = salesDataDS.map( s => SalesDataTransformed(
+    s.date.replace("-","").toInt
+    , s.officeId
+    , s.sales
+  )
+)
 
-// not working:
-salesDataDF.select(salesDataDF("date").replace("-","").toInt, salesDataDF("officeId"), salesDataDF("sales"))
+// alternatively use the SQL approach
+sql("""
+  SELECT
+    CAST(TRANSLATE(date,'-','') AS INT) AS dateTk
+    , officeId 
+    , sales
+  FROM sales_data
+""").show
 
-// working 
-salesDataDF.select(salesDataDF("date"), salesDataDF("officeId"), salesDataDF("sales")*0.79).show
-// not working
-salesDataDS.select(salesDataDF("date"), salesDataDF("officeId"), salesDataDF("sales")*0.79).show
+// register as table
+salesDataTransformedDS.createOrReplaceTempView("sales_data_transformed")
 
-// not working:
-
-salesDataDF.select("date", "officeId", "sales" * 2).show
-salesDataDS.select("date", "officeId", "sales" * 2).show
+// LOGIC AND PHYSICAL QUERY PLAN
 
 // see the logical and phsical query plan
-scala> salesDataTransformedDF.explain(true)
+scala> salesDataTransformedDS.explain(true)
 == Parsed Logical Plan ==
 'SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).dateTk AS dateTk#83, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).officeId AS officeId#84, assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTransformed, true], top level non-flat input object).sales AS sales#85]
 +- 'MapElements <function1>, obj#82: $line84.$read$$iw$$iw$SalesDataTransformed
@@ -224,17 +281,6 @@ SerializeFromObject [assertnotnull(input[0, $line84.$read$$iw$$iw$SalesDataTrans
    +- *DeserializeToObject createexternalrow(date#14.toString, officeId#15, sales#16, StructField(date,StringType,true), StructField(officeId,IntegerType,false), StructField(sales,IntegerType,false)), obj#81: org.apache.spark.sql.Row
       +- LocalTableScan [date#14, officeId#15, sales#16]
 
-// alternatively use the SQL approach
-sql("""
-  SELECT
-    CAST(TRANSLATE(date,'-','') AS INT) AS dateTk
-    , officeId 
-    , sales
-  FROM sales_data
-""").show
-
-// register as table
-salesDataTransformedDF.createOrReplaceTempView("sales_data_transformed")
 
 // joining the two datasets to retrieve technical office key
 sql("SELECT * FROM sales_data_transformed s INNER JOIN dim_office o ON s.officeId = o.officeId").show
@@ -248,7 +294,7 @@ sql("SELECT * FROM sales_data_transformed s INNER JOIN dim_office o ON s.officeI
 +----------+--------+------+--------+--------+----------+
 
 // alternatively without SQL
-salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDF("officeId")).show
+salesDataTransformedDS.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDS("officeId")).show
 +----------+--------+------+--------+--------+----------+
 |      date|officeId| sales|officeTk|officeId|officeName|
 +----------+--------+------+--------+--------+----------+
@@ -262,7 +308,7 @@ salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTr
 
 // since we are happy with the result we will store the result in a table
 // we only keep the required columns
-val result = salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDF("officeId")).select(
+val result = salesDataTransformedDS.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDS("officeId")).select(
   "dateTk", "officeTk","sales"
 )
 

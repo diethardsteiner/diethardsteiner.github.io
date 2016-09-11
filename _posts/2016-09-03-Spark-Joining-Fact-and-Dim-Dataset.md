@@ -20,9 +20,9 @@ And you are ready to go!
 
 > **Note**: All instructions below are for Spark version 2!
 
-## Dataset APIs
+## Tabular Data: Dataset APIs
 
-This section will explain how datasets can be stored and manipulated in Apache Spark using three different **APIs**. Spark version 1 provided the **RDD API**, version 1.3 additionally introduced the **DataFrame API** and finally version 1.6 brought the **Dataset API**. In Spark version 2 the **DataFrame API** and **Dataset API** were merged. Note that each API provides its own methods to work with the data. The article [APACHE SPARK: RDD, DATAFRAME OR DATASET?](http://www.agildata.com/apache-spark-rdd-vs-dataframe-vs-dataset/) provides a good overview on when to use which kind of API.
+This section will explain how tabular data can be stored and manipulated in Apache Spark using three different **APIs**. Spark version 1 provided the **RDD API**, version 1.3 additionally introduced the **DataFrame API** and finally version 1.6 brought the **Dataset API**. In Spark version 2 the **DataFrame API** and **Dataset API** were merged. Note that each API provides its own methods to work with the data. The article [APACHE SPARK: RDD, DATAFRAME OR DATASET?](http://www.agildata.com/apache-spark-rdd-vs-dataframe-vs-dataset/) provides a good overview on when to use which kind of API.
 
 ### RDD API
 
@@ -68,6 +68,8 @@ Did I mention that RDDs are the barebones, low-level dataset API in Spark? These
 
 **Definition**: A DataFrame is a Dataset *organized into named columns*. It is conceptually equivalent to a table in a relational database or a data frame in R/Python, but with richer optimizations under the hood. DataFrames can be constructed from a wide array of sources such as: structured data files, tables in Hive, external databases, or existing RDDs. In the **Scala API**, DataFrame is simply a type alias of `Dataset[Row]`. It also provides a **Domain Specific Language** (DSL) to project (select), filter, intersect, join, group etc. See also [here](https://jaceklaskowski.gitbooks.io/mastering-apache-spark/content/spark-sql-dataframe.html).
 
+> "DataFrames basically do not take the data types of the column values into account. [...] In contrast to this, the new Dataset API allows modelling rows of tabular data using Scala’s case classes. [...] Datasets combine some of the benefits of Scala’s type checking with those of DataFrames. This can help to spot errors at an early stage." [Source](https://blog.codecentric.de/en/2016/07/spark-2-0-datasets-case-classes/)
+
 We will create a DataFrame. It does not seem to make any difference if you define them either as DS or DF in our case, as we already provide the names for the columns, both `toDS` and `toDF` methods will convert correctly. As a Dataset per **definition** has no named columns we will use `toDF` here for clarity sake. Here a quick summary ([Source](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes)):
 
 ```scala
@@ -86,11 +88,14 @@ val salesDataDF = List(
 
 ### Dataset API (AKA Typed Dataset API)
 
-**Definition**: A Dataset is a distributed collection of data. Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine.
+**Definition**: A Dataset is a distributed collection of data. Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine. It tries to overcome some of the shortcomings of DataFrames in regard to type safety.
 
 A **Dataset** is **type safe at compile time** whereas a DataFrames's columns will be only evaluated at run time.
 
 > **Important**: Dataset API and DataFrame API were unified in Spark 2! [Source](https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html). Conceptually, consider DataFrame as an alias for a collection of generic objects `Dataset[Row]`, where a `Row` is a generic **untyped** JVM object. `Dataset`, by contrast, is a collection of **strongly-typed** JVM objects, dictated by a case class you define in Scala or a class in Java.
+
+
+> **Help! Dataset!? DataFrame!?**: [The Dataset API Doc](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Dataset) explains the difference between Datasets and DataFrame in a concisce and precise manner: "A **Dataset** is a **strongly typed** collection of domain-specific objects that can be transformed in parallel using functional or relational operations. Each Dataset also has an **untyped** view called a **DataFrame**, which is a Dataset of Row."
 
 ```scala
 // Create Spark Dataset
@@ -168,7 +173,7 @@ scala> salesDataDF.show(2)
 
 ## Accessing Columns in DataFrames and Datasets
 
-```
+```scala
 // access a specific column
 // within functions use this approach
 scala> salesDataDF("date")
@@ -191,10 +196,79 @@ scala> salesDataDS.select("date", "officeId").show
 
 ## Data Manipulation
 
-Next let's try to perform a simple **manipulation** using the `map` function: We will create the integer representation of the date, which will serve as our date technical key:
+It is worth checking out the API documentation to understand what's possible:
+
+- [Dataset API Doc](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Dataset)
+- [Dataset - Columns API Doc](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Column)
+- [Dataset - Functions](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.functions$) 
+- [Dataset - Row](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Row)
+
+> **Tip**: When looking at the particular methods etc, make sure you click on the **expand** icon on the left hand side to show an example of the usage:
+
+![Screen Shot 2016-09-05 at 18.02.46](/images/Screen%20Shot%202016-09-05%20at%2018.02.46.png)
+
+Next let's try to perform a simple **manipulation**: We will create the integer representation of the date, which will serve as our date technical key. There are several ways to achieve this.
+
+First let us try to perform simple selection and creating a new field based on the value of another field:
 
 ```scala
-// generating the date technical key -- testing
+salesDataDS.select("date", "officeId", "sales").show // works
+salesDataDS.select("date", "officeId", "sales" * 2).show // does not work
+
+// working - full dataset reference required when manipulating values
+salesDataDF.select(salesDataDF("date"), salesDataDF("officeId"), salesDataDF("sales")*0.79).show
+salesDataDS.select(salesDataDS("date"), salesDataDS("officeId"), salesDataDS("sales")*0.79).show
+
+// not working: using standard Scala methods like replace on Spark SQL column - use API methods instead
+salesDataDS.select(salesDataDF("date").replace("-","").toInt, salesDataDF("officeId"), salesDataDF("sales"))
+// see: https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Column
+```
+
+The `select()` **Dataset** function returns a new **Dataset**. The individual selected fields are of the Spark SQL type `Column`. For the **column** class there is a different [set of methods](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Column) available to perform manipulations on the data - you cannot directly apply standard **Scala** functions like `replace()`.
+
+
+```scala
+// works
+translate(salesDataDS("date"),"-","")
+// returns type org.apache.spark.sql.Column
+// let's convert the result to int now as well
+translate(salesDataDS("date"),"-","").cast("int")
+// construct the full new dataset
+
+// adding a new column holding a transformed value of an existing column
+scala> salesDataDS.withColumn("dateTk", translate(salesDataDS("date"),"-","").cast("int")).show 
++----------+--------+------+--------+
+|      date|officeId| sales|  dateTk|
++----------+--------+------+--------+
+|2016-01-01|     333|432245|20160101|
+|2016-01-01|     234| 55432|20160101|
+|2016-01-01|     231| 41123|20160101|
++----------+--------+------+--------+
+
+// or alternatively use this approach
+scala> salesDataDS.select(salesDataDS("date"), salesDataDS("officeId"), salesDataDS("sales"), translate(salesDataDS("date"),"-","").cast("int").name("dateTk")).show
++----------+--------+------+--------+
+|      date|officeId| sales|  dateTk|
++----------+--------+------+--------+
+|2016-01-01|     333|432245|20160101|
+|2016-01-01|     234| 55432|20160101|
+|2016-01-01|     231| 41123|20160101|
++----------+--------+------+--------+
+
+scala> salesDataDS.select(translate(salesDataDS("date"),"-","").cast("int").name("dateTk"), salesDataDS("officeId"), salesDataDS("sales")).show
+
++--------+--------+------+
+|  dateTk|officeId| sales|
++--------+--------+------+
+|20160101|     333|432245|
+|20160101|     234| 55432|
+|20160101|     231| 41123|
++--------+--------+------+
+```
+
+For more complex endeavours you can make use of the `map` function. Note the below approach of using `getAs` (a `Row` function) will **only** work with the **untyped** DataFrame. Once we retrieve the field with the `getAs` [Row function](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Row) we can apply **standard Scala functions**. We use `df.getAs[String]("field")`, which means we use standard Scala String functions.
+
+```scala
 salesDataDF.map(salesData => salesData
   .getAs[String]("date")
   .replace("-","")
@@ -215,11 +289,11 @@ case class SalesDataTransformed (
   , sales:Int
 )
 
-// create new DataFrame
-val salesDataTransformedDF= salesDataDF.map(salesData => SalesDataTransformed(
-    salesData.getAs[String]("date").replace("-","").toInt
-    , salesData.getAs[Int]("officeId")
-    , salesData.getAs[Int]("sales")
+// create new Dataset
+val salesDataTransformedDS = salesDataDF.map( s => SalesDataTransformed(
+    s.getAs[String]("date").replace("-","").toInt
+    , s.getAs[Int]("officeId")
+    , s.getAs[Int]("sales")
   )
 )
 
@@ -231,6 +305,18 @@ scala> salesDataTransformedDF.show
 |20160101|     234| 55432|
 |20160101|     231| 41123|
 +--------+--------+------+
+
+// Trying to perform the same map transformation on the Dataset
+salesDataDS.map(_.date.replace("-","").toInt).show
+// same thing just slightly longer version
+salesDataDS.map(s => s.date.replace("-","").toInt).show
+
+val salesDataTransformedDS = salesDataDS.map( s => SalesDataTransformed(
+    s.date.replace("-","").toInt
+    , s.officeId
+    , s.sales
+  )
+)
 
 // alternatively use the SQL approach
 sql("""
@@ -297,7 +383,7 @@ sql("SELECT * FROM sales_data_transformed s INNER JOIN dim_office o ON s.officeI
 +----------+--------+------+--------+--------+----------+
 
 // alternatively without SQL
-salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDF("officeId")).show
+salesDataTransformedDS.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDS("officeId")).show
 +----------+--------+------+--------+--------+----------+
 |      date|officeId| sales|officeTk|officeId|officeName|
 +----------+--------+------+--------+--------+----------+
@@ -306,14 +392,14 @@ salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTr
 |2016-01-01|     231| 41123|       3|     231|     Milan|
 +----------+--------+------+--------+--------+----------+
 
-// since we are happy with the result we will store the result in a table
-// we only keep the required columns
-val result = salesDataTransformedDF.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDF("officeId")).select(
-  "dateTk", "officeTk","sales"
-)
-
 // note that you can also pass a 3rd argument to join
 // to define the join type, e.g. 'left_join'
+
+// since we are happy with the result we will store the result in a table
+// we only keep the required columns
+val result = salesDataTransformedDS.join(dimOfficeDF, dimOfficeDF("officeId") <=> salesDataTransformedDS("officeId")).select(
+  "dateTk", "officeTk","sales"
+)
 
 
 // alternatively using sql
@@ -448,7 +534,7 @@ $ spark-shell --driver-class-path /path-to-jdbc-jar/jdbc.jar --jars /path-to-jdb
 $ spark-shell --driver-class-path /Users/diethardsteiner/Dropbox/development/jdbc-drivers/mysql-connector-java-5.1.34-bin.jar --jars /Users/diethardsteiner/Dropbox/development/jdbc-drivers/mysql-connector-java-5.1.34-bin.jar
 ```
 
-##### Using Scala
+#### Using Scala
 
 Construct JDBC URL:
 
@@ -483,7 +569,7 @@ Show the results in a nice tabular format
 scala> people.show
 ```
 
-##### Using SQL
+#### Using SQL
 
 ```scala
 val person = spark.sql("CREATE TEMPORARY VIEW jdbcTable USING org.apache.spark.sql.jdbc OPTIONS ( url \"jdbc:mysql://localhost:3306/test\", user \"root\", password \"root\", dbtable \"person\")")
@@ -508,6 +594,7 @@ Sources:
 - [Spark: Connecting to a jdbc data-source using dataframes](http://www.infoobjects.com/spark-connecting-to-a-jdbc-data-source-using-dataframes/)
 - [APACHE SPARK: RDD, DATAFRAME OR DATASET?](http://www.agildata.com/apache-spark-rdd-vs-dataframe-vs-dataset/)
 - [Databricks Dataset Scala Notebook](https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/6122906529858466/431554386690871/4814681571895601/latest.html)
+- [Spark 2.0 – Datasets and case classes](https://blog.codecentric.de/en/2016/07/spark-2-0-datasets-case-classes/)
 - and many more
 
 
