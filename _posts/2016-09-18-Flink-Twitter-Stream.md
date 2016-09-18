@@ -8,9 +8,7 @@ tags: Flink
 published: false
 --- 
 
-## Using the latest snapshot
-
-### The SBT Build File
+## Creating SBT build file referencing latest Snapshot
 
 Some features are only available in the very latest code base (like the **Twitter Connector** we will be working with today), hence I will briefly talk you through how to set up your SBT project to download the dependencies from the **snapshot repository**. For a detailed Flink SBT project setup guide please read my previous blog post [Getting Started with Apache Flink](REF MISSING) - here I will only focus on the creating the `build.sbt` file.
 
@@ -108,9 +106,11 @@ libraryDependencies ++= Seq(
 
 Still in the **SBT interactive shell** type `reload` to reload the build configuration and then issue a `clean` followed by a `compile`.
 
-### Coding in IntelliJ IDEA
+## Coding in IntelliJ IDEA
 
 Since we appreciate the convenience that an IDE provides, we will add our **SBT** project as a new project to **IDEA**.
+
+### Creating the Twitter Source
 
 Create the `FlinkTwitterStreamCount.scala` file with following content:
 
@@ -138,6 +138,8 @@ object FlinkTwitterStreamCount {
 }
 ```
 
+> **Note**: Do not leave your connection details directly in the code! We will later on look at a way to externalise them.
+
 We setup a `TwitterSource` reader proving all the authentication details (as described in [the official docu](https://ci.apache.org/projects/flink/flink-docs-master/dev/connectors/twitter.html)). Compile and execute our program by clicking onto the **Run** button. This emmits a string with random Twitter records in **JSON** format, e.g.:
 
 ```javascript
@@ -155,6 +157,8 @@ We setup a `TwitterSource` reader proving all the authentication details (as des
 ```
 
 Note there is an [official Flink Twitter Java example](https://github.com/apache/flink/blob/9f52422350e145454d4b6972741944b1fd2185f2/flink-examples/flink-examples-streaming/src/main/java/org/apache/flink/streaming/examples/twitter/TwitterExample.java) available which is work checking out!
+
+### Handling the returned JSON stream
 
 The next task is to convert the stringified JSON to a proper Scala representation: As suggested by [this Stackoverflow](http://stackoverflow.com/questions/30884841/converting-json-string-to-a-json-object-in-scala) answer we will could make use of the [ScalaJson](https://www.playframework.com/documentation/2.5.x/ScalaJson) library from the **Play Framework** to do this and add this dependency to our `build.sbt` file:
 
@@ -205,6 +209,8 @@ object FlinkTwitterStreamCount {
 }
 ```
 
+### Creating a Tuple
+
 The next step is check filter out some records and convert the `Map` to `Tuple`, allowing us to keep certain fields only:
 
 ```scala
@@ -224,12 +230,36 @@ The next step is check filter out some records and convert the `Map` to `Tuple`,
 
     val filteredStream = jsonMap.filter( value =>  value.contains("created_at"))
 
-    val record:DataStream[Tuple3[String, BigDecimal, BigDecimal]] = filteredStream.map(
+    val record:DataStream[Tuple4[String, String, Double, Double]] = filteredStream.map(
       value => (
-          value("created_at").toString
-          , BigDecimal(value("id").toString)
-          , BigDecimal(value("retweet_count").toString)
+          value("lang").toString
+          , value("created_at").toString
+          , value("id").toString.toDouble
+          , value("retweet_count").toString.toDouble
         )
     )
 ```
 
+### Creating a Tumbling Window Aggregation
+
+While this is an interesting exercise, we cannot really send the above tuple like this to the windowed aggregated function: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the row level. We will prepare a super simple `DataStream` now which only contains the language field and a constant counter.
+
+Let's show the tweets by language for the last 40 seconds:
+
+```scala
+    val recordSlim:DataStream[Tuple2[String, Int]] = filteredStream.map(
+      value => (
+        value("lang").toString
+        , 1
+        )
+    )
+
+    val counts = recordSlim
+      .keyBy(0)
+      .timeWindow(Time.seconds(40))
+      .sum(1)
+
+    counts.print
+```
+
+While simple, this example is far from ideal. We should at least use the `created_at` time as the event time ...
