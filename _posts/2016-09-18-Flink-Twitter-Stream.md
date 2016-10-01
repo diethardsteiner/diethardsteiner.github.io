@@ -263,3 +263,51 @@ Let's show the tweets by language for the last 40 seconds:
 ```
 
 While simple, this example is far from ideal. We should at least use the `created_at` time as the event time ...
+
+## Converting String to Date
+
+The field `created_at` is currently of type `String`. We will make use of the [nscala-time library](https://github.com/nscala-time/nscala-time) which is mainly a wrapper around **Joda time**. Add to your **SBT build** file the following dependency:
+
+```
+libraryDependencies += "com.github.nscala-time" %% "nscala-time" % "2.14.0"
+```
+
+And to your **Scala** file the following import statement:
+
+```scala
+import com.github.nscala_time.time.Imports._
+```
+
+We will also have to apply a **formatting mask** and if we need some help on this, we can take a look at the [Joda Format Documentation](http://www.joda.org/joda-time/key_format.html). The `create_at` value looks something like this: `Sun Sep 18 10:09:34 +0000 2016`, so the corresponding formatting mask is `EE MMM dd HH:mm:ss Z yyyy`:
+
+```scala
+    val record:DataStream[Tuple4[String, DateTime, Double, Double]] = filteredStream.map(
+      value => (
+        value("lang").toString
+        , DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").parseDateTime(value("created_at").toString)
+        , value("id").toString.toDouble
+        , value("retweet_count").toString.toDouble
+        )
+    )
+```
+
+Unsurprisingly you need to tell Flink which field your event time is (see also [Generating Timestamps / Watermarks](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html), in particular [Timestamp Assigners / Watermark Generators](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html#timestamp-assigners--watermark-generators)).
+
+[Java Usage Example](http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/Playing-with-EventTime-in-DataStreams-td10498.html)
+
+## Time Types in Flink
+
+Flink supports various time concepts:
+
+- ** Processing Time**: This the time at which a record was processed on the machine (so in short words: machine time).
+- **Ingestion Time**: Since on a cluster data is processed on several nodes, the time on each machine might not be 100% the same. When using **ingestion time**, a timestamp is assigned to the data when it enters the system, so even when the data is processed on various nodes, the time will be the same.
+- **Event Time**: In a lot of cases processing and ingestion time are not ideal candidates - normally you might want to use a time which relates to the creation of the data (even time). In this case the timestamp is already part of the incoming data.
+
+**Watermarks**:
+
+To tell Flink that you want to use **event time**, add the following snippet:
+
+```
+env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+```
+

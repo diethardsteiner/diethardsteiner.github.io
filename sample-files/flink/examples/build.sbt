@@ -1,4 +1,4 @@
-name := "WindowWordCount"
+name := "flinkExamples"
 
 version := "1.0"
 

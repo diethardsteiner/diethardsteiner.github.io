@@ -1,6 +1,11 @@
+package com.bissolconsulting.flink.examples
+
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.time.Time
 
+/**
+  * Created by dsteiner on 01/10/16.
+  */
 object WindowWordCumCount {
   def main(args: Array[String]) {
 
@@ -16,7 +21,7 @@ object WindowWordCumCount {
       (x(0), x(1).toInt)
     }
 
-//    dataTyped.print
+    //    dataTyped.print
 
     val counts = dataTyped
       .keyBy(0)
@@ -26,6 +31,6 @@ object WindowWordCumCount {
     counts.print
 
     env.execute("Window Stream Cumulative WordCount")
+
   }
 }
-
