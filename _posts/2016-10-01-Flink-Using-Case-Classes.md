@@ -14,7 +14,7 @@ Set the project up in a similar fashion as discussed in the previous article. We
 
 Our ininital `Purchase` **data model** for the **parsed streaming data** looks like this:
 
-```
+```scala
 package com.bissolconsulting.flink.examples
 
 object Models {
