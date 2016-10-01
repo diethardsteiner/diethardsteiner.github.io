@@ -1,18 +1,18 @@
 ---
 layout: post
-title: "Apache Flink Streaming: Using Case Clases"
+title: "Apache Flink Streaming: Using Case Classes"
 summary: This article explains how to use case classes to properly type the data sets
 date: 2016-10-01
 categories: Flink
 tags: Flink
-published: false
+published: true
 --- 
 
-Like in the previous article on Flink we will create a simple **tumbling window aggregation**, just this time round we will create a data model using a `case class`. In our extremely simplified example the data stream consists of purchase data from an online store.
+As in the previous article on Flink we will create a simple **tumbling window aggregation**, just this time round we will create a data model using a `case class`. In our extremely simplified example the data stream consists of purchase data from an online store.
 
 Set the project up in a similar fashion as discussed in the previous article. We will use **IntelliJ IDEA** as our IDE.
 
-Our ininital `Purchase` data model for the **parsed streaming data** looks like this:
+Our ininital `Purchase` **data model** for the **parsed streaming data** looks like this:
 
 ```
 package com.bissolconsulting.flink.examples
@@ -31,7 +31,7 @@ object Models {
 }
 ```
 
-Create a new **Scala** object file called `Models` and insert the code shown above.
+In IDEA create a new pacakge called `com.bissolconsulting.flink.examples` and then a new **Scala** object file called `Models`, finally insert the code shown above.
 
 Our program will accept an input stream from a **socket**. We parse the comma separated data and properly type it using our `Purchase` model. Finally we group the data by `department` and aggregate the `purchaseValue` (sales) - basically we want to know: 
 
@@ -106,7 +106,7 @@ The output of our stream aggregation looks like this:
 4> Purchase(113,Peter,Burlington,Furniture,300.0,None)
 ```
 
-Note that the `purchaseValue` was correctly aggregated, however, (unsurprisingly) we cannot aggregate with all the details we currently have in the records. So the next step will be to drop the unnecessary columns and introduce a new `PurchaseAggregation` Model using a `case class`:
+Note that the `purchaseValue` was correctly aggregated, however, (unsurprisingly) we cannot aggregate with all the details we currently have in the records. So the next step will be to drop the unnecessary fields and introduce a new `PurchaseAggregation` **Model** using a `case class`:
 
 ```scala
 package com.bissolconsulting.flink.examples
@@ -128,7 +128,7 @@ package com.bissolconsulting.flink.examples
 }
 ```
 
-Finally let's add an additional mapping to slim the dataset down for aggreation:
+Finally let's add an **additional mapping** to slim the dataset down for aggreation:
 
 ```scala
 package com.bissolconsulting.flink.examples
@@ -176,11 +176,15 @@ object WindowWordCountUsingCaseClass {
 }
 ```
 
-Compile and run this version in IDEA and paste again the sample data into the terminal window. This time round the results of the windowed aggregation look better:
+Notice that using a `case class` enables us to reference the fields by name in functions like `keyBy` and `sum`. 
+
+Compile and **run** this version in **IDEA** and paste again the **sample data** into the terminal window. This time round the results of the **windowed aggregation** look better:
 
 ```
 4> PurchaseAggregation(Groceries,70.0)
 4> PurchaseAggregation(Furniture,300.0)
 ```
 
-As always you can find the code for this example on my [Github repo]().
+As always you can find the code for this example on my [Github repo](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/flink/examples).
+
+
