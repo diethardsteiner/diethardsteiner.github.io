@@ -190,7 +190,7 @@ drwxrwxr-x. 5 dsteiner dsteiner 4096 Sep  9 18:59 target
 Once the code is successfully compiled, open a new tab (let's call it *InputStream* tab) in your terminal and execute this:
 
 ```bash
-$ nc -lc 9999
+$ nc -lk 9999
 ``` 
 
 This will create the input stream for our program.
