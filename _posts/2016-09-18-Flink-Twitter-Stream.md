@@ -140,7 +140,7 @@ object FlinkTwitterStreamCount {
 
 > **Note**: Do not leave your connection details directly in the code! We will later on look at a way to externalise them.
 
-We setup a `TwitterSource` reader proving all the authentication details (as described in [the official docu](https://ci.apache.org/projects/flink/flink-docs-master/dev/connectors/twitter.html)). Compile and execute our program by clicking onto the **Run** button. This emmits a string with random Twitter records in **JSON** format, e.g.:
+We setup a `TwitterSource` reader proving all the authentication details (as described in [the official docu](https://ci.apache.org/projects/flink/flink-docs-master/dev/connectors/twitter.html)). Compile and execute our program by clicking onto the **Run** button. This emits a string with random Twitter records in **JSON** format, e.g.:
 
 ```javascript
 {
@@ -158,6 +158,44 @@ We setup a `TwitterSource` reader proving all the authentication details (as des
 
 Note there is an [official Flink Twitter Java example](https://github.com/apache/flink/blob/9f52422350e145454d4b6972741944b1fd2185f2/flink-examples/flink-examples-streaming/src/main/java/org/apache/flink/streaming/examples/twitter/TwitterExample.java) available which is work checking out!
 
+### Externalising the Twitter Connection Details
+
+Best practices first (oh well, second in the case)! We will store the **Twitter token** details in a **properties file** called `twitter.properties`:
+
+```
+twitter-source.consumerKey=<your-details>
+twitter-source.consumerSecret=<your-details>
+twitter-source.token=<your-details>
+twitter-source.tokenSecret=<your-details>
+```
+
+We will add following code to our **Scala** file:
+
+```scala
+    val prop = new Properties()
+    val propFilePath = "/home/dsteiner/Dropbox/development/config/twitter.properties"
+
+      try {
+
+        prop.load(new FileInputStream(propFilePath))
+        prop.getProperty("twitter-source.consumerKey")
+        prop.getProperty("twitter-source.consumerSecret")
+        prop.getProperty("twitter-source.token")
+        prop.getProperty("twitter-source.tokenSecret")
+
+      } catch { case e: Exception =>
+        e.printStackTrace()
+        sys.exit(1)
+      }
+
+    val streamSource = env.addSource(new TwitterSource(prop))
+```
+ 
+This code requires the `scala.util.parsing.json` library, so add this one to the import statements as well.
+ 
+ 
+ Ok, that's this done then. We can no progres with a good conscience ;)
+
 ### Handling the returned JSON stream
 
 The next task is to convert the stringified JSON to a proper Scala representation: As suggested by [this Stackoverflow](http://stackoverflow.com/questions/30884841/converting-json-string-to-a-json-object-in-scala) answer we will could make use of the [ScalaJson](https://www.playframework.com/documentation/2.5.x/ScalaJson) library from the **Play Framework** to do this and add this dependency to our `build.sbt` file:
@@ -171,27 +209,6 @@ Link to [repo](https://mvnrepository.com/artifact/com.typesafe.play/play-json_2.
 We will use the native **Scala JSON parser** (`scala.util.parsing.json._`) to turn the String into a proper collection. For now we will simply use a map function, check that the parsing is successful (using a case statement??) and then simply print out the result:
 
 ```scala
-import java.util.Properties
-
-import org.apache.flink.streaming.api.scala._
-import org.apache.flink.streaming.api.windowing.time.Time
-import org.apache.flink.streaming.connectors.twitter.TwitterSource
-
-import scala.util.parsing.json._
-//import play.api.libs.json._
-
-object FlinkTwitterStreamCount {
-  def main(args: Array[String]) {
-
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
-
-    val props = new Properties()
-    props.setProperty(TwitterSource.CONSUMER_KEY, "<your-value>")
-    props.setProperty(TwitterSource.CONSUMER_SECRET, "<your-value>")
-    props.setProperty(TwitterSource.TOKEN, "<your-value>")
-    props.setProperty(TwitterSource.TOKEN_SECRET, "<your-value>")
-    val streamSource = env.addSource(new TwitterSource(props))
-
     streamSource.map( value => {
 
         val result = JSON.parseFull(value)
@@ -203,10 +220,6 @@ object FlinkTwitterStreamCount {
 
       }
     )
-
-    env.execute("Twitter Window Stream WordCount")
-  }
-}
 ```
 
 ### Creating a Tuple
@@ -214,21 +227,25 @@ object FlinkTwitterStreamCount {
 The next step is check filter out some records and convert the `Map` to `Tuple`, allowing us to keep certain fields only:
 
 ```scala
- val jsonMap = streamSource.map(
+ val parsedStream = streamSource.map(
 
       value => {
 
         val result = JSON.parseFull(value)
 
-        result match {
-//          case Some(e: Map[String, Any]) => println(e)
-//          case None => println("Error")
-          case Some(e: Map[String, Any]) => e
+        try {
+          result match {
+            case Some(e:Map[String, Any]) => e
+          }
+        } catch { case e: Exception =>
+          e.printStackTrace()
+          sys.exit(1)
         }
+
       }
     )
 
-    val filteredStream = jsonMap.filter( value =>  value.contains("created_at"))
+    val filteredStream = parsedStream.filter( value =>  value.contains("created_at"))
 
     val record:DataStream[Tuple4[String, String, Double, Double]] = filteredStream.map(
       value => (
@@ -242,9 +259,7 @@ The next step is check filter out some records and convert the `Map` to `Tuple`,
 
 ### Creating a Tumbling Window Aggregation
 
-While this is an interesting exercise, we cannot really send the above tuple like this to the windowed aggregated function: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the row level. We will prepare a super simple `DataStream` now which only contains the language field and a constant counter.
-
-Let's show the tweets by language for the last 40 seconds:
+While this is an interesting exercise, we cannot really send the above tuple like this to the **windowed aggregate function**: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the source data row level. We will prepare a super simple `DataStream` now which only contains the language field and a constant counter. This should answer the question: How many tweets are published in a given language in 40 seconds intervals:
 
 ```scala
     val recordSlim:DataStream[Tuple2[String, Int]] = filteredStream.map(
@@ -291,13 +306,10 @@ We will also have to apply a **formatting mask** and if we need some help on thi
     )
 ```
 
-Unsurprisingly you need to tell Flink which field your event time is (see also [Generating Timestamps / Watermarks](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html), in particular [Timestamp Assigners / Watermark Generators](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html#timestamp-assigners--watermark-generators)).
-
-[Java Usage Example](http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/Playing-with-EventTime-in-DataStreams-td10498.html)
 
 ## Time Types in Flink
 
-Flink supports various time concepts:
+**Flink** supports various time concepts:
 
 - ** Processing Time**: This the time at which a record was processed on the machine (so in short words: machine time).
 - **Ingestion Time**: Since on a cluster data is processed on several nodes, the time on each machine might not be 100% the same. When using **ingestion time**, a timestamp is assigned to the data when it enters the system, so even when the data is processed on various nodes, the time will be the same.
@@ -310,4 +322,41 @@ To tell Flink that you want to use **event time**, add the following snippet:
 ```
 env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 ```
+
+Unsurprisingly you need to tell Flink which field your event time is (see also [Generating Timestamps / Watermarks](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html), in particular [Timestamp Assigners / Watermark Generators](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html#timestamp-assigners--watermark-generators)).
+
+Other resources:
+
+- [Java Usage Example](http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/Playing-with-EventTime-in-DataStreams-td10498.html)
+- [Introduction to Flink Streaming - Part 9 : Event Time in Flink](http://blog.madhukaraphatak.com/introduction-to-flink-streaming-part-9/)
+
+
+> **Important**: Both timestamps and watermarks are specified as **milliseconds** since the Java epoch of `1970-01-01T00:00:00Z`. (Source: [Generating Timestamps / Watermarks](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamps_watermarks.html)). This means we should define the value as type **Long**.
+
+Important Info: [Pre-defined Timestamp Extractors / Watermark Emitters](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamp_extractors.html)
+
+So while we managed to convert the `created_at` from `String` to `DataTime`, the missing piece is to convert this value to **milliseconds since Java epoch**. At the same time, we will also define a data model using a `case class`:
+
+```scala
+    case class TwitterFeed(
+      language:String
+      , creationTime:Long
+      , id:Double
+      , retweetCount:Double
+    )
+
+    val record:DataStream[TwitterFeed] = filteredStream.map(
+      value => TwitterFeed(
+        value("lang").toString
+        , DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").parseDateTime(value("created_at").toString).getMillis
+        , value("id").toString.toDouble
+        , value("retweet_count").toString.toDouble
+        )
+    )
+
+    val timedStream = record.assignAscendingTimestamps(_.creationTime)
+```
+
+Note that the *Ascending Timestamp* feature does not support any late arriving data.
+
 
