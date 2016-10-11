@@ -359,4 +359,336 @@ So while we managed to convert the `created_at` from `String` to `DataTime`, the
 
 Note that the *Ascending Timestamp* feature does not support any late arriving data.
 
+# ElasticSearch and Kibana
+
+We want to store our stats in a dedicated data store. InfluxDB? would be a choice, but we'll use ElasticSearch. ElasticSearch for time-series data you might wonder? Really? Turns out it's actually pretty good at handling time-series data based on [this articel](LINK MISSING!!!).
+
+## Installing ElasticSearch
+
+Is fully covered in [the official docu](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html) and also [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/running-elasticsearch.html).
+
+Here an example setup for Fedora:
+
+[Download](https://www.elastic.co/downloads/elasticsearch)
+
+Download the RPM file to install on Fedora.
+
+```
+sudo dnf install elasticsearch-2.4.0.rpm
+```
+
+```
+bin/elasticsearch
+curl -X GET http://localhost:9200/
+```
+
+OR:
+
+```
+### NOT starting on installation, please execute the following statements to configure elasticsearch service to start automatically using systemd
+ sudo systemctl daemon-reload
+ sudo systemctl enable elasticsearch.service
+### You can start elasticsearch service by executing
+ sudo systemctl start elasticsearch.service
+  Verifying   : elasticsearch-2.4.0-1.noarch       
+```
+
+### Directory Structure
+
+[Source](https://www.elastic.co/guide/en/elasticsearch/reference/1.4/setup-dir-layout.html)
+
+Type | Description | Location Debian/Ubuntu
+----|------|------
+bin files | | `/usr/share/elasticsearch/bin`
+config | | `/etc/elasticsearch`
+data | The location of the data files of each index / shard allocated on the node. | `/var/lib/elasticsearch/data`
+logs | Log files location | `/var/log/elasticsearch`
+
+## Installing Kibana
+
+[Download](https://www.elastic.co/downloads/kibana)
+
+If you are using Fedora, download the RPM 64bit version to install on Fedora.
+
+```
+sudo dnf install kibana-4.6.1-x86_64.rpm
+sudo systemctl start kibana.service
+```
+[Getting Started](https://www.elastic.co/guide/en/kibana/4.6/index.html)
+
+- Open config/kibana.yml in an editor
+- Set the elasticsearch.url to point at your Elasticsearch instance
+- Run `./bin/kibana` (or `bin\kibana.bat` on Windows)
+- Point your browser at `http://localhost:5601`
+
+### Directory Structure
+
+Type | Description | Location Debian/Ubuntu
+----|------|------
+root dir | | `/opt/kibana/`
+bin files | | `/opt/kibana/bin`
+config | | `/opt/kibana/config`
+logs | Log files location | `???`
+
+
+## Installing Sense
+
+"Sense is a Kibana app that provides an interactive console for submitting requests to Elasticsearch directly from your browser."
+
+[Installing Sense](https://www.elastic.co/guide/en/elasticsearch/guide/current/running-elasticsearch.html#sense)
+
+```
+sudo systemctl stop kibana.service
+cd /opt/kibana
+sudo ./bin/kibana plugin --install elastic/sense
+sudo systemctl start kibana.service
+```
+
+Sense is available on `http://localhost:5601/app/sense`.
+
+## A quick Introduction
+
+I recommend reading the [Official Getting Started Guide](https://www.elastic.co/guide/en/elasticsearch/guide/current/getting-started.html). There is also a [forum](https://discuss.elastic.co/) available. Make sure that you understand the meaning of **index** in the context of **ElasticSearch** by reading [this section](https://www.elastic.co/guide/en/elasticsearch/guide/current/_indexing_employee_documents.html) - if you've never worked with ElasticSearch and you think you know what an index is in ElasticSearch, make sure you read the previously mentioned article! In essence, **index** is like a table in the relational world. **ElasticSearch** also uses an **inverted index** to index the document itself (ElasticSearch by default indexes every field). 
+
+With the basics out of the way, let's test a data structure for our stream. You do not really explicitly create an **index** (table) on **ElasticSearch**, but you simply submit your document and tell **ElasticSearch** at the same time where it should be placed. If the index does not exist, it will be automatically created. Apart from the **index**, you also specify a **type** (think of it as a **partition** in the relational world) and a **unique id**, none of which have to be created upfront. The main document structure should be similar between types, but types can have some specific additional fields:
+
+```
+<index>/<type>/<unique-id>
+# relational world equivalent
+<table>/<partition>/<key>
+```
+See also [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/_document_metadata.html)
+Index names must be in lower case and must not start with an underscore. Type names may be lower or upper case. The Id is a **String** and can be supplied or auto-generated ([more details](https://www.elastic.co/guide/en/elasticsearch/guide/current/index-doc.html)).
+
+So to test this, we will submit a record
+
+If you are using **cURL**:
+
+```
+curl -PUT 'localhost:9200/_count?pretty' /twitter/tweetsByLanguage/1 [OPEN]
+{
+    "first_name" : "John",
+    "last_name" :  "Smith",
+    "age" :        25,
+    "about" :      "I love to go rock climbing",
+    "interests": [ "sports", "music" ]
+}
+```
+
+Alternatively you can also use **Sense**:
+
+```
+PUT /twitter/tweetsByLanguage/1 [OPEN]
+{
+    "first_name" : "John",
+    "last_name" :  "Smith",
+    "age" :        25,
+    "about" :      "I love to go rock climbing",
+    "interests": [ "sports", "music" ]
+}
+```
+
+Retrieving the document:
+
+```
+#cURL
+curl XGET 'http://localhost:9200/megacorp/employee/1?pretty'
+#Sense
+GET /megacorp/employee/1
+```
+
+Action | Description
+--------|-------
+XGET    | **Retrieve** document
+XPUT    | **Insert** or **update** document. Update replaces existing document
+XPOST   | **Insert** document and auto-generate id for it (see [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/index-doc.html))
+XDELETE | **Delete** document
+XHEAD   | Check if document exits
+
+Here some more useful commands
+
+```
+# Retrieve all documents
+GET /megacorp/employee/_search
+# Show all documents that have a user with a last name of Smith
+GET /megacorp/employee/_search?q=last_name:Smith
+# Retrieve specific fields only
+GET /website/blog/123?_source=title,text
+```
+
+For more complex queries, you can use the [Query DSL](https://www.elastic.co/guide/en/elasticsearch/guide/current/_search_with_query_dsl.html).
+
+## Defining a Schema
+
+
+## Flink: Using the ElasticSearch 2 connector (Sink)
+
+In the Apache Flink 1.2 Snapshot release are ElasticSearch 1 and [ElasticSearch 2 Connectors](https://ci.apache.org/projects/flink/flink-docs-master/dev/connectors/elasticsearch2.html) included, but they are not part of the core library, so you have to add this dependency to your `build.sbt` file:
+
+```
+"org.apache.flink" %% "flink-connector-elasticsearch2"  % flinkVersion,
+```
+
+Next we have to find out some configuration details:
+
+```bash
+sudo less /etc/elasticsearch/elasticsearch.yml
+```
+
+Search for `cluster.name` ...
+
+### First attempt insert into ElasticSearch
+
+The connection happens over TCP, ElasticSearch usually listens on port 9300.
+
+We will create a simple example first just storing the language field in ElasticSearch - once we have this working, we implement the full solution.
+
+First **create the ES index** (although I previously mentioned that you don't really have to create an index separately we do have to do it here):
+
+```bash
+curl -XPUT 'http://localhost:9200/test'
+```
+
+Next let's add this code to our **Scala** file: 
+
+First we set up the ElasticSearch connection details. Next we extract the language field from our stream. Finally we set up the **ElasticSearch Sink**. We map our stream data to a **JSON** object using the `json.map()` function.
+
+```scala
+    //load data into ElasticSearch
+
+    val config = new util.HashMap[String, String]
+    config.put("bulk.flush.max.actions", "1")
+    config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
+    
+    val transports = new util.ArrayList[InetSocketAddress]
+    transports.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
+
+    // testing simple setup
+    val input:DataStream[String] = timedStream.map( _.language.toString)
+    input.print()
+
+    input.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[String] {
+      def createIndexRequest(element: String): IndexRequest = {
+        val json = new util.HashMap[String, AnyRef]
+        // Map stream fields to JSON properties, format:
+        // json.put("json-property-name", streamField)
+        json.put("data", element)
+        Requests.indexRequest.index("test").`type`("test").source(json)
+      }
+
+      override def process(element: String, ctx: RuntimeContext, indexer: RequestIndexer) {
+        indexer.add(createIndexRequest(element))
+      }
+    }))
+```
+
+Run the program and kill it after a few seconds.
+
+Check if the data is stored in ES:
+
+```bash
+curl -XGET 'http://localhost:9200/test/_search?pretty'
+```
+
+You should get data returned similar to one (after all the metadata):
+
+```
+    }, {
+      "_index" : "test",
+      "_type" : "test",
+      "_id" : "AVelcaqwCReiv32i2XIm",
+      "_score" : 1.0,
+      "_source" : {
+        "data" : "fr"
+      }
+    }, {
+      "_index" : "test",
+      "_type" : "test",
+      "_id" : "AVelcawOCReiv32i2XIw",
+      "_score" : 1.0,
+      "_source" : {
+        "data" : "es"
+      }
+```
+
+Note that **ElasticSearch** created an id for each of our records.
+
+### Full Sink Implementation
+
+In order to load our `TimedStream` into **ElasticSearch**, we have to make sure that **ElasticSearch** is aware of the field types in order to optimise performance. We will create an **index mapping** (a table definition in the relational world):
+
+```bash
+# delete if already exists
+curl -XDELETE 'http://localhost:9200/twitter'
+# create index
+curl -XPUT 'http://localhost:9200/twitter'
+# create mapping
+curl -XPUT 'http://localhost:9200/twitter/_mapping/languages' -d'
+{
+ "languages" : {
+   "properties" : {
+      "language": {"type": "string"}
+      , "creationTime": {"type": "date"}
+      , "id": {"type": "long"}
+      , "retweetCount": {"type": "integer"}
+    }
+ } 
+}'
+```
+
+We will adjust our **Scala code** now:
+
+```scala
+
+```
+
+> **Important**: You must ensure that the order of the properties in the generated **JSON** object is the same as specified in the **mapping**.
+
+If for some reason you cannot find the data on **ElasticSearch** (when you program executed without any errors), consult the **ElasticSearch Log**:
+
+```
+less /var/log/elasticsearch/elasticsearch.log
+```
+
+In my case I found a message shown below because there was a type mismatch (not because the order of the field matters):
+
+```
+[2016-10-11 17:45:09,306][DEBUG][action.bulk              ] [Sleek] [twitter][3] failed to execute bulk item (index) index {[twitter][languages][AVe0oir-LpV6XBRrSKbo], source[{"creationTime":"1476204303000","language":"ko","id":"7.8588392611606938E17","retweetCount":"0.0"}]}
+MapperParsingException[failed to parse [language]]; nested: NumberFormatException[For input string: "ko"];
+```
+
+Although **elements** in a **JSON object** are by definition **unordered** (as discussed [here](http://stackoverflow.com/questions/3948206/json-order-mixed-up) and [here](http://stackoverflow.com/questions/17229418/jsonobject-why-jsonobject-changing-the-order-of-attributes)), JSON libraries can arrange the elements in any particular order (which means not necessarily in the order we specified them). The **ElasticSearch Mapping** we created earlier on does not require the elements have to be **ordered** either. However, if for some reason you want to maintain the insert order in the map, in **Scala**, we can use an immuatable `ListMap` to just achieves this (as well as the Java `LinkedHashMap`).
+
+Check if the data is stored in ES:
+
+```bash
+curl -XGET 'http://localhost:9200/twitter/languages/_search?pretty'
+```
+
+The result should look something like this (after all the metadata):
+
+```
+}, {
+      "_index" : "twitter",
+      "_type" : "languages",
+      "_id" : "AVe00lLMLpV6XBRrSKz5",
+      "_score" : 1.0,
+      "_source" : {
+        "creationTime" : "1476207461000",
+        "language" : "en",
+        "id" : "7.8589717172390707E17",
+        "retweetCount" : "0.0"
+      }
+    }, {
+```
+
+# Sources
+
+- [Elasticsearch as a Time Series Data Store](https://www.elastic.co/blog/elasticsearch-as-a-time-series-data-store)
+- [Pre-defined Timestamp Extractors / Watermark Emitters](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamp_extractors.html)
+- [READ: Building a demo application with Flink, Elasticsearch, and Kibana](https://www.elastic.co/blog/building-real-time-dashboard-applications-with-apache-flink-elasticsearch-and-kibana) with [Scala Code on Github](https://github.com/dataArtisans/flink-streaming-demo/tree/master/src/main/scala/com/dataartisans/flink_demo)
+- [Java Connector Example](http://dataartisans.github.io/flink-training/exercises/toElastic.html)
+- [READ THIS](http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/Handling-large-state-incremental-snapshot-td5916.html)
+- [READ: Flink Complex Event Processing](http://www.slideshare.net/flink-taiwan/complex-event-processing-use-cases-flinkcep-library-flinktw-meetup-20160719)
+- [READ: Flink Kafka Consumer Scala Example](http://stackoverflow.com/questions/31446374/can-anyone-share-a-flink-kafka-example-in-scala), and also [this](http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/Flink-Kafka-example-in-Scala-td2069.html)
 

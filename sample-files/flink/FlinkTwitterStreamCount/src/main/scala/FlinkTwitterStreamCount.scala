@@ -58,7 +58,7 @@ object FlinkTwitterStreamCount {
     )
 
     val filteredStream = parsedStream.filter( value =>  value.contains("created_at"))
-
+  filteredStream.print() // id value is already messed up here, both id and retweet count are double
     val record:DataStream[Tuple4[String, String, Double, Double]] = filteredStream.map(
       value => (
           value("lang").toString
