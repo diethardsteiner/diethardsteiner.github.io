@@ -3,9 +3,12 @@
 import java.io.FileInputStream
 import java.util.Properties
 
+import com.github.nscala_time.time.Imports._
+import net.liftweb.json.JsonAST.JValue
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.twitter.TwitterSource
-import org.apache.flink.streaming.api.TimeCharacteristic
+import net.liftweb.json._
+import org.apache.flink.streaming.api.windowing.time.Time
 
 import scala.util.parsing.json._
 //import play.api.libs.json._
@@ -17,8 +20,18 @@ object FlinkTwitterStreamCount {
 
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
+    println("The current OS is: " + System.getProperty("os.name"))
+
     val prop = new Properties()
-    val propFilePath = "/home/dsteiner/Dropbox/development/config/twitter.properties"
+
+    val userHomeDir =
+      if (System.getProperty("os.name").equals("Mac OS X"))
+        "/Users/diethardsteiner/"
+      else
+        "/home/dsteiner/"
+
+
+    val propFilePath = userHomeDir + "Dropbox/development/config/twitter.properties"
 
       try {
 
@@ -39,50 +52,62 @@ object FlinkTwitterStreamCount {
 
     //streamSource.print()
 
-    val parsedStream = streamSource.map(
+    val filteredStream = streamSource.filter( value =>  value.contains("created_at"))
 
-      value => {
+    val parsedStream = filteredStream.map(
+      record => {
+        parse(record)
+      }
+    )
 
-        val result = JSON.parseFull(value)
+    //parsedStream.print()
 
-        try {
-          result match {
-            case Some(e:Map[String, Any]) => e
-          }
-        } catch { case e: Exception =>
-          e.printStackTrace()
-          sys.exit(1)
-        }
+    case class TwitterFeed(
+      id:Long
+      , creationTime:Long
+      , language:String
+      , user:String
+      , favoriteCount:Int
+      , retweetCount:Int
+    )
+
+    val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
+      record => {
+        TwitterFeed(
+          // ( input \ path to element \\ unboxing ) (extract no x element from list)
+          ( record \ "id" \\ classOf[JInt] )(0).toLong
+          , DateTimeFormat
+              .forPattern("EEE MMM dd HH:mm:ss Z yyyy")
+              .parseDateTime(
+                ( record \ "created_at" \\ classOf[JString] )(0)
+              ).getMillis
+          , ( record \ "lang" \\ classOf[JString] )(0).toString
+          , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
+          , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
+          , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
+        )
 
       }
     )
 
-    val filteredStream = parsedStream.filter( value =>  value.contains("created_at"))
-  filteredStream.print() // id value is already messed up here, both id and retweet count are double
-    val record:DataStream[Tuple4[String, String, Double, Double]] = filteredStream.map(
-      value => (
-          value("lang").toString
-          , value("created_at").toString
-          , value("id").toString.toDouble
-          , value("retweet_count").toString.toDouble
-        )
-    )
+    // structuredStream.print
 
-    val recordSlim:DataStream[Tuple2[String, Int]] = filteredStream.map(
+    val recordSlim:DataStream[Tuple2[String, Int]] = structuredStream.map(
       value => (
-        value("lang").toString
+        value.language
         , 1
         )
     )
 
-    /** ERROR - RESOLVE!
+    // recordSlim.print
+
     val counts = recordSlim
       .keyBy(0)
-      .timeWindow(Time.seconds(40))
+      .timeWindow(Time.seconds(30))
       .sum(1)
 
     counts.print
-      **/
+
     env.execute("Twitter Window Stream WordCount")
   }
 }

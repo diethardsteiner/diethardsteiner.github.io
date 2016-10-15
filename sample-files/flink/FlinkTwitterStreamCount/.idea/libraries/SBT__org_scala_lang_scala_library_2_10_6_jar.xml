@@ -3,9 +3,9 @@
     <properties>
       <option name="languageLevel" value="Scala_2_10" />
       <compiler-classpath>
-        <root url="file://$USER_HOME$/.sbt/boot/scala-2.10.4/lib/scala-compiler.jar" />
-        <root url="file://$USER_HOME$/.sbt/boot/scala-2.10.4/lib/scala-library.jar" />
-        <root url="file://$USER_HOME$/.sbt/boot/scala-2.10.4/lib/scala-reflect.jar" />
+        <root url="file://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.10.4.jar" />
+        <root url="file://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.4.jar" />
+        <root url="file://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.4.jar" />
       </compiler-classpath>
     </properties>
     <CLASSES>

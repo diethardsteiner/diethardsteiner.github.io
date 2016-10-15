@@ -6,6 +6,7 @@ import java.util
 import java.util.Properties
 
 import com.github.nscala_time.time.Imports._
+import net.liftweb.json._
 import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
@@ -24,8 +25,18 @@ object FlinkTwitterStreamCountWithEsSinkSimple {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
+    println("The current OS is: " + System.getProperty("os.name"))
+
     val prop = new Properties()
-    val propFilePath = "/home/dsteiner/Dropbox/development/config/twitter.properties"
+
+    val userHomeDir =
+      if (System.getProperty("os.name").equals("Mac OS X"))
+        "/Users/diethardsteiner/"
+      else
+        "/home/dsteiner/"
+
+
+    val propFilePath = userHomeDir + "Dropbox/development/config/twitter.properties"
 
     try {
 
@@ -42,55 +53,48 @@ object FlinkTwitterStreamCountWithEsSinkSimple {
 
     val streamSource = env.addSource(new TwitterSource(prop))
 
-//    streamSource.print()
+    //streamSource.print()
 
-    val parsedStream = streamSource.map(
+    val filteredStream = streamSource.filter( value =>  value.contains("created_at"))
 
-      value => {
+    val parsedStream = filteredStream.map(
+      record => {
+        parse(record)
+      }
+    )
 
-        val result = JSON.parseFull(value)
+    //parsedStream.print()
 
-        try {
-          result match {
-            case Some(e:Map[String, Any]) => e
-          }
-        } catch { case e: Exception =>
-          e.printStackTrace()
-          sys.exit(1)
-        }
+    case class TwitterFeed(
+                            id:Long
+                            , creationTime:Long
+                            , language:String
+                            , user:String
+                            , favoriteCount:Int
+                            , retweetCount:Int
+                          )
+
+    val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
+      record => {
+        TwitterFeed(
+          // ( input \ path to element \\ unboxing ) (extract no x element from list)
+          ( record \ "id" \\ classOf[JInt] )(0).toLong
+          , DateTimeFormat
+            .forPattern("EEE MMM dd HH:mm:ss Z yyyy")
+            .parseDateTime(
+              ( record \ "created_at" \\ classOf[JString] )(0)
+            ).getMillis
+          , ( record \ "lang" \\ classOf[JString] )(0).toString
+          , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
+          , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
+          , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
+        )
 
       }
     )
 
-    val filteredStream = parsedStream.filter( value =>  value.contains("created_at"))
-
-//    val record:DataStream[Tuple4[String, DateTime, Double, Double]] = filteredStream.map(
-//      value => (
-//        value("lang").toString
-//        , DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").parseDateTime(value("created_at").toString)
-//        , value("id").toString.toDouble
-//        , value("retweet_count").toString.toDouble
-//        )
-//    )
-
-    case class TwitterFeed(
-      language:String
-      , creationTime:Long
-      , id:Double
-      , retweetCount:Double
-    )
-
-    val record:DataStream[TwitterFeed] = filteredStream.map(
-      value => TwitterFeed(
-        value("lang").toString
-        , DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").parseDateTime(value("created_at").toString).getMillis
-        , value("id").toString.toDouble
-        , value("retweet_count").toString.toDouble
-        )
-    )
-
     // https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamp_extractors.html
-    val timedStream = record.assignAscendingTimestamps(_.creationTime)
+    val timedStream = structuredStream.assignAscendingTimestamps(_.creationTime)
 
     // timedStream.print()
 

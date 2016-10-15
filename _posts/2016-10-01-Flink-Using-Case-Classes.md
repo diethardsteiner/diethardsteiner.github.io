@@ -80,6 +80,8 @@ object WindowWordCountUsingCaseClass {
 }
 ```
 
+Notice that using a `case class` enables us to reference the fields by name in functions like `keyBy` and `sum`. 
+
 Next open your terminal and run this command:
 
 ```
@@ -175,8 +177,6 @@ object WindowWordCountUsingCaseClass {
   }
 }
 ```
-
-Notice that using a `case class` enables us to reference the fields by name in functions like `keyBy` and `sum`. 
 
 Compile and **run** this version in **IDEA** and paste again the **sample data** into the terminal window. This time round the results of the **windowed aggregation** look better:
 

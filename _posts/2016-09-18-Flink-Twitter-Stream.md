@@ -18,7 +18,6 @@ As snapshots are not available by the standard repositories, we have to explicit
 resolvers += "apache.snapshots" at "https://repository.apache.org/content/repositories/snapshots/"
 ```
 
-
 You can just [browse the repo](https://repository.apache.org/content/repositories/snapshots/org/apache/flink/) via your web browser as well to find the correct version.
 
 Some sources show how to define the **Maven** dependencies, e.g.:
@@ -100,7 +99,10 @@ val flinkVersion = "1.2-SNAPSHOT"
 libraryDependencies ++= Seq(
   "org.apache.flink" %% "flink-streaming-scala"  % flinkVersion,
   "org.apache.flink" %% "flink-clients"          % flinkVersion,
-  "org.apache.flink" %% "flink-connector-twitter"          % flinkVersion
+  "org.apache.flink" %% "flink-connector-twitter"         % flinkVersion,
+  "org.apache.flink" %% "flink-connector-elasticsearch2"  % flinkVersion,
+  "net.liftweb" %% "lift-json" % "3.0-M1",
+  "com.github.nscala-time" %% "nscala-time" % "2.14.0"
 )
 ```
 
@@ -156,7 +158,9 @@ We setup a `TwitterSource` reader proving all the authentication details (as des
 }
 ```
 
-Note there is an [official Flink Twitter Java example](https://github.com/apache/flink/blob/9f52422350e145454d4b6972741944b1fd2185f2/flink-examples/flink-examples-streaming/src/main/java/org/apache/flink/streaming/examples/twitter/TwitterExample.java) available which is work checking out!
+Note there is an [official Flink Twitter Java example](https://github.com/apache/flink/blob/9f52422350e145454d4b6972741944b1fd2185f2/flink-examples/flink-examples-streaming/src/main/java/org/apache/flink/streaming/examples/twitter/TwitterExample.java) available which is worth checking out!
+
+It's worth noting that the **Flink Twitter Connector** serves a **random set of tweets**.
 
 ### Externalising the Twitter Connection Details
 
@@ -172,146 +176,156 @@ twitter-source.tokenSecret=<your-details>
 We will add following code to our **Scala** file:
 
 ```scala
-    val prop = new Properties()
-    val propFilePath = "/home/dsteiner/Dropbox/development/config/twitter.properties"
+val prop = new Properties()
+val propFilePath = "/home/dsteiner/Dropbox/development/config/ter.properties"
 
-      try {
+  try {
 
-        prop.load(new FileInputStream(propFilePath))
-        prop.getProperty("twitter-source.consumerKey")
-        prop.getProperty("twitter-source.consumerSecret")
-        prop.getProperty("twitter-source.token")
-        prop.getProperty("twitter-source.tokenSecret")
+    prop.load(new FileInputStream(propFilePath))
+    prop.getProperty("twitter-source.consumerKey")
+    prop.getProperty("twitter-source.consumerSecret")
+    prop.getProperty("twitter-source.token")
+    prop.getProperty("twitter-source.tokenSecret")
 
-      } catch { case e: Exception =>
-        e.printStackTrace()
-        sys.exit(1)
-      }
+  } catch { case e: Exception =>
+    e.printStackTrace()
+    sys.exit(1)
+  }
 
-    val streamSource = env.addSource(new TwitterSource(prop))
+val streamSource = env.addSource(new TwitterSource(prop))
 ```
- 
-This code requires the `scala.util.parsing.json` library, so add this one to the import statements as well.
- 
- 
- Ok, that's this done then. We can no progres with a good conscience ;)
+
+Ok, that's this done then. We can no progres with a good conscience ;)
 
 ### Handling the returned JSON stream
 
-The next task is to convert the stringified JSON to a proper Scala representation: As suggested by [this Stackoverflow](http://stackoverflow.com/questions/30884841/converting-json-string-to-a-json-object-in-scala) answer we will could make use of the [ScalaJson](https://www.playframework.com/documentation/2.5.x/ScalaJson) library from the **Play Framework** to do this and add this dependency to our `build.sbt` file:
-
-```
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.8"
-```
-
-Link to [repo](https://mvnrepository.com/artifact/com.typesafe.play/play-json_2.10/2.4.8). However, we can just use the built in Scala library for now as well.
-
-We will use the native **Scala JSON parser** (`scala.util.parsing.json._`) to turn the String into a proper collection. For now we will simply use a map function, check that the parsing is successful (using a case statement??) and then simply print out the result:
+Scala comes with a native JSON parser, however, it's not the primary choise among developers: There are various other popular libraries out there, among them the JSON parser from the **Play Framework** and the [Lift-JSON](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json) library from the **Lift Framework**. We will be using latter one.
 
 ```scala
-    streamSource.map( value => {
+val filteredStream = streamSource.filter( value =>  value.contains("created_at"))
 
-        val result = JSON.parseFull(value)
+val parsedStream = filteredStream.map(
+  record => {
+    parse(record)
+  }
+)
 
-        result match {
-          case Some(e:Map[String, Any]) => println(e)   // println(e("retweeted"))
-          case None => println("Error")
-        }
+//parsedStream.print()
 
-      }
+case class TwitterFeed(
+  id:Long
+  , creationTime:Long
+  , language:String
+  , user:String
+  , favoriteCount:Int
+  , retweetCount:Int
+)
+
+val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
+  record => {
+    TwitterFeed(
+      // ( input \ path to element \\ unboxing ) (extract no x element from list)
+      ( record \ "id" \\ classOf[JInt] )(0).toLong
+      , DateTimeFormat
+          .forPattern("EEE MMM dd HH:mm:ss Z yyyy")
+          .parseDateTime(
+            ( record \ "created_at" \\ classOf[JString] )(0)
+          ).getMillis
+      , ( record \ "lang" \\ classOf[JString] )(0).toString
+      , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
+      , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
+      , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
     )
+
+  }
+)
+
+structuredStream.print
 ```
 
-### Creating a Tuple
+So what is exactly happening here? 
 
-The next step is check filter out some records and convert the `Map` to `Tuple`, allowing us to keep certain fields only:
+1. First we discard Twitter delete records by using the `filter` function. 
+2. Next we create a `TwitterFeed` class which will represent the typed fields that we want to keep for our analysis. 
+3. Then we apply a `map` function to extract the required fields and map them to the `TwitterFeed` class. We use the **Lift** functions to get hold of the various fields: First we define the input (`record` in our case), then the path to the **JSON element** followed by the **unboxing function** (which turns the result from a Lift type to a standard Scala type). The result is returned as a `List` (because if you in examply lazily define the element path, there could be more than one of these elements in the JSON object). In our case, we define the absolute path the JSON element, so we are quite certain that only one element will be returned, hence we can extract the first element of the list (achieved by calling `(0)`). One other important point here is that we apply a **Date Pattern** to the `created_at` String and then convert it to **Milliseconds** (since epoch) using `getMillis`: Dates/Time has to be converted to Milliseconds because **Apache Flink** requires them in this format. We will discuss the date conversion shortly in a bit more detail.
 
-```scala
- val parsedStream = streamSource.map(
+The output of the stream looks like this:
 
-      value => {
-
-        val result = JSON.parseFull(value)
-
-        try {
-          result match {
-            case Some(e:Map[String, Any]) => e
-          }
-        } catch { case e: Exception =>
-          e.printStackTrace()
-          sys.exit(1)
-        }
-
-      }
-    )
-
-    val filteredStream = parsedStream.filter( value =>  value.contains("created_at"))
-
-    val record:DataStream[Tuple4[String, String, Double, Double]] = filteredStream.map(
-      value => (
-          value("lang").toString
-          , value("created_at").toString
-          , value("id").toString.toDouble
-          , value("retweet_count").toString.toDouble
-        )
-    )
+```
+1> TwitterFeed(787307728771440640,1476543764000,en,Sean Guidera,0,0)
+3> TwitterFeed(787307728767025152,1476543764000,en,spooky!kasya,0,0)
+4> TwitterFeed(787307728754442240,1476543764000,ja,あおい,0,0)
+4> TwitterFeed(787307728767029248,1476543764000,ja,白芽 連合軍 ＠ 雑魚は自重しろ,0,0)
 ```
 
-### Creating a Tumbling Window Aggregation
+#### Converting String to Date
 
-While this is an interesting exercise, we cannot really send the above tuple like this to the **windowed aggregate function**: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the source data row level. We will prepare a super simple `DataStream` now which only contains the language field and a constant counter. This should answer the question: How many tweets are published in a given language in 40 seconds intervals:
-
-```scala
-    val recordSlim:DataStream[Tuple2[String, Int]] = filteredStream.map(
-      value => (
-        value("lang").toString
-        , 1
-        )
-    )
-
-    val counts = recordSlim
-      .keyBy(0)
-      .timeWindow(Time.seconds(40))
-      .sum(1)
-
-    counts.print
-```
-
-While simple, this example is far from ideal. We should at least use the `created_at` time as the event time ...
-
-## Converting String to Date
-
-The field `created_at` is currently of type `String`. We will make use of the [nscala-time library](https://github.com/nscala-time/nscala-time) which is mainly a wrapper around **Joda time**. Add to your **SBT build** file the following dependency:
+The field `created_at` is originally of type `String`. In our code we make use of the [nscala-time library](https://github.com/nscala-time/nscala-time) which is mainly a wrapper around **Joda time**. In your **SBT build** file you can reference this dependency like this:
 
 ```
 libraryDependencies += "com.github.nscala-time" %% "nscala-time" % "2.14.0"
 ```
 
-And to your **Scala** file the following import statement:
+And you will have to add to your **Scala** file the following import statement:
 
 ```scala
 import com.github.nscala_time.time.Imports._
 ```
 
-We will also have to apply a **formatting mask** and if we need some help on this, we can take a look at the [Joda Format Documentation](http://www.joda.org/joda-time/key_format.html). The `create_at` value looks something like this: `Sun Sep 18 10:09:34 +0000 2016`, so the corresponding formatting mask is `EE MMM dd HH:mm:ss Z yyyy`:
+We apply a **formatting mask** and if we need some help on this, we can take a look at the [Joda Format Documentation](http://www.joda.org/joda-time/key_format.html). The `create_at` value looks something like this: `Sun Sep 18 10:09:34 +0000 2016`, so the corresponding formatting mask is `EE MMM dd HH:mm:ss Z yyyy`:
 
 ```scala
-    val record:DataStream[Tuple4[String, DateTime, Double, Double]] = filteredStream.map(
-      value => (
-        value("lang").toString
-        , DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").parseDateTime(value("created_at").toString)
-        , value("id").toString.toDouble
-        , value("retweet_count").toString.toDouble
-        )
-    )
+DateTimeFormat
+.forPattern("EEE MMM dd HH:mm:ss Z yyyy")
+.parseDateTime(
+  ( record \ "created_at" \\ classOf[JString] )(0)
+).getMillis
 ```
 
+### Creating a Tumbling Window Aggregation
+
+While this is an interesting exercise, we cannot really send the above records like this to the **windowed aggregate function**: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the source data row level. We will prepare a super simple `DataStream` now which only contains the language field and a constant counter. This should answer the question: How many tweets are published in a given language in 30 seconds intervals:
+
+```scala
+val recordSlim:DataStream[Tuple2[String, Int]] = structuredStream.map(
+  value => (
+    value.language
+    , 1
+    )
+)
+
+// recordSlim.print
+
+val counts = recordSlim
+  .keyBy(0)
+  .timeWindow(Time.seconds(30))
+  .sum(1)
+
+counts.print
+```
+
+The output looks like this:
+
+```
+1> (et,1)
+2> (tl,19)
+4> (pt,72)
+3> (en,433)
+4> (fr,23)
+2> (el,2)
+1> (vi,1)
+4> (in,29)
+3> (no,1)
+1> (ar,101)
+```
+
+While simple, this example is far from ideal. We should at least used the `created_at` time as the **event time** ...
 
 ## Time Types in Flink
 
 **Flink** supports various time concepts:
 
-- ** Processing Time**: This the time at which a record was processed on the machine (so in short words: machine time).
+- **Processing Time**: This the time at which a record was processed on the machine (so in short words: machine time).
 - **Ingestion Time**: Since on a cluster data is processed on several nodes, the time on each machine might not be 100% the same. When using **ingestion time**, a timestamp is assigned to the data when it enters the system, so even when the data is processed on various nodes, the time will be the same.
 - **Event Time**: In a lot of cases processing and ingestion time are not ideal candidates - normally you might want to use a time which relates to the creation of the data (even time). In this case the timestamp is already part of the incoming data.
 
@@ -338,30 +352,14 @@ Important Info: [Pre-defined Timestamp Extractors / Watermark Emitters](https://
 So while we managed to convert the `created_at` from `String` to `DataTime`, the missing piece is to convert this value to **milliseconds since Java epoch**. At the same time, we will also define a data model using a `case class`:
 
 ```scala
-    case class TwitterFeed(
-      language:String
-      , creationTime:Long
-      , id:Double
-      , retweetCount:Double
-    )
-
-    val record:DataStream[TwitterFeed] = filteredStream.map(
-      value => TwitterFeed(
-        value("lang").toString
-        , DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").parseDateTime(value("created_at").toString).getMillis
-        , value("id").toString.toDouble
-        , value("retweet_count").toString.toDouble
-        )
-    )
-
-    val timedStream = record.assignAscendingTimestamps(_.creationTime)
+val timedStream = structuredStream.assignAscendingTimestamps(_.creationTime)
 ```
 
 Note that the *Ascending Timestamp* feature does not support any late arriving data.
 
 # ElasticSearch and Kibana
 
-We want to store our stats in a dedicated data store. InfluxDB? would be a choice, but we'll use ElasticSearch. ElasticSearch for time-series data you might wonder? Really? Turns out it's actually pretty good at handling time-series data based on [this articel](LINK MISSING!!!).
+We want to store our stats in a dedicated data store. **InfluxDB** would be a common choice, but we'll use **ElasticSearch**. ElasticSearch for **time-series data** you might wonder? Really? Turns out it's actually pretty good at handling time-series data based on [this articel](LINK MISSING!!!).
 
 ## Installing ElasticSearch
 
@@ -627,9 +625,11 @@ curl -XPUT 'http://localhost:9200/twitter/_mapping/languages' -d'
 {
  "languages" : {
    "properties" : {
-      "language": {"type": "string"}
-      , "creationTime": {"type": "date"}
-      , "id": {"type": "long"}
+   	"id": {"type": "long"}
+   	, "creationTime": {"type": "date"}
+      , "language": {"type": "string"}
+      , "user": {"type": "string"}
+      , "favoriteCount": {"type": "integer"}
       , "retweetCount": {"type": "integer"}
     }
  } 
