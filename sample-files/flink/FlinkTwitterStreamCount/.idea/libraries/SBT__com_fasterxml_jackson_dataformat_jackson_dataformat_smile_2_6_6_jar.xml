@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.6.6:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.dataformat/jackson-dataformat-smile/bundles/jackson-dataformat-smile-2.6.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.dataformat/jackson-dataformat-smile/srcs/jackson-dataformat-smile-2.6.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

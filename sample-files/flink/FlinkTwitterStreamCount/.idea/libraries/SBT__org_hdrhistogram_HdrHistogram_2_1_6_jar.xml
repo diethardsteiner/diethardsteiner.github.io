@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: org.hdrhistogram:HdrHistogram:2.1.6:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.hdrhistogram/HdrHistogram/bundles/HdrHistogram-2.1.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.hdrhistogram/HdrHistogram/srcs/HdrHistogram-2.1.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

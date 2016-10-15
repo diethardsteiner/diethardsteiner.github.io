@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: org.elasticsearch:securesm:1.0:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.elasticsearch/securesm/jars/securesm-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
