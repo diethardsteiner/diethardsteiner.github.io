@@ -11,6 +11,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.connectors.twitter.TwitterSource
 import org.apache.flink.streaming.connectors.elasticsearch2.{ElasticsearchSink, ElasticsearchSinkFunction, RequestIndexer}
 import org.elasticsearch.action.index.IndexRequest
@@ -112,16 +113,19 @@ object FlinkTwitterStreamCountWithEsSink {
         // val mapping = new util.LinkedHashMap[String, AnyRef]
         // Map stream fields to JSON properties, format:
         // json.put("json-property-name", streamField)
+        // the streamField type has to be converted from a Scala to a Java Type
 
+        mapping.put("id", new java.lang.Long(element.id))
+        mapping.put("creationTime", new java.lang.Long(element.creationTime))
         mapping.put("language", element.language)
-        mapping.put("creationTime", element.creationTime.toString)
-        mapping.put("id", element.id.toString)
-        mapping.put("retweetCount", element.retweetCount.toString)
+        mapping.put("user", element.user)
+        mapping.put("favoriteCount", new Integer((element.favoriteCount)))
+        mapping.put("retweetCount", new Integer((element.retweetCount)))
 
 
         println("loading: " + mapping)
         // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
-        Requests.indexRequest.index("twitter").`type`("languages").source(mapping)
+        Requests.indexRequest.index("twitter").`type`("tweets").source(mapping)
 
       }
 
@@ -134,17 +138,69 @@ object FlinkTwitterStreamCountWithEsSink {
           }
           case _:Throwable => println("Got some other kind of exception")
         }
-
       }
     }))
 
-    // before running code create index:
-    // curl -XPUT 'http://localhost:9200/twitter'
-    // curl -XGET 'http://localhost:9200/twitter/languages/_search?pretty'
-    // to remove data:
-    // curl -XDELETE 'http://localhost:9200/test'
-    
+//    # delete index if already exists
+//      curl -XDELETE 'http://localhost:9200/twitter'
+//    # create index
+//      curl -XPUT 'http://localhost:9200/twitter'
+//    # create mapping
+//      curl -XPUT 'http://localhost:9200/twitter/_mapping/tweets' -d'
+//    {
+//      "languages" : {
+//        "properties" : {
+//        "id": {"type": "long"}
+//        , "creationTime": {"type": "date"}
+//        , "language": {"type": "string"}
+//        , "user": {"type": "string"}
+//        , "favoriteCount": {"type": "integer"}
+//        , "retweetCount": {"type": "integer"}
+//      }
+//      }
+//    }'
+//    # Retrieve entries
+//    curl -XGET 'http://localhost:9200/twitter/tweets/_search?pretty'
 
+
+    // http://stackoverflow.com/questions/39536456/flink-timewindow-get-start-time
+
+
+    // recordSlim.print
+
+//    val counts = timedStream
+//      .keyBy(0)
+//      .timeWindow(Time.seconds(30))
+//      .sum(1)
+
+    // counts.print
+/**
+    counts.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
+      def createIndexRequest(element:TwitterFeed): IndexRequest = {
+        val mapping = new util.HashMap[String, AnyRef]
+
+        mapping.put("language", element(0))
+        mapping.put("retweetCount", new Integer((element(1))))
+
+
+        println("loading: " + mapping)
+        // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
+        Requests.indexRequest.index("twitter").`type`("counts").source(mapping)
+
+      }
+
+      override def process(element: TwitterFeed, ctx: RuntimeContext, indexer: RequestIndexer) {
+        try{
+          indexer.add(createIndexRequest(element))
+        } catch {
+          case e:Exception => println{
+            println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+          }
+          case _:Throwable => println("Got some other kind of exception")
+        }
+      }
+    }))
+**/
     env.execute("Twitter Window Stream WordCount")
   }
 }

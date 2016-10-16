@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Apache Flink Streaming: Simple Twitter Example"
+title: "Real Time Streaming with Apache Flink, ElasticSearch and Kibana: Simple Twitter Example"
 summary: This article provides a short intro into the fascinating world of Apache Flink
 date: 2016-09-18
 categories: Flink
@@ -199,7 +199,7 @@ Ok, that's this done then. We can no progres with a good conscience ;)
 
 ### Handling the returned JSON stream
 
-Scala comes with a native JSON parser, however, it's not the primary choise among developers: There are various other popular libraries out there, among them the JSON parser from the **Play Framework** and the [Lift-JSON](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json) library from the **Lift Framework**. We will be using latter one.
+Scala comes with a native JSON parser, however, it's not the primary choise among developers: There are various other popular libraries out there, among them the JSON parser from the **Play Framework** and the [Lift-JSON](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json) library from the **Lift Framework**. We will be using latter one. Note there is also [JSON4S](http://json4s.org/) which builds upon Lift-JSON but promises a faster release cycle ([Code on Github](https://github.com/json4s/json4s)).
 
 ```scala
 val filteredStream = streamSource.filter( value =>  value.contains("created_at"))
@@ -284,7 +284,7 @@ DateTimeFormat
 
 ### Creating a Tumbling Window Aggregation
 
-While this is an interesting exercise, we cannot really send the above records like this to the **windowed aggregate function**: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the source data row level. We will prepare a super simple `DataStream` now which only contains the language field and a constant counter. This should answer the question: How many tweets are published in a given language in 30 seconds intervals:
+While this is an interesting exercise, we cannot really send the above records like this to the **windowed aggregate function**: The `created_at` is too granular, the same goes for the `id` (quite likely), so any **sum** e.g. that we perform on `retweet_count` will be returned on the source data row level. One way to solve this situation is to slim down the dataset to the relevant fields: We will prepare a super simple `DataStream` now which only contains the language field and a constant counter. This should answer the question: How many tweets are published in a given language in 30 seconds intervals:
 
 ```scala
 val recordSlim:DataStream[Tuple2[String, Int]] = structuredStream.map(
@@ -319,7 +319,11 @@ The output looks like this:
 1> (ar,101)
 ```
 
-While simple, this example is far from ideal. We should at least used the `created_at` time as the **event time** ...
+You might want to read up on [How to specify keys](https://ci.apache.org/projects/flink/flink-docs-release-0.8/programming_guide.html#specifying-keys) in the **Flink** functions.
+
+Slimming down the dataset is quite often not the option. Another option is the use the **Flink Window Functions** like `reduce`, `fold`, various aggregate functions like `sum` etc. There is also the option to use the `apply` function, which provides a lot of flexibility.
+
+While the above example is simple, this example is far from ideal. We should at least used the `created_at` time as the **event time** ...
 
 ## Time Types in Flink
 
@@ -356,6 +360,46 @@ val timedStream = structuredStream.assignAscendingTimestamps(_.creationTime)
 ```
 
 Note that the *Ascending Timestamp* feature does not support any late arriving data.
+
+## Creating a custom Aggregation function
+
+[DESCRIPTION MISSING]
+
+```scala
+    val results:DataStream[(String, Long, Long, Int)] = timedStream
+      .keyBy(in => in.language)
+      .timeWindow(Time.seconds(30))
+      .apply
+      {
+        (
+          // tuple with key of the window
+          lang: String
+          // TimeWindow object which contains details of the window
+          // e.g. start and end time of the window
+          , window: TimeWindow
+          // Iterable over all elements of the window
+          , events: Iterable[TwitterFeed]
+          // collect output records of the WindowFunction
+          , out: Collector[(String, Long, Long, Int)]
+        ) =>
+              out.collect(
+                ( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+              )
+      }
+
+    results.print
+```
+
+One more point to note about this code is that specifying the key like this `.keyBy("language")` did not work as apparently type is not picked up for the key specification in the `apply` function (see also [here](http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink)).
+
+As soon as we execute this code, we will get an error message similar to this one:
+
+```
+10/16/2016 14:35:31	TriggerWindow(TumblingEventTimeWindows(30000), ListStateDescriptor{serializer=FlinkTwitterStreamCountWithEventTime$$anon$3$$anon$1@70be965f}, EventTimeTrigger(), WindowedStream.apply(WindowedStream.scala:220)) -> Sink: Unnamed(2/4) switched to FAILED 
+java.lang.RuntimeException: Record has Long.MIN_VALUE timestamp (= no timestamp marker). Is the time characteristic set to 'ProcessingTime', or did you forget to call 'DataStream.assignTimestampsAndWatermarks(...)'?
+	at org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows.assignWindows(TumblingEventTimeWindows.java:65)
+```
+
 
 # ElasticSearch and Kibana
 
@@ -613,17 +657,22 @@ Note that **ElasticSearch** created an id for each of our records.
 
 ### Full Sink Implementation
 
-In order to load our `TimedStream` into **ElasticSearch**, we have to make sure that **ElasticSearch** is aware of the field types in order to optimise performance. We will create an **index mapping** (a table definition in the relational world):
+In order to load our `TimedStream` into **ElasticSearch**, we have to make sure that **ElasticSearch** is aware of the field types in order to optimise performance. We will create an **index mapping** (a table definition in the relational world). 
+
+For further information on **ElasticSearch Mapping**, take a look at these documents:
+
+- [Mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html)
+- [Date Format](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html): Relevant only if your date format is different from the supported ones.
 
 ```bash
-# delete if already exists
+# delete index if already exists
 curl -XDELETE 'http://localhost:9200/twitter'
 # create index
 curl -XPUT 'http://localhost:9200/twitter'
 # create mapping
-curl -XPUT 'http://localhost:9200/twitter/_mapping/languages' -d'
+curl -XPUT 'http://localhost:9200/twitter/_mapping/tweets' -d'
 {
- "languages" : {
+ "tweets" : {
    "properties" : {
    	"id": {"type": "long"}
    	, "creationTime": {"type": "date"}
@@ -639,14 +688,45 @@ curl -XPUT 'http://localhost:9200/twitter/_mapping/languages' -d'
 We will adjust our **Scala code** now:
 
 ```scala
+timedStream.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
+  def createIndexRequest(element:TwitterFeed): IndexRequest = {
+    val mapping = new util.HashMap[String, AnyRef]
+    // use LinkedHashMap if for some reason you want to maintain the insert order
+    // val mapping = new util.LinkedHashMap[String, AnyRef]
+    // Map stream fields to JSON properties, format:
+    // json.put("json-property-name", streamField)
+    // the streamField type has to be converted from a Scala to a Java Type
 
+    mapping.put("id", new java.lang.Long(element.id))
+    mapping.put("creationTime", new java.lang.Long(element.creationTime))
+    mapping.put("language", element.language)
+    mapping.put("user", element.user)
+    mapping.put("favoriteCount", new Integer((element.favoriteCount)))
+    mapping.put("retweetCount", new Integer((element.retweetCount)))
+
+
+    println("loading: " + mapping)
+    // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
+    Requests.indexRequest.index("twitter").`type`("tweets").source(mapping)
+
+  }
+
+  override def process(element: TwitterFeed, ctx: RuntimeContext, indexer: RequestIndexer) {
+    try{
+      indexer.add(createIndexRequest(element))
+    } catch {
+      case e:Exception => println{
+        println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+      }
+      case _:Throwable => println("Got some other kind of exception")
+    }
+  }
+}))
 ```
-
-> **Important**: You must ensure that the order of the properties in the generated **JSON** object is the same as specified in the **mapping**.
 
 If for some reason you cannot find the data on **ElasticSearch** (when you program executed without any errors), consult the **ElasticSearch Log**:
 
-```
+```bash
 less /var/log/elasticsearch/elasticsearch.log
 ```
 
@@ -657,30 +737,34 @@ In my case I found a message shown below because there was a type mismatch (not 
 MapperParsingException[failed to parse [language]]; nested: NumberFormatException[For input string: "ko"];
 ```
 
-Although **elements** in a **JSON object** are by definition **unordered** (as discussed [here](http://stackoverflow.com/questions/3948206/json-order-mixed-up) and [here](http://stackoverflow.com/questions/17229418/jsonobject-why-jsonobject-changing-the-order-of-attributes)), JSON libraries can arrange the elements in any particular order (which means not necessarily in the order we specified them). The **ElasticSearch Mapping** we created earlier on does not require the elements have to be **ordered** either. However, if for some reason you want to maintain the insert order in the map, in **Scala**, we can use an immuatable `ListMap` to just achieves this (as well as the Java `LinkedHashMap`).
+> **Note**: **Elements** in a **JSON object** are by definition **unordered** (as discussed [here](http://stackoverflow.com/questions/3948206/json-order-mixed-up) and [here](http://stackoverflow.com/questions/17229418/jsonobject-why-jsonobject-changing-the-order-of-attributes)). JSON libraries can arrange the elements in any particular order (which means not necessarily in the order we specified them). The **ElasticSearch Mapping** we created earlier on does not require the elements to be in a given **order** either. This is important to understand for readers coming from the relational database world, where fields have to be inserted in a predefined order into a table. However, if for some reason you want to maintain the insert order in the JSON object, in **Scala**, we can use an immuatable `ListMap` to just achieves this (as well as the Java `LinkedHashMap`).
 
 Check if the data is stored in ES:
 
 ```bash
-curl -XGET 'http://localhost:9200/twitter/languages/_search?pretty'
+curl -XGET 'http://localhost:9200/twitter/tweets/_search?pretty'
 ```
 
 The result should look something like this (after all the metadata):
 
-```
+```json
 }, {
-      "_index" : "twitter",
-      "_type" : "languages",
-      "_id" : "AVe00lLMLpV6XBRrSKz5",
-      "_score" : 1.0,
-      "_source" : {
-        "creationTime" : "1476207461000",
-        "language" : "en",
-        "id" : "7.8589717172390707E17",
-        "retweetCount" : "0.0"
-      }
-    }, {
+  "_index" : "twitter",
+  "_type" : "tweets",
+  "_id" : "AVfM0D3dNND75yWTK8K0",
+  "_score" : 1.0,
+  "_source" : {
+    "creationTime" : 1476609979000,
+    "language" : "th",
+    "id" : 787585454581256193,
+    "user" : "T.",
+    "retweetCount" : 0,
+    "favoriteCount" : 0
+  }
+} ]
 ```
+
+Since we managed to store the very granular data on **ElasticSearch**, let's add an output stream for our aggregation as well.
 
 # Sources
 
@@ -691,4 +775,6 @@ The result should look something like this (after all the metadata):
 - [READ THIS](http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/Handling-large-state-incremental-snapshot-td5916.html)
 - [READ: Flink Complex Event Processing](http://www.slideshare.net/flink-taiwan/complex-event-processing-use-cases-flinkcep-library-flinktw-meetup-20160719)
 - [READ: Flink Kafka Consumer Scala Example](http://stackoverflow.com/questions/31446374/can-anyone-share-a-flink-kafka-example-in-scala), and also [this](http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/Flink-Kafka-example-in-Scala-td2069.html)
+- [Flink streaming event time window ordering](http://stackoverflow.com/questions/34163930/flink-streaming-event-time-window-ordering)
+- [Essential Guide to Stream Processing](https://www.mapr.com/blog/essential-guide-streaming-first-processing-apache-flink)
 

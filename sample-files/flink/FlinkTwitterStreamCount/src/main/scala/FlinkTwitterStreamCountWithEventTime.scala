@@ -9,7 +9,10 @@ import net.liftweb.json._
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 import org.apache.flink.streaming.connectors.twitter.TwitterSource
+import org.apache.flink.util.Collector
 
 import scala.collection.immutable.Range
 import scala.util.parsing.json._
@@ -91,10 +94,36 @@ object FlinkTwitterStreamCountWithEventTime {
     // https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamp_extractors.html
     val timedStream = structuredStream.assignAscendingTimestamps(_.creationTime)
 
-    timedStream.print()
+    // timedStream.print()
 
 //      val streamWithEventTime = filteredStream.assignTimestampsAndWatermarks(new AssignTimestamp())
 // still in Java syntax
+
+    val results:DataStream[(String, Long, Long, Int)] = timedStream
+      // .keyBy("language") did not work as apparently type is not picked up
+      // for the key in the apply function
+      // see http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink
+      .keyBy(in => in.language)
+      .timeWindow(Time.seconds(30))
+      .apply
+      {
+        (
+          // tuple with key of the window
+          lang: String
+          // TimeWindow object which contains details of the window
+          // e.g. start and end time of the window
+          , window: TimeWindow
+          // Iterable over all elements of the window
+          , events: Iterable[TwitterFeed]
+          // collect output records of the WindowFunction
+          , out: Collector[(String, Long, Long, Int)]
+        ) =>
+              out.collect(
+                ( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+              )
+      }
+
+    results.print
 
     env.execute("Twitter Window Stream WordCount")
   }

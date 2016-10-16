@@ -4,14 +4,11 @@ import java.io.FileInputStream
 import java.util.Properties
 
 import com.github.nscala_time.time.Imports._
-import net.liftweb.json.JsonAST.JValue
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.twitter.TwitterSource
 import net.liftweb.json._
 import org.apache.flink.streaming.api.windowing.time.Time
 
-import scala.util.parsing.json._
-//import play.api.libs.json._
 
 object FlinkTwitterStreamCount {
 
@@ -102,11 +99,13 @@ object FlinkTwitterStreamCount {
     // recordSlim.print
 
     val counts = recordSlim
-      .keyBy(0)
+      .keyBy("language")
       .timeWindow(Time.seconds(30))
-      .sum(1)
+      .sum("retweetCount")
+      .name("aggregationByLanguage")
 
-    counts.print
+
+    //counts.print.name("ConsoleCheck")
 
     env.execute("Twitter Window Stream WordCount")
   }
