@@ -70,6 +70,7 @@ object FlinkTwitterStreamCountWithEventTime {
       , user:String
       , favoriteCount:Int
       , retweetCount:Int
+      , count:Int
     )
 
     val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
@@ -86,13 +87,17 @@ object FlinkTwitterStreamCountWithEventTime {
           , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
           , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
           , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
+          , 1
         )
 
       }
     )
 
     // https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamp_extractors.html
-    val timedStream = structuredStream.assignAscendingTimestamps(_.creationTime)
+    //val timedStream = structuredStream.assignAscendingTimestamps(_.creationTime)
+    val timedStream = structuredStream.assignTimestampsAndWatermarks(new AscendingTimestampExtractor[TwitterFeed] {
+      override def extractAscendingTimestamp(element: TwitterFeed): Long = element.creationTime
+    })
 
     // timedStream.print()
 
@@ -119,7 +124,8 @@ object FlinkTwitterStreamCountWithEventTime {
           , out: Collector[(String, Long, Long, Int)]
         ) =>
               out.collect(
-                ( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+                //( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+                ( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
               )
       }
 

@@ -365,6 +365,10 @@ Note that the *Ascending Timestamp* feature does not support any late arriving d
 
 [DESCRIPTION MISSING]
 
+**How to get window the start and end date**
+
+Currently you have to use the `apply` function to get hold of this data (see [here](http://stackoverflow.com/questions/39536456/flink-timewindow-get-start-time) for more details). The `window.getStart` and `window.getEnd` functions enable us to extract the **start and end time** from the `Window` object. In other words, for each window we have a start and end date now.
+
 ```scala
     val results:DataStream[(String, Long, Long, Int)] = timedStream
       .keyBy(in => in.language)
@@ -400,6 +404,84 @@ java.lang.RuntimeException: Record has Long.MIN_VALUE timestamp (= no timestamp 
 	at org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows.assignWindows(TumblingEventTimeWindows.java:65)
 ```
 
+So this tells us that we have to use the `` function - an example can be found on this blog post: [Building Applications with Apache Flink Part 3:  Stream Processing with the DataStream API](http://bytefish.de/blog/apache_flink_series_3/).
+
+```scala
+    val timedStream = structuredStream.assignTimestampsAndWatermarks(new AscendingTimestampExtractor[TwitterFeed] {
+      override def extractAscendingTimestamp(element: TwitterFeed): Long = element.creationTime
+    })
+```
+
+If you execute the program now you will see in the results that the sum of the retweet counts is always 0. So this is not very useful. What we will do for now is a add a field called `count` a constant value of 1 to our `structuredStream`:
+
+```scala
+    case class TwitterFeed(
+      id:Long
+      , creationTime:Long
+      , language:String
+      , user:String
+      , favoriteCount:Int
+      , retweetCount:Int
+      , count:Int
+    )
+    
+val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
+      record => {
+        TwitterFeed(
+          // ( input \ path to element \\ unboxing ) (extract no x element from list)
+          ( record \ "id" \\ classOf[JInt] )(0).toLong
+          , DateTimeFormat
+            .forPattern("EEE MMM dd HH:mm:ss Z yyyy")
+            .parseDateTime(
+              ( record \ "created_at" \\ classOf[JString] )(0)
+            ).getMillis
+          , ( record \ "lang" \\ classOf[JString] )(0).toString
+          , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
+          , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
+          , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
+          , 1
+        )
+
+      }
+    )
+```
+
+And then use this field in our **window function** to sum it up:
+
+```scala
+    val results:DataStream[(String, Long, Long, Int)] = timedStream
+      .keyBy(in => in.language)
+      .timeWindow(Time.seconds(30))
+      .apply
+      {
+        (
+          // tuple with key of the window
+          lang: String
+          // TimeWindow object which contains details of the window
+          // e.g. start and end time of the window
+          , window: TimeWindow
+          // Iterable over all elements of the window
+          , events: Iterable[TwitterFeed]
+          // collect output records of the WindowFunction
+          , out: Collector[(String, Long, Long, Int)]
+        ) =>
+              out.collect(
+                ( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
+              )
+      }
+```
+
+The results should look like this:
+
+```
+1> (cs,1476642030000,1476642060000,2)
+3> (ro,1476642030000,1476642060000,1)
+1> (it,1476642030000,1476642060000,3)
+1> (pl,1476642030000,1476642060000,5)
+1> (ko,1476642030000,1476642060000,18)
+```
+
+So just to make sure we are still on the same page: The above **stream data set** shows the language code, the start and end time followed by the count/number of tweets. Just to mention it again: Due to the fact that the **Apache Flink Twitter connector** sources a subset of the Twitter data randomly, the result is not representative.
 
 # ElasticSearch and Kibana
 
