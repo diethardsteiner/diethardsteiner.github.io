@@ -13,7 +13,7 @@ curl -XPUT 'http://localhost:9200/tweets/_mapping/partition1' -d'
     "properties" : {
     "id": {"type": "long"}
     , "creationTime": {"type": "date"}
-    , "language": {"type": "string"}
+    , "language": {"type": "string", "index": "not_analyzed"}
     , "user": {"type": "string"}
     , "favoriteCount": {"type": "integer"}
     , "retweetCount": {"type": "integer"}
@@ -26,7 +26,7 @@ curl -XPUT 'http://localhost:9200/tweetsbylanguage/_mapping/partition1' -d'
 {
   "partition1" : {
     "properties" : {
-    "language": {"type": "string"}
+    "language": {"type": "string", "index": "not_analyzed"}
     , "windowStartTime": {"type": "date"}
     , "windowEndTime": {"type": "date"}
     , "countTweets": {"type": "integer"}
@@ -37,3 +37,6 @@ curl -XPUT 'http://localhost:9200/tweetsbylanguage/_mapping/partition1' -d'
 # Retrieve entries
 # curl -XGET 'http://localhost:9200/tweets/partition1/_search?pretty'
 # curl -XGET 'http://localhost:9200/tweetsbylanguage/partition1/_search?pretty'
+
+# Retrieve storage details
+# curl 'localhost:9200/_cat/indices?v'

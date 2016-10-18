@@ -196,7 +196,7 @@ object FlinkTwitterStreamCountWithEsSink {
 
             mapping.put("language", element.language)
             mapping.put("windowStartTime", new Long(element.windowStartTime))
-            mapping.put("windowEndTime", new Long(element.windowStartTime))
+            mapping.put("windowEndTime", new Long(element.windowEndTime))
             mapping.put("countTweets", new java.lang.Integer(element.countTweets))
 
 
