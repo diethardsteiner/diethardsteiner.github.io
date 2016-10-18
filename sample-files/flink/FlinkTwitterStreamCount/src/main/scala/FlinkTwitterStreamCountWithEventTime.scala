@@ -104,7 +104,7 @@ object FlinkTwitterStreamCountWithEventTime {
 //      val streamWithEventTime = filteredStream.assignTimestampsAndWatermarks(new AssignTimestamp())
 // still in Java syntax
 
-    val results:DataStream[(String, Long, Long, Int)] = timedStream
+    val tweetsByLanguageStream:DataStream[(String, Long, Long, Int)] = timedStream
       // .keyBy("language") did not work as apparently type is not picked up
       // for the key in the apply function
       // see http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink
@@ -129,7 +129,7 @@ object FlinkTwitterStreamCountWithEventTime {
               )
       }
 
-    results.print
+    tweetsByLanguageStream.print
 
     env.execute("Twitter Window Stream WordCount")
   }

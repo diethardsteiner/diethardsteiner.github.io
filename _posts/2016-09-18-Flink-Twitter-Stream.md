@@ -751,7 +751,7 @@ For further information on **ElasticSearch Mapping**, take a look at these docum
 curl -XDELETE 'http://localhost:9200/twitter'
 # create index
 curl -XPUT 'http://localhost:9200/twitter'
-# create mapping
+# create mapping for lowest granularity data
 curl -XPUT 'http://localhost:9200/twitter/_mapping/tweets' -d'
 {
  "tweets" : {
@@ -762,49 +762,153 @@ curl -XPUT 'http://localhost:9200/twitter/_mapping/tweets' -d'
       , "user": {"type": "string"}
       , "favoriteCount": {"type": "integer"}
       , "retweetCount": {"type": "integer"}
+      , "count": {"type": "integer"}
+    }
+ } 
+}'
+# create mapping for tweetsByLanguage
+curl -XPUT 'http://localhost:9200/twitter/_mapping/tweetsByLanguage' -d'
+{
+ "tweetsByLanguage" : {
+   "properties" : {
+      "language": {"type": "string"}
+      , "windowStartTime": {"type": "date"}
+      , "windowEndTime": {"type": "date"}
+      , "countTweets": {"type": "integer"}
     }
  } 
 }'
 ```
 
-We will adjust our **Scala code** now:
+We will at two **ElasticSearch Sinks** to our **Scala code**: One for the low granularity data and one for the aggregate. At the same time we will also improve our windowed aggregation code a bit by assigning a **case class**:
 
 ```scala
-timedStream.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
-  def createIndexRequest(element:TwitterFeed): IndexRequest = {
-    val mapping = new util.HashMap[String, AnyRef]
-    // use LinkedHashMap if for some reason you want to maintain the insert order
-    // val mapping = new util.LinkedHashMap[String, AnyRef]
-    // Map stream fields to JSON properties, format:
-    // json.put("json-property-name", streamField)
-    // the streamField type has to be converted from a Scala to a Java Type
+    val config = new util.HashMap[String, String]
+    config.put("bulk.flush.max.actions", "1")
+    config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
 
-    mapping.put("id", new java.lang.Long(element.id))
-    mapping.put("creationTime", new java.lang.Long(element.creationTime))
-    mapping.put("language", element.language)
-    mapping.put("user", element.user)
-    mapping.put("favoriteCount", new Integer((element.favoriteCount)))
-    mapping.put("retweetCount", new Integer((element.retweetCount)))
+    val transports = new util.ArrayList[InetSocketAddress]
+    transports.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
 
+    timedStream.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
+      def createIndexRequest(element:TwitterFeed): IndexRequest = {
+        val mapping = new util.HashMap[String, AnyRef]
+        // use LinkedHashMap if for some reason you want to maintain the insert order
+        // val mapping = new util.LinkedHashMap[String, AnyRef]
+        // Map stream fields to JSON properties, format:
+        // json.put("json-property-name", streamField)
+        // the streamField type has to be converted from a Scala to a Java Type
 
-    println("loading: " + mapping)
-    // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
-    Requests.indexRequest.index("twitter").`type`("tweets").source(mapping)
+        mapping.put("id", new java.lang.Long(element.id))
+        mapping.put("creationTime", new java.lang.Long(element.creationTime))
+        mapping.put("language", element.language)
+        mapping.put("user", element.user)
+        mapping.put("favoriteCount", new Integer((element.favoriteCount)))
+        mapping.put("retweetCount", new Integer((element.retweetCount)))
+        mapping.put("count", new Integer((element.count)))
 
-  }
+        println("loading: " + mapping)
 
-  override def process(element: TwitterFeed, ctx: RuntimeContext, indexer: RequestIndexer) {
-    try{
-      indexer.add(createIndexRequest(element))
-    } catch {
-      case e:Exception => println{
-        println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+        Requests.indexRequest.index("twitter").`type`("tweets").source(mapping)
+
       }
-      case _:Throwable => println("Got some other kind of exception")
-    }
-  }
-}))
+
+      override def process(
+          element: TwitterFeed
+          , ctx: RuntimeContext
+          , indexer: RequestIndexer
+        )
+        {
+          try{
+            indexer.add(createIndexRequest(element))
+          } catch {
+            case e:Exception => println{
+              println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+            }
+            case _:Throwable => println("Got some other kind of exception")
+          }
+        }
+    }))
+
+    case class TweetsByLanguage (
+      language:String
+      , windowStartTime:Long
+      , windowEndTime:Long
+      , countTweets:Int
+    )
+
+    val tweetsByLanguageStream:DataStream[TweetsByLanguage] = timedStream
+      // .keyBy("language") did not work as apparently type is not picked up
+      // for the key in the apply function
+      // see http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink
+      .keyBy(in => in.language)
+      .timeWindow(Time.seconds(30))
+      .apply
+      {
+        (
+          // tuple with key of the window
+          lang: String
+          // TimeWindow object which contains details of the window
+          // e.g. start and end time of the window
+          , window: TimeWindow
+          // Iterable over all elements of the window
+          , events: Iterable[TwitterFeed]
+          // collect output records of the WindowFunction
+          , out: Collector[TweetsByLanguage]
+        ) =>
+          out.collect(
+            // TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+            TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
+          )
+      }
+
+    // tweetsByLanguage.print
+
+    tweetsByLanguageStream.addSink(
+      new ElasticsearchSink(
+        config
+        , transports
+        , new ElasticsearchSinkFunction[TweetsByLanguage] {
+
+          def createIndexRequest(element:TweetsByLanguage): IndexRequest = {
+            val mapping = new util.HashMap[String, AnyRef]
+
+            mapping.put("language", element.language)
+            mapping.put("windowStartTime", new Long(element.windowStartTime))
+            mapping.put("windowEndTime", new Long(element.windowStartTime))
+            mapping.put("countTweets", new java.lang.Integer(element.countTweets))
+
+
+            println("loading: " + mapping)
+            // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
+            Requests.indexRequest.index("twitter").`type`("tweetsByLanguage").source(mapping)
+
+          }
+
+          override def process(
+            element: TweetsByLanguage
+            , ctx: RuntimeContext
+            , indexer: RequestIndexer
+            )
+            {
+              try{
+                indexer.add(createIndexRequest(element))
+              } catch {
+                case e:Exception => println{
+                  println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+                }
+                case _:Throwable => println("Got some other kind of exception")
+            }
+          }
+        }
+      )
+    )
 ```
+
+So what's happening here? In a nutshell: 
+
+1. We set up the **connection details**.
+2. We add a sink. At this point we have to convert our **stream data** to a **JSON** representation. We then request **ElasticSearch** to store the **JSON objects** in a predefined **index** and **type**.
 
 If for some reason you cannot find the data on **ElasticSearch** (when you program executed without any errors), consult the **ElasticSearch Log**:
 
@@ -846,7 +950,43 @@ The result should look something like this (after all the metadata):
 } ]
 ```
 
-Since we managed to store the very granular data on **ElasticSearch**, let's add an output stream for our aggregation as well.
+And let's do the same for the aggregate:
+
+```bash
+curl -XGET 'http://localhost:9200/twitter/tweetsByLanguage/_search?pretty'
+```
+
+The result should look something like this (after all the metadata):
+
+```json
+    }, {
+      "_index" : "twitter",
+      "_type" : "tweetsByLanguage",
+      "_id" : "AVfY4SASd_h_XyC9Njur",
+      "_score" : 1.0,
+      "_source" : {
+        "windowStartTime" : 1476812370000,
+        "windowEndTime" : 1476812370000,
+        "countTweets" : 23,
+        "language" : "pt"
+      }
+```
+
+This is all looking quite promising so far!
+
+If you interested in **how many documents**/JSON objects we have inserted so far into **ElasticSearch** and how much **disk space** they consume, run the following command:
+
+```bash
+$ curl 'localhost:9200/_cat/indices?v'
+health status index    pri rep docs.count docs.deleted store.size pri.store.size 
+yellow open   twitter    5   1        414            0    239.8kb        239.8kb 
+```
+
+# Visualising results with Kibana
+
+It's been quite a journey! If you made it until this point I applaud your determination. Don't you worry, we still one more exciting destination ahead of us: Visualising the results generated by our **Flink windowing** function.
+
+If you haven't done already, fire up Kibana and access the UI via `http://localhost:5601`. 
 
 # Sources
 

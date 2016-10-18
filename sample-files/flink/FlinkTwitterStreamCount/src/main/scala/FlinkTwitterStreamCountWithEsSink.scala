@@ -1,6 +1,7 @@
 
 
 import java.io.{FileInputStream, PrintWriter, StringWriter}
+import java.lang.Long
 import java.net.{InetAddress, InetSocketAddress}
 import java.util
 import java.util.Properties
@@ -12,8 +13,10 @@ import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 import org.apache.flink.streaming.connectors.twitter.TwitterSource
 import org.apache.flink.streaming.connectors.elasticsearch2.{ElasticsearchSink, ElasticsearchSinkFunction, RequestIndexer}
+import org.apache.flink.util.Collector
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Requests
 
@@ -75,6 +78,7 @@ object FlinkTwitterStreamCountWithEsSink {
       , user:String
       , favoriteCount:Int
       , retweetCount:Int
+      , count:Int
     )
 
     val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
@@ -91,6 +95,7 @@ object FlinkTwitterStreamCountWithEsSink {
           , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
           , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
           , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
+          , 1
         )
 
       }
@@ -121,86 +126,105 @@ object FlinkTwitterStreamCountWithEsSink {
         mapping.put("user", element.user)
         mapping.put("favoriteCount", new Integer((element.favoriteCount)))
         mapping.put("retweetCount", new Integer((element.retweetCount)))
+        mapping.put("count", new Integer((element.count)))
 
+        //println("loading: " + mapping)
 
-        println("loading: " + mapping)
-        // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
-        Requests.indexRequest.index("twitter").`type`("tweets").source(mapping)
+        Requests.indexRequest.index("tweets").`type`("partition1").source(mapping)
 
       }
 
-      override def process(element: TwitterFeed, ctx: RuntimeContext, indexer: RequestIndexer) {
-        try{
-          indexer.add(createIndexRequest(element))
-        } catch {
-          case e:Exception => println{
-            println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+      override def process(
+          element: TwitterFeed
+          , ctx: RuntimeContext
+          , indexer: RequestIndexer
+        )
+        {
+          try{
+            indexer.add(createIndexRequest(element))
+          } catch {
+            case e:Exception => println{
+              println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+            }
+            case _:Throwable => println("Got some other kind of exception")
           }
-          case _:Throwable => println("Got some other kind of exception")
         }
-      }
     }))
 
-//    # delete index if already exists
-//      curl -XDELETE 'http://localhost:9200/twitter'
-//    # create index
-//      curl -XPUT 'http://localhost:9200/twitter'
-//    # create mapping
-//      curl -XPUT 'http://localhost:9200/twitter/_mapping/tweets' -d'
-//    {
-//      "languages" : {
-//        "properties" : {
-//        "id": {"type": "long"}
-//        , "creationTime": {"type": "date"}
-//        , "language": {"type": "string"}
-//        , "user": {"type": "string"}
-//        , "favoriteCount": {"type": "integer"}
-//        , "retweetCount": {"type": "integer"}
-//      }
-//      }
-//    }'
-//    # Retrieve entries
-//    curl -XGET 'http://localhost:9200/twitter/tweets/_search?pretty'
+    case class TweetsByLanguage (
+      language:String
+      , windowStartTime:Long
+      , windowEndTime:Long
+      , countTweets:Int
+    )
 
-
-    // http://stackoverflow.com/questions/39536456/flink-timewindow-get-start-time
-
-
-    // recordSlim.print
-
-//    val counts = timedStream
-//      .keyBy(0)
-//      .timeWindow(Time.seconds(30))
-//      .sum(1)
-
-    // counts.print
-/**
-    counts.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
-      def createIndexRequest(element:TwitterFeed): IndexRequest = {
-        val mapping = new util.HashMap[String, AnyRef]
-
-        mapping.put("language", element(0))
-        mapping.put("retweetCount", new Integer((element(1))))
-
-
-        println("loading: " + mapping)
-        // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
-        Requests.indexRequest.index("twitter").`type`("counts").source(mapping)
-
+    val tweetsByLanguageStream:DataStream[TweetsByLanguage] = timedStream
+      // .keyBy("language") did not work as apparently type is not picked up
+      // for the key in the apply function
+      // see http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink
+      .keyBy(in => in.language)
+      .timeWindow(Time.seconds(30))
+      .apply
+      {
+        (
+          // tuple with key of the window
+          lang: String
+          // TimeWindow object which contains details of the window
+          // e.g. start and end time of the window
+          , window: TimeWindow
+          // Iterable over all elements of the window
+          , events: Iterable[TwitterFeed]
+          // collect output records of the WindowFunction
+          , out: Collector[TweetsByLanguage]
+        ) =>
+          out.collect(
+            // TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+            TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
+          )
       }
 
-      override def process(element: TwitterFeed, ctx: RuntimeContext, indexer: RequestIndexer) {
-        try{
-          indexer.add(createIndexRequest(element))
-        } catch {
-          case e:Exception => println{
-            println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+    // tweetsByLanguage.print
+
+    tweetsByLanguageStream.addSink(
+      new ElasticsearchSink(
+        config
+        , transports
+        , new ElasticsearchSinkFunction[TweetsByLanguage] {
+
+          def createIndexRequest(element:TweetsByLanguage): IndexRequest = {
+            val mapping = new util.HashMap[String, AnyRef]
+
+            mapping.put("language", element.language)
+            mapping.put("windowStartTime", new Long(element.windowStartTime))
+            mapping.put("windowEndTime", new Long(element.windowStartTime))
+            mapping.put("countTweets", new java.lang.Integer(element.countTweets))
+
+
+            // println("loading: " + mapping)
+            // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
+            Requests.indexRequest.index("tweetsbylanguage").`type`("partition1").source(mapping)
+
           }
-          case _:Throwable => println("Got some other kind of exception")
+
+          override def process(
+            element: TweetsByLanguage
+            , ctx: RuntimeContext
+            , indexer: RequestIndexer
+            )
+            {
+              try{
+                indexer.add(createIndexRequest(element))
+              } catch {
+                case e:Exception => println{
+                  println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+                }
+                case _:Throwable => println("Got some other kind of exception")
+            }
+          }
         }
-      }
-    }))
-**/
+      )
+    )
+
     env.execute("Twitter Window Stream WordCount")
   }
 }
