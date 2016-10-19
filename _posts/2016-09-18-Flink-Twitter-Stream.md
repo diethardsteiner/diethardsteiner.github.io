@@ -747,7 +747,9 @@ For further information on **ElasticSearch Mapping**, take a look at these docum
 - [Date Format](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html): Relevant only if your date format is different from the supported ones.
 - [Mapping Intro](https://www.elastic.co/guide/en/elasticsearch/guide/current/mapping-intro.html)
 
-> **Note**: For the language fields we disable the analyzer (full text indexing) function. When disabled, e.g. the work "New York" will not be broken down into "New" and "York". In our case, all language values are made up of one word only, so we in this case we can't see the same impact, however, having the text fully analysed still adds overhead.
+> **Note**: For the language fields we disable the analyzer (full text indexing) function. When disabled, e.g. the word "New York" will not be broken down into "New" and "York", so you cannot search for just "York" and get a result returns if only "New York" is available. In our case, all language values are made up of one word only, so in this case we can't see the same impact, however, having the text fully analysed still adds overhead.
+
+> **Important**: One important point that will only become apparent a bit later on when we built charts in Kibana is that new documents do not because available straight away. When documents get added, they get indexed instantly, however refresing the whole index is expensive. The default refresh setting is 1 second, however, if you are inserting a log of documents, you will achieve a higher throughput if you lower the refresh rate. This can be defined via the `index.refresh_interval` setting. [Source](https://sematext.com/blog/2013/07/08/elasticsearch-refresh-interval-vs-indexing-performance/) [OPEN] Is 1 sec really the default? Check.
 
 ```bash
 # delete index if already exists
