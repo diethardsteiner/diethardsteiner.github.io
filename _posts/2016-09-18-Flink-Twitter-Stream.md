@@ -8,11 +8,14 @@ tags: Flink
 published: false
 --- 
 
+This blog post will illustrate how to stream data from **Twitter**, aggregate it using a **timed Window function** and output the result to **ElasticSearch**, all using **Apache Flink**. Finally we will visualise the result using **Kibana**.  
+
+
 ## Creating SBT build file referencing latest Snapshot
 
 Some features are only available in the very latest code base (like the **Twitter Connector** we will be working with today), hence I will briefly talk you through how to set up your SBT project to download the dependencies from the **snapshot repository**. For a detailed Flink SBT project setup guide please read my previous blog post [Getting Started with Apache Flink](REF MISSING) - here I will only focus on the creating the `build.sbt` file.
 
-As snapshots are not available by the standard repositories, we have to explicitly define it via a [Resolver](http://www.scala-sbt.org/0.13/docs/Resolvers.html) in our **SBT** build file:
+As snapshots are not available on the standard repositories, we have to explicitly define it via a [Resolver](http://www.scala-sbt.org/0.13/docs/Resolvers.html) in our **SBT** build file:
 
 ```
 resolvers += "apache.snapshots" at "https://repository.apache.org/content/repositories/snapshots/"
@@ -21,7 +24,6 @@ resolvers += "apache.snapshots" at "https://repository.apache.org/content/reposi
 You can just [browse the repo](https://repository.apache.org/content/repositories/snapshots/org/apache/flink/) via your web browser as well to find the correct version.
 
 Some sources show how to define the **Maven** dependencies, e.g.:
-
 
 ```
 <dependency>
@@ -195,11 +197,11 @@ val propFilePath = "/home/dsteiner/Dropbox/development/config/ter.properties"
 val streamSource = env.addSource(new TwitterSource(prop))
 ```
 
-Ok, that's this done then. We can no progres with a good conscience ;)
+Ok, that's this done then. We can no progress with a good conscience ;)
 
 ### Handling the returned JSON stream
 
-Scala comes with a native JSON parser, however, it's not the primary choise among developers: There are various other popular libraries out there, among them the JSON parser from the **Play Framework** and the [Lift-JSON](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json) library from the **Lift Framework**. We will be using latter one. Note there is also [JSON4S](http://json4s.org/) which builds upon Lift-JSON but promises a faster release cycle ([Code on Github](https://github.com/json4s/json4s)).
+Scala comes with a native JSON parser, however, it's not the primary choice among developers: There are various other popular libraries out there, among them the JSON parser from the **Play Framework** and the [Lift-JSON](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json) library from the **Lift Framework**. We will be using latter one. Note there is also [JSON4S](http://json4s.org/) which builds upon Lift-JSON but promises a faster release cycles ([Code on Github](https://github.com/json4s/json4s)).
 
 ```scala
 val filteredStream = streamSource.filter( value =>  value.contains("created_at"))
@@ -247,7 +249,7 @@ So what is exactly happening here?
 
 1. First we discard Twitter delete records by using the `filter` function. 
 2. Next we create a `TwitterFeed` class which will represent the typed fields that we want to keep for our analysis. 
-3. Then we apply a `map` function to extract the required fields and map them to the `TwitterFeed` class. We use the **Lift** functions to get hold of the various fields: First we define the input (`record` in our case), then the path to the **JSON element** followed by the **unboxing function** (which turns the result from a Lift type to a standard Scala type). The result is returned as a `List` (because if you in examply lazily define the element path, there could be more than one of these elements in the JSON object). In our case, we define the absolute path the JSON element, so we are quite certain that only one element will be returned, hence we can extract the first element of the list (achieved by calling `(0)`). One other important point here is that we apply a **Date Pattern** to the `created_at` String and then convert it to **Milliseconds** (since epoch) using `getMillis`: Dates/Time has to be converted to Milliseconds because **Apache Flink** requires them in this format. We will discuss the date conversion shortly in a bit more detail.
+3. Then we apply a `map` function to extract the required fields and map them to the `TwitterFeed` class. We use the **Lift** functions to get hold of the various fields: First we define the input (`record` in our case), then the path to the **JSON element** followed by the **unboxing function** (which turns the result from a Lift type to a standard Scala type). The result is returned as a `List` (because if you in example lazily define the element path, there could be more than one of these elements in the JSON object). In our case, we define the absolute path the JSON element, so we are quite certain that only one element will be returned, hence we can extract the first element of the list (achieved by calling `(0)`). One other important point here is that we apply a **Date Pattern** to the `created_at` String and then convert it to **Milliseconds** (since epoch) using `getMillis`: Dates/Time has to be converted to Milliseconds because **Apache Flink** requires them in this format. We will discuss the date conversion shortly in a bit more detail.
 
 The output of the stream looks like this:
 
@@ -321,7 +323,7 @@ The output looks like this:
 
 You might want to read up on [How to specify keys](https://ci.apache.org/projects/flink/flink-docs-release-0.8/programming_guide.html#specifying-keys) in the **Flink** functions.
 
-Slimming down the dataset is quite often not the option. Another option is the use the **Flink Window Functions** like `reduce`, `fold`, various aggregate functions like `sum` etc. There is also the option to use the `apply` function, which provides a lot of flexibility.
+Slimming down the dataset is quite often not the desired option. Another option is the use the **Flink Window Functions** like `reduce`, `fold`, various aggregate functions like `sum` etc. There is also the option to use the `apply` function, which provides a lot of flexibility.
 
 While the above example is simple, this example is far from ideal. We should at least used the `created_at` time as the **event time** ...
 
@@ -363,7 +365,7 @@ Note that the *Ascending Timestamp* feature does not support any late arriving d
 
 ## Creating a custom Aggregation function
 
-[DESCRIPTION MISSING]
+We will be using the `apply` aggregation function, which provides a lot flexibility. Read the code inline comments below to understand how it works.
 
 **How to get window the start and end date**
 
@@ -404,7 +406,7 @@ java.lang.RuntimeException: Record has Long.MIN_VALUE timestamp (= no timestamp 
 	at org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows.assignWindows(TumblingEventTimeWindows.java:65)
 ```
 
-So this tells us that we have to use the `` function - an example can be found on this blog post: [Building Applications with Apache Flink Part 3:  Stream Processing with the DataStream API](http://bytefish.de/blog/apache_flink_series_3/).
+So this tells us that we have to use the `assignTimestampsAndWatermarks` function - an example can be found on this blog post: [Building Applications with Apache Flink Part 3:  Stream Processing with the DataStream API](http://bytefish.de/blog/apache_flink_series_3/).
 
 ```scala
     val timedStream = structuredStream.assignTimestampsAndWatermarks(new AscendingTimestampExtractor[TwitterFeed] {
@@ -485,11 +487,11 @@ So just to make sure we are still on the same page: The above **stream data set*
 
 # ElasticSearch and Kibana
 
-We want to store our stats in a dedicated data store. **InfluxDB** would be a common choice, but we'll use **ElasticSearch**. ElasticSearch for **time-series data** you might wonder? Really? Turns out it's actually pretty good at handling time-series data based on [this articel](LINK MISSING!!!).
+We want to store our stats in a dedicated data store. **InfluxDB** would be a common choice, but we'll use **ElasticSearch**. ElasticSearch for **time-series data** you might wonder? Really? Turns out it's actually pretty good at handling time-series data based on [this articel](https://www.elastic.co/blog/elasticsearch-as-a-time-series-data-store).
 
 ## Installing ElasticSearch
 
-Is fully covered in [the official docu](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html) and also [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/running-elasticsearch.html).
+This is fully covered in [the official docu](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html) and also [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/running-elasticsearch.html).
 
 Here an example setup for Fedora:
 
@@ -509,12 +511,7 @@ curl -X GET http://localhost:9200/
 OR:
 
 ```
-### NOT starting on installation, please execute the following statements to configure elasticsearch service to start automatically using systemd
- sudo systemctl daemon-reload
- sudo systemctl enable elasticsearch.service
-### You can start elasticsearch service by executing
- sudo systemctl start elasticsearch.service
-  Verifying   : elasticsearch-2.4.0-1.noarch       
+sudo systemctl start elasticsearch.service     
 ```
 
 ### Directory Structure
@@ -581,45 +578,9 @@ With the basics out of the way, let's test a data structure for our stream. You 
 # relational world equivalent
 <table>/<partition>/<key>
 ```
+
 See also [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/_document_metadata.html)
 Index names must be in lower case and must not start with an underscore. Type names may be lower or upper case. The Id is a **String** and can be supplied or auto-generated ([more details](https://www.elastic.co/guide/en/elasticsearch/guide/current/index-doc.html)).
-
-So to test this, we will submit a record
-
-If you are using **cURL**:
-
-```
-curl -PUT 'localhost:9200/_count?pretty' /twitter/tweetsByLanguage/1 [OPEN]
-{
-    "first_name" : "John",
-    "last_name" :  "Smith",
-    "age" :        25,
-    "about" :      "I love to go rock climbing",
-    "interests": [ "sports", "music" ]
-}
-```
-
-Alternatively you can also use **Sense**:
-
-```
-PUT /twitter/tweetsByLanguage/1 [OPEN]
-{
-    "first_name" : "John",
-    "last_name" :  "Smith",
-    "age" :        25,
-    "about" :      "I love to go rock climbing",
-    "interests": [ "sports", "music" ]
-}
-```
-
-Retrieving the document:
-
-```
-#cURL
-curl XGET 'http://localhost:9200/megacorp/employee/1?pretty'
-#Sense
-GET /megacorp/employee/1
-```
 
 Action | Description
 --------|-------
@@ -659,9 +620,9 @@ Next we have to find out some configuration details:
 sudo less /etc/elasticsearch/elasticsearch.yml
 ```
 
-Search for `cluster.name` ...
+Search for `cluster.name` ... you can change these details, but for my local setup I just left them as they were.
 
-### First attempt insert into ElasticSearch
+### First attempt Inserting into ElasticSearch
 
 The connection happens over TCP, ElasticSearch usually listens on port 9300.
 
@@ -749,46 +710,60 @@ For further information on **ElasticSearch Mapping**, take a look at these docum
 
 > **Note**: For the language fields we disable the analyzer (full text indexing) function. When disabled, e.g. the word "New York" will not be broken down into "New" and "York", so you cannot search for just "York" and get a result returns if only "New York" is available. In our case, all language values are made up of one word only, so in this case we can't see the same impact, however, having the text fully analysed still adds overhead.
 
-> **Important**: One important point that will only become apparent a bit later on when we built charts in Kibana is that new documents do not because available straight away. When documents get added, they get indexed instantly, however refresing the whole index is expensive. The default refresh setting is 1 second, however, if you are inserting a log of documents, you will achieve a higher throughput if you lower the refresh rate. This can be defined via the `index.refresh_interval` setting. [Source](https://sematext.com/blog/2013/07/08/elasticsearch-refresh-interval-vs-indexing-performance/) [OPEN] Is 1 sec really the default? Check.
+> **Important**: When documents get added, they get indexed instantly, however refreshing the whole index is expensive. The default refresh setting is 1 second, however, if you are inserting a log of documents, you will achieve a higher throughput if you lower the refresh rate. This can be defined via the `index.refresh_interval` setting. See [Update Index Settings](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html#bulk) and [Refresh Inteveral VS Index Performance](https://sematext.com/blog/2013/07/08/elasticsearch-refresh-interval-vs-indexing-performance/) New documents will be only visible once the index is refreshed.
 
 ```bash
 # delete index if already exists
-curl -XDELETE 'http://localhost:9200/twitter'
+  curl -XDELETE 'http://localhost:9200/tweets'
+  curl -XDELETE 'http://localhost:9200/tweetsbylanguage'
 # create index
-curl -XPUT 'http://localhost:9200/twitter'
+  curl -XPUT 'http://localhost:9200/tweets'
+  curl -XPUT 'http://localhost:9200/tweetsbylanguage'
 # create mapping for lowest granularity data
-curl -XPUT 'http://localhost:9200/twitter/_mapping/tweets' -d'
+curl -XPUT 'http://localhost:9200/tweets/_mapping/partition1' -d'
 {
- "tweets" : {
-   "properties" : {
-   	"id": {"type": "long"}
-   	, "creationTime": {"type": "date"}
-      , "language": {"type": "string", "index": "not_analyzed"}
-      , "user": {"type": "string"}
-      , "favoriteCount": {"type": "integer"}
-      , "retweetCount": {"type": "integer"}
-      , "count": {"type": "integer"}
+  "partition1" : {
+    "properties" : {
+    "id": {"type": "long"}
+    , "creationTime": {"type": "date"}
+    , "language": {"type": "string", "index": "not_analyzed"}
+    , "user": {"type": "string"}
+    , "favoriteCount": {"type": "integer"}
+    , "retweetCount": {"type": "integer"}
+    , "count": {"type": "integer"}
+  }
+  }
+}'
+
+curl -XPUT 'http://localhost:9200/tweets/_settings' -d '{
+    "index" : {
+        "refresh_interval" : "5s"
     }
- } 
 }'
 # create mapping for tweetsByLanguage
-curl -XPUT 'http://localhost:9200/twitter/_mapping/tweetsByLanguage' -d'
+curl -XPUT 'http://localhost:9200/tweetsbylanguage/_mapping/partition1' -d'
 {
- "tweetsByLanguage" : {
-   "properties" : {
-      "language": {"type": "string", "index": "not_analyzed"}
-      , "windowStartTime": {"type": "date"}
-      , "windowEndTime": {"type": "date"}
-      , "countTweets": {"type": "integer"}
+  "partition1" : {
+    "properties" : {
+    "language": {"type": "string", "index": "not_analyzed"}
+    , "windowStartTime": {"type": "date"}
+    , "windowEndTime": {"type": "date"}
+    , "countTweets": {"type": "integer"}
+  }
+  }
+}'
+
+curl -XPUT 'http://localhost:9200/tweetsbylanguage/_settings' -d '{
+    "index" : {
+        "refresh_interval" : "5s"
     }
- } 
 }'
 ```
 
-We will at two **ElasticSearch Sinks** to our **Scala code**: One for the low granularity data and one for the aggregate. At the same time we will also improve our windowed aggregation code a bit by assigning a **case class**:
+We will add two **ElasticSearch Sinks** to our **Scala code**: One for the low granularity data and one for the aggregate. At the same time we will also improve our windowed aggregation code a bit by assigning a **case class**:
 
 ```scala
-    val config = new util.HashMap[String, String]
+val config = new util.HashMap[String, String]
     config.put("bulk.flush.max.actions", "1")
     config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
 
@@ -812,9 +787,9 @@ We will at two **ElasticSearch Sinks** to our **Scala code**: One for the low gr
         mapping.put("retweetCount", new Integer((element.retweetCount)))
         mapping.put("count", new Integer((element.count)))
 
-        println("loading: " + mapping)
+        //println("loading: " + mapping)
 
-        Requests.indexRequest.index("twitter").`type`("tweets").source(mapping)
+        Requests.indexRequest.index("tweets").`type`("partition1").source(mapping)
 
       }
 
@@ -880,13 +855,13 @@ We will at two **ElasticSearch Sinks** to our **Scala code**: One for the low gr
 
             mapping.put("language", element.language)
             mapping.put("windowStartTime", new Long(element.windowStartTime))
-            mapping.put("windowEndTime", new Long(element.windowStartTime))
+            mapping.put("windowEndTime", new Long(element.windowEndTime))
             mapping.put("countTweets", new java.lang.Integer(element.countTweets))
 
 
-            println("loading: " + mapping)
+            // println("loading: " + mapping)
             // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
-            Requests.indexRequest.index("twitter").`type`("tweetsByLanguage").source(mapping)
+            Requests.indexRequest.index("tweetsbylanguage").`type`("partition1").source(mapping)
 
           }
 
@@ -933,48 +908,50 @@ MapperParsingException[failed to parse [language]]; nested: NumberFormatExceptio
 Check if the data is stored in ES:
 
 ```bash
-curl -XGET 'http://localhost:9200/twitter/tweets/_search?pretty'
-```
-
-The result should look something like this (after all the metadata):
-
-```json
-}, {
-  "_index" : "twitter",
-  "_type" : "tweets",
-  "_id" : "AVfM0D3dNND75yWTK8K0",
-  "_score" : 1.0,
-  "_source" : {
-    "creationTime" : 1476609979000,
-    "language" : "th",
-    "id" : 787585454581256193,
-    "user" : "T.",
-    "retweetCount" : 0,
-    "favoriteCount" : 0
-  }
-} ]
-```
-
-And let's do the same for the aggregate:
-
-```bash
-curl -XGET 'http://localhost:9200/twitter/tweetsByLanguage/_search?pretty'
+curl -XGET 'http://localhost:9200/tweets/_search?pretty'
 ```
 
 The result should look something like this (after all the metadata):
 
 ```json
     }, {
-      "_index" : "twitter",
-      "_type" : "tweetsByLanguage",
-      "_id" : "AVfY4SASd_h_XyC9Njur",
+      "_index" : "tweets",
+      "_type" : "partition1",
+      "_id" : "AVftNj2olHqgUwl-blye",
       "_score" : 1.0,
       "_source" : {
-        "windowStartTime" : 1476812370000,
-        "windowEndTime" : 1476812370000,
-        "countTweets" : 23,
-        "language" : "pt"
+        "creationTime" : 1477153522000,
+        "count" : 1,
+        "language" : "en",
+        "id" : 789865239164571649,
+        "user" : "nnn",
+        "retweetCount" : 0,
+        "favoriteCount" : 0
       }
+    } 
+```
+
+And let's do the same for the aggregate:
+
+```bash
+curl -XGET 'http://localhost:9200/tweetsbylanguage/_search?pretty'
+```
+
+The result should look something like this (after all the metadata):
+
+```json
+    }, {
+      "_index" : "tweetsbylanguage",
+      "_type" : "partition1",
+      "_id" : "AVftP2zFlHqgUwl-bl-V",
+      "_score" : 1.0,
+      "_source" : {
+        "windowStartTime" : 1477154100000,
+        "windowEndTime" : 1477154130000,
+        "countTweets" : 1,
+        "language" : "hi"
+      }
+    }
 ```
 
 This is all looking quite promising so far!
@@ -984,13 +961,15 @@ If you interested in **how many documents**/JSON objects we have inserted so far
 ```bash
 $ curl 'localhost:9200/_cat/indices?v'
 health status index            pri rep docs.count docs.deleted store.size pri.store.size 
-yellow open   tweets             5   1       4259            0      1.1mb          1.1mb 
-yellow open   tweetsbylanguage   5   1         80            0    128.6kb        128.6kb 
+yellow open   tweets             5   1       7598            0      1.4mb          1.4mb 
+yellow open   tweetsbylanguage   5   1        308            0    132.7kb        132.7kb 
 ```
 
 # Visualising results with Kibana
 
-It's been quite a journey! If you made it until this point I applaud your determination. Don't you worry, we still one more exciting destination ahead of us: Visualising the results generated by our **Flink windowing** function.
+It's been quite a journey! If you made it until this point I applaud your determination. Don't you worry, we have still one more exciting destination ahead of us: Visualising the results generated by our **Flink windowing** function.
+
+> **Note**: Visualisations in Kibana are more geared towards aggregated data. You can define the type of aggregation via Kibana and the data will be aggregated on ElasticSearch. Since our data should be displayed as is (no aggregation), we kind of have to trick the system a bit.
 
 1. If you haven't done already, fire up Kibana and access the UI via `http://localhost:5601`. 
 2. Navigate to **Settings > Indices**. If haven't set up in index before, you will directly see the **Configure an index pattern** page, otherwise click **Add New**.
@@ -1020,9 +999,13 @@ Setup Data:
 	- X-Axis, Aggregation: Date Histogram, Interval: Second
 	- Add sub-buckets: Split Lines, Sub-Aggregation: Terms, Field: language, Order by: `metric: Sum of countTweets`, Order: Descending, Size: 5
 
-So the sub-bucket setting will basically ensure that we see lines for the top 5 languages ... in which case line chart is not a good choice! Should use Bar Chart!
+> **Note**: We specified sum in the metric of the sub-buckets. We could have chosen any other aggregation as well, since what we specified will basically return our data as is (no aggregation should take place). This is what I mentioned earlier on about "tricking the system".
 
 > **Important**: In the top right hand corner you have an option to choose the time period you want to see the data for. The default in my case was set to **last 15 Minutes**. Just click on it and choose **Relative** and a suitable time period (e.g. 15min ago to now).
+
+![](flink-es-4.png)
+
+Granted this is not the best choice of chart for displaying this data, but you can improve on this.
 
 # Sources
 

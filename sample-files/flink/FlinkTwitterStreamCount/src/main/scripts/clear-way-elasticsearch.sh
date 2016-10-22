@@ -21,6 +21,12 @@ curl -XPUT 'http://localhost:9200/tweets/_mapping/partition1' -d'
   }
   }
 }'
+
+curl -XPUT 'http://localhost:9200/tweets/_settings' -d '{
+    "index" : {
+        "refresh_interval" : "5s"
+    }
+}'
 # create mapping for tweetsByLanguage
 curl -XPUT 'http://localhost:9200/tweetsbylanguage/_mapping/partition1' -d'
 {
@@ -32,6 +38,12 @@ curl -XPUT 'http://localhost:9200/tweetsbylanguage/_mapping/partition1' -d'
     , "countTweets": {"type": "integer"}
   }
   }
+}'
+
+curl -XPUT 'http://localhost:9200/tweetsbylanguage/_settings' -d '{
+    "index" : {
+        "refresh_interval" : "5s"
+    }
 }'
 
 # Retrieve entries

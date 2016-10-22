@@ -134,24 +134,3 @@ object FlinkTwitterStreamCountWithEventTime {
     env.execute("Twitter Window Stream WordCount")
   }
 }
-
-// based on http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/Playing-with-EventTime-in-DataStreams-td10498.html
-
-/** disable temporarily as otherwise code does not compile - fix later!!!
-class AssignTimestamp[String] extends AscendingTimestampExtractor{
-  override extractAscendingTimestamp[element:String, previousElementTimestamp:long]{
-
-    val createDateString = element.substring(0,15) // wont work here as it is a filed in JSON
-    val dateFormat:SimpleDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
-    val createDate = null
-    try{
-      createDate = dateFormat.parse(createDateString)
-    } catch(e:ParseException) {
-      e.printStackTrace
-    }
-
-    createDate.getTime
-
-  }
-}
-**/
