@@ -8,7 +8,7 @@ tags: Data Modeling
 published: true
 --- 
 
-Every now and then I am thinking about the snapshot strategy I described about a year ago. I am still not quite happy about it. It's a huge new data generating monster (well it actually creates a massive amount of output data based on the relatively compact input dataset). It sometimes puzzles me that **OLAP** tools don't have a better way to handle snapshots. Or maybe there is a better strategy to do this?!
+Every now and then I am thinking about [the snapshot strategy](/data-modeling/2015/07/27/Events-and-Snapshot.html) I described about a year ago. I am still not quite happy about it. It's a huge new data generating monster (well it actually creates a massive amount of output data based on the relatively compact input dataset). It sometimes puzzles me that **OLAP** tools don't have a better way to handle snapshots. Or maybe there is a better strategy to do this?!
 
 Just to recap: If you are asked to provide a daily snapshot, your ETL has to generate a row for every day for every little thing that you are trying to keep  track of. This is kind of the consequence of providing this data in a **cube**: You have to have a (fact/snapshot) row available for a particular day in order to join it to any other dimension.
 
