@@ -16,7 +16,7 @@ The problem of having to produce these **artificial records** is not going away 
 
 So how could we possibly make things a bit easier? What if we tried to implement everything in SQL, so that we can i.e. run it easily on Hive? The main challenge here is actually how to create the **artificial clones**? 
 
-For this example we assume that we are tracking the status of cases. Say we have a case which got `opened` on `2016-02-01` and changed its status to `assigned` on `2016-02-05`. So we have to clone the record from `2016-02-01` 3 times: For `2016-02-02`, `2016-02-03` and `2016-02-04`. The key here is to treat this data as a **Slowly Changing Dimension Type 2**, so assign a `valid_from` and `valid_to` to each event. We store this data in a table called `dim_events`.
+For this example we assume that we are tracking the status of cases. Say we have a case which got `opened` on `2016-02-01` and changed its status to `assigned` on `2016-02-05`. So we have to clone the record from `2016-02-01` 3 times: For `2016-02-02`, `2016-02-03` and `2016-02-04`. The key here is to treat this data as a **Slowly Changing Dimension Type 2**, so assign a `valid_from` and `valid_to` to each event. We store this data in a table called `dim_events`. It's not really necessary to make this table a fully qualified dimension - the idea is just to treat the data in a similar fashion. 
 
 So what about creating the **clones** then? Actually, this can be very easily achieved by joining to the **Date Dimension**. We just have to use the `valid_from` and `valid_to` from our `dim_events` table and retrieve the respective days from the `dim_date` table using `WHERE` clause. Based on the example above, we have one record from `dim_event` being joined to 4 records from `dim_date`, so in the end we will get 4 records returned. We enrich the result by adding a constant of `1` for aggregation purposes (not strictly required). 
 
@@ -50,7 +50,8 @@ SELECT * FROM snapshot_example.dim_date LIMIT 20;
 -- treat events as slowly changing dimension
 CREATE TABLE snapshot_example.dim_events
 (
-  case_id     BIGINT
+  event_tk BIGINT
+  , case_id     BIGINT
   , valid_from    INT
   , valid_to      INT
   , event_status  VARCHAR(20)
@@ -58,16 +59,17 @@ CREATE TABLE snapshot_example.dim_events
 ;
 
 INSERT INTO snapshot_example.dim_events VALUES
-  (2321, 20160201, 20160205, 'open')
-  , (2321, 20160205, 20160207, 'assigned')
-  , (2321, 20160207, 20160208, 'closed')
+  (1,2321, 20160201, 20160205, 'open')
+  , (2,2321, 20160205, 20160207, 'assigned')
+  , (3,2321, 20160207, 20160208, 'closed')
 ;
 
 -- create snapshot by exploding the events
 CREATE TABLE snapshot_example.snapshot AS
 SELECT
   case_id
-  , date_tk
+  , event_tk
+  , date_tk AS snapshot_date_tk
   , valid_from
   , valid_to
   , event_status
@@ -84,19 +86,19 @@ SELECT * FROM snapshot_example.snapshot LIMIT 20;
 
 An the result looks like this (`valid_from` and `valid_to` are only part of the result to facilitate QA and should be removed thereafter):
 
-case_id | date_tk | valid_from | valid_to | event_status | quantity
+case_id | event_tk | snapshot_date_tk | valid_from | valid_to | event_status | quantity
 ----|----|----|----|----|----|----
-2321 | 20160201 | 20160201 | 20160205 | open | 1
-2321 | 20160202 | 20160201 | 20160205 | open | 1
-2321 | 20160203 | 20160201 | 20160205 | open | 1
-2321 | 20160204 | 20160201 | 20160205 | open | 1
-2321 | 20160205 | 20160205 | 20160207 | assigned | 1
-2321 | 20160206 | 20160205 | 20160207 | assigned | 1
-2321 | 20160207 | 20160207 | 20160208 | closed | 1
+2321 | 1 | 20160201 | 20160201 | 20160205 | open | 1
+2321 | 1 | 20160202 | 20160201 | 20160205 | open | 1
+2321 | 1 | 20160203 | 20160201 | 20160205 | open | 1
+2321 | 1 | 20160204 | 20160201 | 20160205 | open | 1
+2321 | 2 | 20160205 | 20160205 | 20160207 | assigned | 1
+2321 | 2 | 20160206 | 20160205 | 20160207 | assigned | 1
+2321 | 3 | 20160207 | 20160207 | 20160208 | closed | 1
 
-Keep in mind that with a snapshot you only look at one day it a time, we do not aggregate the final figures across days! The main question that this output answers is the following: "How many cases were in status X on day Y"?
+Keep in mind that with a snapshot you only look at one day at a time, we do not aggregate the final figures across days! The main question that this output answers is the following: "How many cases were in status X on day Y"?
 
-> **Note**: If for some reason you also have to count the days and/or working days between events, you can just simply add a binary flag (using an `TINYINT` representation of `0` and `1`) to the date dimension and enrich the join of `dim_event` and `dim_date` with these flags, which can then just be aggregated in some form (so perform some additional aggregation across days upfront for the final output ... you could use a windowed function in example):
+> **Note**: If for some reason you also have to count the days and/or working days that a certain case stayed in a given status, you can just simply add a binary flag (using an `TINYINT` representation of `0` and `1`) to the date dimension and enrich the join of `dim_event` and `dim_date` with these flags, which can then just be aggregated in some form (so perform some additional aggregation across days upfront for the final output ... you could use a windowed function in example):
 
 
 ```sql
