@@ -5,15 +5,17 @@ summary: This article provides a short intro into the fascinating world of Apach
 date: 2016-09-18
 categories: Flink
 tags: Flink
-published: false
+published: true
 --- 
 
 This blog post will illustrate how to stream data from **Twitter**, aggregate it using a **timed Window function** and output the result to **ElasticSearch**, all using **Apache Flink**. Finally we will visualise the result using **Kibana**.  
 
+As always you can find the code for this example on my [Github repo](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/flink/FlinkTwitterStreamCount).
+
 
 ## Creating SBT build file referencing latest Snapshot
 
-Some features are only available in the very latest code base (like the **Twitter Connector** we will be working with today), hence I will briefly talk you through how to set up your SBT project to download the dependencies from the **snapshot repository**. For a detailed Flink SBT project setup guide please read my previous blog post [Getting Started with Apache Flink](REF MISSING) - here I will only focus on the creating the `build.sbt` file.
+Some features are only available in the very latest code base (like the **Twitter Connector** we will be working with today), hence I will briefly talk you through how to set up your SBT project to download the dependencies from the **snapshot repository**. For a detailed Flink SBT project setup guide please read my previous blog post [Getting Started with Apache Flink](/flink/2016/09/09/Getting-Started-With-Flink-Streaming-API.html) - here I will only focus on the creating the `build.sbt` file.
 
 As snapshots are not available on the standard repositories, we have to explicitly define it via a [Resolver](http://www.scala-sbt.org/0.13/docs/Resolvers.html) in our **SBT** build file:
 
@@ -372,28 +374,28 @@ We will be using the `apply` aggregation function, which provides a lot flexibil
 Currently you have to use the `apply` function to get hold of this data (see [here](http://stackoverflow.com/questions/39536456/flink-timewindow-get-start-time) for more details). The `window.getStart` and `window.getEnd` functions enable us to extract the **start and end time** from the `Window` object. In other words, for each window we have a start and end date now.
 
 ```scala
-    val results:DataStream[(String, Long, Long, Int)] = timedStream
-      .keyBy(in => in.language)
-      .timeWindow(Time.seconds(30))
-      .apply
-      {
-        (
-          // tuple with key of the window
-          lang: String
-          // TimeWindow object which contains details of the window
-          // e.g. start and end time of the window
-          , window: TimeWindow
-          // Iterable over all elements of the window
-          , events: Iterable[TwitterFeed]
-          // collect output records of the WindowFunction
-          , out: Collector[(String, Long, Long, Int)]
-        ) =>
-              out.collect(
-                ( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
-              )
-      }
+val results:DataStream[(String, Long, Long, Int)] = timedStream
+  .keyBy(in => in.language)
+  .timeWindow(Time.seconds(30))
+  .apply
+  {
+    (
+      // tuple with key of the window
+      lang: String
+      // TimeWindow object which contains details of the window
+      // e.g. start and end time of the window
+      , window: TimeWindow
+      // Iterable over all elements of the window
+      , events: Iterable[TwitterFeed]
+      // collect output records of the WindowFunction
+      , out: Collector[(String, Long, Long, Int)]
+    ) =>
+          out.collect(
+            ( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+           )
+   }
 
-    results.print
+results.print
 ```
 
 One more point to note about this code is that specifying the key like this `.keyBy("language")` did not work as apparently type is not picked up for the key specification in the `apply` function (see also [here](http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink)).
@@ -409,68 +411,68 @@ java.lang.RuntimeException: Record has Long.MIN_VALUE timestamp (= no timestamp 
 So this tells us that we have to use the `assignTimestampsAndWatermarks` function - an example can be found on this blog post: [Building Applications with Apache Flink Part 3:  Stream Processing with the DataStream API](http://bytefish.de/blog/apache_flink_series_3/).
 
 ```scala
-    val timedStream = structuredStream.assignTimestampsAndWatermarks(new AscendingTimestampExtractor[TwitterFeed] {
-      override def extractAscendingTimestamp(element: TwitterFeed): Long = element.creationTime
-    })
+val timedStream = structuredStream.assignTimestampsAndWatermarks(new AscendingTimestampExtractor[TwitterFeed] {
+  override def extractAscendingTimestamp(element: TwitterFeed): Long = element.creationTime
+})
 ```
 
 If you execute the program now you will see in the results that the sum of the retweet counts is always 0. So this is not very useful. What we will do for now is a add a field called `count` a constant value of 1 to our `structuredStream`:
 
 ```scala
-    case class TwitterFeed(
-      id:Long
-      , creationTime:Long
-      , language:String
-      , user:String
-      , favoriteCount:Int
-      , retweetCount:Int
-      , count:Int
-    )
+case class TwitterFeed(
+  id:Long
+  , creationTime:Long
+  , language:String
+  , user:String
+  , favoriteCount:Int
+  , retweetCount:Int
+  , count:Int
+)
     
 val structuredStream:DataStream[TwitterFeed] = parsedStream.map(
-      record => {
-        TwitterFeed(
-          // ( input \ path to element \\ unboxing ) (extract no x element from list)
-          ( record \ "id" \\ classOf[JInt] )(0).toLong
-          , DateTimeFormat
-            .forPattern("EEE MMM dd HH:mm:ss Z yyyy")
-            .parseDateTime(
-              ( record \ "created_at" \\ classOf[JString] )(0)
-            ).getMillis
-          , ( record \ "lang" \\ classOf[JString] )(0).toString
-          , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
-          , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
-          , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
-          , 1
-        )
-
-      }
+  record => {
+    TwitterFeed(
+      // ( input \ path to element \\ unboxing ) (extract no x element from list)
+      ( record \ "id" \\ classOf[JInt] )(0).toLong
+      , DateTimeFormat
+        .forPattern("EEE MMM dd HH:mm:ss Z yyyy")
+        .parseDateTime(
+          ( record \ "created_at" \\ classOf[JString] )(0)
+        ).getMillis
+      , ( record \ "lang" \\ classOf[JString] )(0).toString
+      , ( record \ "user" \ "name" \\ classOf[JString] )(0).toString
+      , ( record \ "favorite_count" \\ classOf[JInt] )(0).toInt
+      , ( record \ "retweet_count" \\ classOf[JInt] )(0).toInt
+      , 1
     )
+
+  }
+)
 ```
 
 And then use this field in our **window function** to sum it up:
 
 ```scala
-    val results:DataStream[(String, Long, Long, Int)] = timedStream
-      .keyBy(in => in.language)
-      .timeWindow(Time.seconds(30))
-      .apply
-      {
-        (
-          // tuple with key of the window
-          lang: String
-          // TimeWindow object which contains details of the window
-          // e.g. start and end time of the window
-          , window: TimeWindow
-          // Iterable over all elements of the window
-          , events: Iterable[TwitterFeed]
-          // collect output records of the WindowFunction
-          , out: Collector[(String, Long, Long, Int)]
-        ) =>
-              out.collect(
-                ( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
-              )
-      }
+val results:DataStream[(String, Long, Long, Int)] = timedStream
+  .keyBy(in => in.language)
+  .timeWindow(Time.seconds(30))
+  .apply
+  {
+    (
+      // tuple with key of the window
+      lang: String
+      // TimeWindow object which contains details of the window
+      // e.g. start and end time of the window
+      , window: TimeWindow
+      // Iterable over all elements of the window
+      , events: Iterable[TwitterFeed]
+      // collect output records of the WindowFunction
+      , out: Collector[(String, Long, Long, Int)]
+    ) =>
+          out.collect(
+         	( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
+          )
+   }
 ```
 
 The results should look like this:
@@ -639,32 +641,32 @@ Next let's add this code to our **Scala** file:
 First we set up the ElasticSearch connection details. Next we extract the language field from our stream. Finally we set up the **ElasticSearch Sink**. We map our stream data to a **JSON** object using the `json.map()` function.
 
 ```scala
-    //load data into ElasticSearch
+//load data into ElasticSearch
 
-    val config = new util.HashMap[String, String]
-    config.put("bulk.flush.max.actions", "1")
-    config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
-    
-    val transports = new util.ArrayList[InetSocketAddress]
-    transports.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
+val config = new util.HashMap[String, String]
+config.put("bulk.flush.max.actions", "1")
+config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
 
-    // testing simple setup
-    val input:DataStream[String] = timedStream.map( _.language.toString)
-    input.print()
+val transports = new util.ArrayList[InetSocketAddress]
+transports.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
 
-    input.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[String] {
-      def createIndexRequest(element: String): IndexRequest = {
-        val json = new util.HashMap[String, AnyRef]
-        // Map stream fields to JSON properties, format:
-        // json.put("json-property-name", streamField)
-        json.put("data", element)
-        Requests.indexRequest.index("test").`type`("test").source(json)
-      }
+// testing simple setup
+val input:DataStream[String] = timedStream.map( _.language.toString)
+input.print()
 
-      override def process(element: String, ctx: RuntimeContext, indexer: RequestIndexer) {
-        indexer.add(createIndexRequest(element))
-      }
-    }))
+input.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[String] {
+  def createIndexRequest(element: String): IndexRequest = {
+    val json = new util.HashMap[String, AnyRef]
+    // Map stream fields to JSON properties, format:
+    // json.put("json-property-name", streamField)
+    json.put("data", element)
+    Requests.indexRequest.index("test").`type`("test").source(json)
+  }
+
+  override def process(element: String, ctx: RuntimeContext, indexer: RequestIndexer) {
+    indexer.add(createIndexRequest(element))
+  }
+}))
 ```
 
 Run the program and kill it after a few seconds.
@@ -678,22 +680,22 @@ curl -XGET 'http://localhost:9200/test/_search?pretty'
 You should get data returned similar to one (after all the metadata):
 
 ```
-    }, {
-      "_index" : "test",
-      "_type" : "test",
-      "_id" : "AVelcaqwCReiv32i2XIm",
-      "_score" : 1.0,
-      "_source" : {
-        "data" : "fr"
-      }
-    }, {
-      "_index" : "test",
-      "_type" : "test",
-      "_id" : "AVelcawOCReiv32i2XIw",
-      "_score" : 1.0,
-      "_source" : {
-        "data" : "es"
-      }
+}, {
+  "_index" : "test",
+  "_type" : "test",
+  "_id" : "AVelcaqwCReiv32i2XIm",
+  "_score" : 1.0,
+  "_source" : {
+    "data" : "fr"
+  }
+}, {
+  "_index" : "test",
+  "_type" : "test",
+  "_id" : "AVelcawOCReiv32i2XIw",
+  "_score" : 1.0,
+  "_source" : {
+    "data" : "es"
+  }
 ```
 
 Note that **ElasticSearch** created an id for each of our records.
@@ -764,39 +766,111 @@ We will add two **ElasticSearch Sinks** to our **Scala code**: One for the low g
 
 ```scala
 val config = new util.HashMap[String, String]
-    config.put("bulk.flush.max.actions", "1")
-    config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
+config.put("bulk.flush.max.actions", "1")
+config.put("cluster.name", "elasticsearch") //default cluster name: elasticsearch
 
-    val transports = new util.ArrayList[InetSocketAddress]
-    transports.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
+val transports = new util.ArrayList[InetSocketAddress]
+transports.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
 
-    timedStream.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
-      def createIndexRequest(element:TwitterFeed): IndexRequest = {
+timedStream.addSink(new ElasticsearchSink(config, transports, new ElasticsearchSinkFunction[TwitterFeed] {
+  def createIndexRequest(element:TwitterFeed): IndexRequest = {
+    val mapping = new util.HashMap[String, AnyRef]
+    // use LinkedHashMap if for some reason you want to maintain the insert order
+    // val mapping = new util.LinkedHashMap[String, AnyRef]
+    // Map stream fields to JSON properties, format:
+    // json.put("json-property-name", streamField)
+    // the streamField type has to be converted from a Scala to a Java Type
+
+    mapping.put("id", new java.lang.Long(element.id))
+    mapping.put("creationTime", new java.lang.Long(element.creationTime))
+    mapping.put("language", element.language)
+    mapping.put("user", element.user)
+    mapping.put("favoriteCount", new Integer((element.favoriteCount)))
+    mapping.put("retweetCount", new Integer((element.retweetCount)))
+    mapping.put("count", new Integer((element.count)))
+
+    //println("loading: " + mapping)
+
+    Requests.indexRequest.index("tweets").`type`("partition1").source(mapping)
+
+  }
+
+  override def process(
+      element: TwitterFeed
+      , ctx: RuntimeContext
+      , indexer: RequestIndexer
+    )
+    {
+      try{
+        indexer.add(createIndexRequest(element))
+      } catch {
+        case e:Exception => println{
+          println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
+        }
+        case _:Throwable => println("Got some other kind of exception")
+      }
+    }
+}))
+
+case class TweetsByLanguage (
+  language:String
+  , windowStartTime:Long
+  , windowEndTime:Long
+  , countTweets:Int
+)
+
+val tweetsByLanguageStream:DataStream[TweetsByLanguage] = timedStream
+  // .keyBy("language") did not work as apparently type is not picked up
+  // for the key in the apply function
+  // see http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink
+  .keyBy(in => in.language)
+  .timeWindow(Time.seconds(30))
+  .apply
+  {
+    (
+      // tuple with key of the window
+      lang: String
+      // TimeWindow object which contains details of the window
+      // e.g. start and end time of the window
+      , window: TimeWindow
+      // Iterable over all elements of the window
+      , events: Iterable[TwitterFeed]
+      // collect output records of the WindowFunction
+      , out: Collector[TweetsByLanguage]
+    ) =>
+      out.collect(
+        // TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
+        TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
+      )
+  }
+
+// tweetsByLanguage.print
+
+tweetsByLanguageStream.addSink(
+  new ElasticsearchSink(
+    config
+    , transports
+    , new ElasticsearchSinkFunction[TweetsByLanguage] {
+
+      def createIndexRequest(element:TweetsByLanguage): IndexRequest = {
         val mapping = new util.HashMap[String, AnyRef]
-        // use LinkedHashMap if for some reason you want to maintain the insert order
-        // val mapping = new util.LinkedHashMap[String, AnyRef]
-        // Map stream fields to JSON properties, format:
-        // json.put("json-property-name", streamField)
-        // the streamField type has to be converted from a Scala to a Java Type
 
-        mapping.put("id", new java.lang.Long(element.id))
-        mapping.put("creationTime", new java.lang.Long(element.creationTime))
         mapping.put("language", element.language)
-        mapping.put("user", element.user)
-        mapping.put("favoriteCount", new Integer((element.favoriteCount)))
-        mapping.put("retweetCount", new Integer((element.retweetCount)))
-        mapping.put("count", new Integer((element.count)))
+        mapping.put("windowStartTime", new Long(element.windowStartTime))
+        mapping.put("windowEndTime", new Long(element.windowEndTime))
+        mapping.put("countTweets", new java.lang.Integer(element.countTweets))
 
-        //println("loading: " + mapping)
 
-        Requests.indexRequest.index("tweets").`type`("partition1").source(mapping)
+        // println("loading: " + mapping)
+        // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
+        Requests.indexRequest.index("tweetsbylanguage").`type`("partition1").source(mapping)
 
       }
 
       override def process(
-          element: TwitterFeed
-          , ctx: RuntimeContext
-          , indexer: RequestIndexer
+        element: TweetsByLanguage
+        , ctx: RuntimeContext
+        , indexer: RequestIndexer
         )
         {
           try{
@@ -806,83 +880,11 @@ val config = new util.HashMap[String, String]
               println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
             }
             case _:Throwable => println("Got some other kind of exception")
-          }
         }
-    }))
-
-    case class TweetsByLanguage (
-      language:String
-      , windowStartTime:Long
-      , windowEndTime:Long
-      , countTweets:Int
-    )
-
-    val tweetsByLanguageStream:DataStream[TweetsByLanguage] = timedStream
-      // .keyBy("language") did not work as apparently type is not picked up
-      // for the key in the apply function
-      // see http://stackoverflow.com/questions/36917586/cant-apply-custom-functions-to-a-windowedstream-on-flink
-      .keyBy(in => in.language)
-      .timeWindow(Time.seconds(30))
-      .apply
-      {
-        (
-          // tuple with key of the window
-          lang: String
-          // TimeWindow object which contains details of the window
-          // e.g. start and end time of the window
-          , window: TimeWindow
-          // Iterable over all elements of the window
-          , events: Iterable[TwitterFeed]
-          // collect output records of the WindowFunction
-          , out: Collector[TweetsByLanguage]
-        ) =>
-          out.collect(
-            // TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.retweetCount ).sum )
-            TweetsByLanguage( lang, window.getStart, window.getEnd, events.map( _.count ).sum )
-          )
       }
-
-    // tweetsByLanguage.print
-
-    tweetsByLanguageStream.addSink(
-      new ElasticsearchSink(
-        config
-        , transports
-        , new ElasticsearchSinkFunction[TweetsByLanguage] {
-
-          def createIndexRequest(element:TweetsByLanguage): IndexRequest = {
-            val mapping = new util.HashMap[String, AnyRef]
-
-            mapping.put("language", element.language)
-            mapping.put("windowStartTime", new Long(element.windowStartTime))
-            mapping.put("windowEndTime", new Long(element.windowEndTime))
-            mapping.put("countTweets", new java.lang.Integer(element.countTweets))
-
-
-            // println("loading: " + mapping)
-            // problem: wrong order of fields, id seems to be wrong type in general, as well as retweetCount
-            Requests.indexRequest.index("tweetsbylanguage").`type`("partition1").source(mapping)
-
-          }
-
-          override def process(
-            element: TweetsByLanguage
-            , ctx: RuntimeContext
-            , indexer: RequestIndexer
-            )
-            {
-              try{
-                indexer.add(createIndexRequest(element))
-              } catch {
-                case e:Exception => println{
-                  println("an exception occurred: " + ExceptionUtils.getStackTrace(e))
-                }
-                case _:Throwable => println("Got some other kind of exception")
-            }
-          }
-        }
-      )
-    )
+    }
+  )
+)
 ```
 
 So what's happening here? In a nutshell: 
@@ -914,21 +916,21 @@ curl -XGET 'http://localhost:9200/tweets/_search?pretty'
 The result should look something like this (after all the metadata):
 
 ```json
-    }, {
-      "_index" : "tweets",
-      "_type" : "partition1",
-      "_id" : "AVftNj2olHqgUwl-blye",
-      "_score" : 1.0,
-      "_source" : {
-        "creationTime" : 1477153522000,
-        "count" : 1,
-        "language" : "en",
-        "id" : 789865239164571649,
-        "user" : "nnn",
-        "retweetCount" : 0,
-        "favoriteCount" : 0
-      }
-    } 
+}, {
+  "_index" : "tweets",
+  "_type" : "partition1",
+  "_id" : "AVftNj2olHqgUwl-blye",
+  "_score" : 1.0,
+  "_source" : {
+    "creationTime" : 1477153522000,
+    "count" : 1,
+    "language" : "en",
+    "id" : 789865239164571649,
+    "user" : "nnn",
+    "retweetCount" : 0,
+    "favoriteCount" : 0
+  }
+} 
 ```
 
 And let's do the same for the aggregate:
@@ -940,18 +942,18 @@ curl -XGET 'http://localhost:9200/tweetsbylanguage/_search?pretty'
 The result should look something like this (after all the metadata):
 
 ```json
-    }, {
-      "_index" : "tweetsbylanguage",
-      "_type" : "partition1",
-      "_id" : "AVftP2zFlHqgUwl-bl-V",
-      "_score" : 1.0,
-      "_source" : {
-        "windowStartTime" : 1477154100000,
-        "windowEndTime" : 1477154130000,
-        "countTweets" : 1,
-        "language" : "hi"
-      }
-    }
+}, {
+  "_index" : "tweetsbylanguage",
+  "_type" : "partition1",
+  "_id" : "AVftP2zFlHqgUwl-bl-V",
+  "_score" : 1.0,
+  "_source" : {
+    "windowStartTime" : 1477154100000,
+    "windowEndTime" : 1477154130000,
+    "countTweets" : 1,
+    "language" : "hi"
+  }
+}
 ```
 
 This is all looking quite promising so far!
@@ -978,15 +980,15 @@ It's been quite a journey! If you made it until this point I applaud your determ
 5. Choose `windowStartTime` from the drop-down list as **time-field name**.
 6. Finally click **Create**.
 
-![](flink-es-1.png)
+![](/images/flink-es-1.png)
 
 On the next page you see an overview of all the fields:
 
-![](flink-es-2.png)
+![](/images/flink-es-2.png)
 
 Click on **Discover** in the top menu bar and you will be able to search trough the documents we just loaded:
 
-![](flink-es-3.png)
+![](/images/flink-es-3.png)
 
 Next click on **Visualise** in the top menu bar and choose a **Line Chart** followed by **From new search**.
 
@@ -1001,21 +1003,32 @@ Setup Data:
 
 > **Note**: We specified sum in the metric of the sub-buckets. We could have chosen any other aggregation as well, since what we specified will basically return our data as is (no aggregation should take place). This is what I mentioned earlier on about "tricking the system".
 
+Save the chart now.
+
 > **Important**: In the top right hand corner you have an option to choose the time period you want to see the data for. The default in my case was set to **last 15 Minutes**. Just click on it and choose **Relative** and a suitable time period (e.g. 15min ago to now).
 
-![](flink-es-4.png)
+Enabling auto-refresh:
+
+In the right top hand corner click on the watch icon and set the time filter to **relative** and choose the last 5 minutes to be displayed:
+
+![](/images/flink-es-5.png)
+
+Next click on the **Auto-refresh** icon (situated in the top menu bar on the righ hand side) and set the refresh rate to 30 seconds:
+
+![](/images/flink-es-6.png)
+
+You chart will now be kept up-to-date.
+
+![](/images/flink-es-4.png)
 
 Granted this is not the best choice of chart for displaying this data, but you can improve on this.
 
-# Sources
+# Additional Sources
 
 - [Elasticsearch as a Time Series Data Store](https://www.elastic.co/blog/elasticsearch-as-a-time-series-data-store)
 - [Pre-defined Timestamp Extractors / Watermark Emitters](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_timestamp_extractors.html)
-- [READ: Building a demo application with Flink, Elasticsearch, and Kibana](https://www.elastic.co/blog/building-real-time-dashboard-applications-with-apache-flink-elasticsearch-and-kibana) with [Scala Code on Github](https://github.com/dataArtisans/flink-streaming-demo/tree/master/src/main/scala/com/dataartisans/flink_demo)
+- [Building a demo application with Flink, Elasticsearch, and Kibana](https://www.elastic.co/blog/building-real-time-dashboard-applications-with-apache-flink-elasticsearch-and-kibana) with [Scala Code on Github](https://github.com/dataArtisans/flink-streaming-demo/tree/master/src/main/scala/com/dataartisans/flink_demo)
 - [Java Connector Example](http://dataartisans.github.io/flink-training/exercises/toElastic.html)
-- [READ THIS](http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/Handling-large-state-incremental-snapshot-td5916.html)
-- [READ: Flink Complex Event Processing](http://www.slideshare.net/flink-taiwan/complex-event-processing-use-cases-flinkcep-library-flinktw-meetup-20160719)
-- [READ: Flink Kafka Consumer Scala Example](http://stackoverflow.com/questions/31446374/can-anyone-share-a-flink-kafka-example-in-scala), and also [this](http://apache-flink-user-mailing-list-archive.2336050.n4.nabble.com/Flink-Kafka-example-in-Scala-td2069.html)
 - [Flink streaming event time window ordering](http://stackoverflow.com/questions/34163930/flink-streaming-event-time-window-ordering)
 - [Essential Guide to Stream Processing](https://www.mapr.com/blog/essential-guide-streaming-first-processing-apache-flink)
 
