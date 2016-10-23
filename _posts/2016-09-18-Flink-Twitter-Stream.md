@@ -1031,4 +1031,6 @@ Granted this is not the best choice of chart for displaying this data, but you c
 - [Java Connector Example](http://dataartisans.github.io/flink-training/exercises/toElastic.html)
 - [Flink streaming event time window ordering](http://stackoverflow.com/questions/34163930/flink-streaming-event-time-window-ordering)
 - [Essential Guide to Stream Processing](https://www.mapr.com/blog/essential-guide-streaming-first-processing-apache-flink)
+- [Kibana 4 Tutorial – Part 3: Visualize](https://www.timroes.de/2015/02/07/kibana-4-tutorial-part-3-visualize/)
+
 
