@@ -16,9 +16,13 @@ The problem of having to produce these **artificial records** is not going away 
 
 So how could we possibly make things a bit easier? What if we tried to implement everything in SQL, so that we can i.e. run it easily on Hive? The main challenge here is actually how to create the **artificial clones**? 
 
-For this example we assume that we are tracking the status of cases. Say we have a case which got `opened` on `2016-02-01` and changed its status to `assigned` on `2016-02-05`. So we have to clone the record from `2016-02-01` 3 times: For `2016-02-02`, `2016-02-03` and `2016-02-04`. The key here is to treat this data as a **Slowly Changing Dimension Type 2**, so assign a `valid_from` and `valid_to` to each event. We store this data in a table called `dim_events`. It's not really necessary to make this table a fully qualified dimension - the idea is just to treat the data in a similar fashion. 
+For this example we assume that we are tracking the status of cases. Say we have a case which got `opened` on `2016-02-01` and changed its status to `assigned` on `2016-02-05`. 
 
-So what about creating the **clones** then? Actually, this can be very easily achieved by joining to the **Date Dimension**. We just have to use the `valid_from` and `valid_to` from our `dim_events` table and retrieve the respective days from the `dim_date` table using `WHERE` clause. Based on the example above, we have one record from `dim_event` being joined to 4 records from `dim_date`, so in the end we will get 4 records returned. We enrich the result by adding a constant of `1` for aggregation purposes (not strictly required). 
+Coming back to our example: To create a daily snapshot, we have to clone the record from `2016-02-01` 3 times: For `2016-02-02`, `2016-02-03` and `2016-02-04`. The key here is to treat this data as a **Slowly Changing Dimension Type 2**, so assign a `valid_from` and `valid_to` to each event. We store this data in a table called `dim_events`. It's not really necessary to make this table a fully qualified dimension - the idea is just to treat the data in a similar fashion. 
+
+> **Showing state changes**: If you want to show state changes in your reports, e.g. The case moving from status `open` to `closed`, you can introduce a `prev_status` column for this table. Why `prev_status` and not `next_status`? This is a design decision and might vary on your use case: The advantage of `prev_status` is that it makes to record immutable, which is ideal for Hadoop. However, if you already have a process in place to maintain a `valid_to` for the same table, then you might as well instead maintain a `next_status` field.
+
+So what about creating the **clones** then for the actual snapshot table? Actually, this can be very easily achieved by joining to the **Date Dimension**. We just have to use the `valid_from` and `valid_to` from our `dim_events` table and retrieve the respective days from the `dim_date` table using `WHERE` clause. Based on the example above, we have one record from `dim_event` being joined to 4 records from `dim_date`, so in the end we will get 4 records returned. We enrich the result by adding a constant of `1` for aggregation purposes (not strictly required). 
 
 I prototyped the solution quickly with PostgreSQL:
 
@@ -106,6 +110,8 @@ SUM(is_working_day) OVER (PARTITION BY ... ORDER BY ...)
 ```
 
 The final join helps us to **materialise** the view which the **OLAP/Cube** tool requires. 
+
+> **Note**: When implementing the solution on HDFS there is currently no way to update records, so keeping the `valid_to` updated causes an issue. You could opt for Kudu, which allows updates. However, there is still a way to achieve this on Hadoop: 1) Either you keep the `valid_from` only and generate a materialised view using a windowing function which provides the `valid_to` as well. This works for smaller tables only. 2) Or you use the same approach as in 1), but store any properly closed records in a dedicated partition (let's call the partition `static` or `closed`)  and the other records (the ones with a `valid_to` in the future) in another dedicated partition (let's call it `open`). If you get an update to an open record, you move the old record with the "updated" `valid_to` to the `static/closed` partition and insert the new record into the `open` partition. This way you only have to run an "update" against a smaller batch of data.
 
 The output of the query above might be in some cases a bit too granular, but performing an aggregation of top of this is very easy.
 
