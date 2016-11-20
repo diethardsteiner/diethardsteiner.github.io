@@ -23,11 +23,10 @@ $ unzip pdi-ce-6.1.0.1-196.zip
 $ mv data-integration pdi-ce-6.1
 ```
 
-Go to [PDI Streaming Plugin](https://github.com/mattcasters/pentaho-pdi-streaming/releases/tag/0.1) and download the *pentaho-pdi-streaming-TRUNK-SNAPSHOT.jar*. Copy the jar file into both PDI's `lib/` and `plugins/` folders:
+Go to [PDI Streaming Plugin](https://github.com/mattcasters/pentaho-pdi-streaming/releases) and download from the latest release the *pentaho-pdi-streaming-TRUNK-SNAPSHOT.jar*. Copy the jar file into PDI's `plugins/` folders:
 
 ```bash
 $ cd /Applications/Development/pdi-ce-6.1/
-$ cp ~/Downloads/pentaho-pdi-streaming-TRUNK-SNAPSHOT.jar lib
 $ mkdir plugins/pentaho-pdi-streaming
 $ cp ~/Downloads/pentaho-pdi-streaming-TRUNK-SNAPSHOT.jar plugins/pentaho-pdi-streaming
 ```
@@ -58,6 +57,8 @@ Create a new transformation called `simple-stream` using a **Generate Rows** ste
 
 
 ### Starting the Carte server and Registration with Spoon
+
+> **Note**: If you have a **PDI EE** version with a running Carte server, the transfromation will automatically run once you confirm the details in **Transformation properties > Settings**. In this case you do not have to follow the next steps.
 
 Back on the command line, in the PDI root directory, run:
 
