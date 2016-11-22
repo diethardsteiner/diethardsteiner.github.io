@@ -230,3 +230,70 @@ The workflow should be:
 ![](/images/pdi-datasets-p2-2.png)
 
 There have been quite a few changes. Matt published a new [video on YouTube](https://youtu.be/9bYIUURjf20) to speak you through the new features. 
+
+# Update November 2016
+
+Recent additions to the plugin are:
+
+## New Unit Test Icon with Shortcuts
+
+Now there is a new narrow neck flask icon in the top right hand corner of the canvas for each transformation which provides **shortcuts to unit testing features**:
+
+![Screen Shot 2016-11-22 at 16.53.49](/images/Screen%20Shot%202016-11-22%20at%2016.53.49.png)
+
+## Tweek Unit Testing Features
+
+There is also a new option to **exclude specific steps** within a transformation **from the unit tests**: This can be configured by right clicking on a step and choosing **Unit test > Enable tweek: Remove step in unit test**. An X icon will then be shown on the top right hand side corner of the step icon:
+
+![Screen Shot 2016-11-22 at 17.06.26](/images/Screen%20Shot%202016-11-22%20at%2017.06.26.png)
+
+> **Note**: You might wonder what happens if you disable a step which is part of the main stream, imagine a step which calculates the value of the a new field? Here you have to keep in mind that for the **golden dataset** you also define a **mapping** between the real output dataset and the golden dataset. In case you disable the step which generates the calculated field, you simply do not specify the calculated field in the mapping and all will work fine.
+
+## Execute Unit Tests Transformation Step
+
+Finally, and most importantly, there is a new step to execute unit tests called **Execute unit tests**. It is super easy to use: There is no input required - it will automatically source all the **unit tests** from the **Metastore**. You can filter for certain **types** of tests (Conceptual, Development, Unit Test):
+
+![Screen Shot 2016-11-22 at 20.49.15](/images/Screen%20Shot%202016-11-22%20at%2020.49.15.png)
+
+Sample transformation with output shown:
+
+![Screen Shot 2016-11-22 at 20.49.55](/images/Screen%20Shot%202016-11-22%20at%2020.49.55.png)
+
+# Other Notes
+
+## How to disable Unit Tests for a given Transformation
+
+Simply click on the narrow neck flask icon and choose **Disable**:
+
+![Screen Shot 2016-11-22 at 18.47.21](/images/Screen%20Shot%202016-11-22%20at%2018.47.21.png)
+
+## Investigating the ETL transformation generated for the Unit Test
+
+Under the hood, and in memory, **PDI** generates a transformation for your unit test. Based on your specification certain steps of the original transformations will be replaced. In some sitatuations, especially while debugging, it might be worth checking the unit testing transformation PDI generates. This can be done by clicking on the narrow neck flask icon and choosing **Edit/Tweek**:
+
+![Screen Shot 2016-11-22 at 20.38.55](/images/Screen%20Shot%202016-11-22%20at%2020.38.55.png)
+
+In the next dialog you can specify the output location for the generated transformation:
+
+![Screen Shot 2016-11-22 at 20.40.27](/images/Screen%20Shot%202016-11-22%20at%2020.40.27.png)
+
+Sample generated transformation:
+
+![Screen Shot 2016-11-22 at 20.43.02](/images/Screen%20Shot%202016-11-22%20at%2020.43.02.png)
+
+
+## How to save the Unit Tests in a given Project Folder
+
+By default the **unit test definitions** are stored in the **Pentaho Metastore** under the user's home directory:
+
+```
+~/.pentaho/metastore/pentaho/Kettle\ Transformation\ Unit\ Test
+```
+
+This might not be a convenient location in a lot of situations, as sometimes you might want to bundle all project related files in one place. Fortunately there is an environment variable called `PENTAHO_METASTORE_HOME`, which allows you to set a custom directory.
+
+## It's possible to create assign a dataset to a step without setting up a unit test - is this valid?
+
+Yes. The **PDI Datasets** plugin was not only create for unit testing. You can as well just assign a dataset to a step in scenarios where it is otherwise difficult to design the transformation because input data is missing, e.g. for Pentaho Map Reduce, where you could assign a dataset to a **MapReduce Input** step.
+
+
