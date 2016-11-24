@@ -259,7 +259,49 @@ Sample transformation with output shown:
 
 ![Screen Shot 2016-11-22 at 20.49.55](/images/Screen%20Shot%202016-11-22%20at%2020.49.55.png)
 
+## Sort Order
+
+When attaching a dataset to a step, you can now also define the **sort order**. This is particulary important for **MapReduce Input** and other steps which rely on a given sort order.
+
+## Replace Database Connection
+
+On per unit test level you can replace the original database connection(s) defined in the transformation with one for unit testing:
+
+![Screen Shot 2016-11-24 at 22.01.38](/images/Screen%20Shot%202016-11-24%20at%2022.01.38.png)
+
+This feature becomes available when you edit an existing unit test definition.
+
 # Other Notes
+
+## Quick Reference on how to set up a Unit Test
+
+This approach uses the current input and output for the unit tests as well, which might not always be the best way. It works if you are developing locally with a sample dataset and want to use this one for your unit tests as well. Note: You can also just assign other/existing datasets as well. 
+
+1. Click on the narrow narrow neck flask icon and choose **New**. Provide a name for the **unit test**, e.g. `AC1` (for acceptence test 1).
+
+	![Screen Shot 2016-11-22 at 16.53.49](/images/Screen%20Shot%202016-11-22%20at%2016.53.49.png)
+
+2. For the unit test datasets we will need a dataset group: **Tools > Data set > Data set groups > Add data set group**. Define the **name**, e.g. `ACs`, the **database connection** and the **schema name** (if required):
+	
+	![Screen Shot 2016-11-24 at 20.46.53](/images/Screen%20Shot%202016-11-24%20at%2020.46.53.png)
+
+	
+3. Right click on the main data input step and choose **Unit test > Define dataset with step output**. Provide a **name**, e.g. `AC1-Input`, a **table name**, e.g. `ac1_input` and choose a **dataset group**, e.g. `ACs`. Edit the **column names** so they are in line with the **field names**. Then click on **Create Table**, adjuste the DDL if necessary and click **Execute**. Click **Close** followed by **Ok**:
+	
+	![Screen Shot 2016-11-24 at 20.56.38](/images/Screen%20Shot%202016-11-24%20at%2020.56.38.png)
+	
+4.  Right click on the main data input step and choose **Unit test > Write data from step to dataset**, next pick the dataset and click **OK**. Next define the **mapping** (make sure you do this as otherwise PDI will write out empty records!) and thereafter the transformation will be executed and your database table should have the sample data now.
+5. Right click on the main input data step, select **Unit test > Input data: select dataset** and pick the one we just created. Define the **Mapping** and **Sort Order**. Your input data step should be flagged with the unit test dataset now:
+	
+	![Screen Shot 2016-11-24 at 21.07.55](/images/Screen%20Shot%202016-11-24%20at%2021.07.55.png)
+	
+6. Repeat step 3 to 5 for the main output step, just instead of the input data you define the **golden dataset**. 
+7. Your transformation should have these three elements for the unit test set now:
+	
+	![Screen Shot 2016-11-24 at 21.10.22](/images/Screen%20Shot%202016-11-24%20at%2021.10.22.png)
+
+Sample files for this setup are available on [my Github folder](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/pentaho-pdi-dataset).
+
 
 ## How to disable Unit Tests for a given Transformation
 
