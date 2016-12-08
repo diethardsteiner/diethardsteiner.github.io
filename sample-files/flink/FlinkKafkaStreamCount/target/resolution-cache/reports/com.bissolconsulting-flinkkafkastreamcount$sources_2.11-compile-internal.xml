@@ -1,0 +1,1145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="com.bissolconsulting"
+		module="flinkkafkastreamcount$sources_2.11"
+		revision="1.0"
+		conf="compile-internal"
+		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool"
+		date="20161208211929"/>
+	<dependencies>
+		<module organisation="org.apache.flink" name="flink-connector-kafka-0.10_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208042839" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="75">
+				<metadata-artifact status="no" details="" size="21111" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-0.10_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-0.10_2.11/1.2-SNAPSHOT/flink-connector-kafka-0.10_2.11-1.2-20161208.042604-58.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-connector-kafka-0.10_2.11" type="jar" ext="jar" status="no" details="" size="22765" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-0.10_2.11/jars/flink-connector-kafka-0.10_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-0.10_2.11/1.2-SNAPSHOT/flink-connector-kafka-0.10_2.11-1.2-20161208.042604-58.jar"/>
+					</artifact>
+					<artifact name="flink-connector-kafka-0.10_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="18123" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-0.10_2.11/srcs/flink-connector-kafka-0.10_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-0.10_2.11/1.2-SNAPSHOT/flink-connector-kafka-0.10_2.11-1.2-20161206.043714-56-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-connector-kafka-0.9_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208042819" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="76">
+				<metadata-artifact status="no" details="" size="22214" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-0.9_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-0.9_2.11/1.2-SNAPSHOT/flink-connector-kafka-0.9_2.11-1.2-20161208.042546-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-connector-kafka-0.9_2.11" type="jar" ext="jar" status="no" details="" size="32819" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-0.9_2.11/jars/flink-connector-kafka-0.9_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-0.9_2.11/1.2-SNAPSHOT/flink-connector-kafka-0.9_2.11-1.2-20161208.042546-117.jar"/>
+					</artifact>
+					<artifact name="flink-connector-kafka-0.9_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="26561" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-0.9_2.11/srcs/flink-connector-kafka-0.9_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-0.9_2.11/1.2-SNAPSHOT/flink-connector-kafka-0.9_2.11-1.2-20161206.043653-115-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-connector-kafka-base_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208042745" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="77">
+				<metadata-artifact status="no" details="" size="21892" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-base_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-base_2.11/1.2-SNAPSHOT/flink-connector-kafka-base_2.11-1.2-20161208.042512-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-connector-kafka-base_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="54683" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-base_2.11/srcs/flink-connector-kafka-base_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-base_2.11/1.2-SNAPSHOT/flink-connector-kafka-base_2.11-1.2-20161206.043616-115-sources.jar"/>
+					</artifact>
+					<artifact name="flink-connector-kafka-base_2.11" type="jar" ext="jar" status="no" details="" size="66894" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-connector-kafka-base_2.11/jars/flink-connector-kafka-base_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-connector-kafka-base_2.11/1.2-SNAPSHOT/flink-connector-kafka-base_2.11-1.2-20161208.042512-117.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-streaming-scala_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208042319" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="14">
+				<metadata-artifact status="no" details="" size="15211" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-streaming-scala_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-streaming-scala_2.11/1.2-SNAPSHOT/flink-streaming-scala_2.11-1.2-20161208.042046-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-streaming-scala_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="68305" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-streaming-scala_2.11/srcs/flink-streaming-scala_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-streaming-scala_2.11/1.2-SNAPSHOT/flink-streaming-scala_2.11-1.2-20161206.043103-115-sources.jar"/>
+					</artifact>
+					<artifact name="flink-streaming-scala_2.11" type="jar" ext="jar" status="no" details="" size="2603671" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-streaming-scala_2.11/jars/flink-streaming-scala_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-streaming-scala_2.11/1.2-SNAPSHOT/flink-streaming-scala_2.11-1.2-20161208.042046-117.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-scala_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041814" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="71">
+				<metadata-artifact status="no" details="" size="15258" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-scala_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-scala_2.11/1.2-SNAPSHOT/flink-scala_2.11-1.2-20161208.041539-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-scala_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="118383" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-scala_2.11/srcs/flink-scala_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-scala_2.11/1.2-SNAPSHOT/flink-scala_2.11-1.2-20161206.042524-115-sources.jar"/>
+					</artifact>
+					<artifact name="flink-scala_2.11" type="jar" ext="jar" status="no" details="" size="3215475" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-scala_2.11/jars/flink-scala_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-scala_2.11/1.2-SNAPSHOT/flink-scala_2.11-1.2-20161208.041539-117.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang" name="scala-compiler">
+			<revision name="2.11.7" status="release" pubdate="20150622211800" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="73">
+				<license name="BSD 3-Clause" url="http://www.scala-lang.org/license.html"/>
+				<metadata-artifact status="no" details="" size="3259" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-compiler/ivy-2.11.7.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/scala-lang/scala-compiler/2.11.7/scala-compiler-2.11.7.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.11.7" rev-constraint-default="2.11.7" rev-constraint-dynamic="2.11.7" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="scala-compiler" type="jar" ext="jar" status="no" details="" size="15244851" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.11.7.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-compiler/2.11.7/scala-compiler-2.11.7.jar"/>
+					</artifact>
+					<artifact name="scala-compiler" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="2191433" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-compiler/srcs/scala-compiler-2.11.7-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-compiler/2.11.7/scala-compiler-2.11.7-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang.modules" name="scala-xml_2.11">
+			<revision name="1.0.4" status="release" pubdate="20150430145300" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="74">
+				<license name="BSD 3-clause" url="http://opensource.org/licenses/BSD-3-Clause"/>
+				<metadata-artifact status="no" details="" size="3137" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/ivy-1.0.4.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/scala-lang/modules/scala-xml_2.11/1.0.4/scala-xml_2.11-1.0.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0.4" rev-constraint-default="1.0.4" rev-constraint-dynamic="1.0.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="scala-xml_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="109168" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/srcs/scala-xml_2.11-1.0.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/modules/scala-xml_2.11/1.0.4/scala-xml_2.11-1.0.4-sources.jar"/>
+					</artifact>
+					<artifact name="scala-xml_2.11" type="jar" ext="jar" status="no" details="" size="647891" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/jars/scala-xml_2.11-1.0.4.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/modules/scala-xml_2.11/1.0.4/scala-xml_2.11-1.0.4.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang" name="scala-reflect">
+			<revision name="2.11.7" status="release" pubdate="20150622211700" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" extra-info.apiURL="http://www.scala-lang.org/api/2.11.7/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="72">
+				<license name="BSD 3-Clause" url="http://www.scala-lang.org/license.html"/>
+				<metadata-artifact status="no" details="" size="2825" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-reflect/ivy-2.11.7.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.7/scala-reflect-2.11.7.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.11.7" rev-constraint-default="2.11.7" rev-constraint-dynamic="2.11.7" callerrev="1.0" extra-info.apiURL="http://www.scala-lang.org/api/2.11.7/"/>
+				<artifacts>
+					<artifact name="scala-reflect" type="jar" ext="jar" status="no" details="" size="4576443" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.11.7.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.7/scala-reflect-2.11.7.jar"/>
+					</artifact>
+					<artifact name="scala-reflect" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="561516" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.11.7-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.7/scala-reflect-2.11.7-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-streaming-java_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041615" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="15">
+				<metadata-artifact status="no" details="" size="14243" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-streaming-java_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-streaming-java_2.11/1.2-SNAPSHOT/flink-streaming-java_2.11-1.2-20161208.041340-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-streaming-java_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="514441" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-streaming-java_2.11/srcs/flink-streaming-java_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-streaming-java_2.11/1.2-SNAPSHOT/flink-streaming-java_2.11-1.2-20161206.042319-115-sources.jar"/>
+					</artifact>
+					<artifact name="flink-streaming-java_2.11" type="jar" ext="jar" status="no" details="" size="3036382" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-streaming-java_2.11/jars/flink-streaming-java_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-streaming-java_2.11/1.2-SNAPSHOT/flink-streaming-java_2.11-1.2-20161208.041340-117.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.sling" name="org.apache.sling.commons.json">
+			<revision name="2.0.6" status="release" pubdate="20101216102653" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="70">
+				<metadata-artifact status="no" details="" size="7413" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.sling/org.apache.sling.commons.json/ivy-2.0.6.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/apache/sling/org.apache.sling.commons.json/2.0.6/org.apache.sling.commons.json-2.0.6.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.0.6" rev-constraint-default="2.0.6" rev-constraint-dynamic="2.0.6" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="org.apache.sling.commons.json" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="53152" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.sling/org.apache.sling.commons.json/srcs/org.apache.sling.commons.json-2.0.6-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/sling/org.apache.sling.commons.json/2.0.6/org.apache.sling.commons.json-2.0.6-sources.jar"/>
+					</artifact>
+					<artifact name="org.apache.sling.commons.json" type="jar" ext="jar" status="no" details="" size="47884" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.sling/org.apache.sling.commons.json/jars/org.apache.sling.commons.json-2.0.6.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/sling/org.apache.sling.commons.json/2.0.6/org.apache.sling.commons.json-2.0.6.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-clients_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041532" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="67">
+				<metadata-artifact status="no" details="" size="13898" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-clients_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-clients_2.11/1.2-SNAPSHOT/flink-clients_2.11-1.2-20161208.041300-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-clients_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="68496" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-clients_2.11/srcs/flink-clients_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-clients_2.11/1.2-SNAPSHOT/flink-clients_2.11-1.2-20161206.042236-115-sources.jar"/>
+					</artifact>
+					<artifact name="flink-clients_2.11" type="jar" ext="jar" status="no" details="" size="93840" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-clients_2.11/jars/flink-clients_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-clients_2.11/1.2-SNAPSHOT/flink-clients_2.11-1.2-20161208.041300-117.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-optimizer_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041512" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="68">
+				<metadata-artifact status="no" details="" size="13592" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-optimizer_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-optimizer_2.11/1.2-SNAPSHOT/flink-optimizer_2.11-1.2-20161208.041237-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-optimizer_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="280180" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-optimizer_2.11/srcs/flink-optimizer_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-optimizer_2.11/1.2-SNAPSHOT/flink-optimizer_2.11-1.2-20161206.042213-115-sources.jar"/>
+					</artifact>
+					<artifact name="flink-optimizer_2.11" type="jar" ext="jar" status="no" details="" size="2745936" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-optimizer_2.11/jars/flink-optimizer_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-optimizer_2.11/1.2-SNAPSHOT/flink-optimizer_2.11-1.2-20161208.041237-117.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-runtime_2.11">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041434" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="30">
+				<metadata-artifact status="no" details="" size="16794" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-runtime_2.11/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-runtime_2.11/1.2-SNAPSHOT/flink-runtime_2.11-1.2-20161208.041158-117.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-runtime_2.11" type="jar" ext="jar" status="no" details="" size="6056363" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-runtime_2.11/jars/flink-runtime_2.11-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-runtime_2.11/1.2-SNAPSHOT/flink-runtime_2.11-1.2-20161208.041158-117.jar"/>
+					</artifact>
+					<artifact name="flink-runtime_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1475636" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-runtime_2.11/srcs/flink-runtime_2.11-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-runtime_2.11/1.2-SNAPSHOT/flink-runtime_2.11-1.2-20161206.042127-115-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.twitter" name="chill_2.11">
+			<revision name="0.8.1" status="release" pubdate="20161011021755" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/twitter/chill" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="65">
+				<license name="Apache 2" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3175" time="0" location="/home/dsteiner/.ivy2/cache/com.twitter/chill_2.11/ivy-0.8.1.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/twitter/chill_2.11/0.8.1/chill_2.11-0.8.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.8.1" rev-constraint-default="0.8.1" rev-constraint-dynamic="0.8.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="chill_2.11" type="jar" ext="jar" status="no" details="" size="223575" time="0" location="/home/dsteiner/.ivy2/cache/com.twitter/chill_2.11/jars/chill_2.11-0.8.1.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/twitter/chill_2.11/0.8.1/chill_2.11-0.8.1.jar"/>
+					</artifact>
+					<artifact name="chill_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="34975" time="0" location="/home/dsteiner/.ivy2/cache/com.twitter/chill_2.11/srcs/chill_2.11-0.8.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/twitter/chill_2.11/0.8.1/chill_2.11-0.8.1-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.twitter" name="chill-java">
+			<revision name="0.8.1" status="release" pubdate="20161011021659" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/twitter/chill" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="66">
+				<license name="Apache 2" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="2893" time="0" location="/home/dsteiner/.ivy2/cache/com.twitter/chill-java/ivy-0.8.1.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/twitter/chill-java/0.8.1/chill-java-0.8.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.8.1" rev-constraint-default="0.8.1" rev-constraint-dynamic="0.8.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="chill-java" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="57907" time="0" location="/home/dsteiner/.ivy2/cache/com.twitter/chill-java/srcs/chill-java-0.8.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/twitter/chill-java/0.8.1/chill-java-0.8.1-sources.jar"/>
+					</artifact>
+					<artifact name="chill-java" type="jar" ext="jar" status="no" details="" size="57908" time="0" location="/home/dsteiner/.ivy2/cache/com.twitter/chill-java/jars/chill-java-0.8.1.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/twitter/chill-java/0.8.1/chill-java-0.8.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.fasterxml.jackson.core" name="jackson-databind">
+			<revision name="2.7.4" status="release" pubdate="20160429164620" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://github.com/FasterXML/jackson" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="63">
+				<metadata-artifact status="no" details="" size="7714" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/ivy-2.7.4.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-databind/2.7.4/jackson-databind-2.7.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.7.4" rev-constraint-default="2.7.4" rev-constraint-dynamic="2.7.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jackson-databind" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="888782" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/srcs/jackson-databind-2.7.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-databind/2.7.4/jackson-databind-2.7.4-sources.jar"/>
+					</artifact>
+					<artifact name="jackson-databind" type="jar" ext="jar" status="no" details="" size="1204187" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/jars/jackson-databind-2.7.4.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-databind/2.7.4/jackson-databind-2.7.4.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.fasterxml.jackson.core" name="jackson-annotations">
+			<revision name="2.7.0" status="release" pubdate="20160110093327" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://github.com/FasterXML/jackson" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="64">
+				<metadata-artifact status="no" details="" size="6642" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/ivy-2.7.0.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.7.0" rev-constraint-default="2.7.0" rev-constraint-dynamic="2.7.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jackson-annotations" type="jar" ext="jar" status="no" details="" size="50894" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/jars/jackson-annotations-2.7.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0.jar"/>
+					</artifact>
+					<artifact name="jackson-annotations" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="53136" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/srcs/jackson-annotations-2.7.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.fasterxml.jackson.core" name="jackson-core">
+			<revision name="2.7.4" status="release" pubdate="20160429012716" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/FasterXML/jackson-core" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="62">
+				<metadata-artifact status="no" details="" size="7196" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/ivy-2.7.4.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.7.4" rev-constraint-default="2.7.4" rev-constraint-dynamic="2.7.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jackson-core" type="jar" ext="jar" status="no" details="" size="253001" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/jars/jackson-core-2.7.4.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4.jar"/>
+					</artifact>
+					<artifact name="jackson-core" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="265465" time="0" location="/home/dsteiner/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/srcs/jackson-core-2.7.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.github.scopt" name="scopt_2.11">
+			<revision name="3.2.0" status="release" pubdate="20140418035700" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/scopt/scopt" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="61">
+				<license name="MIT License" url="http://www.opensource.org/licenses/mit-license.php"/>
+				<metadata-artifact status="no" details="" size="2797" time="0" location="/home/dsteiner/.ivy2/cache/com.github.scopt/scopt_2.11/ivy-3.2.0.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/github/scopt/scopt_2.11/3.2.0/scopt_2.11-3.2.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.2.0" rev-constraint-default="3.2.0" rev-constraint-dynamic="3.2.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="scopt_2.11" type="jar" ext="jar" status="no" details="" size="122147" time="0" location="/home/dsteiner/.ivy2/cache/com.github.scopt/scopt_2.11/jars/scopt_2.11-3.2.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/github/scopt/scopt_2.11/3.2.0/scopt_2.11-3.2.0.jar"/>
+					</artifact>
+					<artifact name="scopt_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="6959" time="0" location="/home/dsteiner/.ivy2/cache/com.github.scopt/scopt_2.11/srcs/scopt_2.11-3.2.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/github/scopt/scopt_2.11/3.2.0/scopt_2.11-3.2.0-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.clapper" name="grizzled-slf4j_2.11">
+			<revision name="1.0.2" status="release" pubdate="20140427152710" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/bmc/grizzled-slf4j/#readme" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="60">
+				<license name="BSD" url="http://software.clapper.org/grizzled-slf4j/license.html"/>
+				<metadata-artifact status="no" details="" size="2982" time="0" location="/home/dsteiner/.ivy2/cache/org.clapper/grizzled-slf4j_2.11/ivy-1.0.2.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/clapper/grizzled-slf4j_2.11/1.0.2/grizzled-slf4j_2.11-1.0.2.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0.2" rev-constraint-default="1.0.2" rev-constraint-dynamic="1.0.2" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="grizzled-slf4j_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="2881" time="0" location="/home/dsteiner/.ivy2/cache/org.clapper/grizzled-slf4j_2.11/srcs/grizzled-slf4j_2.11-1.0.2-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/clapper/grizzled-slf4j_2.11/1.0.2/grizzled-slf4j_2.11-1.0.2-sources.jar"/>
+					</artifact>
+					<artifact name="grizzled-slf4j_2.11" type="jar" ext="jar" status="no" details="" size="6427" time="0" location="/home/dsteiner/.ivy2/cache/org.clapper/grizzled-slf4j_2.11/jars/grizzled-slf4j_2.11-1.0.2.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/clapper/grizzled-slf4j_2.11/1.0.2/grizzled-slf4j_2.11-1.0.2.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe.akka" name="akka-slf4j_2.11">
+			<revision name="2.3.7" status="release" pubdate="20141112100500" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://akka.io/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="59">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="3199" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-slf4j_2.11/ivy-2.3.7.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/typesafe/akka/akka-slf4j_2.11/2.3.7/akka-slf4j_2.11-2.3.7.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.3.7" rev-constraint-default="2.3.7" rev-constraint-dynamic="2.3.7" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="akka-slf4j_2.11" type="jar" ext="jar" status="no" details="" size="15174" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-slf4j_2.11/jars/akka-slf4j_2.11-2.3.7.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/akka/akka-slf4j_2.11/2.3.7/akka-slf4j_2.11-2.3.7.jar"/>
+					</artifact>
+					<artifact name="akka-slf4j_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1971" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-slf4j_2.11/srcs/akka-slf4j_2.11-2.3.7-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/akka/akka-slf4j_2.11/2.3.7/akka-slf4j_2.11-2.3.7-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe.akka" name="akka-remote_2.11">
+			<revision name="2.3.7" status="release" pubdate="20141112100600" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://akka.io/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="55">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="3948" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-remote_2.11/ivy-2.3.7.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/typesafe/akka/akka-remote_2.11/2.3.7/akka-remote_2.11-2.3.7.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.3.7" rev-constraint-default="2.3.7" rev-constraint-dynamic="2.3.7" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="akka-remote_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="142867" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-remote_2.11/srcs/akka-remote_2.11-2.3.7-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/akka/akka-remote_2.11/2.3.7/akka-remote_2.11-2.3.7-sources.jar"/>
+					</artifact>
+					<artifact name="akka-remote_2.11" type="jar" ext="jar" status="no" details="" size="1318999" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-remote_2.11/jars/akka-remote_2.11-2.3.7.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/akka/akka-remote_2.11/2.3.7/akka-remote_2.11-2.3.7.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.uncommons.maths" name="uncommons-maths">
+			<revision name="1.2.2a" status="release" pubdate="20110408145605" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://maths.uncommons.org/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="58">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.html"/>
+				<metadata-artifact status="no" details="" size="2738" time="0" location="/home/dsteiner/.ivy2/cache/org.uncommons.maths/uncommons-maths/ivy-1.2.2a.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/uncommons/maths/uncommons-maths/1.2.2a/uncommons-maths-1.2.2a.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2.2a" rev-constraint-default="1.2.2a" rev-constraint-dynamic="1.2.2a" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="uncommons-maths" type="jar" ext="jar" status="no" details="" size="49019" time="0" location="/home/dsteiner/.ivy2/cache/org.uncommons.maths/uncommons-maths/jars/uncommons-maths-1.2.2a.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/uncommons/maths/uncommons-maths/1.2.2a/uncommons-maths-1.2.2a.jar"/>
+					</artifact>
+					<artifact name="uncommons-maths" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="61093" time="0" location="/home/dsteiner/.ivy2/cache/org.uncommons.maths/uncommons-maths/srcs/uncommons-maths-1.2.2a-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/uncommons/maths/uncommons-maths/1.2.2a/uncommons-maths-1.2.2a-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="io.netty" name="netty">
+			<revision name="3.8.0.Final" status="release" pubdate="20131107092312" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://netty.io/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="56">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="6425" time="0" location="/home/dsteiner/.ivy2/cache/io.netty/netty/ivy-3.8.0.Final.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/io/netty/netty/3.8.0.Final/netty-3.8.0.Final.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.8.0.Final" rev-constraint-default="3.8.0.Final" rev-constraint-dynamic="3.8.0.Final" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="netty" type="jar" ext="jar" status="no" details="" size="1230201" time="0" location="/home/dsteiner/.ivy2/cache/io.netty/netty/jars/netty-3.8.0.Final.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/io/netty/netty/3.8.0.Final/netty-3.8.0.Final.jar"/>
+					</artifact>
+					<artifact name="netty" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1079966" time="0" location="/home/dsteiner/.ivy2/cache/io.netty/netty/srcs/netty-3.8.0.Final-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/io/netty/netty/3.8.0.Final/netty-3.8.0.Final-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe.akka" name="akka-actor_2.11">
+			<revision name="2.3.7" status="release" pubdate="20141112100200" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://akka.io/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="53">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="2792" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-actor_2.11/ivy-2.3.7.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/typesafe/akka/akka-actor_2.11/2.3.7/akka-actor_2.11-2.3.7.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.3.7" rev-constraint-default="2.3.7" rev-constraint-dynamic="2.3.7" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="akka-actor_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="331121" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-actor_2.11/srcs/akka-actor_2.11-2.3.7-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/akka/akka-actor_2.11/2.3.7/akka-actor_2.11-2.3.7-sources.jar"/>
+					</artifact>
+					<artifact name="akka-actor_2.11" type="jar" ext="jar" status="no" details="" size="2543025" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe.akka/akka-actor_2.11/jars/akka-actor_2.11-2.3.7.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/akka/akka-actor_2.11/2.3.7/akka-actor_2.11-2.3.7.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.typesafe" name="config">
+			<revision name="1.2.1" status="release" pubdate="20140502155416" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/typesafehub/config" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="54">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="2734" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe/config/ivy-1.2.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/typesafe/config/1.2.1/config-1.2.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2.1" rev-constraint-default="1.2.1" rev-constraint-dynamic="1.2.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="config" type="jar" ext="jar" status="no" details="" size="219554" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe/config/jars/config-1.2.1.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/config/1.2.1/config-1.2.1.jar"/>
+					</artifact>
+					<artifact name="config" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="132611" time="0" location="/home/dsteiner/.ivy2/cache/com.typesafe/config/srcs/config-1.2.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/typesafe/config/1.2.1/config-1.2.1-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.javassist" name="javassist">
+			<revision name="3.18.2-GA" status="release" pubdate="20140527175509" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.javassist.org/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="52">
+				<license name="MPL 1.1" url="http://www.mozilla.org/MPL/MPL-1.1.html"/>
+				<license name="LGPL 2.1" url="http://www.gnu.org/licenses/lgpl-2.1.html"/>
+				<license name="Apache License 2.0" url="http://www.apache.org/licenses/"/>
+				<metadata-artifact status="no" details="" size="3067" time="0" location="/home/dsteiner/.ivy2/cache/org.javassist/javassist/ivy-3.18.2-GA.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/javassist/javassist/3.18.2-GA/javassist-3.18.2-GA.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.18.2-GA" rev-constraint-default="3.18.2-GA" rev-constraint-dynamic="3.18.2-GA" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="javassist" type="jar" ext="jar" status="no" details="" size="714524" time="0" location="/home/dsteiner/.ivy2/cache/org.javassist/javassist/jars/javassist-3.18.2-GA.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/javassist/javassist/3.18.2-GA/javassist-3.18.2-GA.jar"/>
+					</artifact>
+					<artifact name="javassist" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="513516" time="0" location="/home/dsteiner/.ivy2/cache/org.javassist/javassist/srcs/javassist-3.18.2-GA-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/javassist/javassist/3.18.2-GA/javassist-3.18.2-GA-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="io.netty" name="netty-all">
+			<revision name="4.0.27.Final" status="release" pubdate="20150402173344" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="51">
+				<metadata-artifact status="no" details="" size="17932" time="0" location="/home/dsteiner/.ivy2/cache/io.netty/netty-all/ivy-4.0.27.Final.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/io/netty/netty-all/4.0.27.Final/netty-all-4.0.27.Final.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="4.0.27.Final" rev-constraint-default="4.0.27.Final" rev-constraint-dynamic="4.0.27.Final" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="netty-all" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1570429" time="0" location="/home/dsteiner/.ivy2/cache/io.netty/netty-all/srcs/netty-all-4.0.27.Final-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/io/netty/netty-all/4.0.27.Final/netty-all-4.0.27.Final-sources.jar"/>
+					</artifact>
+					<artifact name="netty-all" type="jar" ext="jar" status="no" details="" size="1939423" time="0" location="/home/dsteiner/.ivy2/cache/io.netty/netty-all/jars/netty-all-4.0.27.Final.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/io/netty/netty-all/4.0.27.Final/netty-all-4.0.27.Final.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.google.protobuf" name="protobuf-java">
+			<revision name="2.5.0" status="release" pubdate="20130308001811" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://code.google.com/p/protobuf" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="57">
+				<license name="New BSD license" url="http://www.opensource.org/licenses/bsd-license.php"/>
+				<metadata-artifact status="no" details="" size="2995" time="0" location="/home/dsteiner/.ivy2/cache/com.google.protobuf/protobuf-java/ivy-2.5.0.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.5.0" rev-constraint-default="2.5.0" rev-constraint-dynamic="2.5.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="protobuf-java" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="276990" time="0" location="/home/dsteiner/.ivy2/cache/com.google.protobuf/protobuf-java/srcs/protobuf-java-2.5.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0-sources.jar"/>
+					</artifact>
+					<artifact name="protobuf-java" type="jar" ext="jar" status="no" details="" size="533455" time="0" location="/home/dsteiner/.ivy2/cache/com.google.protobuf/protobuf-java/jars/protobuf-java-2.5.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-java">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041222" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="31">
+				<metadata-artifact status="no" details="" size="13976" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-java/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-java/1.2-SNAPSHOT/flink-java-1.2-20161208.040949-235.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-java" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="338987" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-java/srcs/flink-java-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-java/1.2-SNAPSHOT/flink-java-1.2-20161023.044100-143-sources.jar"/>
+					</artifact>
+					<artifact name="flink-java" type="jar" ext="jar" status="no" details="" size="765474" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-java/jars/flink-java-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-java/1.2-SNAPSHOT/flink-java-1.2-20161208.040949-235.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-shaded-hadoop2">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208040946" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="32">
+				<metadata-artifact status="no" details="" size="18552" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-shaded-hadoop2/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-shaded-hadoop2/1.2-SNAPSHOT/flink-shaded-hadoop2-1.2-20161208.040707-235.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-shaded-hadoop2" type="jar" ext="jar" status="no" details="" size="18287687" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-shaded-hadoop2/jars/flink-shaded-hadoop2-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-shaded-hadoop2/1.2-SNAPSHOT/flink-shaded-hadoop2-1.2-20161208.040707-235.jar"/>
+					</artifact>
+					<artifact name="flink-shaded-hadoop2" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="6884" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-shaded-hadoop2/srcs/flink-shaded-hadoop2-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-shaded-hadoop2/1.2-SNAPSHOT/flink-shaded-hadoop2-1.2-20161023.043805-143-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="javax.xml.bind" name="jaxb-api">
+			<revision name="2.2.2" status="release" pubdate="20101213034445" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://jaxb.dev.java.net/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="48">
+				<license name="CDDL 1.1" url="https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html"/>
+				<license name="GPL2 w/ CPE" url="https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html"/>
+				<metadata-artifact status="no" details="" size="2859" time="0" location="/home/dsteiner/.ivy2/cache/javax.xml.bind/jaxb-api/ivy-2.2.2.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.2.2/jaxb-api-2.2.2.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.2.2" rev-constraint-default="2.2.2" rev-constraint-dynamic="2.2.2" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jaxb-api" type="jar" ext="jar" status="no" details="" size="105134" time="0" location="/home/dsteiner/.ivy2/cache/javax.xml.bind/jaxb-api/jars/jaxb-api-2.2.2.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.2.2/jaxb-api-2.2.2.jar"/>
+					</artifact>
+					<artifact name="jaxb-api" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="182496" time="0" location="/home/dsteiner/.ivy2/cache/javax.xml.bind/jaxb-api/srcs/jaxb-api-2.2.2-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/javax/xml/bind/jaxb-api/2.2.2/jaxb-api-2.2.2-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="javax.activation" name="activation">
+			<revision name="1.1" status="release" pubdate="20060503004829" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://java.sun.com/products/javabeans/jaf/index.jsp" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="50">
+				<license name="Common Development and Distribution License (CDDL) v1.0" url="https://glassfish.dev.java.net/public/CDDLv1.0.html"/>
+				<metadata-artifact status="no" details="" size="2718" time="0" location="/home/dsteiner/.ivy2/cache/javax.activation/activation/ivy-1.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/javax/activation/activation/1.1/activation-1.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.1" rev-constraint-default="1.1" rev-constraint-dynamic="1.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="activation" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="63338" time="0" location="/home/dsteiner/.ivy2/cache/javax.activation/activation/srcs/activation-1.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/javax/activation/activation/1.1/activation-1.1-sources.jar"/>
+					</artifact>
+					<artifact name="activation" type="jar" ext="jar" status="no" details="" size="62983" time="0" location="/home/dsteiner/.ivy2/cache/javax.activation/activation/jars/activation-1.1.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/javax/activation/activation/1.1/activation-1.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="javax.xml.stream" name="stax-api">
+			<revision name="1.0-2" status="release" pubdate="20081004185903" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="49">
+				<license name="GNU General Public Library" url="http://www.gnu.org/licenses/gpl.txt"/>
+				<license name="COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0" url="http://www.sun.com/cddl/cddl.html"/>
+				<metadata-artifact status="no" details="" size="2527" time="0" location="/home/dsteiner/.ivy2/cache/javax.xml.stream/stax-api/ivy-1.0-2.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0-2" rev-constraint-default="1.0-2" rev-constraint-dynamic="1.0-2" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="stax-api" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="42699" time="0" location="/home/dsteiner/.ivy2/cache/javax.xml.stream/stax-api/srcs/stax-api-1.0-2-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2-sources.jar"/>
+					</artifact>
+					<artifact name="stax-api" type="jar" ext="jar" status="no" details="" size="23346" time="0" location="/home/dsteiner/.ivy2/cache/javax.xml.stream/stax-api/jars/stax-api-1.0-2.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-daemon" name="commons-daemon">
+			<revision name="1.0.13" status="release" pubdate="20130207052231" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/daemon/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="47">
+				<metadata-artifact status="no" details="" size="7530" time="0" location="/home/dsteiner/.ivy2/cache/commons-daemon/commons-daemon/ivy-1.0.13.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-daemon/commons-daemon/1.0.13/commons-daemon-1.0.13.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0.13" rev-constraint-default="1.0.13" rev-constraint-dynamic="1.0.13" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-daemon" type="jar" ext="jar" status="no" details="" size="24239" time="0" location="/home/dsteiner/.ivy2/cache/commons-daemon/commons-daemon/jars/commons-daemon-1.0.13.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-daemon/commons-daemon/1.0.13/commons-daemon-1.0.13.jar"/>
+					</artifact>
+					<artifact name="commons-daemon" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="23192" time="0" location="/home/dsteiner/.ivy2/cache/commons-daemon/commons-daemon/srcs/commons-daemon-1.0.13-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-daemon/commons-daemon/1.0.13/commons-daemon-1.0.13-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.jcraft" name="jsch">
+			<revision name="0.1.42" status="release" pubdate="20090806192939" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.jcraft.com/jsch/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="46">
+				<license name="BSD" url="http://www.jcraft.com/jsch/LICENSE.txt"/>
+				<metadata-artifact status="no" details="" size="2479" time="0" location="/home/dsteiner/.ivy2/cache/com.jcraft/jsch/ivy-0.1.42.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/jcraft/jsch/0.1.42/jsch-0.1.42.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.1.42" rev-constraint-default="0.1.42" rev-constraint-dynamic="0.1.42" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jsch" type="jar" ext="jar" status="no" details="" size="185746" time="0" location="/home/dsteiner/.ivy2/cache/com.jcraft/jsch/jars/jsch-0.1.42.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/com/jcraft/jsch/0.1.42/jsch-0.1.42.jar"/>
+					</artifact>
+					<artifact name="jsch" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="211244" time="0" location="/home/dsteiner/.ivy2/cache/com.jcraft/jsch/srcs/jsch-0.1.42-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/jcraft/jsch/0.1.42/jsch-0.1.42-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-configuration" name="commons-configuration">
+			<revision name="1.7" status="release" pubdate="20110904201716" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/configuration/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="44">
+				<metadata-artifact status="no" details="" size="10288" time="0" location="/home/dsteiner/.ivy2/cache/commons-configuration/commons-configuration/ivy-1.7.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-configuration/commons-configuration/1.7/commons-configuration-1.7.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.7" rev-constraint-default="1.7" rev-constraint-dynamic="1.7" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-configuration" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="375976" time="0" location="/home/dsteiner/.ivy2/cache/commons-configuration/commons-configuration/srcs/commons-configuration-1.7-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-configuration/commons-configuration/1.7/commons-configuration-1.7-sources.jar"/>
+					</artifact>
+					<artifact name="commons-configuration" type="jar" ext="jar" status="no" details="" size="350332" time="0" location="/home/dsteiner/.ivy2/cache/commons-configuration/commons-configuration/jars/commons-configuration-1.7.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-configuration/commons-configuration/1.7/commons-configuration-1.7.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-digester" name="commons-digester">
+			<revision name="1.8.1" status="release" pubdate="20090103164824" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/digester/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="45">
+				<metadata-artifact status="no" details="" size="5149" time="0" location="/home/dsteiner/.ivy2/cache/commons-digester/commons-digester/ivy-1.8.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-digester/commons-digester/1.8.1/commons-digester-1.8.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.8.1" rev-constraint-default="1.8.1" rev-constraint-dynamic="1.8.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-digester" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="207836" time="0" location="/home/dsteiner/.ivy2/cache/commons-digester/commons-digester/srcs/commons-digester-1.8.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-digester/commons-digester/1.8.1/commons-digester-1.8.1-sources.jar"/>
+					</artifact>
+					<artifact name="commons-digester" type="jar" ext="jar" status="no" details="" size="146108" time="0" location="/home/dsteiner/.ivy2/cache/commons-digester/commons-digester/jars/commons-digester-1.8.1.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-digester/commons-digester/1.8.1/commons-digester-1.8.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-lang" name="commons-lang">
+			<revision name="2.6" status="release" pubdate="20140804170918" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/lang/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="43">
+				<metadata-artifact status="no" details="" size="6583" time="0" location="/home/dsteiner/.ivy2/cache/commons-lang/commons-lang/ivy-2.6.xml" searched="false" origin-is-local="false" origin-location="http://repo.pentaho.org/artifactory/repo/commons-lang/commons-lang/2.6/commons-lang-2.6.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.6" rev-constraint-default="2.6" rev-constraint-dynamic="2.6" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-lang" type="jar" ext="jar" status="no" details="" size="284220" time="0" location="/home/dsteiner/.ivy2/cache/commons-lang/commons-lang/jars/commons-lang-2.6.jar">
+						<origin-location is-local="false" location="http://repo.pentaho.org/artifactory/repo/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
+					</artifact>
+					<artifact name="commons-lang" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="372982" time="0" location="/home/dsteiner/.ivy2/cache/commons-lang/commons-lang/srcs/commons-lang-2.6-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.jamesmurty.utils" name="java-xmlbuilder">
+			<revision name="0.4" status="release" pubdate="20101027020304" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://code.google.com/p/java-xmlbuilder/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="42">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+				<metadata-artifact status="no" details="" size="2879" time="0" location="/home/dsteiner/.ivy2/cache/com.jamesmurty.utils/java-xmlbuilder/ivy-0.4.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/jamesmurty/utils/java-xmlbuilder/0.4/java-xmlbuilder-0.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.4" rev-constraint-default="0.4" rev-constraint-dynamic="0.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="java-xmlbuilder" type="jar" ext="jar" status="no" details="" size="18490" time="0" location="/home/dsteiner/.ivy2/cache/com.jamesmurty.utils/java-xmlbuilder/jars/java-xmlbuilder-0.4.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/com/jamesmurty/utils/java-xmlbuilder/0.4/java-xmlbuilder-0.4.jar"/>
+					</artifact>
+					<artifact name="java-xmlbuilder" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="19546" time="0" location="/home/dsteiner/.ivy2/cache/com.jamesmurty.utils/java-xmlbuilder/srcs/java-xmlbuilder-0.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/jamesmurty/utils/java-xmlbuilder/0.4/java-xmlbuilder-0.4-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-logging" name="commons-logging">
+			<revision name="1.1.3" status="release" pubdate="20130516210523" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/proper/commons-logging/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="41">
+				<metadata-artifact status="no" details="" size="10453" time="0" location="/home/dsteiner/.ivy2/cache/commons-logging/commons-logging/ivy-1.1.3.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-logging/commons-logging/1.1.3/commons-logging-1.1.3.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.1.3" rev-constraint-default="1.1.3" rev-constraint-dynamic="1.1.3" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-logging" type="jar" ext="jar" status="no" details="" size="62050" time="0" location="/home/dsteiner/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-logging/commons-logging/1.1.3/commons-logging-1.1.3.jar"/>
+					</artifact>
+					<artifact name="commons-logging" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="73915" time="0" location="/home/dsteiner/.ivy2/cache/commons-logging/commons-logging/srcs/commons-logging-1.1.3-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-logging/commons-logging/1.1.3/commons-logging-1.1.3-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-el" name="commons-el">
+			<revision name="1.0" status="release" pubdate="20051108222050" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://jakarta.apache.org/commons/el/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="69">
+				<license name="The Apache Software License, Version 2.0" url="/LICENSE.txt"/>
+				<metadata-artifact status="no" details="" size="2907" time="0" location="/home/dsteiner/.ivy2/cache/commons-el/commons-el/ivy-1.0.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-el/commons-el/1.0/commons-el-1.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0" rev-constraint-default="1.0" rev-constraint-dynamic="1.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-el" type="jar" ext="jar" status="no" details="" size="112341" time="0" location="/home/dsteiner/.ivy2/cache/commons-el/commons-el/jars/commons-el-1.0.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-el/commons-el/1.0/commons-el-1.0.jar"/>
+					</artifact>
+					<artifact name="commons-el" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="139567" time="0" location="/home/dsteiner/.ivy2/cache/commons-el/commons-el/srcs/commons-el-1.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-el/commons-el/1.0/commons-el-1.0-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.sun.jersey" name="jersey-core">
+			<revision name="1.9" status="release" pubdate="20110902121655" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="40">
+				<metadata-artifact status="no" details="" size="5411" time="0" location="/home/dsteiner/.ivy2/cache/com.sun.jersey/jersey-core/ivy-1.9.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/sun/jersey/jersey-core/1.9/jersey-core-1.9.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.9" rev-constraint-default="1.9" rev-constraint-dynamic="1.9" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jersey-core" type="jar" ext="jar" status="no" details="" size="458739" time="0" location="/home/dsteiner/.ivy2/cache/com.sun.jersey/jersey-core/jars/jersey-core-1.9.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/sun/jersey/jersey-core/1.9/jersey-core-1.9.jar"/>
+					</artifact>
+					<artifact name="jersey-core" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="431251" time="0" location="/home/dsteiner/.ivy2/cache/com.sun.jersey/jersey-core/srcs/jersey-core-1.9-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/sun/jersey/jersey-core/1.9/jersey-core-1.9-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.mortbay.jetty" name="jetty-util">
+			<revision name="6.1.26" status="release" pubdate="20101110213810" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="39">
+				<metadata-artifact status="no" details="" size="7138" time="0" location="/home/dsteiner/.ivy2/cache/org.mortbay.jetty/jetty-util/ivy-6.1.26.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util/6.1.26/jetty-util-6.1.26.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="6.1.26" rev-constraint-default="6.1.26" rev-constraint-dynamic="6.1.26" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jetty-util" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="123338" time="0" location="/home/dsteiner/.ivy2/cache/org.mortbay.jetty/jetty-util/srcs/jetty-util-6.1.26-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/mortbay/jetty/jetty-util/6.1.26/jetty-util-6.1.26-sources.jar"/>
+					</artifact>
+					<artifact name="jetty-util" type="jar" ext="jar" status="no" details="" size="177131" time="0" location="/home/dsteiner/.ivy2/cache/org.mortbay.jetty/jetty-util/jars/jetty-util-6.1.26.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util/6.1.26/jetty-util-6.1.26.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="javax.servlet" name="servlet-api">
+			<revision name="2.5" status="release" pubdate="20060717120957" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="38">
+				<metadata-artifact status="no" details="" size="2194" time="0" location="/home/dsteiner/.ivy2/cache/javax.servlet/servlet-api/ivy-2.5.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/javax/servlet/servlet-api/2.5/servlet-api-2.5.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.5" rev-constraint-default="2.5" rev-constraint-dynamic="2.5" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="servlet-api" type="jar" ext="jar" status="no" details="" size="105112" time="0" location="/home/dsteiner/.ivy2/cache/javax.servlet/servlet-api/jars/servlet-api-2.5.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"/>
+					</artifact>
+					<artifact name="servlet-api" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="158114" time="0" location="/home/dsteiner/.ivy2/cache/javax.servlet/servlet-api/srcs/servlet-api-2.5-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/javax/servlet/servlet-api/2.5/servlet-api-2.5-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-net" name="commons-net">
+			<revision name="3.1" status="release" pubdate="20120214184231" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/net/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="37">
+				<metadata-artifact status="no" details="" size="8087" time="0" location="/home/dsteiner/.ivy2/cache/commons-net/commons-net/ivy-3.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-net/commons-net/3.1/commons-net-3.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.1" rev-constraint-default="3.1" rev-constraint-dynamic="3.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-net" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="406713" time="0" location="/home/dsteiner/.ivy2/cache/commons-net/commons-net/srcs/commons-net-3.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-net/commons-net/3.1/commons-net-3.1-sources.jar"/>
+					</artifact>
+					<artifact name="commons-net" type="jar" ext="jar" status="no" details="" size="273370" time="0" location="/home/dsteiner/.ivy2/cache/commons-net/commons-net/jars/commons-net-3.1.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-net/commons-net/3.1/commons-net-3.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-codec" name="commons-codec">
+			<revision name="1.4" status="release" pubdate="20090809222217" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/codec/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="35">
+				<metadata-artifact status="no" details="" size="4984" time="0" location="/home/dsteiner/.ivy2/cache/commons-codec/commons-codec/ivy-1.4.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-codec/commons-codec/1.4/commons-codec-1.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.4" rev-constraint-default="1.4" rev-constraint-dynamic="1.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-codec" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="81359" time="0" location="/home/dsteiner/.ivy2/cache/commons-codec/commons-codec/srcs/commons-codec-1.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-codec/commons-codec/1.4/commons-codec-1.4-sources.jar"/>
+					</artifact>
+					<artifact name="commons-codec" type="jar" ext="jar" status="no" details="" size="58160" time="0" location="/home/dsteiner/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.4.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-codec/commons-codec/1.4/commons-codec-1.4.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.commons" name="commons-math3">
+			<revision name="3.5" status="release" pubdate="20150414133919" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/proper/commons-math/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="34">
+				<metadata-artifact status="no" details="" size="11291" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-math3/ivy-3.5.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.5" rev-constraint-default="3.5" rev-constraint-dynamic="3.5" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-math3" type="jar" ext="jar" status="no" details="" size="2038489" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-math3/jars/commons-math3-3.5.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.5/commons-math3-3.5.jar"/>
+					</artifact>
+					<artifact name="commons-math3" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="2325609" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-math3/srcs/commons-math3-3.5-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/commons/commons-math3/3.5/commons-math3-3.5-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-cli" name="commons-cli">
+			<revision name="1.3.1" status="release" pubdate="20150614110623" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/proper/commons-cli/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="33">
+				<metadata-artifact status="no" details="" size="10959" time="0" location="/home/dsteiner/.ivy2/cache/commons-cli/commons-cli/ivy-1.3.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.3.1" rev-constraint-default="1.3.1" rev-constraint-dynamic="1.3.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-cli" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="58823" time="0" location="/home/dsteiner/.ivy2/cache/commons-cli/commons-cli/srcs/commons-cli-1.3.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1-sources.jar"/>
+					</artifact>
+					<artifact name="commons-cli" type="jar" ext="jar" status="no" details="" size="52988" time="0" location="/home/dsteiner/.ivy2/cache/commons-cli/commons-cli/jars/commons-cli-1.3.1.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-core">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041141" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="16">
+				<metadata-artifact status="no" details="" size="14778" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-core/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-core/1.2-SNAPSHOT/flink-core-1.2-20161208.040906-235.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-core" type="jar" ext="jar" status="no" details="" size="1249457" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-core/jars/flink-core-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-core/1.2-SNAPSHOT/flink-core-1.2-20161208.040906-235.jar"/>
+					</artifact>
+					<artifact name="flink-core" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="856288" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-core/srcs/flink-core-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-core/1.2-SNAPSHOT/flink-core-1.2-20161023.044027-143-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.avro" name="avro">
+			<revision name="1.7.6" status="release" pubdate="20140110214141" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://avro.apache.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="26">
+				<metadata-artifact status="no" details="" size="12166" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.avro/avro/ivy-1.7.6.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/apache/avro/avro/1.7.6/avro-1.7.6.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.7.6" rev-constraint-default="1.7.6" rev-constraint-dynamic="1.7.6" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="avro" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="250056" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.avro/avro/srcs/avro-1.7.6-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/avro/avro/1.7.6/avro-1.7.6-sources.jar"/>
+					</artifact>
+					<artifact name="avro" type="jar" ext="jar" status="no" details="" size="425587" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.avro/avro/jars/avro-1.7.6.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/avro/avro/1.7.6/avro-1.7.6.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.thoughtworks.paranamer" name="paranamer">
+			<revision name="2.3" status="release" pubdate="20101019141431" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="29">
+				<metadata-artifact status="no" details="" size="3340" time="0" location="/home/dsteiner/.ivy2/cache/com.thoughtworks.paranamer/paranamer/ivy-2.3.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.3/paranamer-2.3.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.3" rev-constraint-default="2.3" rev-constraint-dynamic="2.3" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="paranamer" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="26753" time="0" location="/home/dsteiner/.ivy2/cache/com.thoughtworks.paranamer/paranamer/srcs/paranamer-2.3-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/thoughtworks/paranamer/paranamer/2.3/paranamer-2.3-sources.jar"/>
+					</artifact>
+					<artifact name="paranamer" type="jar" ext="jar" status="no" details="" size="29555" time="0" location="/home/dsteiner/.ivy2/cache/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.3.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.3/paranamer-2.3.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.codehaus.jackson" name="jackson-mapper-asl">
+			<revision name="1.9.13" status="release" pubdate="20130715040750" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://jackson.codehaus.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="28">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="2655" time="0" location="/home/dsteiner/.ivy2/cache/org.codehaus.jackson/jackson-mapper-asl/ivy-1.9.13.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/codehaus/jackson/jackson-mapper-asl/1.9.13/jackson-mapper-asl-1.9.13.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.9.13" rev-constraint-default="1.9.13" rev-constraint-dynamic="1.9.13" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jackson-mapper-asl" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="548251" time="0" location="/home/dsteiner/.ivy2/cache/org.codehaus.jackson/jackson-mapper-asl/srcs/jackson-mapper-asl-1.9.13-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/codehaus/jackson/jackson-mapper-asl/1.9.13/jackson-mapper-asl-1.9.13-sources.jar"/>
+					</artifact>
+					<artifact name="jackson-mapper-asl" type="jar" ext="jar" status="no" details="" size="780664" time="0" location="/home/dsteiner/.ivy2/cache/org.codehaus.jackson/jackson-mapper-asl/jars/jackson-mapper-asl-1.9.13.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/codehaus/jackson/jackson-mapper-asl/1.9.13/jackson-mapper-asl-1.9.13.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.codehaus.jackson" name="jackson-core-asl">
+			<revision name="1.9.13" status="release" pubdate="20130715040730" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://jackson.codehaus.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="27">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="2438" time="0" location="/home/dsteiner/.ivy2/cache/org.codehaus.jackson/jackson-core-asl/ivy-1.9.13.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/codehaus/jackson/jackson-core-asl/1.9.13/jackson-core-asl-1.9.13.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.9.13" rev-constraint-default="1.9.13" rev-constraint-dynamic="1.9.13" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jackson-core-asl" type="jar" ext="jar" status="no" details="" size="232248" time="0" location="/home/dsteiner/.ivy2/cache/org.codehaus.jackson/jackson-core-asl/jars/jackson-core-asl-1.9.13.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/codehaus/jackson/jackson-core-asl/1.9.13/jackson-core-asl-1.9.13.jar"/>
+					</artifact>
+					<artifact name="jackson-core-asl" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="240367" time="0" location="/home/dsteiner/.ivy2/cache/org.codehaus.jackson/jackson-core-asl/srcs/jackson-core-asl-1.9.13-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/codehaus/jackson/jackson-core-asl/1.9.13/jackson-core-asl-1.9.13-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.commons" name="commons-compress">
+			<revision name="1.4.1" status="release" pubdate="20120522055732" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/compress/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="24">
+				<metadata-artifact status="no" details="" size="7888" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-compress/ivy-1.4.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.4.1/commons-compress-1.4.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.4.1" rev-constraint-default="1.4.1" rev-constraint-dynamic="1.4.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-compress" type="jar" ext="jar" status="no" details="" size="241367" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-compress/jars/commons-compress-1.4.1.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.4.1/commons-compress-1.4.1.jar"/>
+					</artifact>
+					<artifact name="commons-compress" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="264972" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-compress/srcs/commons-compress-1.4.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/commons/commons-compress/1.4.1/commons-compress-1.4.1-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.tukaani" name="xz">
+			<revision name="1.0" status="release" pubdate="20140804165606" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://tukaani.org/xz/java.html" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="25">
+				<license name="Public Domain"/>
+				<metadata-artifact status="no" details="" size="2450" time="0" location="/home/dsteiner/.ivy2/cache/org.tukaani/xz/ivy-1.0.xml" searched="false" origin-is-local="false" origin-location="http://repo.pentaho.org/artifactory/repo/org/tukaani/xz/1.0/xz-1.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0" rev-constraint-default="1.0" rev-constraint-dynamic="1.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="xz" type="jar" ext="jar" status="no" details="" size="94672" time="0" location="/home/dsteiner/.ivy2/cache/org.tukaani/xz/jars/xz-1.0.jar">
+						<origin-location is-local="false" location="http://repo.pentaho.org/artifactory/repo/org/tukaani/xz/1.0/xz-1.0.jar"/>
+					</artifact>
+					<artifact name="xz" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="119146" time="0" location="/home/dsteiner/.ivy2/cache/org.tukaani/xz/srcs/xz-1.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/tukaani/xz/1.0/xz-1.0-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.esotericsoftware.kryo" name="kryo">
+			<revision name="2.24.0" status="release" pubdate="20140504140438" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/EsotericSoftware/kryo" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="20">
+				<license name="New BSD License" url="http://www.opensource.org/licenses/bsd-license.php"/>
+				<metadata-artifact status="no" details="" size="3358" time="0" location="/home/dsteiner/.ivy2/cache/com.esotericsoftware.kryo/kryo/ivy-2.24.0.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.24.0" rev-constraint-default="2.24.0" rev-constraint-dynamic="2.24.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="kryo" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="126718" time="0" location="/home/dsteiner/.ivy2/cache/com.esotericsoftware.kryo/kryo/srcs/kryo-2.24.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0-sources.jar"/>
+					</artifact>
+					<artifact name="kryo" type="jar" ext="jar" status="no" details="" size="339283" time="0" location="/home/dsteiner/.ivy2/cache/com.esotericsoftware.kryo/kryo/jars/kryo-2.24.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/esotericsoftware/kryo/kryo/2.24.0/kryo-2.24.0.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.objenesis" name="objenesis">
+			<revision name="2.1" status="release" pubdate="20131010222537" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://objenesis.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="22">
+				<metadata-artifact status="no" details="" size="3127" time="0" location="/home/dsteiner/.ivy2/cache/org.objenesis/objenesis/ivy-2.1.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.1" rev-constraint-default="2.1" rev-constraint-dynamic="2.1" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="objenesis" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="44014" time="0" location="/home/dsteiner/.ivy2/cache/org.objenesis/objenesis/srcs/objenesis-2.1-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/objenesis/objenesis/2.1/objenesis-2.1-sources.jar"/>
+					</artifact>
+					<artifact name="objenesis" type="jar" ext="jar" status="no" details="" size="41755" time="0" location="/home/dsteiner/.ivy2/cache/org.objenesis/objenesis/jars/objenesis-2.1.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/objenesis/objenesis/2.1/objenesis-2.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.esotericsoftware.minlog" name="minlog">
+			<revision name="1.2" status="release" pubdate="20120531132649" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://code.google.com/p/minlog/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="21">
+				<license name="New BSD License" url="http://www.opensource.org/licenses/bsd-license.php"/>
+				<metadata-artifact status="no" details="" size="2539" time="0" location="/home/dsteiner/.ivy2/cache/com.esotericsoftware.minlog/minlog/ivy-1.2.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2" rev-constraint-default="1.2" rev-constraint-dynamic="1.2" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="minlog" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="2458" time="0" location="/home/dsteiner/.ivy2/cache/com.esotericsoftware.minlog/minlog/srcs/minlog-1.2-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2-sources.jar"/>
+					</artifact>
+					<artifact name="minlog" type="jar" ext="jar" status="no" details="" size="4965" time="0" location="/home/dsteiner/.ivy2/cache/com.esotericsoftware.minlog/minlog/jars/minlog-1.2.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/com/esotericsoftware/minlog/minlog/1.2/minlog-1.2.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-metrics-core">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208041030" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="19">
+				<metadata-artifact status="no" details="" size="14404" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-metrics-core/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-metrics-core/1.2-SNAPSHOT/flink-metrics-core-1.2-20161208.040757-235.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-metrics-core" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="20614" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-metrics-core/srcs/flink-metrics-core-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-metrics-core/1.2-SNAPSHOT/flink-metrics-core-1.2-20161023.043926-143-sources.jar"/>
+					</artifact>
+					<artifact name="flink-metrics-core" type="jar" ext="jar" status="no" details="" size="20321" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-metrics-core/jars/flink-metrics-core-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-metrics-core/1.2-SNAPSHOT/flink-metrics-core-1.2-20161208.040757-235.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.flink" name="flink-annotations">
+			<revision name="1.2-SNAPSHOT" status="integration" pubdate="20161208040900" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="17">
+				<metadata-artifact status="no" details="" size="13188" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-annotations/ivy-1.2-SNAPSHOT.xml" searched="true" origin-is-local="false" origin-location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-annotations/1.2-SNAPSHOT/flink-annotations-1.2-20161208.040628-235.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2-SNAPSHOT" rev-constraint-default="1.2-SNAPSHOT" rev-constraint-dynamic="1.2-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="flink-annotations" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="9289" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-annotations/srcs/flink-annotations-1.2-SNAPSHOT-sources.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-annotations/1.2-SNAPSHOT/flink-annotations-1.2-20161023.043729-143-sources.jar"/>
+					</artifact>
+					<artifact name="flink-annotations" type="jar" ext="jar" status="no" details="" size="11521" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.flink/flink-annotations/jars/flink-annotations-1.2-SNAPSHOT.jar">
+						<origin-location is-local="false" location="https://repository.apache.org/content/repositories/snapshots/org/apache/flink/flink-annotations/1.2-SNAPSHOT/flink-annotations-1.2-20161208.040628-235.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.commons" name="commons-lang3">
+			<revision name="3.3.2" status="release" pubdate="20140406132129" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/proper/commons-lang/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="18">
+				<metadata-artifact status="no" details="" size="10702" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-lang3/ivy-3.3.2.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.3.2" rev-constraint-default="3.3.2" rev-constraint-dynamic="3.3.2" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-lang3" type="jar" ext="jar" status="no" details="" size="412739" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-lang3/jars/commons-lang3-3.3.2.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2.jar"/>
+					</artifact>
+					<artifact name="commons-lang3" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="470961" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.commons/commons-lang3/srcs/commons-lang3-3.3.2-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-io" name="commons-io">
+			<revision name="2.4" status="release" pubdate="20120612232206" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/io/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="36">
+				<metadata-artifact status="no" details="" size="8720" time="0" location="/home/dsteiner/.ivy2/cache/commons-io/commons-io/ivy-2.4.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.4" rev-constraint-default="2.4" rev-constraint-dynamic="2.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-io" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="246635" time="0" location="/home/dsteiner/.ivy2/cache/commons-io/commons-io/srcs/commons-io-2.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-io/commons-io/2.4/commons-io-2.4-sources.jar"/>
+					</artifact>
+					<artifact name="commons-io" type="jar" ext="jar" status="no" details="" size="185140" time="0" location="/home/dsteiner/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.kafka" name="kafka_2.11">
+			<revision name="0.10.1.0" status="release" pubdate="20161015000542" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://kafka.apache.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="1">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="5601" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.kafka/kafka_2.11/ivy-0.10.1.0.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/apache/kafka/kafka_2.11/0.10.1.0/kafka_2.11-0.10.1.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.10.1.0" rev-constraint-default="0.10.1.0" rev-constraint-dynamic="0.10.1.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="kafka_2.11" type="jar" ext="jar" status="no" details="" size="5577885" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.kafka/kafka_2.11/jars/kafka_2.11-0.10.1.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/kafka/kafka_2.11/0.10.1.0/kafka_2.11-0.10.1.0.jar"/>
+					</artifact>
+					<artifact name="kafka_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="688144" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.kafka/kafka_2.11/srcs/kafka_2.11-0.10.1.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/kafka/kafka_2.11/0.10.1.0/kafka_2.11-0.10.1.0-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang.modules" name="scala-parser-combinators_2.11">
+			<revision name="1.0.4" status="release" pubdate="20150430150700" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="13">
+				<license name="BSD 3-clause" url="http://opensource.org/licenses/BSD-3-Clause"/>
+				<metadata-artifact status="no" details="" size="2929" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.11/ivy-1.0.4.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.0.4" rev-constraint-default="1.0.4" rev-constraint-dynamic="1.0.4" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="scala-parser-combinators_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="42276" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.11/srcs/scala-parser-combinators_2.11-1.0.4-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4-sources.jar"/>
+					</artifact>
+					<artifact name="scala-parser-combinators_2.11" type="jar" ext="jar" status="no" details="" size="423753" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.11/jars/scala-parser-combinators_2.11-1.0.4.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/modules/scala-parser-combinators_2.11/1.0.4/scala-parser-combinators_2.11-1.0.4.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.101tec" name="zkclient">
+			<revision name="0.9" status="release" pubdate="20160614160619" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/sgroschupf/zkclient" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="10">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3886" time="0" location="/home/dsteiner/.ivy2/cache/com.101tec/zkclient/ivy-0.9.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/101tec/zkclient/0.9/zkclient-0.9.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.9" rev-constraint-default="0.9" rev-constraint-dynamic="0.9" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="zkclient" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="43655" time="0" location="/home/dsteiner/.ivy2/cache/com.101tec/zkclient/srcs/zkclient-0.9-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/101tec/zkclient/0.9/zkclient-0.9-sources.jar"/>
+					</artifact>
+					<artifact name="zkclient" type="jar" ext="jar" status="no" details="" size="74685" time="0" location="/home/dsteiner/.ivy2/cache/com.101tec/zkclient/jars/zkclient-0.9.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/101tec/zkclient/0.9/zkclient-0.9.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.zookeeper" name="zookeeper">
+			<revision name="3.4.8" status="release" pubdate="20160222084439" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="11">
+				<metadata-artifact status="no" details="" size="4681" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.zookeeper/zookeeper/ivy-3.4.8.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.4.8" rev-constraint-default="3.4.8" rev-constraint-dynamic="3.4.8" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="zookeeper" type="jar" ext="jar" status="no" details="" size="804601" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.zookeeper/zookeeper/jars/zookeeper-3.4.8.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar"/>
+					</artifact>
+					<artifact name="zookeeper" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="563623" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.zookeeper/zookeeper/srcs/zookeeper-3.4.8-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="commons-collections" name="commons-collections">
+			<revision name="3.2.2" status="release" pubdate="20151112231126" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/collections/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="23">
+				<metadata-artifact status="no" details="" size="11253" time="0" location="/home/dsteiner/.ivy2/cache/commons-collections/commons-collections/ivy-3.2.2.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="3.2.2" rev-constraint-default="3.2.2" rev-constraint-dynamic="3.2.2" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-collections" type="jar" ext="jar" status="no" details="" size="588337" time="0" location="/home/dsteiner/.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.2.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"/>
+					</artifact>
+					<artifact name="commons-collections" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="646075" time="0" location="/home/dsteiner/.ivy2/cache/commons-collections/commons-collections/srcs/commons-collections-3.2.2-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="jline" name="jline">
+			<revision name="0.9.94" status="release" pubdate="20080222195343" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://jline.sourceforge.net" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="12">
+				<license name="BSD" url="LICENSE.txt"/>
+				<metadata-artifact status="no" details="" size="2836" time="0" location="/home/dsteiner/.ivy2/cache/jline/jline/ivy-0.9.94.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.9.94" rev-constraint-default="0.9.94" rev-constraint-dynamic="0.9.94" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jline" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="76456" time="0" location="/home/dsteiner/.ivy2/cache/jline/jline/srcs/jline-0.9.94-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/jline/jline/0.9.94/jline-0.9.94-sources.jar"/>
+					</artifact>
+					<artifact name="jline" type="jar" ext="jar" status="no" details="" size="87325" time="0" location="/home/dsteiner/.ivy2/cache/jline/jline/jars/jline-0.9.94.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/jline/jline/0.9.94/jline-0.9.94.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="com.yammer.metrics" name="metrics-core">
+			<revision name="2.2.0" status="release" pubdate="20121126201108" resolver="sbt-chain" artresolver="sbt-chain" homepage="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="7">
+				<metadata-artifact status="no" details="" size="4214" time="0" location="/home/dsteiner/.ivy2/cache/com.yammer.metrics/metrics-core/ivy-2.2.0.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.2.0" rev-constraint-default="2.2.0" rev-constraint-dynamic="2.2.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="metrics-core" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="46705" time="0" location="/home/dsteiner/.ivy2/cache/com.yammer.metrics/metrics-core/srcs/metrics-core-2.2.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0-sources.jar"/>
+					</artifact>
+					<artifact name="metrics-core" type="jar" ext="jar" status="no" details="" size="82123" time="0" location="/home/dsteiner/.ivy2/cache/com.yammer.metrics/metrics-core/jars/metrics-core-2.2.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="net.sf.jopt-simple" name="jopt-simple">
+			<revision name="4.9" status="release" pubdate="20150627194800" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://pholser.github.com/jopt-simple" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="6">
+				<license name="The MIT License" url="http://www.opensource.org/licenses/mit-license.php"/>
+				<metadata-artifact status="no" details="" size="4329" time="0" location="/home/dsteiner/.ivy2/cache/net.sf.jopt-simple/jopt-simple/ivy-4.9.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/net/sf/jopt-simple/jopt-simple/4.9/jopt-simple-4.9.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="4.9" rev-constraint-default="4.9" rev-constraint-dynamic="4.9" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="jopt-simple" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="78751" time="0" location="/home/dsteiner/.ivy2/cache/net.sf.jopt-simple/jopt-simple/srcs/jopt-simple-4.9-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/net/sf/jopt-simple/jopt-simple/4.9/jopt-simple-4.9-sources.jar"/>
+					</artifact>
+					<artifact name="jopt-simple" type="jar" ext="jar" status="no" details="" size="66469" time="0" location="/home/dsteiner/.ivy2/cache/net.sf.jopt-simple/jopt-simple/jars/jopt-simple-4.9.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/net/sf/jopt-simple/jopt-simple/4.9/jopt-simple-4.9.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.apache.kafka" name="kafka-clients">
+			<revision name="0.10.1.0" status="release" pubdate="20161015000601" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://kafka.apache.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="2">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3653" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.kafka/kafka-clients/ivy-0.10.1.0.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/apache/kafka/kafka-clients/0.10.1.0/kafka-clients-0.10.1.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="0.10.1.0" rev-constraint-default="0.10.1.0" rev-constraint-dynamic="0.10.1.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="kafka-clients" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="591190" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.kafka/kafka-clients/srcs/kafka-clients-0.10.1.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/kafka/kafka-clients/0.10.1.0/kafka-clients-0.10.1.0-sources.jar"/>
+					</artifact>
+					<artifact name="kafka-clients" type="jar" ext="jar" status="no" details="" size="798936" time="0" location="/home/dsteiner/.ivy2/cache/org.apache.kafka/kafka-clients/jars/kafka-clients-0.10.1.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/apache/kafka/kafka-clients/0.10.1.0/kafka-clients-0.10.1.0.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.slf4j" name="slf4j-log4j12">
+			<revision name="1.7.21" status="release" pubdate="20160404201150" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.slf4j.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="8">
+				<metadata-artifact status="no" details="" size="5401" time="0" location="/home/dsteiner/.ivy2/cache/org.slf4j/slf4j-log4j12/ivy-1.7.21.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.7.21" rev-constraint-default="1.7.21" rev-constraint-dynamic="1.7.21" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="slf4j-log4j12" type="jar" ext="jar" status="no" details="" size="9988" time="0" location="/home/dsteiner/.ivy2/cache/org.slf4j/slf4j-log4j12/jars/slf4j-log4j12-1.7.21.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.jar"/>
+					</artifact>
+					<artifact name="slf4j-log4j12" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="11202" time="0" location="/home/dsteiner/.ivy2/cache/org.slf4j/slf4j-log4j12/srcs/slf4j-log4j12-1.7.21-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="log4j" name="log4j">
+			<revision name="1.2.17" status="release" pubdate="20120526104339" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://logging.apache.org/log4j/1.2/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="9">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3514" time="0" location="/home/dsteiner/.ivy2/cache/log4j/log4j/ivy-1.2.17.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/log4j/log4j/1.2.17/log4j-1.2.17.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.2.17" rev-constraint-default="1.2.17" rev-constraint-dynamic="1.2.17" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="log4j" type="jar" ext="jar" status="no" details="" size="489884" time="0" location="/home/dsteiner/.ivy2/cache/log4j/log4j/jars/log4j-1.2.17.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/log4j/log4j/1.2.17/log4j-1.2.17.jar"/>
+					</artifact>
+					<artifact name="log4j" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="481200" time="0" location="/home/dsteiner/.ivy2/cache/log4j/log4j/srcs/log4j-1.2.17-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/log4j/log4j/1.2.17/log4j-1.2.17-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.slf4j" name="slf4j-api">
+			<revision name="1.7.21" status="release" pubdate="20160404200802" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.slf4j.org" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="5">
+				<metadata-artifact status="no" details="" size="5109" time="0" location="/home/dsteiner/.ivy2/cache/org.slf4j/slf4j-api/ivy-1.7.21.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.7.21" rev-constraint-default="1.7.21" rev-constraint-dynamic="1.7.21" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="slf4j-api" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="55663" time="0" location="/home/dsteiner/.ivy2/cache/org.slf4j/slf4j-api/srcs/slf4j-api-1.7.21-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21-sources.jar"/>
+					</artifact>
+					<artifact name="slf4j-api" type="jar" ext="jar" status="no" details="" size="41071" time="0" location="/home/dsteiner/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.21.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.xerial.snappy" name="snappy-java">
+			<revision name="1.1.2.6" status="release" pubdate="20160602184933" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/xerial/snappy-java" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="4">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3450" time="0" location="/home/dsteiner/.ivy2/cache/org.xerial.snappy/snappy-java/ivy-1.1.2.6.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/xerial/snappy/snappy-java/1.1.2.6/snappy-java-1.1.2.6.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.1.2.6" rev-constraint-default="1.1.2.6" rev-constraint-dynamic="1.1.2.6" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="snappy-java" type="jar" ext="jar" status="no" details="" size="1056168" time="0" location="/home/dsteiner/.ivy2/cache/org.xerial.snappy/snappy-java/jars/snappy-java-1.1.2.6.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/xerial/snappy/snappy-java/1.1.2.6/snappy-java-1.1.2.6.jar"/>
+					</artifact>
+					<artifact name="snappy-java" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="1049625" time="0" location="/home/dsteiner/.ivy2/cache/org.xerial.snappy/snappy-java/srcs/snappy-java-1.1.2.6-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/xerial/snappy/snappy-java/1.1.2.6/snappy-java-1.1.2.6-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="net.jpountz.lz4" name="lz4">
+			<revision name="1.3.0" status="release" pubdate="20141126204000" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/jpountz/lz4-java" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="3">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="2738" time="0" location="/home/dsteiner/.ivy2/cache/net.jpountz.lz4/lz4/ivy-1.3.0.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/net/jpountz/lz4/lz4/1.3.0/lz4-1.3.0.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="1.3.0" rev-constraint-default="1.3.0" rev-constraint-dynamic="1.3.0" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="lz4" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="50577" time="0" location="/home/dsteiner/.ivy2/cache/net.jpountz.lz4/lz4/srcs/lz4-1.3.0-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/net/jpountz/lz4/lz4/1.3.0/lz4-1.3.0-sources.jar"/>
+					</artifact>
+					<artifact name="lz4" type="jar" ext="jar" status="no" details="" size="236880" time="0" location="/home/dsteiner/.ivy2/cache/net.jpountz.lz4/lz4/jars/lz4-1.3.0.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/net/jpountz/lz4/lz4/1.3.0/lz4-1.3.0.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang" name="scala-library">
+			<revision name="2.11.8" status="release" pubdate="20160309041604" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" extra-info.apiURL="http://www.scala-lang.org/api/2.11.8/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="0">
+				<license name="BSD 3-Clause" url="http://www.scala-lang.org/license.html"/>
+				<metadata-artifact status="no" details="" size="2653" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-library/ivy-2.11.8.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.pom"/>
+				<caller organisation="com.bissolconsulting" name="flinkkafkastreamcount$sources_2.11" conf="compile-internal, compile, provided, optional" rev="2.11.8" rev-constraint-default="2.11.8" rev-constraint-dynamic="2.11.8" callerrev="1.0" extra-info.apiURL="http://www.scala-lang.org/api/2.11.8/"/>
+				<artifacts>
+					<artifact name="scala-library" type="jar" ext="jar" status="no" details="" size="5744974" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.11.8.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar"/>
+					</artifact>
+					<artifact name="scala-library" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="911686" time="0" location="/home/dsteiner/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.8-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8-sources.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: org.apache.flink:flink-scala_2.11:1.2-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.flink/flink-scala_2.11/jars/flink-scala_2.11-1.2-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.flink/flink-scala_2.11/srcs/flink-scala_2.11-1.2-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

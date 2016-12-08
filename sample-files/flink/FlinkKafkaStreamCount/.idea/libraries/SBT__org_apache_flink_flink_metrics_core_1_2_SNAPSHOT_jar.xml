@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: org.apache.flink:flink-metrics-core:1.2-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.flink/flink-metrics-core/jars/flink-metrics-core-1.2-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.flink/flink-metrics-core/srcs/flink-metrics-core-1.2-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
