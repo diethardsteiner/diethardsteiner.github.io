@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# run this script with `source` to initialise the env variables!
+
 echo "SETTING ENVIRONMENT VARIABLES ..."
 echo "---------------------------------"
 

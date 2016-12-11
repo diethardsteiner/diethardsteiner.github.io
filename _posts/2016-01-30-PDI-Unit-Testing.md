@@ -60,6 +60,12 @@ In the **Calculator** step simply add `1` to `item_count` and store the result i
 
 ## Installation of the plugin
 
+### The extremely simple way
+
+Download the jar file [from the latest release](https://github.com/mattcasters/pentaho-pdi-dataset/releases) and copy it into `<pdi-root-dir>/plugins/pentaho-pdi-dataset`. Job done.
+
+### Building it yourself
+
 Close **Spoon**.
 
 Clone the **Git** project in a convenient folder, e.g. `~/git`:
@@ -334,8 +340,32 @@ By default the **unit test definitions** are stored in the **Pentaho Metastore**
 
 This might not be a convenient location in a lot of situations, as sometimes you might want to bundle all project related files in one place. Fortunately there is an environment variable called `PENTAHO_METASTORE_HOME`, which allows you to set a custom directory.
 
+> **Note**: You might be familiar with the `KETTLE_HOME` variable, which stores `.kettle` in a convenient location. The metastore is by default stored in `~/.pentaho/metastore`. Using the `PENTAHO_METASTORE_HOME` variable makes it possible to define a custom location for this folder. Note tough that not the full folder hierarchy will be replicated (just `metadata` and not `.pentaho/metastore`).
+
+You will have to change `spoon.sh` to take this variable into account. Simple add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` to the end of the `OPT=` section:
+
+Before:
+
+```
+OPT="$OPT $PENTAHO_DI_JAVA_OPTIONS -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -Djava.library.path=$LIBPATH -DKETTLE_HOME=$KETTLE_HOME -DKETTLE_REPOSITORY=$KETTLE_REPOSITORY -DKETTLE_USER=$KETTLE_USER -DKETTLE_PASSWORD=$KETTLE_PASSWORD -DKETTLE_PLUGIN_PACKAGES=$KETTLE_PLUGIN_PACKAGES -DKETTLE_LOG_SIZE_LIMIT=$KETTLE_LOG_SIZE_LIMIT -DKETTLE_JNDI_ROOT=$KETTLE_JNDI_ROOT"
+```
+
+After:
+
+```
+OPT="$OPT $PENTAHO_DI_JAVA_OPTIONS -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -Djava.library.path=$LIBPATH -DKETTLE_HOME=$KETTLE_HOME -DKETTLE_REPOSITORY=$KETTLE_REPOSITORY -DKETTLE_USER=$KETTLE_USER -DKETTLE_PASSWORD=$KETTLE_PASSWORD -DKETTLE_PLUGIN_PACKAGES=$KETTLE_PLUGIN_PACKAGES -DKETTLE_LOG_SIZE_LIMIT=$KETTLE_LOG_SIZE_LIMIT -DKETTLE_JNDI_ROOT=$KETTLE_JNDI_ROOT -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER"
+```
+
 ## It's possible to create assign a dataset to a step without setting up a unit test - is this valid?
 
 Yes. The **PDI Datasets** plugin was not only create for unit testing. You can as well just assign a dataset to a step in scenarios where it is otherwise difficult to design the transformation because input data is missing, e.g. for Pentaho Map Reduce, where you could assign a dataset to a **MapReduce Input** step.
+
+## Unit Tests, Datasets and Dataset Groups and their relationship to Transformations
+
+A **Unit Test** is specific to **one** transformation.
+A **Dataset** can be used in **various** transformations.
+A **Dataset** is a child of a **Dataset Group**, which has the **Database Connection** defined for the related **Datasets**.
+
+
 
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data-type>
+   <name>Kettle Transformation Unit Test</name>
+   <description>This describes a golden data unit test for a transformation with defined input data sets</description>
+</data-type>

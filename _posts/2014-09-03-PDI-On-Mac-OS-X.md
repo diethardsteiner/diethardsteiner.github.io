@@ -47,3 +47,7 @@ With the **Data Grid** step you will have to hit **Enter** once a value was ente
 
 Nelson Sousa mentioned: "When you have a field active to edit, press enter before clicking anywhere else. If not you get one of those array out of bounds things. Ignore it, continue with spoon, save and restart. :)"
 
+## The menu bar options have disappeared
+
+To solve this issue, just switch to another app and then back again ... voilà all menu bar options are back. Pure magic (no, not really).
+

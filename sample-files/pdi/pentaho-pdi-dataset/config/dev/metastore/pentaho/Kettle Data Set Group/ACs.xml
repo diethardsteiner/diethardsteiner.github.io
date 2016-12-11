@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element>
+   <id>ACs</id>
+   <value></value>
+   <type>String</type>
+   <children>
+      <child>
+         <id>database_name</id>
+         <value>unit_test_database</value>
+         <type>String</type>
+      </child>
+      <child>
+         <id>description</id>
+         <value></value>
+         <type>String</type>
+      </child>
+      <child>
+         <id>schema_name</id>
+         <value>test</value>
+         <type>String</type>
+      </child>
+   </children>
+   <name>ACs</name>
+   <security>
+      <owner/>
+      <owner-permissions-list/>
+   </security>
+</element>

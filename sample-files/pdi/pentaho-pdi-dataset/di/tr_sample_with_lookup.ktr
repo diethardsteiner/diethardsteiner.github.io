@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>sample</name>
+    <name>tr_sample_with_lookup</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -66,13 +66,34 @@
     <clusterschemas>
     </clusterschemas>
   <created_user>-</created_user>
-  <created_date>2016&#x2f;11&#x2f;24 20&#x3a;37&#x3a;45.621</created_date>
+  <created_date>2016&#x2f;11&#x2f;25 19&#x3a;59&#x3a;39.241</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2016&#x2f;11&#x2f;24 20&#x3a;37&#x3a;45.621</modified_date>
+  <modified_date>2016&#x2f;11&#x2f;25 19&#x3a;59&#x3a;39.241</modified_date>
     <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
+    <notepad>
+      <note>&#x5b;OPEN&#x5d;&#x3a; Have to populate ac2-output still&#xa;parametrised db connection did not work with&#xa;dataset group</note>
+      <xloc>272</xloc>
+      <yloc>416</yloc>
+      <width>289</width>
+      <heigth>58</heigth>
+      <fontname>.SF NS Text</fontname>
+      <fontsize>13</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+      <drawshadow>Y</drawshadow>
+    </notepad>
   </notepads>
   <connection>
     <name>source_database</name>
@@ -102,9 +123,9 @@
   </connection>
   <order>
   <hop> <from>Calculator</from><to>Select values</to><enabled>Y</enabled> </hop>
-  <hop> <from>Select values</from><to>Table output</to><enabled>Y</enabled> </hop>
-  <hop> <from>Select values</from><to>Text file output</to><enabled>Y</enabled> </hop>
   <hop> <from>Table input</from><to>Calculator</to><enabled>Y</enabled> </hop>
+  <hop> <from>Select values</from><to>Database lookup - Product Category</to><enabled>Y</enabled> </hop>
+  <hop> <from>Database lookup - Product Category</from><to>Table output</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Calculator</name>
@@ -147,8 +168,50 @@
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>112</xloc>
-      <yloc>160</yloc>
+      <xloc>208</xloc>
+      <yloc>144</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Database lookup - Product Category</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>source_database</connection>
+    <cache>Y</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema>&#x24;&#x7b;VAR_SOURCE_DB_SCHEMA&#x7d;</schema>
+      <table>product_category</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>item_name</name>
+        <field>item_name</field>
+        <condition>&#x3d;</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>product_category</name>
+        <rename>product_category</rename>
+        <default/>
+        <type>String</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>208</xloc>
+      <yloc>336</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -157,7 +220,7 @@
     <name>Select values</name>
     <type>SelectValues</type>
     <description/>
-    <distribute>N</distribute>
+    <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>
          <partitioning>
@@ -175,8 +238,8 @@
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>112</xloc>
-      <yloc>256</yloc>
+      <xloc>208</xloc>
+      <yloc>240</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -207,8 +270,8 @@
 </attribute></group></attributes>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>112</xloc>
-      <yloc>64</yloc>
+      <xloc>208</xloc>
+      <yloc>48</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -226,7 +289,7 @@
            </partitioning>
     <connection>source_database</connection>
     <schema>test</schema>
-    <table>inventory_adjusted</table>
+    <table>inventory_adjusted_enriched</table>
     <commit>1000</commit>
     <truncate>Y</truncate>
     <ignore_errors>N</ignore_errors>
@@ -250,73 +313,19 @@
           <column_name>item_count</column_name>
           <stream_name>item_count</stream_name>
         </field>
+        <field>
+          <column_name>product_category</column_name>
+          <stream_name>product_category</stream_name>
+        </field>
     </fields>
 <attributes><group><name>DataSet</name>
-<attribute><key>GoldenDataSet</key>
-<value>AC1-Output</value>
-</attribute><attribute><key>UnitTest</key>
+<attribute><key>UnitTest</key>
 <value>test_inventory_adjusted</value>
 </attribute></group></attributes>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>112</xloc>
-      <yloc>352</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Text file output</name>
-    <type>TextFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <separator>&#x3b;</separator>
-    <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
-    <encoding/>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>Y</create_parent_folder>
-    <file>
-      <name>file</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention>txt</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
-    <fields>
-    </fields>
-<attributes><group><name>DataSet</name>
-<attribute><key>UnitTestStepTweak</key>
-<value>REMOVE_STEP</value>
-</attribute></group></attributes>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>272</xloc>
-      <yloc>256</yloc>
+      <xloc>208</xloc>
+      <yloc>432</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -328,7 +337,7 @@
    <slave_transformation>N</slave_transformation>
 <attributes><group><name>DataSet</name>
 <attribute><key>SelectedUnitTest</key>
-<value>AC1</value>
+<value>AC2</value>
 </attribute></group></attributes>
 
 </transformation>
