@@ -4,10 +4,6 @@ import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
 
 import scala.util.Random
 
-/**
-  * Created by I-Vadaisa on 06/12/2016.
-  * KAFKA PRODUCER
-  */
 object KafkaProducer extends App {
 
   val topic = "words"
