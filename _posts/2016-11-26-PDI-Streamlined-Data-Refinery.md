@@ -5,7 +5,7 @@ summary: This article discusses what is behind the Pentaho Streamline Data Refin
 date: 2016-11-26
 categories: PDI
 tags: PDI
-published: true
+published: false
 ---  
 
 I was probably not the only one who wondered what was behind the **Streamlined Data Refinery** (SDR) marketing buzz. So what is it then? Really?

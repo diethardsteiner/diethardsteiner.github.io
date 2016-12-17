@@ -1,10 +1,8 @@
 import java.util.Properties
-
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.connectors.kafka._
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema
-
 
 object KafkaConsumer {
 
@@ -24,7 +22,7 @@ object KafkaConsumer {
       // words is our Kafka topic
       .addSource(new FlinkKafkaConsumer010[String]("words", new SimpleStringSchema(), properties))
 
-    stream.print
+//    stream.print
 
     val counts = stream
       .map { (_, 1) }

@@ -1,36 +1,36 @@
 import java.util.Properties
-
-import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
-
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import scala.util.Random
 
 object KafkaProducer extends App {
 
   val topic = "words"
-  val brokers = "localhost:9092"
   val props = new Properties()
-  props.put("metadata.broker.list", brokers)
-  props.put("serializer.class", "kafka.serializer.StringEncoder")
-  props.put("producer.type", "async")
+  props.put("bootstrap.servers", "localhost:9092")
+//  props.put("acks", "all")
+//  props.put("retries", 0)
+//  props.put("batch.size", 16384)
+//  props.put("linger.ms", 1)
+//  props.put("buffer.memory", 33554432)
+  props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+  props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
-  val config = new ProducerConfig(props)
-  val producer = new Producer[String, String](config)
-
-  val ip = "192.168.2.1"
 
   val rnd = new Random()
+  val wordSet = Seq("Dog", "Cat", "Cow")
+  val n = wordSet.length
 
-  val word_set = Seq("Dog", "Cat", "Cow")
-  val n = word_set.length
+  // https://kafka.apache.org/0100/javadoc/org/apache/kafka/clients/producer/KafkaProducer.html
+  // https://gist.github.com/fancellu/f78e11b1808db2727d76
+  val producer = new KafkaProducer[String,String](props)
 
-  while (true) {
+  var key  = 0
 
+  while(true){
     val index = rnd.nextInt(n)
-    val data = new KeyedMessage[String, String](topic, ip, word_set(index))
-    producer.send(data)
-
-    //println(word_set(index))
+    producer.send(new ProducerRecord(topic, key.toString, wordSet(index)))
+    key = key + 1
   }
 
-  producer.close()
+  producer.close
 }
