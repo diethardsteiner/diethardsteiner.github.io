@@ -139,5 +139,5 @@ Next let's count the words in five seconds intervals:
     counts.print
 ```
 
-Execute `KafkaConsumer` now and enjoy the **window aggregation**! Granted this was a very simple setup, so feel free to explore more of the **Apache Flink** world and create an advanced example.
+Execute `KafkaConsumer` now and enjoy the **window aggregation**! Granted this was a very simple setup, so feel free to explore more of the **Apache Flink** world and create an advanced example. Have fun!
 
