@@ -1,9 +1,15 @@
+<!-- $theme: default -->
+
 # Preperation
 
 - screen resolution: 1600 x 900 (16:9)
 - start postgres: `service postgresql start` 
 
 -------------------------------------
+
+# Let's talk about Pentaho ...
+
+--------------------
 
 # The Pentaho Synergy
 
@@ -22,7 +28,7 @@ Originally Pentaho brought together 4 different projects: Kettle, Mondrian, JFre
 
 What is it?
 
-- Users requests data based on certain attributes via web form (CDE)
+- Users requests data based on certain attributes via web form (CDE, App Builder[Sparkl])
 - Metadata driven ETL job/transformation sources and combines data (PDI)
 - A semantic layer gets generated and publish to BA Server (Mondrian, Metadata)
 - Users can analyse requested data (Pentaho Analyzer)
