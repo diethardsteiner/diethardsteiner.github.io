@@ -57,11 +57,28 @@ In the context of PDI **build** means running a PDI job or transformation.
 
 We will use a [git hook](https://git-scm.com/book/be/v2/Customizing-Git-Git-Hooks) to notify **Jenkins** about a new commit. 
 
-Create a file called `post-commit` (no extension) in the `.git/hooks` directory of your git project. Add the following to the file:
+A quick intro to **Git Hooks**:
 
-```
+- Git Hooks let you define action on specific events (e.g. `post-commit`).
+- There are client and server-side versions of git hooks. Git hooks are stored in `<git-root>/.git/hooks` and are basically shell scripts (or any other scripting language). Filenames do not have an extension.
+- Git hooks do not get version controlled and are not pushed to the server. Keep this in mind when creating client side hooks. They are local to each repo.
+- You can use a symlink and store the shell script within the standard repo path. As an alternative, Git also provides a [Template Directory](https://git-scm.com/docs/git-init#_template_directory) mechanism that makes it easier to install hooks automatically. All of the files and directories contained in this template directory are copied into the .git directory every time you use git init or git clone.
+- Git hooks have to be **executable**.
+
+
+Create a file called `post-commit` (no extension) in the `.git/hooks` directory of your git project. Add the following to the file (adjust to your requirements):
+
+```bash
 #!/bin/sh
 curl http://localhost:8080/git/notifyCommit?url=file:///home/dsteiner/git/diethardsteiner.github.io
 ```
 
-The webservice endpoint `notifyCommit` is exposted by **Git plugin** we installed earlier on. For this endpoint to work you have to **enable Poll SCM** in your **Jenkins build configuration** (but don't specify a schedule).
+Finally make the file executable:
+
+```bash
+$ chmod 700 .git/hooks/post-commit
+```
+
+The webservice endpoint `notifyCommit` is exposted by the **Git plugin** we installed earlier on. For this endpoint to work you have to **enable Poll SCM** in your **Jenkins build configuration**. **Important**: Don't specify a schedule!
+
+
