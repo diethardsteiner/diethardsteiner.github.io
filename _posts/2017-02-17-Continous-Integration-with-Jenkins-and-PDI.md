@@ -1,4 +1,12 @@
-Continous Integration with Jenkins and PDI
+---
+layout: post
+title: "Agile Data Integration: Continuous Integration with Jenkins and PDI"
+summary: This article provides a short intro into using Jenkins with PDI
+date: 2017-02-17
+categories: PDI
+tags: PDI, CI
+published: true
+--- 
 
 # Download and Install Jenkins
 
@@ -45,8 +53,12 @@ Once logged on to the Jenkins web interface do the following:
 5. Click **Save**.
 6. Wait a bit and soon you should see the build running (on the **Build History** section). Click on the build number and then on **Console Output** to see the log.
 
+Once you have satisfied your curiosity delete the **Item**.
+
 
 # On Commit Build
+
+Next we will be looking at a more interesting approach: We want to trigger the build once we **commit** our code to **git**. There are at least two approaches to achieving this: You could have **Jenkins** continuously polling the git repository for changes or more efficiently, have git tell Jenkins about any commits that happen.
 
 Sources:
 
@@ -55,7 +67,11 @@ Sources:
 
 In the context of PDI **build** means running a PDI job or transformation.
 
-We will use a [git hook](https://git-scm.com/book/be/v2/Customizing-Git-Git-Hooks) to notify **Jenkins** about a new commit. 
+We will use a [git hook](https://git-scm.com/book/be/v2/Customizing-Git-Git-Hooks) to notify **Jenkins** about a new commit. The plugin provides the following endpoint:
+
+```
+http://localhost:8080/jenkins/git/notifyCommit
+```
 
 A quick intro to **Git Hooks**:
 
@@ -66,11 +82,11 @@ A quick intro to **Git Hooks**:
 - Git hooks have to be **executable**.
 
 
-Create a file called `post-commit` (no extension) in the `.git/hooks` directory of your git project. Add the following to the file (adjust to your requirements):
+Create a file called `post-commit` (no extension) in the `.git/hooks` directory of your git project. Add the following to the file (adjust to your requirements - the last file path points to a local git repo):
 
 ```bash
 #!/bin/sh
-curl http://localhost:8080/git/notifyCommit?url=file:///home/dsteiner/git/diethardsteiner.github.io
+curl http://localhost:8080/jenkins/git/notifyCommit?url=file:///home/dsteiner/git/diethardsteiner.github.io
 ```
 
 Finally make the file executable:
@@ -79,6 +95,20 @@ Finally make the file executable:
 $ chmod 700 .git/hooks/post-commit
 ```
 
-The webservice endpoint `notifyCommit` is exposted by the **Git plugin** we installed earlier on. For this endpoint to work you have to **enable Poll SCM** in your **Jenkins build configuration**. **Important**: Don't specify a schedule!
+The webservice endpoint `notifyCommit` is exposed by the **Git plugin** we installed earlier on. 
 
+Let's create a new **Jenkins** item:
+
+1. Click on **New Item**.
+2. Provide a name for the item and then choose **Freestyle project**.
+3. In the **Source Code Management** section choose **Git** and set the **Repository URL** to your local git repo (in example: `file:///home/dsteiner/git/diethardsteiner.github.io`). (This is for testing purposes only, in a standard setup you would use a remote git server).
+4. **Build Triggers** section: For the git endpoint to work you have to **enable Poll SCM** in your **Jenkins build configuration**. **Important**: Don't specify a schedule!
+5. In the **Build** section click on **Add build step** and choose **Execute shell**. Add following command (adjust to your setup) and then click save:
+
+```bash
+/home/dsteiner/apps/pentaho-ee/design-tools/data-integration/pan.sh \
+  -file=/home/dsteiner/git/diethardsteiner.github.io/sample-files/pdi/test.ktr
+```
+
+Next, on the command line, navigate to the git repo you specified earlier on, make a change and commit. You should see Jenkins kick off the job.
 
