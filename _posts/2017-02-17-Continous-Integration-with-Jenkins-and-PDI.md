@@ -112,3 +112,5 @@ Let's create a new **Jenkins** item:
 
 Next, on the command line, navigate to the git repo you specified earlier on, make a change and commit. You should see Jenkins kick off the job.
 
+When working in a team, you would have your central git server and configure server-side hooks (e.g. `update`) to trigger a build. There are also **Jenkins** plugins for other popular non-vanilla git server offerings like [Gitbucket](https://wiki.jenkins-ci.org/display/JENKINS/GitBucket+Plugin) and [Gitlab](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Plugin), some of which offer notify-like webservice endpoints as well.  
+
