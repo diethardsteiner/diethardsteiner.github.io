@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project plugin="matrix-project@1.8">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>*/2 * * * * </spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <axes>
+    <hudson.matrix.TextAxis>
+      <name>PDI_ROOT_FOLDER_NAME</name>
+      <values>
+        <string>pdi-ce-6.1</string>
+        <string>pdi-ce-7.0</string>
+      </values>
+    </hudson.matrix.TextAxis>
+    <hudson.matrix.TextAxis>
+      <name>PDI_FILE_NAME</name>
+      <values>
+        <string>test-ok.ktr</string>
+        <string>test-error.ktr</string>
+      </values>
+    </hudson.matrix.TextAxis>
+  </axes>
+  <combinationFilter>!(PDI_ROOT_FOLDER_NAME==&quot;dummy&quot;)</combinationFilter>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>export PENTAHO_PDI_JAVA_OPTIONS=&quot;-Xms512m -Xmx1024m -XX:MaxPermSize=256m -Dpentaho.karaf.root.transient=true&quot;
+export APPS_HOME_DIR=/home/dsteiner/apps
+export PDI_FILE_DIR=/home/dsteiner/git/diethardsteiner.github.io/sample-files/pdi/jenkins
+if [[ &quot;$PDI_FILE_NAME&quot; =~ .*ktr ]]; then
+	echo RUNNING A TRANSFORMATION
+    $APPS_HOME_DIR/$PDI_ROOT_FOLDER_NAME/pan.sh \
+    -file=&quot;$PDI_FILE_DIR/$PDI_FILE_NAME&quot; \
+    -level=Basic
+fi
+if [[ &quot;$PDI_FILE_NAME&quot; =~ .*kjb ]]; then
+	echo RUNNING A JOB
+    $APPS_HOME_DIR/$PDI_ROOT_FOLDER_NAME/kitchen.sh \
+    -file=&quot;$PDI_FILE_DIR/$PDI_FILE_NAME&quot; \
+    -level=Basic
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.logparser.LogParserPublisher plugin="log-parser@2.0">
+      <unstableOnWarning>true</unstableOnWarning>
+      <failBuildOnError>true</failBuildOnError>
+      <showGraphs>true</showGraphs>
+      <useProjectRule>true</useProjectRule>
+      <projectRulePath>/home/dsteiner/git/diethardsteiner.github.io/sample-files/pdi/jenkins/console-validation-rules.properties</projectRulePath>
+    </hudson.plugins.logparser.LogParserPublisher>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.18">
+      <strategy class="hudson.plugins.build_timeout.impl.NoActivityTimeOutStrategy">
+        <timeoutSecondsString>180</timeoutSecondsString>
+      </strategy>
+      <operationList>
+        <hudson.plugins.build__timeout.operations.AbortOperation/>
+        <hudson.plugins.build__timeout.operations.FailOperation/>
+      </operationList>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+  <executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    <runSequentially>false</runSequentially>
+  </executionStrategy>
+</matrix-project>

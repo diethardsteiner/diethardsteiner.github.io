@@ -112,5 +112,149 @@ Let's create a new **Jenkins** item:
 
 Next, on the command line, navigate to the git repo you specified earlier on, make a change and commit. You should see Jenkins kick off the job.
 
-When working in a team, you would have your central git server and configure server-side hooks (e.g. `update`) to trigger a build. There are also **Jenkins** plugins for other popular non-vanilla git server offerings like [Gitbucket](https://wiki.jenkins-ci.org/display/JENKINS/GitBucket+Plugin) and [Gitlab](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Plugin), some of which offer notify-like webservice endpoints as well.  
+When working in a team, you would have your central git server and configure server-side hooks (e.g. `update`) to trigger a build. There are also **Jenkins** plugins for other popular non-vanilla git server offerings like [Gitbucket](https://wiki.jenkins-ci.org/display/JENKINS/GitBucket+Plugin) and [Gitlab](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Plugin), some of which offer notify-like webservice endpoints as well. 
 
+# Testing Job or Transformation against different versions of PDI
+
+The section below follows an approach originally shown to me by **Alex Schurman**:
+
+The main purpose here is to test a set of transformations on different versions of PDI.
+
+> **Note**: If you haven't installed the [Console Parser Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Console+Parser+Plugin) yet, save your current item and then click on **Jenkins** in the top left corner, next click on **Manage Jenkins**. Next from the list choose **Manage Plugins**. Type **Log Parser** into the **Filter** field and then tick **Log Parser Plugin** in the results. Click on **Install without restart**. Note: It seems like the Console Parser Plugin has been replaced by the [Log Parser Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Log+Parser+Plugin).
+
+Let's create a new item:
+
+1. Choose **New Item**.
+2. Provide a name and click **Multi-configuration project**.
+
+**General Tab**:
+
+**Advance Project Options**:
+
+- **Build Triggers**: Tick *Build Periodically* and supply a schedule, e.g. `H * * * *`.
+
+
+**Configuration Matrix**:
+
+This section allows us to define variables:
+
+- Click on **Add axis > User-defined Axis**. Specify `PDI_ROOT_FOLDER_NAME` as **Name** and the names of your local PDI installations as **Values** (on multiple lines), e.g. 
+	
+	```
+	pdi-ce-6.1
+ 	pdi-ce-7.0
+ 	```
+    
+    The idea here is that we can test against various versions of PDI. Do not use commas here, just put each PDI installation name on a new line.
+- Click on **Add axis > User-defined Axis**. Specify `PDI_FILE_NAME` and specify any transformation that you want to test, just the filename, not the whole path, e.g.:
+	
+	```
+	test-ok.ktr
+ 	test-error.ktr
+ 	```
+ 
+ 	**Note**: If there is a space in the filename, enclose it in double quotation marks.
+ 
+    
+- Tick the **Combination Filter** and set it to `!(PDI_ROOT_FOLDER_NAME=="dummy")`. This is just makes sure that this folder is excluded - this is just an example, it doesn't really do anything in our setup here.
+
+**Build Environment**:
+
+Tick **Abort the build if it's stuck**, set the **Timeout Strategy** to *No Activity* and **Timeout seconds** to *240* (in example). Next set add the following **Time-out actions**:
+
+- Abort the build
+- Fail the build
+
+
+**Build**
+
+- Click on **Add build step > Execute shell** and add in example following command:
+
+```bash
+export PENTAHO_PDI_JAVA_OPTIONS="-Xms512m -Xmx1024m -XX:MaxPermSize=256m -Dpentaho.karaf.root.transient=true"
+export APPS_HOME_DIR=/home/dsteiner/apps
+export PDI_FILE_DIR=/home/dsteiner/git/diethardsteiner.github.io/sample-files/pdi/jenkins
+if [[ "$PDI_FILE_NAME" =~ .*ktr ]]; then
+	echo RUNNING A TRANSFORMATION
+    $APPS_HOME_DIR/$PDI_ROOT_FOLDER_NAME/pan.sh \
+    -file="$PDI_FILE_DIR/$PDI_FILE_NAME" \
+    -level=Basic
+fi
+if [[ "$PDI_FILE_NAME" =~ .*kjb ]]; then
+	echo RUNNING A JOB
+    $APPS_HOME_DIR/$PDI_ROOT_FOLDER_NAME/kitchen.sh \
+    -file="$PDI_FILE_DIR/$PDI_FILE_NAME" \
+    -level=Basic
+fi
+```
+
+Note how we reference here the **axis variables** we defined earlier on.
+
+**Post-build Actions**:
+
+- Choose **Add post-build action > Console output (build log) parsing**. Tick all the 3 checkboxes under **Console output (build log) parsing**. Then click **Use project rule** and provide the path to your rule file.
+
+The contents of the rule file `console-validation-rules.properties` should be as follows:
+
+```
+ok /not really/
+
+# create a quick access link to lines in the report containing 'INFO'
+ok /INFO/
+info /DEBUG/
+
+# list of warnings here...
+info /[Ww]arning/
+info /WARNING/
+
+warning /error.*BootFeatures/i
+warning /BootFeaturesInstaller/i
+warning /error.*karaf/i
+
+#flag as warnings all the DELETE TEMPORAL files from Karaf at end of transformation
+warning /Unable to delete karaf directory/i
+warning /Unable to delete directory/i
+
+#Special Case, due to a minor ERROR of metadata Step
+warning /Target key.*is not defined in/i
+warning /Source step.*is not available in/i
+
+# match line with 'error', case-insensitive
+error /(?i)error/
+error /Unexpected error/
+```
+
+> **Note**: PDI v6 to v7 has problems running jobs shortly after each other because of a **Karaf** bug. There is [a workaround](https://help.pentaho.com/Documentation/6.1/0P0/100/Karaf_Performance_Tuning), however, using a Karak flag (`-Dpentaho.karaf.root.transient=true`).
+
+Once this job/item runs, you get a matrix like the one shown below to highlight what failed:
+
+![](/images/jenkins-1.png)
+
+And here some additional info:
+
+> **Note**: You can export the whole job configuration by adding at the end of the URL `config.xml`. Save this then to a file. This file can then be imported (into another Jenkins server in example) via a command line utility. To see how this is working go to **Manage > Jenkins CLI** and look for **COMMAND create-job** - click on the link to get details on how to execute the command.
+
+```
+http://localhost:8080/jenkins/job/<job-name>/config.xml
+```
+
+For this to work we must first change the `config.xml` (see [here](http://stackoverflow.com/questions/22717773/jenkins-github-authentication-error-user-is-missing-the-overall-read-permission) for details) and then restart the server.
+
+In our case the config file should be located in:
+
+```
+~/.jenkins/config.xml
+```
+
+Set `useSecurity` to `false` and comment out the `authorizationStrategy` block. Not recommended for production environments!
+
+Restart Tomcat.
+
+```
+java -jar jenkins-cli.jar -s http://localhost:8080/jenkins/ create-job <NAME>
+
+# example
+cd webapps/jenkins/WEB-INF/
+# upload job specification
+cat ~/Downloads/AlexImplementationJob.xml | java -jar jenkins-cli.jar -s http://localhost:8080/jenkins/ create-job AlexImplementationJob
+```
