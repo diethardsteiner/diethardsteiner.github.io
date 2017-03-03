@@ -76,5 +76,11 @@ Just search the **Pentaho Kettle Github repo**:
 https://github.com/pentaho/pentaho-kettle/search?utf8=✓&q=decryptPassword&type=Code
 ```
 
-The idea is to create a dedicate transformation which uses a **Get Variable** step to get hold of the encrypted password variable, then you can use the **User Defined Java Expression** to decrypt the password and finally use a **Set Variable** step to make the decrypted password available to other transformations or jobs. This is only an example, adapt for your use case.
+The idea is to create a dedicate transformation which uses a **Get Variable** step to get hold of the encrypted password variable, then you can use the **User Defined Java Expression** to decrypt the password and finally use a **JavaScript** step to set the variable:
+
+```javascript
+setVariable("VAR_PW_DECRYPTED",decrypted_password,"r");
+```
+
+> **Important**: Do not use the **Set Variable** step as it will print out the decrypted password to the log.
 
