@@ -158,3 +158,6 @@ my_timestamp_as_date | timestamp_without_timezone | timestamp_with_timezone_v1 |
 
 http://stackoverflow.com/questions/23707255/process-iso8601-timestamps-with-offsets-in-pentaho-data-integration
 
+
+
+[OPEN] Adding a day: Tip from Nelson: In the calculator step don't add just 1 day while taking into account daylight saving time. Instead, the correct way is to add 24 hours or 1440 minutes.
