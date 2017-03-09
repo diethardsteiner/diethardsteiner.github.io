@@ -200,7 +200,106 @@ scala> adjCloneDyn.flatMap(r => r).show
 +-------+-----+
 ```
 
-Challenge completed! Nice.
+Challenge completed! The drawback of this solution is that we are using an mutable collection. There are a few more elegant solutions suggested by Jacek Laskowski on [StackOverflow](http://stackoverflow.com/questions/42636195/how-to-explode-by-using-a-column-value):
+
+### Solution 1 : Best solution
+
+Instead of using `ListBuffer` we can simply use the `fill()` method of the `Seq` collection to create a sequence with the correct number of elements dynamically. More on `Seq.fill()` [here](http://alvinalexander.com/scala/how-create-scala-list-range-fill-tabulate-constructors#create-a-scala-list-with-the-list-class-fill-method):
+
+```scala
+scala> adjustment.flatMap(r => Seq.fill(r.sales)(r.fruit)).show
++-------+
+|  value|
++-------+
+| apples|
+| apples|
+|oranges|
+|oranges|
+|oranges|
+|oranges|
+|oranges|
+|oranges|
+| grapes|
+| grapes|
+| grapes|
++-------+
+
+
+scala> adjustment.flatMap(r => Seq.fill(r.sales)(r)).show
++-------+-----+
+|  fruit|sales|
++-------+-----+
+| apples|    2|
+| apples|    2|
+|oranges|    6|
+|oranges|    6|
+|oranges|    6|
+|oranges|    6|
+|oranges|    6|
+|oranges|    6|
+| grapes|    3|
+| grapes|    3|
+| grapes|    3|
++-------+-----+
+```
+
+This approach is extremely easy to use and hence wins hands down.
+
+### Solution 2
+
+```scala
+scala> adjustment.explode("sales", "fruit") { n: Int => 0 until n }.show
+warning: there was one deprecation warning; re-run with -deprecation for details
++-------+-----+-----+
+|  fruit|sales|fruit|
++-------+-----+-----+
+| apples|    2|    0|
+| apples|    2|    1|
+|oranges|    6|    0|
+|oranges|    6|    1|
+|oranges|    6|    2|
+|oranges|    6|    3|
+|oranges|    6|    4|
+|oranges|    6|    5|
+| grapes|    3|    0|
+| grapes|    3|    1|
+| grapes|    3|    2|
++-------+-----+-----+
+```
+
+Note the deprecated warning here.
+
+### Solution 3
+
+And finally a way to achieve the same with `withColumn`:
+
+```scala
+scala> adjustment
+  .withColumn("concat", concat($"fruit", lit(",")))
+  .withColumn("repeat", expr("repeat(concat, sales)"))
+  .withColumn("split", split($"repeat", ","))
+  .withColumn("explode", explode($"split"))
+  .show
+
++-------+-----+--------+--------------------+--------------------+-------+
+|  fruit|sales|  concat|              repeat|               split|explode|
++-------+-----+--------+--------------------+--------------------+-------+
+| apples|    2| apples,|      apples,apples,|  [apples, apples, ]| apples|
+| apples|    2| apples,|      apples,apples,|  [apples, apples, ]| apples|
+| apples|    2| apples,|      apples,apples,|  [apples, apples, ]|       |
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|oranges|
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|oranges|
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|oranges|
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|oranges|
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|oranges|
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|oranges|
+|oranges|    6|oranges,|oranges,oranges,o...|[oranges, oranges...|       |
+| grapes|    3| grapes,|grapes,grapes,gra...|[grapes, grapes, ...| grapes|
+| grapes|    3| grapes,|grapes,grapes,gra...|[grapes, grapes, ...| grapes|
+| grapes|    3| grapes,|grapes,grapes,gra...|[grapes, grapes, ...| grapes|
+| grapes|    3| grapes,|grapes,grapes,gra...|[grapes, grapes, ...|       |
++-------+-----+--------+--------------------+--------------------+-------+
+```
 
 ## Other Ways to Clone Records
 
