@@ -1,37 +1,20 @@
----
-layout: post
-title:  "Adventures with Apache Spark: Creating a Snapshot Table"
-summary: This article discusses how to create a snapshot table for OLAP analysis with Apache Spark.
-date: 2017-03-05
-categories: Spark
-tags: Spark
-published: true
---- 
 
+// import source data
+// using outer bracket only to make it run in spark-shell
+val sourceData = (
+  spark
+    .read
+    .option("header", "true")
+    .option("inferSchema", "true")
+    .csv("file:///home/dsteiner/git/code-examples/spark/cloning/source-data.txt")
+  )
+  
 
-In this article we will discuss a very specific task: Creating a periodic snapshot table optimised for **OLAP/Cube**-Analysis. It's a cube in the classical business intelligence sense, where an MDX query is fired off and and OLAP engine processes the result set. The problem is specific, because, in the multidemensional world the measure has to exist that you are asking for: Imagine we are counting how many JIRA tickets there are in a specific status (e.g. "Open"). The raw data only has one record for last Friday and the following Monday - a simple count. Using a plain **SQL** it would be fairly easy to figure out how many open JIRA cases there were on Saturday. However, in the cube world, if we crossjoin the time member for Saturday with the count measure, we will get an empty tuple returned since that measure does not exist for this particular day. The same applies for Sunday. The way to solve this dilemma is to create artificial records for Saturday and Sunday, basically copying Fridays record and adjusting the date details respectively. While I am not a big fan of this solution (you basically generate Big Data here), I still haven't found any other suitable alternative for this use case.
+// check data
+scala> sourceData.columns
+res36: Array[String] = Array(event_date, " case_id")
+// Notice the space in the second column name!
 
-Previously in [Big Data Snapshot and Accumulating Snapshot](/data-modeling/2015/07/27/Events-and-Snapshot.html) I discussed how to implement this approach with **Hadoop MapReduce**. I've been quite curious for a while on how to implement the same with **Apache Spark**. This article is a follow-up on [Adventures with Apache Spark: How to clone a record](spark/2017/03/04/Adventures-with-Apache-Spark-How-to-clone-a-record.html), which set out the strategy for cloning records with **Apache Spark**, which is an essential element for creating snapshots.
-
-Let's start our exercise: The input data looks like this:
-
-```
-event_date, case_id
-"2015-01-02", 13
-"2015-01-09", 13
-"2015-01-01", 12
-"2015-01-03", 12
-"2015-01-07", 12
-"2015-01-11", 12
-"2015-01-03", 15
-"2015-01-04", 15
-"2015-01-07", 15
-```
-
-
-Start **Spark-Shell** and execute the following to read the source data, sort it and provide SQL access to the data via a temporary table:
-
-```scala
 val sourceData = (
   spark
     .read
@@ -45,16 +28,22 @@ val sourceData = (
     //.as[Transaction]
   )
 
-// sort data
+
+sourceData.printSchema
+sourceData.show
+sourceData.take(10)
+
+// SORT DATA - by caseId key
+sourceData.sort("case_id","event_date").show
 val sourceDataSorted = sourceData.sort("case_id","event_date")
+
 // next we want to retrieve the next event date for a given case id
 // we will do this in Spark SQL as it is easier
 sourceDataSorted.createOrReplaceTempView("events")
-```
 
-The next step is to figure out how many days are between one record for a particular `case_id` and the next one. This is very easy to accomplish by using a **SQL window function**:
+// just making sure our table is ready
+spark.sql("SELECT * FROM events").show(10)
 
-```scala
 scala> spark.sql("SELECT case_id, event_date, LEAD(event_date,1) OVER (PARTITION BY case_id ORDER BY event_date) AS next_event_date FROM events").show
 +-------+--------------------+--------------------+
 |case_id|          event_date|     next_event_date|
@@ -69,11 +58,11 @@ scala> spark.sql("SELECT case_id, event_date, LEAD(event_date,1) OVER (PARTITION
 |     15|2015-01-04 00:00:...|2015-01-07 00:00:...|
 |     15|2015-01-07 00:00:...|                null|
 +-------+--------------------+--------------------+
-```
 
-Let's image it's `2015-01-13` today and this is all the source data we received. We want to build the snapshot up until yesterday. In case the `next_event_date` is `NULL`, we want to set it to `2015-01-13`:
 
-```scala
+// Let's image it's 2015-01-13 today and this is all the source data
+// we received. We want to build the snapshot up until yesterday.
+
 scala> spark.sql("SELECT case_id, event_date, COALESCE(LEAD(event_date,1) OVER (PARTITION BY case_id ORDER BY event_date),CAST('2015-01-13 00:00:00.0' AS TIMESTAMP)) AS next_event_date FROM events").show
 +-------+--------------------+--------------------+
 |case_id|          event_date|     next_event_date|
@@ -88,11 +77,13 @@ scala> spark.sql("SELECT case_id, event_date, COALESCE(LEAD(event_date,1) OVER (
 |     15|2015-01-04 00:00:...|2015-01-07 00:00:...|
 |     15|2015-01-07 00:00:...|2015-01-13 00:00:...|
 +-------+--------------------+--------------------+
-```
 
-This looks good now. One thing left to do is to **calculate** the **amount of days** between `event_date` and `next_event_date`:
 
-```scala
+// This looks good now. One thing left to do is to calculate
+// the amount of days between event_date and next_event_date
+
+scala> spark.sql("SELECT case_id, event_date, COALESCE(LEAD(event_date,1) OVER (PARTITION BY case_id ORDER BY event_date),CAST('2015-01-13 00:00:00.0' AS TIMESTAMP)) AS next_event_date FROM events").withColumn("no_of_days_gap", (unix_timestamp(col("next_event_date")) - unix_timestamp(col("event_date")))/60/60/24).show
+
 import org.apache.spark.sql.types._
 
 val sourceDataEnriched = spark.sql("SELECT case_id, event_date, COALESCE(LEAD(event_date,1) OVER (PARTITION BY case_id ORDER BY event_date),CAST('2015-01-13 00:00:00.0' AS TIMESTAMP)) AS next_event_date FROM events").withColumn("no_of_days_gap", ((unix_timestamp(col("next_event_date")) - unix_timestamp(col("event_date")))/60/60/24).cast(IntegerType))
@@ -111,19 +102,17 @@ scala> sourceDataEnriched.show(10)
 |     15|2015-01-04 00:00:...|2015-01-07 00:00:...|             3|
 |     15|2015-01-07 00:00:...|2015-01-13 00:00:...|             6|
 +-------+--------------------+--------------------+--------------+
-```
 
-Let's create the **clones** now (since we need to have a record for every day for every `case_id`):
 
-```scala
+
+// Let's create the clones:
+
 scala> sourceDataEnriched.flatMap(r => Seq.fill(r.no_of_days_gap)(r)).show
 <console>:28: error: value no_of_days_gap is not a member of org.apache.spark.sql.Row
        sourceDataEnriched.flatMap(r => Seq.fill(r.no_of_days_gap)(r)).show
-```
 
-The **workaround** to this **error** is to use a **case class**:
+// -> Error, requires case class
 
-```scala
 case class SourceDataEnriched(
   case_id:Int
   , event_date:java.sql.Timestamp
@@ -132,11 +121,7 @@ case class SourceDataEnriched(
 )
 
 val sourceDataEnriched = spark.sql("SELECT case_id, event_date, COALESCE(LEAD(event_date,1) OVER (PARTITION BY case_id ORDER BY event_date),CAST('2015-01-13 00:00:00.0' AS TIMESTAMP)) AS next_event_date FROM events").withColumn("no_of_days_gap", ((unix_timestamp(col("next_event_date")) - unix_timestamp(col("event_date")))/60/60/24).cast(IntegerType)).as[SourceDataEnriched]
-```
 
-We should be able to create the **clones** now:
-
-```scala
 scala> val sourceDataExploded = sourceDataEnriched.flatMap(r => Seq.fill(r.no_of_days_gap)(r))
 scala> sourceDataExploded.show(10)
 +-------+--------------------+--------------------+--------------+
@@ -154,11 +139,9 @@ scala> sourceDataExploded.show(10)
 |     12|2015-01-07 00:00:...|2015-01-11 00:00:...|             4|
 +-------+--------------------+--------------------+--------------+
 only showing top 10 rows
-```
 
-Let's create a **clone number** (`clone_no`) so we can create the correct **snapshot date** later on:
+// Let's create the clone_no so we can create the correct snapshot date later on:
 
-```scala
 scala> sourceDataExploded.createOrReplaceTempView("events_ranked")
 
 scala> val eventsWithCloneNo = spark.sql("SELECT case_id, event_date, no_of_days_gap, ROW_NUMBER() OVER (PARTITION BY case_id, event_date ORDER BY event_date) - 1 as clone_no FROM events_ranked")
@@ -201,11 +184,10 @@ scala> eventsWithCloneNo.sort("case_id","event_date","clone_no").show(50)
 |     15|2015-01-07 00:00:...|             6|       4|
 |     15|2015-01-07 00:00:...|             6|       5|
 +-------+--------------------+--------------+--------+
-```
 
-The only task left to do now is to create the correct **snapshot date**:
 
-```
+
+// Let's create the correct snapshot date
 val snapshot = eventsWithCloneNo.selectExpr("date_add(event_date,clone_no) AS snapshot_date","case_id")
 
 scala> snapshot.sort("case_id","snapshot_date").show(50)
@@ -247,11 +229,10 @@ scala> snapshot.sort("case_id","snapshot_date").show(50)
 |   2015-01-11|     15|
 |   2015-01-12|     15|
 +-------------+-------+
-```
 
-Finally let's see how many cases there are by day (to simulate a call from the **OLAP/Cube tool**):
 
-```scala
+// Finally let's see how many cases there are by day
+
 scala> snapshot.createOrReplaceTempView("snapshot_jira")
 scala> spark.sql("SELECT snapshot_date, COUNT(*) AS cnt FROM snapshot_jira GROUP BY 1 ORDER BY 1").show
 
@@ -271,4 +252,144 @@ scala> spark.sql("SELECT snapshot_date, COUNT(*) AS cnt FROM snapshot_jira GROUP
 |   2015-01-11|  3|
 |   2015-01-12|  3|
 +-------------+---+
-```
+
+
+
+// ALTERNATIVE SOLUTION
+// not recommended due to use of ListBuffer
+
+import java.sql.Timestamp
+
+case class SDEnriched(
+  case_id:Int
+  , event_date:java.sql.Timestamp
+  , next_event_date:java.sql.Timestamp
+  , no_of_days_gap:Int
+  , clone_no:Int
+)
+
+val sdCloneDyn = sourceDataEnriched.map(
+  // row/record
+  r => {
+    // since we are appending elements dynamically
+    // we need a mutable collection
+    var lb = scala.collection.mutable.ListBuffer[SDEnriched]()
+    var a = 0
+    while(
+      a < r.getAs[Int]("no_of_days_gap")
+      //a < r.no_of_days_gap
+    ){ 
+      lb += new SDEnriched(
+        r.getAs[Int]("case_id")
+        , r.getAs[Timestamp]("event_date")
+        , r.getAs[Timestamp]("next_event_date")
+        , r.getAs[Int]("no_of_days_gap")
+        , a
+      )
+      a += 1
+    }
+    // convert to List
+    lb.toList   
+  }
+)
+
+val sdCloned = sdCloneDyn.flatMap(r => r)
+scala> sdCloned.show(20)
+
++-------+--------------------+--------------------+--------------+--------+
+|case_id|          event_date|     next_event_date|no_of_days_gap|clone_no|
++-------+--------------------+--------------------+--------------+--------+
+|     12|2015-01-01 00:00:...|2015-01-03 00:00:...|             2|       0|
+|     12|2015-01-01 00:00:...|2015-01-03 00:00:...|             2|       1|
+|     12|2015-01-03 00:00:...|2015-01-07 00:00:...|             4|       0|
+|     12|2015-01-03 00:00:...|2015-01-07 00:00:...|             4|       1|
+|     12|2015-01-03 00:00:...|2015-01-07 00:00:...|             4|       2|
+|     12|2015-01-03 00:00:...|2015-01-07 00:00:...|             4|       3|
+|     12|2015-01-07 00:00:...|2015-01-11 00:00:...|             4|       0|
+|     12|2015-01-07 00:00:...|2015-01-11 00:00:...|             4|       1|
+|     12|2015-01-07 00:00:...|2015-01-11 00:00:...|             4|       2|
+|     12|2015-01-07 00:00:...|2015-01-11 00:00:...|             4|       3|
+|     12|2015-01-11 00:00:...|2015-01-12 00:00:...|             1|       0|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       0|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       1|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       2|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       3|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       4|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       5|
+|     13|2015-01-02 00:00:...|2015-01-09 00:00:...|             7|       6|
+|     13|2015-01-09 00:00:...|2015-01-12 00:00:...|             3|       0|
+|     13|2015-01-09 00:00:...|2015-01-12 00:00:...|             3|       1|
++-------+--------------------+--------------------+--------------+--------+
+only showing top 20 rows
+
+sdCloned.createOrReplaceTempView("events_cloned")
+
+spark.sql("SELECT *,  FROM events_cloned").show
+
+// couldn't get the case working! 
+sdCloned.withColumn("snapshot_date", date_add(col("event_date"),col("clone_no").cast(IntegerType)))
+// `date_add` expects a Col Type as the first argument and
+// an Int Type as the second one. There doesn't seem to be a way
+// to unwrap the column value.
+
+// workaround 1
+sdCloned.withColumn("snapshot_date", expr("date_add(event_date, clone_no)"))
+
+// workaround 2
+sdCloned.selectExpr("event_date","clone_no","date_add(event_date,clone_no) AS snapshot_date").show
++--------------------+--------+-------------+
+|          event_date|clone_no|snapshot_date|
++--------------------+--------+-------------+
+|2015-01-01 00:00:...|       0|   2015-01-01|
+|2015-01-01 00:00:...|       1|   2015-01-02|
+|2015-01-03 00:00:...|       0|   2015-01-03|
+|2015-01-03 00:00:...|       1|   2015-01-04|
+|2015-01-03 00:00:...|       2|   2015-01-05|
+|2015-01-03 00:00:...|       3|   2015-01-06|
+|2015-01-07 00:00:...|       0|   2015-01-07|
+|2015-01-07 00:00:...|       1|   2015-01-08|
+|2015-01-07 00:00:...|       2|   2015-01-09|
+|2015-01-07 00:00:...|       3|   2015-01-10|
+|2015-01-11 00:00:...|       0|   2015-01-11|
+|2015-01-02 00:00:...|       0|   2015-01-02|
+|2015-01-02 00:00:...|       1|   2015-01-03|
+|2015-01-02 00:00:...|       2|   2015-01-04|
+|2015-01-02 00:00:...|       3|   2015-01-05|
+|2015-01-02 00:00:...|       4|   2015-01-06|
+|2015-01-02 00:00:...|       5|   2015-01-07|
+|2015-01-02 00:00:...|       6|   2015-01-08|
+|2015-01-09 00:00:...|       0|   2015-01-09|
+|2015-01-09 00:00:...|       1|   2015-01-10|
++--------------------+--------+-------------+
+
+val snapshot = sdCloned.selectExpr("date_add(event_date,clone_no) AS snapshot_date", "case_id")
+snapshot: org.apache.spark.sql.DataFrame = [snapshot_date: date, case_id: int]
+
+scala> snapshot.show(20)
++-------------+-------+
+|snapshot_date|case_id|
++-------------+-------+
+|   2015-01-01|     12|
+|   2015-01-02|     12|
+|   2015-01-03|     12|
+|   2015-01-04|     12|
+|   2015-01-05|     12|
+|   2015-01-06|     12|
+|   2015-01-07|     12|
+|   2015-01-08|     12|
+|   2015-01-09|     12|
+|   2015-01-10|     12|
+|   2015-01-11|     12|
+|   2015-01-02|     13|
+|   2015-01-03|     13|
+|   2015-01-04|     13|
+|   2015-01-05|     13|
+|   2015-01-06|     13|
+|   2015-01-07|     13|
+|   2015-01-08|     13|
+|   2015-01-09|     13|
+|   2015-01-10|     13|
++-------------+-------+
+only showing top 20 rows
+
+
