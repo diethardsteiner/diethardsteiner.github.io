@@ -21,7 +21,7 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 
 `multivalued.dim_student`:
 
- student_tk | student_name 
+`student_tk` | `student_name` 
 ------------|--------------
           1 | Bob
           2 | Lilian
@@ -29,7 +29,7 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 
 `multivalued.fact_grades`:
 
- student_tk | course_name | grade 
+`student_tk` | `course_name` | `grade` 
 ------------|-------------|-------
           1 | Math        |     7
           1 | Physics     |     3
@@ -37,7 +37,7 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 
 `multivalued.fact_student_hobbies`:
 
- student_tk | hobby_name | cnt 
+`student_tk` | `hobby_name` | `cnt` 
 ------------|------------|-----
           1 | Gaming     |   1
           1 | Reading    |   1
