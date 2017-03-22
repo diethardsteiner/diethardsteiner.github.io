@@ -44,6 +44,8 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
           2 | Gaming     |   1
           2 | Jogging    |   1
           2 | Writing    |   1
+          
+## Create standard Cubes to answer simple Questions
 
 We can create a cube for each of the fact tables to answer specific questions:
 
@@ -148,7 +150,24 @@ All Student.Student Names | 2
 Bob    | 1
 Lilian | 1
 
-And then we can create a **virtual cube** to answer questions that span both fact tables. We call this cube **Student Grades and Hobbies**. 
+
+## Create a Virtual Cube to answer complex Questions
+
+And then we can create a **virtual cube** to answer questions that span both fact tables. We call this cube **Grades and Hobbies**. 
+I recommend reading through the official 
+[Mondrian Docu on Virtual Cubes](http://mondrian.pentaho.com/documentation/schema.php#Virtual_cubes) to understand how to construct virtual cubes.
+
+### Virtual Cube: How to join base cubes
+
+Use a **global (conforming) dimension** for this purpose. In our case the `Student` dimension links the two fact tables and is defined as global dimension.
+
+```xml
+<VirtualCubeDimension name="Student"/>
+```
+
+**Q**: Does this then in effect require the definition of `CubeUsage` as well since in this case the `VirtualCubeDimension` element does not specify a value for the `cubeName`? Otherwise how does Mondrian know that this global dimension exists in both base cubes and that it can hence use it to join the base cubes?
+
+**A**: `CubeUsage` is optional and not required. If you reference a global dimension in the **virtual cube**, Mondrian will check the base cubes defined for the **virtual measures** to see if this **global dimension** is referenced in the **base cubes**.
 
 
 Let's create a list of students with a count of hobbies and the sum of grades (last one is completely useless, for now we just want to proove we can query across the base cubes):
@@ -174,7 +193,8 @@ SELECT
 FROM [Grades and Hobbies]
 ```
 
-Student Name	Course Name	Count Hobbies	Grade
+Student Name | Course Name | Count Hobbies | Grade
+-------------|-------------|---------------|--------
 All Student.Student Names | All Course Names | 5 | 18
  | Math | | 15
  | Physics | | 3
@@ -303,6 +323,7 @@ FILTER(
   [Student.Student Name].Children
   , (
       [Hobby Name].[Gaming]
+      , [Course Name].[All Course Names]
       , [Measures].[Count Hobbies] 
     ) > 0
 )
@@ -310,9 +331,11 @@ SELECT
   STUDENTS *  [Course Name].[Course Name].[Math] ON ROWS
   , {[Measures].[Grade]} ON COLUMNS
 FROM [Grades and Hobbies]
+WHERE [Course Name].[Course Name].[Math]
 ```
 
 The trick here is to get a list of students that have a specific hobby before asking for the grades by course.
+Also, note that we move the constrain on the Math course into the slicer (`WHERE` clause). Since this influences the calculated set as well, we have to explicitly add `[Course Name].[All Course Names]` there as well.
 
 Result:
 
