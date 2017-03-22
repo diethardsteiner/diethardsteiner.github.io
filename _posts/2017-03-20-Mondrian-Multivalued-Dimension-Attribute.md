@@ -224,14 +224,10 @@ FROM [Grades and Hobbies]
 
 Result:
 
-```
-Axis #0:
-{}
-Axis #1:
-Axis #2:
-{[Student.Student Name].[Bob]}
-{[Student.Student Name].[Lilian]}
-```
+Student Name |
+-------------|--
+Bob | 
+Lilian |
 
 **Learning Exercise**
 
@@ -253,7 +249,7 @@ FROM [Grades and Hobbies]
 WHERE [Course Name].[Course Name].[Math]
 ```
 
-Interstingly enough we do not get any records returned! **WHY?**. However, if we move the constrain from the slicer to one of the axis, all is fine:
+Interstingly enough we do not get any records returned! However, if we move the constrain from the slicer to one of the axis, all is fine:
 
 ```
 WITH SET STUDENTS AS
@@ -275,7 +271,7 @@ Student Name | Course Name | Grade
 -------------|-------------|-------
 Bob | Math | 7
 
-The reason for this is that the slicer also influences calculated members and sets directly, whereas if we move the contrain into one of axis, calculated members and sets will be evaluated without this constrain??? In the virtual cube is seems like we cannot directly join both base cubes together at the same time???
+The reason for this is that the **slicer** also influences **calculated members** and **sets** directly, whereas if we move the constrain onto one of **axis**, calculated members and sets will be evaluated without this constrain.
 
 Next let's look at the original question:
 
@@ -312,7 +308,7 @@ Let's try to answer the original question now:
 WITH
 MEMBER [Measures].[Avg Grade] AS
   AVG(
-    [Course Name].Children
+    [Course Name].CurrentMember
     , (
         [Student.Student Name].CurrentMember
         , [Measures].[Grade]
@@ -328,109 +324,21 @@ FILTER(
     ) > 0
 )
 SELECT
-  STUDENTS *  [Course Name].[Course Name].[Math] ON ROWS
-  , {[Measures].[Grade]} ON COLUMNS
+  STUDENTS ON ROWS
+  , {[Measures].[Avg Grade]} ON COLUMNS
 FROM [Grades and Hobbies]
 WHERE [Course Name].[Course Name].[Math]
 ```
 
 The trick here is to get a list of students that have a specific hobby before asking for the grades by course.
-Also, note that we move the constrain on the Math course into the slicer (`WHERE` clause). Since this influences the calculated set as well, we have to explicitly add `[Course Name].[All Course Names]` there as well.
+Also, note that we moved the constrain on the Math course into the slicer (`WHERE` clause). Since this influences the calculated set as well, we had to explicitly add `[Course Name].[All Course Names]` there as well.
 
 Result:
 
-```
-Axis #0:
-{[Course Name].[Math]}
-Axis #1:
-{[Measures].[Avg Grade]}
-Axis #2:
-```
-
-
----------------
-
-WITH
-MEMBER [Measures].[Avg Grade] AS
-  AVG(
-    [Student.Student Name].Children
-    , ([Course Name].CurrentMember, [Measures].[Grade])
-  )
-SET STUDENTS AS
-FILTER(
-  [Student.Student Name].Children
-  , (
-      [Hobby Name].[Gaming]
-      , [Measures].[Count Hobbies] 
-    ) > 0
-)
-SET COURSES AS 
-EXTRACT(
-  NONEMPTYCROSSJOIN(
-    [Course Name].[Course Name].[Math]
-    , NONEMPTYCROSSJOIN(
-      STUDENTS
-      , [Measures].[Grades]
-    )
-  )
-  , [Course Name.Course Name]
-)
-SELECT
-   COURSES ON ROWS
-  , {[Measures].[Avg Grade]} ON COLUMNS
-FROM [Grades and Hobbies]
-
-/*  does not return anything  */
-
-/* Below query does it not return something because Course is no a global/conformed dim? */
-SELECT
-    [Course Name].Members ON ROWS
-  , {[Measures].[Measures Grade]} ON COLUMNS
-FROM [Grades and Hobbies]
-
-/* This works (without using slicer), but result is still not ok: Returns 8 */
-
-WITH
-SET STUDENTS AS
-FILTER(
-  [Student.Student Name].Children
-  , (
-      [Hobby Name].[Gaming]
-      , [Measures].[Count Hobbies] 
-    ) > 0
-)
-MEMBER [Measures].[Avg Grade] AS
-  AVG(
-    STUDENTS
-    , [Measures].[Grade]
-  )
-SELECT
-   [Course Name].[Course Name].[Math] ON ROWS
-  , {[Measures].[Avg Grade]} ON COLUMNS
-FROM [Grades and Hobbies]
-
-/* This is correct, but does not take the context of hobbies into account */
-
-WITH
-SET STUDENTS AS
-FILTER(
-  [Student.Student Name].Children
-  , (
-      [Hobby Name].[Gaming]
-      , [Measures].[Count Hobbies] 
-    ) > 0
-)
-MEMBER [Measures].[Avg Grade] AS
-  AVG(
-    [Student.Student Name].Children
-    , [Measures].[Grade]
-  )
-SELECT
-   [Course Name].[Course Name].[Math] ON ROWS
-  , {[Measures].[Avg Grade]} ON COLUMNS
-FROM [Grades and Hobbies]
-
-/* I tried to use Extract further up to take the hobbies context into account, but this did not return anything */
+Student Name | Grade
+-------------|------
+Bob    | 7
+Lilian | 8
 	 	 
 
  
