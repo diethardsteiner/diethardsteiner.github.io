@@ -16,7 +16,7 @@ In our example we use the following data:
 - Student Bob attended the Maths course and scored a 7 (grade). He also attended the Physics course and scored a 3 (grade). Bob's hobbies are Gaming and Reading.
 - Student Lilian attended the Maths course and scored a 8 (grade). Her hobbies are Gaming, Jogging and Writing.
 
-While I had some ideas only a talk with **Nelson Sousa** led to a viable solution: He suggested creating two seperate fact tables, one which stores the grades per student per course (naturally you would have a date as well, but we ignore it for simplicity sake). And another fact table which just stores the student and hobbies relationship. The latter one does not necessary have to have a measure in the fact table itself, however, I added one for explicity sake. And finally there is a student dimension serving as the link between the two fact tables:
+While I had some ideas only a talk with **Nelson Sousa** led to a viable solution: He suggested creating two seperate fact tables, one which stores the grades per student per course (naturally you would have a date as well, but we ignore it for simplicity sake). And another fact table which just stores the student and hobbies relationship. The latter one does not necessary have to have a measure in the fact table itself, however, I added one for completeness sake. And finally there is a student dimension serving as the link between the two fact tables:
 
 
 `multivalued.dim_student`:
@@ -46,6 +46,49 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 2 | Writing    |   1
           
 ## Create standard Cubes to answer simple Questions
+
+Cube Definition:
+
+```xml
+<Schema name="Multivalued Dimension Attribute">
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Student">
+    <Hierarchy name="Student Name" visible="true" hasAll="true" primaryKey="student_tk">
+      <Table name="dim_student" schema="multivalued">
+      </Table>
+      <Level name="Student Name" visible="true" column="student_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="Grades" visible="true" cache="true" enabled="true">
+    <Table name="fact_grades" schema="multivalued">
+    </Table>
+    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Course Name">
+      <Hierarchy name="Course Name" visible="true" hasAll="true">
+        <Level name="Course Name" visible="true" column="course_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk">
+    </DimensionUsage>
+    <Measure name="Grade" column="grade" datatype="Integer" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+  <Cube name="Hobbies" visible="true" cache="true" enabled="true">
+    <Table name="fact_student_hobbies" schema="multivalued">
+    </Table>
+    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Hobby Name">
+      <Hierarchy name="Hobby Name" visible="true" hasAll="true">
+        <Level name="Hobby Name" visible="true" column="hobby_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk">
+    </DimensionUsage>
+    <Measure name="Count Hobbies" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+</Schema>
+```
 
 We can create a cube for each of the fact tables to answer specific questions:
 
@@ -154,6 +197,7 @@ Lilian | 1
 ## Create a Virtual Cube to answer complex Questions
 
 And then we can create a **virtual cube** to answer questions that span both fact tables. We call this cube **Grades and Hobbies**. 
+
 I recommend reading through the official 
 [Mondrian Docu on Virtual Cubes](http://mondrian.pentaho.com/documentation/schema.php#Virtual_cubes) to understand how to construct virtual cubes.
 
@@ -169,8 +213,25 @@ Use a **global (conforming) dimension** for this purpose. In our case the `Stude
 
 **A**: `CubeUsage` is optional and not required. If you reference a global dimension in the **virtual cube**, Mondrian will check the base cubes defined for the **virtual measures** to see if this **global dimension** is referenced in the **base cubes**.
 
+Full Virtual Cube definition:
 
-Let's create a list of students with a count of hobbies and the sum of grades (last one is completely useless, for now we just want to proove we can query across the base cubes):
+```xml
+  <VirtualCube enabled="true" name="Grades and Hobbies" visible="true">
+    <VirtualCubeDimension cubeName="Grades" visible="true" highCardinality="false" name="Student">
+    </VirtualCubeDimension>
+    <VirtualCubeDimension cubeName="Grades" visible="true" highCardinality="false" name="Course Name">
+    </VirtualCubeDimension>
+    <VirtualCubeDimension cubeName="Hobbies" visible="true" highCardinality="false" name="Hobby Name">
+    </VirtualCubeDimension>
+    <VirtualCubeMeasure cubeName="Hobbies" name="[Measures].[Count Hobbies]" visible="true">
+    </VirtualCubeMeasure>
+    <VirtualCubeMeasure cubeName="Grades" name="[Measures].[Grade]" visible="true">
+    </VirtualCubeMeasure>
+  </VirtualCube>
+```
+
+
+Let's create a list of students with a count of hobbies and the sum of grades (last one is completely useless, for now we just want to prove we can query across the base cubes):
 
 ```sql
 SELECT
@@ -249,7 +310,7 @@ FROM [Grades and Hobbies]
 WHERE [Course Name].[Course Name].[Math]
 ```
 
-Interstingly enough we do not get any records returned! However, if we move the constrain from the slicer to one of the axis, all is fine:
+Interestingly enough we do not get any records returned! However, if we move the constrain from the slicer to one of the axis, all is fine:
 
 ```
 WITH SET STUDENTS AS
@@ -308,7 +369,7 @@ Let's try to answer the original question now:
 WITH
 MEMBER [Measures].[Avg Grade] AS
   AVG(
-    [Course Name].CurrentMember
+    [Course Name].Members
     , (
         [Student.Student Name].CurrentMember
         , [Measures].[Grade]
@@ -340,5 +401,21 @@ Student Name | Grade
 Bob    | 7
 Lilian | 8
 	 	 
+While the results look promising, there is one last check we should do: Let's add one more record for Bob and Math and see if our average is really working (imagine these are the course results for another day):
 
- 
+```sql
+INSERT INTO multivalued.fact_grades VALUES 
+(1, 'Math', 5)
+;
+```
+
+ student_tk | course_name | grade 
+------------|-------------|-------
+1 | Math        |     7
+1 | Math        |     5
+1 | Physics     |     3
+2 | Math        |     8
+
+Refresh the cube cache and run the query again. The result won't be the same. The reason for this is because we are missing a field which makes the record unique ... a date field. We would have to change the query to take into account the date dimension and then the result should be fine again.
+
+Overall this is certainly not a self-service cube, unless you invest a good amount of time in creating advanced calculated members.
