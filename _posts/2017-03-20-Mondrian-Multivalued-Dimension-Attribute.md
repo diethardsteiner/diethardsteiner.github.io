@@ -23,27 +23,27 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 
 `student_tk` | `student_name` 
 ------------|--------------
-          1 | Bob
-          2 | Lilian
+1 | Bob
+2 | Lilian
 
 
 `multivalued.fact_grades`:
 
 `student_tk` | `course_name` | `grade` 
 ------------|-------------|-------
-          1 | Math        |     7
-          1 | Physics     |     3
-          2 | Math        |     8
+1 | Math        |     7
+1 | Physics     |     3
+2 | Math        |     8
 
 `multivalued.fact_student_hobbies`:
 
 `student_tk` | `hobby_name` | `cnt` 
 ------------|------------|-----
-          1 | Gaming     |   1
-          1 | Reading    |   1
-          2 | Gaming     |   1
-          2 | Jogging    |   1
-          2 | Writing    |   1
+1 | Gaming     |   1
+1 | Reading    |   1
+2 | Gaming     |   1
+2 | Jogging    |   1
+2 | Writing    |   1
           
 ## Create standard Cubes to answer simple Questions
 
