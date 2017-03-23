@@ -8,8 +8,9 @@ tags: Mondrian
 published: false
 --- 
 
+# AGGREGATION TYPE: AVERAGE
 
-A vivid reader called ... recently contacted me after reading my article on bridge tables: He was after a solution for a challenging scenario. The task was to create a model for students that receive grades for the courses they attend. A student can have one or more hobbies and one of the analysis questions was: What is the average grade for students with hobby X that attend course Y? This caught my interest and I was eager to find out how this would be implemented with **Mondrian**.
+A vivid reader called Bruno recently contacted me after reading my article on bridge tables: He was after a solution for a challenging scenario. The task was to create a model for students that receive grades for the courses they attend. A student can have one or more hobbies and one of the analysis questions was: What is the average grade for students with hobby X that attend course Y? This caught my interest and I was eager to find out how this would be implemented with **Mondrian**.
 
 In our example we use the following data:
 
@@ -17,7 +18,6 @@ In our example we use the following data:
 - Student Lilian attended the Maths course and scored a 8 (grade). Her hobbies are Gaming, Jogging and Writing.
 
 While I had some ideas only a talk with **Nelson Sousa** led to a viable solution: He suggested creating two seperate fact tables, one which stores the grades per student per course (naturally you would have a date as well, but we ignore it for simplicity sake). And another fact table which just stores the student and hobbies relationship. The latter one does not necessary have to have a measure in the fact table itself, however, I added one for completeness sake. And finally there is a student dimension serving as the link between the two fact tables:
-
 
 `multivalued.dim_student`:
 
@@ -32,6 +32,7 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 `student_tk` | `course_name` | `grade` 
 ------------|-------------|-------
 1 | Math        |     7
+1 | Math        |     4
 1 | Physics     |     3
 2 | Math        |     8
 
@@ -46,6 +47,8 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 2 | Writing    |   1
           
 ## Create standard Cubes to answer simple Questions
+
+The imporant point here is that we want to employ an aggregate function of type **Average** for grades (since grades cannot be summed):
 
 Cube Definition:
 
@@ -70,7 +73,7 @@ Cube Definition:
     </Dimension>
     <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk">
     </DimensionUsage>
-    <Measure name="Grade" column="grade" datatype="Integer" aggregator="sum" visible="true">
+    <Measure name="Grade" column="grade" datatype="Integer" aggregator="avg" visible="true">
     </Measure>
   </Cube>
   <Cube name="Hobbies" visible="true" cache="true" enabled="true">
@@ -95,6 +98,7 @@ We can create a cube for each of the fact tables to answer specific questions:
 **Q**: What is the average grade by student?
 
 ```sql
+/** -- NOT REQUIRED -- 
 WITH
 MEMBER [Measures].[Avg Grade] AS
   AVG(
@@ -104,9 +108,11 @@ MEMBER [Measures].[Avg Grade] AS
         , [Measures].[Grade]
       )
   )
+**/
 SELECT
   [Student.Student Name].Children ON ROWS
-  , [Measures].[Avg Grade] ON COLUMNS
+  /**, [Measures].[Avg Grade] ON COLUMNS **/
+  , [Measures].[Grade] ON COLUMNS
 FROM [Grades]
 ```
 
@@ -116,54 +122,23 @@ Result:
 
 Student Name | Avg Grade
 -------------|-----------
-Bob | 5
+Bob | 4.667
 Lilian | 8
-
-
-**Learning Exercise**:
-
-Let's understand how a custom aggregation function works:
-
-```sql
-WITH
-MEMBER [Measures].[x] AS (
-  [Student.Student Name].CurrentMember
-  , [Measures].[Grade]
-)
-MEMBER [Measures].[x2] AS 
-  SUM(
-    [Course Name.Course Name].Members, 
-    (
-      [Student.Student Name].CurrentMember
-      , [Measures].[Grade]
-    )
-  )
-SELECT 
-  {[Measures].[x] , [Measures].[x2]} ON COLUMNS
-  , [Student.Student Name].Members ON ROWS
-FROM [Grades]
-```
-
-Student Name | x  | x2
--------------|----|------
-All Student.Student Names | 18 | 36
-Bob          | 10 | 20
-Lilian       | 8  | 16
-
-What measure x does is basically sum the grades by the student that is currently in scope (in this query the standard grade measure would just do the same). Intersting is then what happens with measure x2: For each course member, we sum up the grade measure in context of the current student (sum is defined as the aggregate function of the grade measure in the cube definition/mondrian schema). So if we look at Bob, he attends two courses, so if we sum his grades we get 10 returned (7 + 3). Since measure x2 evaluates the formula for each course, we get 20 (10 * 2 courses) returned in the final result. In general, the result isn't really useful in practical terms, however, it illustrates the power of custom aggregate functions nicely.
 
 **Q**: What is the average grade by course?
 
 ```sql
+/** -- NOT REQUIRED --
 WITH
 MEMBER [Measures].[Avg Grade] AS
   AVG(
     [Student.Student Name].Children
     , ([Course Name].CurrentMember, [Measures].[Grade])
   )
+**/
 SELECT
   [Course Name].Children ON ROWS
-  , [Measures].[Avg Grade] ON COLUMNS
+  , [Measures].[Grade] ON COLUMNS
 FROM [Grades]
 ```
 
@@ -171,7 +146,7 @@ Result:
 
 Course Name | Avg Grade
 ------------|----------
-Math        | 7.5
+Math        | 6.333
 Physics     | 3
 
 **Q**: How many students have Gaming as a Hobby?
@@ -231,7 +206,7 @@ Full Virtual Cube definition:
 ```
 
 
-Let's create a list of students with a count of hobbies and the sum of grades (last one is completely useless, for now we just want to prove we can query across the base cubes):
+Let's create a list of students with a count of hobbies and the average of grades:
 
 ```sql
 SELECT
@@ -242,7 +217,7 @@ FROM [Grades and Hobbies]
 
 Student Name | Grade | Count Hobbies
 -------------|-------|-------------
-Bob | 10 | 2
+Bob | 4.667 | 2
 Lilian | 8 | 3
 
 This shows quite an intersting result: count of hobbies is only available on the All level, but grades are available everywhere:
@@ -256,11 +231,11 @@ FROM [Grades and Hobbies]
 
 Student Name | Course Name | Count Hobbies | Grade
 -------------|-------------|---------------|--------
-All Student.Student Names | All Course Names | 5 | 18
- | Math | | 15
+All Student.Student Names | All Course Names | 5 | 5.5
+ | Math | | 6.333
  | Physics | | 3
-Bob |All Course Names | 2 | 10
- | Math | | 7
+Bob |All Course Names | 2 | 4.667
+ | Math | | 5.5
  | Physics | | 3
 Lilian | All Course Names | 3 | 8
  | Math | |	8
@@ -330,9 +305,30 @@ Result:
 
 Student Name | Course Name | Grade
 -------------|-------------|-------
-Bob | Math | 7
+Bob | Math | 5.5
 
 The reason for this is that the **slicer** also influences **calculated members** and **sets** directly, whereas if we move the constrain onto one of **axis**, calculated members and sets will be evaluated without this constrain.
+
+Or alternatively you can also add the `All` member to the filter to override the constrain in the slicer:
+
+```sql
+WITH SET STUDENTS AS
+FILTER(
+  [Student.Student Name].Children
+  , (
+      [Hobby Name].[Reading]
+     , [Course Name].[All Course Names]
+     , [Measures].[Count Hobbies] 
+    ) > 0
+)
+SELECT
+  STUDENTS ON ROWS
+  , {[Measures].[Grade]} ON COLUMNS
+FROM [Grades and Hobbies]
+WHERE [Course Name].[Course Name].[Math]
+```
+
+This will produce exactly the same result.
 
 Next let's look at the original question:
 
@@ -359,7 +355,7 @@ FROM [Grades and Hobbies]
 
 Student Name | Course Name | Grade
 -------------|-------------|---------
-Bob | Math | 7
+Bob | Math | 5.5
 Lilian | Math | 8
 
 Let's try to answer the original question now:
@@ -367,6 +363,7 @@ Let's try to answer the original question now:
 
 ```sql 
 WITH
+/** -- NOT REQUIRED --
 MEMBER [Measures].[Avg Grade] AS
   AVG(
     [Course Name].Members
@@ -375,6 +372,7 @@ MEMBER [Measures].[Avg Grade] AS
         , [Measures].[Grade]
       )
   )
+**/
 SET STUDENTS AS
 FILTER(
   [Student.Student Name].Children
@@ -386,7 +384,7 @@ FILTER(
 )
 SELECT
   STUDENTS ON ROWS
-  , {[Measures].[Avg Grade]} ON COLUMNS
+  , {[Measures].[Grade]} ON COLUMNS
 FROM [Grades and Hobbies]
 WHERE [Course Name].[Course Name].[Math]
 ```
@@ -398,24 +396,44 @@ Result:
 
 Student Name | Grade
 -------------|------
-Bob    | 7
+Bob    | 5.5
 Lilian | 8
-	 	 
-While the results look promising, there is one last check we should do: Let's add one more record for Bob and Math and see if our average is really working (imagine these are the course results for another day):
+
+# AGGREGATION TYPE: SUM
+
+In this variation of the theme we imagine we are a company specialising in targeted web ads. The targeted user has various interests and we want to see how much revenue we generate by targeting users with specific interests. We do not want to weight the interests - we allocate all revenue to every single interest. The aim is to find out which interest generates most revenue.
+
+
+[OPEN] Adjust below for ads-example
+
+**Learning Exercise**:
+
+Let's understand how a custom aggregation function works:
 
 ```sql
-INSERT INTO multivalued.fact_grades VALUES 
-(1, 'Math', 5)
-;
+WITH
+MEMBER [Measures].[x] AS (
+  [Student.Student Name].CurrentMember
+  , [Measures].[Grade]
+)
+MEMBER [Measures].[x2] AS 
+  SUM(
+    [Course Name.Course Name].Members, 
+    (
+      [Student.Student Name].CurrentMember
+      , [Measures].[Grade]
+    )
+  )
+SELECT 
+  {[Measures].[x] , [Measures].[x2]} ON COLUMNS
+  , [Student.Student Name].Members ON ROWS
+FROM [Grades]
 ```
 
- student_tk | course_name | grade 
-------------|-------------|-------
-1 | Math        |     7
-1 | Math        |     5
-1 | Physics     |     3
-2 | Math        |     8
+Student Name | x  | x2
+-------------|----|------
+All Student.Student Names | 18 | 36
+Bob          | 10 | 20
+Lilian       | 8  | 16
 
-Refresh the cube cache and run the query again. The result won't be the same. The reason for this is because we are missing a field which makes the record unique ... a date field. We would have to change the query to take into account the date dimension and then the result should be fine again.
-
-Overall this is certainly not a self-service cube, unless you invest a good amount of time in creating advanced calculated members.
+What measure x does is basically sum the grades by the student that is currently in scope (in this query the standard grade measure would just do the same). Intersting is then what happens with measure x2: For each course member, we sum up the grade measure in context of the current student (sum is defined as the aggregate function of the grade measure in the cube definition/mondrian schema). So if we look at Bob, he attends two courses, so if we sum his grades we get 10 returned (7 + 3). Since measure x2 evaluates the formula for each course, we get 20 (10 * 2 courses) returned in the final result. In general, the result isn't really useful in practical terms, however, it illustrates the power of custom aggregate functions nicely.
