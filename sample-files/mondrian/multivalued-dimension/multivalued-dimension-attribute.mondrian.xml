@@ -1,0 +1,100 @@
+<Schema name="Multivalued Dimension Attribute">
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Student">
+    <Hierarchy name="Student Name" visible="true" hasAll="true" primaryKey="student_tk">
+      <Table name="dim_student" schema="multivalued"/>
+      <Level name="Student Name" visible="true" column="student_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="Date">
+    <Hierarchy name="Date" visible="true" hasAll="true" primaryKey="date_tk">
+      <Table name="dim_date" schema="multivalued"/>
+      <Level name="Date" visible="true" column="the_date" type="Date" uniqueMembers="false" levelType="TimeDays" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Product">
+    <Hierarchy name="Product Name" visible="true" hasAll="true" primaryKey="product_tk">
+      <Table name="dim_product" schema="multivalued"/>
+      <Level name="Product Name" visible="true" column="product_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Client">
+    <Hierarchy name="Client Name" visible="true" hasAll="true" primaryKey="client_tk">
+      <Table name="dim_client" schema="multivalued"/>
+      <Level name="Client Name" visible="true" column="client_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="Grades" visible="true" cache="true" enabled="true">
+    <Table name="fact_grades" schema="multivalued">
+    </Table>
+    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Course Name">
+      <Hierarchy name="Course Name" visible="true" hasAll="true">
+        <Level name="Course Name" visible="true" column="course_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk" highCardinality="false">
+    </DimensionUsage>
+    <Measure name="Grade" column="grade" datatype="Integer" aggregator="avg" visible="true">
+    </Measure>
+  </Cube>
+  <Cube name="Hobbies" visible="true" cache="true" enabled="true">
+    <Table name="fact_student_hobbies" schema="multivalued">
+    </Table>
+    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Hobby Name">
+      <Hierarchy name="Hobby Name" visible="true" hasAll="true">
+        <Level name="Hobby Name" visible="true" column="hobby_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk" highCardinality="false">
+    </DimensionUsage>
+    <Measure name="Count Hobbies" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+  <Cube name="Sales" visible="true" cache="true" enabled="true">
+    <Table name="fact_sales" schema="multivalued"/>
+    <DimensionUsage source="Date" name="Date" visible="true" foreignKey="date_tk" highCardinality="false"/>
+    <DimensionUsage source="Client" name="Client" visible="true" foreignKey="client_tk" highCardinality="false"/>
+    <DimensionUsage source="Product" name="Product" visible="true" foreignKey="product_tk" highCardinality="false"/>
+    <Measure name="Number of Units" column="no_of_units" datatype="Integer" formatString="#,###" aggregator="sum" visible="true"/>
+    <Measure name="Revenue" column="amount_spent" datatype="Numeric" formatString="#,###.00" aggregator="sum" visible="true"/>
+  </Cube>
+  <Cube name="Interests" visible="true" cache="true" enabled="true">
+    <Table name="fact_client_interests" schema="multivalued"/>
+    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Interest Name">
+      <Hierarchy name="Interest Name" visible="true" hasAll="true">
+        <Level name="Interest Name" visible="true" column="interest_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never"/>
+      </Hierarchy>
+    </Dimension>
+    <DimensionUsage source="Client" name="Client" visible="true" foreignKey="client_tk" highCardinality="false">
+    </DimensionUsage>
+    <Measure name="Count Interests" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+  <VirtualCube enabled="true" name="Grades and Hobbies" visible="true">
+    <VirtualCubeDimension visible="true" highCardinality="false" name="Student">
+    </VirtualCubeDimension>
+    <VirtualCubeDimension cubeName="Grades" visible="true" highCardinality="false" name="Course Name">
+    </VirtualCubeDimension>
+    <VirtualCubeDimension cubeName="Hobbies" visible="true" highCardinality="false" name="Hobby Name">
+    </VirtualCubeDimension>
+    <VirtualCubeMeasure cubeName="Hobbies" name="[Measures].[Count Hobbies]" visible="true">
+    </VirtualCubeMeasure>
+    <VirtualCubeMeasure cubeName="Grades" name="[Measures].[Grade]" visible="true">
+    </VirtualCubeMeasure>
+  </VirtualCube>
+  <VirtualCube enabled="true" name="Sales and Interests" visible="true">
+    <VirtualCubeDimension visible="true" highCardinality="false" name="Client"/>
+    <VirtualCubeDimension cubeName="Sales" visible="true" highCardinality="false" name="Date"/>
+    <VirtualCubeDimension cubeName="Sales" visible="true" highCardinality="false" name="Product"/>
+    <VirtualCubeDimension cubeName="Interests" visible="true" highCardinality="false" name="Interest Name"/>
+    <VirtualCubeMeasure cubeName="Sales" name="[Measures].[Number of Units]" visible="true"/>
+    <VirtualCubeMeasure cubeName="Sales" name="[Measures].[Revenue]" visible="true"/>
+    <VirtualCubeMeasure cubeName="Interests" name="[Measures].[Count Interests]" visible="true">
+    </VirtualCubeMeasure>
+  </VirtualCube>
+</Schema>

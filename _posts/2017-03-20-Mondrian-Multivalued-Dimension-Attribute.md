@@ -5,7 +5,7 @@ summary: This article explain how to model multivalued dimensions with Mondrian
 date: 2017-03-20
 categories: Mondrian
 tags: Mondrian
-published: false
+published: true
 --- 
 
 # AGGREGATION TYPE: AVERAGE
@@ -17,7 +17,7 @@ In our example we use the following data:
 - Student Bob attended the Maths course and scored a 7 (grade). He also attended the Physics course and scored a 3 (grade). Bob's hobbies are Gaming and Reading.
 - Student Lilian attended the Maths course and scored a 8 (grade). Her hobbies are Gaming, Jogging and Writing.
 
-While I had some ideas only a talk with **Nelson Sousa** led to a viable solution: He suggested creating two seperate fact tables, one which stores the grades per student per course (naturally you would have a date as well, but we ignore it for simplicity sake). And another fact table which just stores the student and hobbies relationship. The latter one does not necessary have to have a measure in the fact table itself, however, I added one for completeness sake. And finally there is a student dimension serving as the link between the two fact tables:
+While I had some ideas only a talk with **Nelson Sousa** led to a viable solution: He suggested creating two separate fact tables, one which stores the grades per student per course (naturally you would have a date as well, but we ignore it for simplicity sake). And another fact table which just stores the student and hobbies relationship. The latter one does not necessarily have to have a measure in the fact table itself, however, I added one for completeness sake (a constant of value `1`). And finally there is a student dimension serving as the link between the two fact tables:
 
 `multivalued.dim_student`:
 
@@ -45,10 +45,10 @@ While I had some ideas only a talk with **Nelson Sousa** led to a viable solutio
 2 | Gaming     |   1
 2 | Jogging    |   1
 2 | Writing    |   1
-          
+
 ## Create standard Cubes to answer simple Questions
 
-The imporant point here is that we want to employ an aggregate function of type **Average** for grades (since grades cannot be summed):
+The important point here is that we want to employ an aggregate function of type **Average** for grades (since grades cannot be summed):
 
 Cube Definition:
 
@@ -93,30 +93,16 @@ Cube Definition:
 </Schema>
 ```
 
-We can create a cube for each of the fact tables to answer specific questions:
+We created a cube for each of the fact tables to answer specific questions:
 
 **Q**: What is the average grade by student?
 
 ```sql
-/** -- NOT REQUIRED -- 
-WITH
-MEMBER [Measures].[Avg Grade] AS
-  AVG(
-    [Course Name].Children
-    , (
-        [Student.Student Name].CurrentMember
-        , [Measures].[Grade]
-      )
-  )
-**/
 SELECT
   [Student.Student Name].Children ON ROWS
-  /**, [Measures].[Avg Grade] ON COLUMNS **/
   , [Measures].[Grade] ON COLUMNS
 FROM [Grades]
 ```
-
-> **Important**: Grades have to be evaluated in the context of the student, otherwise the average will not be calcualted correctly!
 
 Result:
 
@@ -128,14 +114,6 @@ Lilian | 8
 **Q**: What is the average grade by course?
 
 ```sql
-/** -- NOT REQUIRED --
-WITH
-MEMBER [Measures].[Avg Grade] AS
-  AVG(
-    [Student.Student Name].Children
-    , ([Course Name].CurrentMember, [Measures].[Grade])
-  )
-**/
 SELECT
   [Course Name].Children ON ROWS
   , [Measures].[Grade] ON COLUMNS
@@ -192,7 +170,7 @@ Full Virtual Cube definition:
 
 ```xml
   <VirtualCube enabled="true" name="Grades and Hobbies" visible="true">
-    <VirtualCubeDimension cubeName="Grades" visible="true" highCardinality="false" name="Student">
+    <VirtualCubeDimension visible="true" highCardinality="false" name="Student">
     </VirtualCubeDimension>
     <VirtualCubeDimension cubeName="Grades" visible="true" highCardinality="false" name="Course Name">
     </VirtualCubeDimension>
@@ -220,7 +198,7 @@ Student Name | Grade | Count Hobbies
 Bob | 4.667 | 2
 Lilian | 8 | 3
 
-This shows quite an intersting result: count of hobbies is only available on the All level, but grades are available everywhere:
+The below result shows quite an interesting result: count of hobbies is only available on the All level, but grades are available everywhere:
 
 ```sql
 SELECT
@@ -241,7 +219,7 @@ Lilian | All Course Names | 3 | 8
  | Math | |	8
  | Physics | | 
  
-This makes sense though, as the counts of hobbies can only be available on an All Courses level as we do not store them by course!
+This makes sense though, as the counts of hobbies can only be available on an `All Courses` level as we do not store them by course!
 
 Let's get a list of students that have Gaming as a hobby:
 
@@ -363,16 +341,6 @@ Let's try to answer the original question now:
 
 ```sql 
 WITH
-/** -- NOT REQUIRED --
-MEMBER [Measures].[Avg Grade] AS
-  AVG(
-    [Course Name].Members
-    , (
-        [Student.Student Name].CurrentMember
-        , [Measures].[Grade]
-      )
-  )
-**/
 SET STUDENTS AS
 FILTER(
   [Student.Student Name].Children
@@ -401,39 +369,214 @@ Lilian | 8
 
 # AGGREGATION TYPE: SUM
 
-In this variation of the theme we imagine we are a company specialising in targeted web ads. The targeted user has various interests and we want to see how much revenue we generate by targeting users with specific interests. We do not want to weight the interests - we allocate all revenue to every single interest. The aim is to find out which interest generates most revenue.
+In this variation of the theme we imagine we are a company selling various merchandise. The **clients** have **various interests** and we want to see how much **revenue** we generate by user interest. We do not want to weight the **interests** - we allocate all revenue to every single interest. The aim is to find out which interest generates most revenue (well, we won't quite do this here, but you'll get the idea).
 
+`multivalued.dim_client`:
 
-[OPEN] Adjust below for ads-example
-
-**Learning Exercise**:
-
-Let's understand how a custom aggregation function works:
-
-```sql
-WITH
-MEMBER [Measures].[x] AS (
-  [Student.Student Name].CurrentMember
-  , [Measures].[Grade]
-)
-MEMBER [Measures].[x2] AS 
-  SUM(
-    [Course Name.Course Name].Members, 
-    (
-      [Student.Student Name].CurrentMember
-      , [Measures].[Grade]
-    )
-  )
-SELECT 
-  {[Measures].[x] , [Measures].[x2]} ON COLUMNS
-  , [Student.Student Name].Members ON ROWS
-FROM [Grades]
+```
+ client_tk | client_name 
+-----------+-------------
+         1 | Joe
+         2 | Susan
+         3 | Tim
 ```
 
-Student Name | x  | x2
--------------|----|------
-All Student.Student Names | 18 | 36
-Bob          | 10 | 20
-Lilian       | 8  | 16
+`multivalued.fact_client_interests`:
 
-What measure x does is basically sum the grades by the student that is currently in scope (in this query the standard grade measure would just do the same). Intersting is then what happens with measure x2: For each course member, we sum up the grade measure in context of the current student (sum is defined as the aggregate function of the grade measure in the cube definition/mondrian schema). So if we look at Bob, he attends two courses, so if we sum his grades we get 10 returned (7 + 3). Since measure x2 evaluates the formula for each course, we get 20 (10 * 2 courses) returned in the final result. In general, the result isn't really useful in practical terms, however, it illustrates the power of custom aggregate functions nicely.
+```
+ client_tk | interest_name | cnt 
+-----------+---------------+-----
+         1 | Fishing       |   1
+         1 | Photography   |   1
+         1 | Cooking       |   1
+         2 | Cooking       |   1
+         2 | Biology       |   1
+         3 | Geography     |   1
+         3 | Photography   |   1
+         3 | Cooking       |   1
+```
+
+`multivalued.dim_product`:
+
+```
+ product_tk | product_name | unit_price 
+------------+--------------+------------
+          1 | AAA          |       2.00
+          2 | BBB          |       3.00
+          3 | CCC          |       1.40
+```
+
+`multivalued.dim_date`:
+
+```
+ date_tk  |  the_date
+----------+------------
+ 20170324 | 2017-03-24
+```
+
+`multivalued.fact_sales`:
+
+```
+ date_tk  | client_tk | product_tk | no_of_units | amount_spent 
+----------+-----------+------------+-------------+--------------
+ 20170324 |         1 |          1 |           2 |            4
+ 20170324 |         2 |          1 |           3 |            6
+ 20170324 |         1 |          2 |           4 |           12
+ 20170324 |         2 |          2 |           2 |            6
+ 20170324 |         3 |          2 |           3 |            9
+ 20170324 |         2 |          3 |           2 |          2.8
+ 20170324 |         3 |          3 |           1 |          1.4
+```
+
+The cube definition:
+
+```xml
+<Schema name="Multivalued Dimension Attribute">
+  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="Date">
+    <Hierarchy name="Date" visible="true" hasAll="true" primaryKey="date_tk">
+      <Table name="dim_date" schema="multivalued"/>
+      <Level name="Date" visible="true" column="the_date" type="Date" uniqueMembers="false" levelType="TimeDays" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Product">
+    <Hierarchy name="Product Name" visible="true" hasAll="true" primaryKey="product_tk">
+      <Table name="dim_product" schema="multivalued"/>
+      <Level name="Product Name" visible="true" column="product_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Client">
+    <Hierarchy name="Client Name" visible="true" hasAll="true" primaryKey="client_tk">
+      <Table name="dim_client" schema="multivalued"/>
+      <Level name="Client Name" visible="true" column="client_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="Sales" visible="true" cache="true" enabled="true">
+    <Table name="fact_sales" schema="multivalued"/>
+    <DimensionUsage source="Date" name="Date" visible="true" foreignKey="date_tk" highCardinality="false"/>
+    <DimensionUsage source="Client" name="Client" visible="true" foreignKey="client_tk" highCardinality="false"/>
+    <DimensionUsage source="Product" name="Product" visible="true" foreignKey="product_tk" highCardinality="false"/>
+    <Measure name="Number of Units" column="no_of_units" datatype="Integer" formatString="#,###" aggregator="sum" visible="true"/>
+    <Measure name="Revenue" column="amount_spent" datatype="Numeric" formatString="#,###.00" aggregator="sum" visible="true"/>
+  </Cube>
+  <Cube name="Interests" visible="true" cache="true" enabled="true">
+    <Table name="fact_client_interests" schema="multivalued"/>
+    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Interest Name">
+      <Hierarchy name="Interest Name" visible="true" hasAll="true">
+        <Level name="Interest Name" visible="true" column="interest_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never"/>
+      </Hierarchy>
+    </Dimension>
+    <DimensionUsage source="Client" name="Client" visible="true" foreignKey="client_tk" highCardinality="false">
+    </DimensionUsage>
+    <Measure name="Count Interests" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum" visible="true">
+    </Measure>
+  </Cube>
+  </VirtualCube>
+  <VirtualCube enabled="true" name="Sales and Interests" visible="true">
+    <VirtualCubeDimension visible="true" highCardinality="false" name="Client"/>
+    <VirtualCubeDimension cubeName="Sales" visible="true" highCardinality="false" name="Date"/>
+    <VirtualCubeDimension cubeName="Sales" visible="true" highCardinality="false" name="Product"/>
+    <VirtualCubeDimension cubeName="Interests" visible="true" highCardinality="false" name="Interest Name"/>
+    <VirtualCubeMeasure cubeName="Sales" name="[Measures].[Number of Units]" visible="true"/>
+    <VirtualCubeMeasure cubeName="Sales" name="[Measures].[Revenue]" visible="true"/>
+    <VirtualCubeMeasure cubeName="Interests" name="[Measures].[Count Interests]" visible="true">
+    </VirtualCubeMeasure>
+  </VirtualCube>
+</Schema>
+```
+
+We created a cube for each of the fact tables to answer specific questions:
+
+**Q**: How much revenue do we generate by product?
+
+```sql
+SELECT
+  [Product.Product Name].Children ON ROWS
+  , {[Measures].[Number of Units], [Measures].[Revenue]} ON COLUMNS
+FROM [Sales]
+```
+
+Product Name | Number of Units | Revenue
+-------------|-----------------|--------
+AAA | 5 | 10.00
+BBB | 9 | 27.00
+CCC | 3 | 4.20
+
+
+**Q**: How much revenue do we generate per user?
+
+```sql
+select 
+  [Client.Client Name].Children ON ROWS
+  , {[Measures].[Number of Units], [Measures].[Revenue]} ON COLUMNS
+FROM [Sales]
+```
+
+Client Name | Number of Units | Revenue
+------------|-----------------|--------
+Joe   | 6 | 16.00
+Susan | 7 | 14.80
+Tim   | 4 | 10.40
+
+**Q**: How many clients are interested in Cooking?
+
+```sql
+SELECT
+  NON EMPTY [Client.Client Name].Members ON ROWS
+  , [Measures].[Count Interests] ON COLUMNS
+FROM [Interests]
+WHERE
+  [Interest Name].[Cooking]
+```
+
+Client Name | Count Interests
+------------|-----------------
+All Client.Client Names | 3
+Joe   | 1
+Susan | 1
+Tim   | 1
+
+And we also created a **virtual cube** to answer questions involving both cubes.
+
+**Q**: How much did users interesting in Photography spend?
+
+
+Let's get the list of relevant clients first:
+
+```sql
+SELECT
+  FILTER(
+  [Client.Client Name].Children
+  , (
+      [Interest Name].[Interest Name].[Photography]
+      , [Measures].[Count Interests] 
+    ) > 0
+) ON ROWS
+  , {} ON COLUMNS
+FROM [Sales and Interests]
+```
+
+```sql 
+WITH
+SET CLIENTS AS
+FILTER(
+  [Client.Client Name].Children
+  , (
+      [Interest Name].[Interest Name].[Photography]
+      , [Product.Product Name].[All Product.Product Names]
+      , [Measures].[Count Interests] 
+    ) > 0
+)
+SELECT
+  CLIENTS ON ROWS
+  , {[Measures].[Revenue]} ON COLUMNS
+FROM [Sales and Interests]
+WHERE [Product.Product Name].[Product Name].[AAA]
+```
+
+Client Name	| Revenue
+------------|------------
+Joe | 4.00
+Tim |
