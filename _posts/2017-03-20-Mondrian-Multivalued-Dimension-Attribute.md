@@ -558,6 +558,8 @@ SELECT
 FROM [Sales and Interests]
 ```
 
+And then construct the final query:
+
 ```sql 
 WITH
 SET CLIENTS AS
