@@ -428,7 +428,7 @@ In this variation of the theme we imagine we are a company selling various merch
  20170324 |         3 |          3 |           1 |          1.4
 ```
 
-The cube definition:
+The cube definition: In this case **client** is our global dimension which links the two cubes (**sales** and **interests**). The setup is straight forward, so I will not go into any details:
 
 ```xml
 <Schema name="Multivalued Dimension Attribute">
