@@ -240,12 +240,16 @@ We add some **JavaScript** to tag the rows with CSS properties according to MDX 
 ```javascript
 function(){
 	var myData = this.rawData.resultset;
-	$("#" + this.htmlObject).find("tbody > tr").each(
-		function(i, d){
-			$(d).addClass("drill-down-level-" + myData[i][2]);
-			$(d).find("td:first").addClass("drill-down-level-" + myData[i][2] + "-node");
-		}
-	)
+	// check if resultset is not empty
+	// otherwise we will get an error and no empty table will be displayed
+  if(myData.length > 0){
+  	$("#" + this.htmlObject).find("tbody > tr").each(
+  		function(i, d){
+  			$(d).addClass("drill-down-level-" + myData[i][2]);
+  			$(d).find("td:first").addClass("drill-down-level-" + myData[i][2] + "-node");
+  		}
+  	)
+  }
 }
 ```
 
