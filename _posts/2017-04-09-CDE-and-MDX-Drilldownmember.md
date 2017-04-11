@@ -238,52 +238,55 @@ Preview the dashboard:
 
 ![](/images/mdx-drilldownmember-13.png)
 
-For now we can see that this approach is working. However, this still does not get rid of the **MDX Injection problem**. So instead of sending an MDX fragment as the parameter value, we should send something less sensitive, like just a simple value that cannot do any harm. Update the **clickAction** with the following code:
+For now we can see that this approach is working. However, this still does not get rid of the **MDX Injection problem**. So instead of sending an **MDX fragment** as the parameter value, we should send something less sensitive, like just a simple value that cannot do any harm. Update the **clickAction** with the following code:
 
 ```
 function(e){
 	// pick up member name only - not whole path
-	var chosenMember = e.rawData.resultset[e.rowIdx].[e.colIdx];
+	var chosenMember = e.rawData.resultset[e.rowIdx][e.colIdx];
 	// pick up level ordinal
-	var reportLevel = e.rawData.resultset[e.rowIdx].[e.colIdx+2];
+	var reportLevel = e.rawData.resultset[e.rowIdx][e.colIdx+2];
 	// update parameter value with chosen member
 	dashboard.setParameter("param_report_level", reportLevel);
-	dashboard.fireChange("param_wit", chosenMember);
+	dashboard.fireChange("param_line", chosenMember);
 }
 ```
 
-Create a new custom parameter call `param_report_level` and leave its default value unset. Remove the default value for parameter `param_wit`.
+Create a new **simple parameter** call `param_report_level` and leave its **default value** unset. Remove the default value for parameter `param_line`.
+
+Adjust the **table component** to pick up this parameter as well.
 
 Adjust the **MDX query** to this new version:
 
 ```sql
 WITH
-SET WIT AS
+SET PRODUCT AS
 	IIF(
 		"${param_report_level}" = "" OR "${param_report_level}" = "0"
-		, DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE)
+		, DESCENDANTS([Product], 1, SELF_AND_BEFORE)
 		, DRILLDOWNMEMBER(
-			DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE)
-			, [WIT.WIT Hierarchy].[WIT].[${param_wit}]
+			DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+			, [Product].[Line].[${param_line}]
 		)
 	)
 	MEMBER [Measures].[Member Full Path] AS
-		[WIT.WIT Hierarchy].CurrentMember.UniqueName
+		[Product].CurrentMember.UniqueName
 	MEMBER [Measures].[Member Ordinal] AS
-		[WIT.WIT Hierarchy].CurrentMember.Ordinal
+		[Product].CurrentMember.Ordinal
 SELECT
-	NON EMPTY WIT ON ROWS
+	NON EMPTY PRODUCT ON ROWS
 	, {
 		[Measures].[Member Full Path]
 		, [Measures].[Member Ordinal]
-		, [Measures].[MyOtherMeasure]
+		, [Measures].[Sales]
 	} ON COLUMNS
-FROM [myCube] 
+FROM [SteelWheelsSales]
+WHERE [Time].[Years].[${param_year}]
 ```
 
 Make sure your MDX query has `param_report_level` defined as additional parameter.
 
-**Important considerations** for setting default value of parameter:
+**Important considerations** for setting default value for a custom parameter:
 
 ```
 param_report_level = 0
@@ -307,56 +310,67 @@ param_report_level = function(){
 No, this doesn't solve it either. Just don't define any default value and check in the MDX query against an empty value (always treat as String).
 
 
-While we got the first **drill down** working now, we will have to add an additional parameter to make the second drill down working: If we drill down to the **second level**, we also have to **keep the context** of the **previously chosen first level member**. We introduce a new parameter called `param_sub_wit` with no default value.
+While we got the first **drill down** working now, we will have to add an additional parameter to make the second drill down working: If we drill down to the **second level**, we also have to **keep the context** of the **previously chosen first level member**. We introduce a new **simple parameter** called `param_vendor` with no default value.
 
-Next we adjust the **clickAction** for the table component (only changed section shown below):
+Next we adjust the **clickAction** for the table component:
 
-```
-dashboard.getParameterValue("param_report_level", reportLevel);
-if (reportLevel < 2){
-	dashboard.getParameterValue("param_wit", chosenMember);
-} else {
-	// do not overwrite
-	// dashboard.getParameterValue("param_wit", chosenMember);
-	dashboard.getParameterValue("param_sub_wit", chosenMember);
-}
+```javascript
+function(e){
+    // pick up member name only - not whole path
+	var chosenMember = e.rawData.resultset[e.rowIdx][e.colIdx];
+	// pick up level ordinal
+	var reportLevel = e.rawData.resultset[e.rowIdx][e.colIdx+2];
+	// update parameter value with chosen member
+	if (reportLevel < 2){
+    dashboard.setParameter("param_line", chosenMember);
+    } else {
+      // do not overwrite
+      // dashboard.setParameter("param_line", chosenMember);
+      dashboard.setParameter("param_vendor", chosenMember);
+    }
+    dashboard.fireChange("param_report_level", reportLevel);
+} 
 ```
 
 Adjust the **MDX Query**:
 
 ```sql
 WITH
-SET WIT AS
-	IIF(
-		"${param_report_level}" = "" OR "${param_report_level}" = "0"
-		, DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE)
-		, IIF(
-			"${param_report_level}" = "1"
-		, DRILLDOWNMEMBER(
-			DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE)
-			, [WIT.WIT Hierarchy].[WIT].[${param_wit}]
-		)
-		, DRILLDOWNMEMBER(
-		,DRILLDOWNMEMBER(
-			DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE)
-			, [WIT.WIT Hierarchy].[WIT].[${param_wit}]
-		)
-		, [WIT.WIT Hierarchy].[${param_wit}].[${param_sub_wit}]
-)
-	)
-	MEMBER [Measures].[Member Full Path] AS
-		[WIT.WIT Hierarchy].CurrentMember.UniqueName
-	MEMBER [Measures].[Member Ordinal] AS
-		[WIT.WIT Hierarchy].CurrentMember.Ordinal
+SET PRODUCT AS
+  IIF(
+    "${param_report_level}" = "" OR "${param_report_level}" = "0"
+    , DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+    , IIF(
+        "${param_report_level}" = "1"
+        , DRILLDOWNMEMBER(
+            DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+            , [Product].[Line].[${param_line}]
+        )
+        , DRILLDOWNMEMBER(
+            , DRILLDOWNMEMBER(
+                DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+                , [Product].[Line].[${param_line}]
+            )
+            , [Product].[${param_line}].[${param_vendor}]
+        )
+    )
+  )
+  MEMBER [Measures].[Member Full Path] AS
+    [Product].CurrentMember.UniqueName
+  MEMBER [Measures].[Member Ordinal] AS
+    [Product].CurrentMember.Ordinal
 SELECT
-	NON EMPTY WIT ON ROWS
-	, {
-		[Measures].[Member Full Path]
-		, [Measures].[Member Ordinal]
-		, [Measures].[MyOtherMeasure]
-	} ON COLUMNS
-FROM [myCube] 
+  NON EMPTY PRODUCT ON ROWS
+  , {
+    [Measures].[Member Full Path]
+    , [Measures].[Member Ordinal]
+    , [Measures].[Sales]
+  } ON COLUMNS
+FROM [SteelWheelsSales]
+WHERE [Time].[Years].[${param_year}]
 ```
+
+Make sure you register the `param_vendor` parameter with the **table component** as well as with the **MDX query**.
  
 ## Making the data readable
 
