@@ -8,8 +8,6 @@ tags: MDX
 published: false
 ---
 
-I must admit I am lacking the time these days to always write in-depth, example based blog posts. There are quite a lot of ideas that pop up over time, quite some of which get discarded as I never get around writing them down. I think it is probably time to change the concept a bit and not always provide the full solution but in some instances just explain the main concepts briefly: Here we go, this is the first article of this series.
-
 ## CDE Table Component Setup and MDX Drilldownmember
 
 We are discussing how to create a **Pentaho CDE** dashboard here, so I expect you are familiar with the concepts of CDE. I also expect that you have a good understanding of **MDX**.
@@ -36,7 +34,7 @@ WITH
 		[Product].CurrentMember.Ordinal
 SELECT
 	NON EMPTY 
-	  DESCENDANTS([Product].[Line].Members, 1, SELF_AND_BEFORE)
+	  Descendants([Product].[(All)].Members, 1, SELF_AND_BEFORE)
 	ON ROWS
 	, {
 		[Measures].[Member Full Path]
@@ -59,6 +57,14 @@ In the **Layout** add a super simple layout: 3 rows with one column each. Set th
 
 ![](/images/mdx-drilldownmember-4.png)
 
+Remove all the height settings (default `300`) from the row and column elements. Inside the `html_title` column add an HTML element and insert following content:
+
+```html
+<h1>SteelWheels <small>Sales By Product</small></h1> 
+```
+
+Set the **height** of the `html_date_picker` to `60`.
+
 ## Creating the year picker
 
 The end user should be able to choose the year. For this purpose we can simply use **Select component** and **parameter** called `param_year`.
@@ -78,7 +84,7 @@ SELECT
 
 ![](/images/mdx-drilldownmember-5.png)
 
-Next create a **Simple Parameter** (Generic > Simple Parameter) in the **Components Panel** and then add a **Select Component** (Selects > Select Component), call it `comp_year_picker`, assign the parameter `param_year`, the data source `qry_list_years` and the html object `html_date_picker`:
+Next create a **Simple Parameter** (Generic > Simple Parameter) in the **Components Panel** and set the **Prototype value** to `2014` (this is the default value). Then add a **Select Component** (Selects > Select Component), call it `comp_year_picker`, assign the parameter `param_year`, the data source `qry_list_years` and the **html object** `html_date_picker`:
 
 ![](/images/mdx-drilldownmember-3.png)
 
@@ -86,7 +92,7 @@ Next create a **Simple Parameter** (Generic > Simple Parameter) in the **Compone
 For the drill down functionality, we create a custom parameter called `param_line` and set its default value to:
 
 ```
-"DESCENDANTS([Product].[Line].Members, 1, SELF_AND_BEFORE)"
+"Descendants([Product].[(All)].Members, 1, SELF_AND_BEFORE)"
 ```
 
 Just be warned, I start off by doing things in the wrong way and then gradually show you how to get it right, to perfectly illustrate best practices. There are always more than one way to do things, but not necessarily all approach are good ones.
@@ -103,7 +109,7 @@ The **MDX query** should look something like this:
 
 ```sql
 WITH
-	MEMBER [Measures].[Member Full Path] AS
+    MEMBER [Measures].[Member Full Path] AS
 		[Product].CurrentMember.UniqueName
 	MEMBER [Measures].[Member Ordinal] AS
 		[Product].CurrentMember.Ordinal
@@ -117,10 +123,10 @@ SELECT
 		, [Measures].[Sales]
 	} ON COLUMNS
 FROM [SteelWheelsSales]
-WHERE [Time].[Years].[{param-year}]
+WHERE [Time].[Years].[${param_year}]
 ```
 
-Next, in the **Components Panel**, add a **table component** (Others > Table Component), name it `comp_main_report`, assign the query `qry_main_report` and the html object `html_main_report`. Notice the consistent naming convention here: It is always good practice! As **Listener** define `param_year` and as **Parameters** `param_year` and `param_line`.
+Next, in the **Components Panel**, add a **table component** (Others > Table Component), **name** it `comp_main_report`, assign the **query** `qry_main_report` and the **html object** `html_main_report`. Notice the consistent naming convention here: It is always good practice! As **Listener** define `param_year` and as **Parameters** `param_year` and `param_line`.
 
 ![](/images/mdx-drilldownmember-7.png)
 
@@ -131,45 +137,56 @@ Next click on **Advanced Properties** set following properties to `False`:
 - Length Change
 - Paginate
 - Sort Data
-- Execute at start
 
 Set **Style** to `Bootstrap`.
+Set the **Column Types** to `String`, `String`, `Numeric` and `Numeric`.
 
 We will use all the columns return by the MDX query (including the full path column, which we will hide later on). We can use the `Member Ordinal` value later on to add conditional formatting for the table so that it is easier to read.
 
-A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of columns/fields is not going to change. If we **drill down**, only the children's names will be displayed. So we do not have to change the table layout for the drill down.
+**Preview** the dashboard (or even better open the dashboard in a separate window/tab). It should like this now:
 
-For the table component's **PostExecution** function we define the following:
+![](/images/mdx-drilldownmember-8.png)
+
+A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of returned columns/fields will not change. If we **drill down**, only the children's names will be displayed. So we do not have to change the table layout for the drill down.
+
+Let's implement the first drill down now. For the table component's **PostExecution** function we define the following:
 
 ```javascript
 function(){
-	$('#html_table_wit_table_level1Table > tbody > tr').on({
+	$('#html_main_reportTable > tbody > tr').on({
 		click: function(e){
 			// get text value user clicked on
 			// in this case we want to pick up the full MDX path of the member
-			// [OPEN] adjust/improve
 			var chosenPath = e.originalEvent.originalTarget.firstChild.data;
 			console.log("Requesting data for: " + chosenPath);
 			var mdxFragment =
-				"DRILLDOWNMEMBER(DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE),"
+				"DRILLDOWNMEMBER(DESCENDANTS([Product], 1, SELF_AND_BEFORE),"
 				+ chosenPath
 				+ ")"
 			;
 			// update parameter value with chosen member
-			dashboard.fireChange("param_wit", mdxFragment);
+			dashboard.fireChange("param_line", mdxFragment);
 		}
 	})
 }
 ``` 
 
-The above snippet will make sure that we pick up the full path / unique name of the member the end user want to drill down on. We then update the parameter value for `param_wit` with the chosen value. We make the **table component** listen to this very parameter, so it will auto-refresh once the parameter value gets changed.
+The above snippet will make sure that we pick up the full path / unique name of the member the end user want to drill down on. We then update the parameter value for `param_line` with the chosen value. Now make the **table component** **listen** to this very parameter (adjust the **Listener**), so it will auto-refresh once the parameter value gets changed.
+
+Preview the dashboard and click on the `[Product].[Motorcycles]` **Member Full Path** table cell (the click action currently only works on this column) and you will see the table refreshing to show the children (partial screenshot only):
+
+![](/images/mdx-drilldownmember-10.png)
 
 Now while the above works, it is not a good idea! **There are two problems**:
 
 1. The **MDX can be easily injected** because it is generated client-side. The logic should sit within the MDX query itself.
-2. There is **no need for HTML scrapping**: CDE offers a **Click Action** event, which offers easy access to the required info (so there is no need to use jQuery here).
+2. There is **no need for HTML scrapping**: CDE offers a **Click Action** event, which offers easy access to the required info (so there is no need to use **jQuery** here).
 
-We can actually get hold of the underlying data itself instead of using **jQuery** to extract the values from HTML: There is a real separation between data and presentation. Open the dashboard (with the parameter in the URL `debug=true`) in Firefox, go to **Developer Tools** and then click on **Debugger**. In the **Sources** pane on the left find `generatedContent` and click on it. Find the `postExecution` function in the code that relates to your **table component** and just within the function definition right click on the line number and choose "**Add Breakpoint**". Reload the dashboard - at the bottom of the **Debug** tab you'll find a **Variables** pane which will allow you to inspect the `this` object (or alternatively type in the **Console** `this` and hit enter). The current `this` object will be returned (so `this` object generated within the `PostExecute` function where we set the **breakpoint**). If you explore the `this` object, you will see that it has a `rawData` property which in turn holds the `resultset`. So we can extract the required context info from there. Thanks to Nelson Sousa for showing me this and highlighting the problems mentioned above. 
+We can actually get hold of the underlying data itself instead of using **jQuery** to extract the values from HTML: There is a real separation between data and presentation. While looking at the **rendered** dashboard in a separate tab, open the dashboard (with the parameter in the URL `debug=true`) in this tab. I am using Firefox, so the explanations that follow are specific to this browsers, but other browser have a similar feature as well. Go to **Developer Tools** and then click on **Debugger**. In the **Sources** pane on the left find `generatedContent` and click on it. Find the `preExecution` function in the code that relates to your **table component** and just within the function definition right click on the line number and choose **Add Breakpoint**:
+
+Reload the dashboard - at the bottom of the **Debug** tab you'll find a **Variables** pane which will allow you to inspect the `this` object (or alternatively type in the **Console** `this` and hit enter). The current `this` object will be returned (so `this` object generated within the `clickAction` function where we set the **breakpoint**). If you explore the `this` object, you will see that it has a `rawData` property which in turn holds the `resultset`. So we can extract the required context info from there. Thanks to **Nelson Sousa** for showing me this and highlighting the problems mentioned above. 
+
+![](/images/mdx-drilldownmember-11.png)
 
 Go ahead and play with the object a bit in the **Console** to get familiar with it, e.g.:
 
@@ -180,6 +197,18 @@ this.rawData.resultset[1][1]
 this.rawData.resultset.forEach(function(r, i){ console.log(r[0] + ", index: " + i);})
 this.rawData.resultset.forEach(function(r, i){ if(r[0] == "Credits") console.log(i);})
 ```
+
+...
+
+Add this to the **Click Action** of the table component:
+
+```javascript
+function(){
+  console.log(this);
+}
+```
+
+...
 
 In the **Table Component** set the **Column Formats** for the `Member Full Path` and `Member Ordinal` to `hidden`. This will remove the columns from the **DOM**, however, the data will still be available in the table component's **resultset**.
 
