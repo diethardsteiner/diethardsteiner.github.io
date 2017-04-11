@@ -18,38 +18,126 @@ We are discussing how to create a **Pentaho CDE** dashboard here, so I expect yo
 
 A few days ago I was asked to put together a **CDE dashboard** for a client. The specs were really quite straight forward: Display a high level summary and allow us to drill down. Now you'd be inclined to think that this is quite a popular request and hence CDE has something in store to cover this scenario: Well, the **table component** has  an **Expand on click** feature, which displays an inline table, which is not as elegant for this purpose as a drill down in Analyer, Saiku or even JPivot. So here is how I tackled the challenge:
 
-For the drill down functionality, I created a custom parameter called `param_wit` (WIT is the dimension we drill down) and set its default value to. Just be warned, I start off by doing things in the wrong way and then gradually show you how to get it right:
+We will be using the **SteelWheelsSales** Cube, which ships with every **Pentaho Server**. For this example I am using the current version 7. Download it via [SourceForge](https://sourceforge.net/projects/pentaho/files/Business%20Intelligence%20Server/). We will provide drill down functionality for the **Product Dimension**. The product dimension has following level (top to bottom):
+
+- Line
+- Vendor
+- Product
+
+To familiarse yourself with the SteelWheelsSales Mondrian schema, you can play around with it using good old (shall I say very old and trusted) JPivot (via **File > New > JPivot View**) and you can also download the Mondrian Schema via **File > Manage Data Sources**.
+
+In **JPivot** click the **MDX** button and run following query:
+
+```sql
+WITH
+	MEMBER [Measures].[Member Full Path] AS
+		[Product].CurrentMember.UniqueName
+	MEMBER [Measures].[Member Ordinal] AS
+		[Product].CurrentMember.Ordinal
+SELECT
+	NON EMPTY 
+	  DESCENDANTS([Product].[Line].Members, 1, SELF_AND_BEFORE)
+	ON ROWS
+	, {
+		[Measures].[Member Full Path]
+		, [Measures].[Member Ordinal]
+		, [Measures].[Sales]
+	} ON COLUMNS
+FROM [SteelWheelsSales]
+WHERE [Time].[Years].[2004]
+```
+
+Click on the **Apply** button and JPivot will swiftly return the resultset. Partial screenshot below:
+
+![](/images/mdx-drilldownmember-1.png)
+
+Next create a **CDE dashboard** (**New > CDE Dashboard**). I will not go through all the details on how to create this, just mention a few main points. 
+
+## Create the layout
+
+In the **Layout** add a super simple layout: 3 rows with one column each. Set the columns to 12 (Extra Small Devices) and name them `html_title`, `html_date_picker`, `html_main_report`:
+
+![](/images/mdx-drilldownmember-4.png)
+
+## Creating the year picker
+
+The end user should be able to choose the year. For this purpose we can simply use **Select component** and **parameter** called `param_year`.
+
+To drive the **Select component** we use the following MDX query using a **mdx over mondrianJndi** data source (from the **Data Source Panel** called `qry_list_years`:
+
+```sql
+SELECT
+  [Time].[Years].Members ON ROWS
+  , {} ON COLUMNS
+ FROM [SteelWheelsSales] 
+```
+
+![](/images/mdx-drilldownmember-2.png)
+
+> **Note**: Once you save the dashboard, in the same folder you'll find a CDA file. Double click on it and you will be able to preview the data for each query you define in the dashboard. Ultra handy! Just make sure you refresh the tab once you define a new query:
+
+![](/images/mdx-drilldownmember-5.png)
+
+Next create a **Simple Parameter** (Generic > Simple Parameter) in the **Components Panel** and then add a **Select Component** (Selects > Select Component), call it `comp_year_picker`, assign the parameter `param_year`, the data source `qry_list_years` and the html object `html_date_picker`:
+
+![](/images/mdx-drilldownmember-3.png)
+
+
+For the drill down functionality, we create a custom parameter called `param_line` and set its default value to:
 
 ```
-"DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE)"
+"DESCENDANTS([Product].[Line].Members, 1, SELF_AND_BEFORE)"
 ```
+
+Just be warned, I start off by doing things in the wrong way and then gradually show you how to get it right, to perfectly illustrate best practices. There are always more than one way to do things, but not necessarily all approach are good ones.
 
 This will display the overall summary (the `All` level) as will as the first level and its members.
 
-> **Important**: Make sure that you do not define any default values when you pass down the parameters to a component or MDX query! So in example, when you define the parameters for the MDX query in CDE, leave the `Value` field empty.
+Next define the MDX query called `qry_main_report` and register both parameters (`param_year` and `param_line`).
+
+![](/images/mdx-drilldownmember-6.png)
+
+> **Important**: Make sure that you do not define any default values for `param_line` when you pass down the parameters to a component or MDX query! So in example, when you define the parameter for the MDX query in CDE, leave the `Value` field empty.
 
 The **MDX query** should look something like this:
 
 ```sql
 WITH
 	MEMBER [Measures].[Member Full Path] AS
-		[WIT.WIT Hierarchy].CurrentMember.UniqueName
+		[Product].CurrentMember.UniqueName
 	MEMBER [Measures].[Member Ordinal] AS
-		[WIT.WIT Hierarchy].CurrentMember.Ordinal
+		[Product].CurrentMember.Ordinal
 SELECT
-	NON EMPTY ${param_wit} ON ROWS
+	NON EMPTY 
+	  ${param_line}
+	ON ROWS
 	, {
 		[Measures].[Member Full Path]
 		, [Measures].[Member Ordinal]
-		, [Measures].[MyOtherMeasure]
+		, [Measures].[Sales]
 	} ON COLUMNS
-FROM [myCube]
+FROM [SteelWheelsSales]
+WHERE [Time].[Years].[{param-year}]
 ```
 
-Add a table component, include all the columns return by the MDX query (including the full path column, which we will hide later on). We can use the `Member Ordinal` value later on to add conditional formatting for the table so that it is easier to read.
+Next, in the **Components Panel**, add a **table component** (Others > Table Component), name it `comp_main_report`, assign the query `qry_main_report` and the html object `html_main_report`. Notice the consistent naming convention here: It is always good practice! As **Listener** define `param_year` and as **Parameters** `param_year` and `param_line`.
 
-A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of columns/fields is not going to change. If we **drill down**, 
-only the children's names will be displayed. So we do not have to change the table layout for the drill down.
+![](/images/mdx-drilldownmember-7.png)
+
+Next click on **Advanced Properties** set following properties to `False`:
+
+- Show Filter
+- Info Filter
+- Length Change
+- Paginate
+- Sort Data
+- Execute at start
+
+Set **Style** to `Bootstrap`.
+
+We will use all the columns return by the MDX query (including the full path column, which we will hide later on). We can use the `Member Ordinal` value later on to add conditional formatting for the table so that it is easier to read.
+
+A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of columns/fields is not going to change. If we **drill down**, only the children's names will be displayed. So we do not have to change the table layout for the drill down.
 
 For the table component's **PostExecution** function we define the following:
 
