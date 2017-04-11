@@ -258,6 +258,25 @@ function(){
 Finally we add some very basic CSS properties to **Layout > Inline CSS**:
 
 ```css
+.numeric{
+  text-align:right;
+}
+
+th{
+  font-size:0.9em;
+  padding-left:0.2em;
+  background-color:gold;
+  border-bottom: 1px solid white;
+}
+
+td{
+  font-size:0.9em;
+}
+
+tbody > tr > td.column0:hover{
+  background-color:lightblue;
+}  
+
 .drill-down-level-0-node {
 	padding-left: 0em;
 }
@@ -267,27 +286,27 @@ Finally we add some very basic CSS properties to **Layout > Inline CSS**:
 }
 
 .drill-down-level-2-node {
-	padding-left: 0.8em;
+	padding-left: 2em;
 }
 
 .drill-down-level-3-node {
-	padding-left: 1.2em;
+	padding-left: 3em;
 }
 
 .drill-down-level-0 {
-	background-color: gold;
+	background-color:#9999ff;
 }
 
 .drill-down-level-1 {
-	background-color: lightgoldenrodyellow;
+	background-color:#b2b2ff;
 }
 
 .drill-down-level-2 {
-	background-color: aliceblue;
+	background-color:#ccccff;
 }
 
 .drill-down-level-3 {
-
+  background-color:#e5e5ff;
 }
 ```
 
