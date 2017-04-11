@@ -182,7 +182,7 @@ Now while the above works, it is not a good idea! **There are two problems**:
 1. The **MDX can be easily injected** because it is generated client-side. The logic should sit within the MDX query itself.
 2. There is **no need for HTML scrapping**: CDE offers a **Click Action** event, which offers easy access to the required info (so there is no need to use **jQuery** here).
 
-We can actually get hold of the underlying data itself instead of using **jQuery** to extract the values from HTML: There is a real separation between data and presentation. While looking at the **rendered** dashboard in a separate tab, open the dashboard (with the parameter in the URL `debug=true`) in this tab. I am using Firefox, so the explanations that follow are specific to this browsers, but other browser have a similar feature as well. Go to **Developer Tools** and then click on **Debugger**. In the **Sources** pane on the left find `generatedContent` and click on it. Find the `preExecution` function in the code that relates to your **table component** and just within the function definition right click on the line number and choose **Add Breakpoint**:
+We can actually get hold of the underlying data itself instead of using **jQuery** to extract the values from HTML: There is a real separation between data and presentation. While looking at the **rendered** dashboard in a separate tab, open the dashboard (with the parameter in the URL `debug=true`) in this tab. I am using Firefox, so the explanations that follow are specific to this browsers, but other browser have a similar feature as well. Go to **Developer Tools** and then click on **Debugger**. In the **Sources** pane on the left find `generatedContent` and click on it. Find the `postExecution` function in the code that relates to your **table component** and just within the function definition right click on the line number and choose **Add Breakpoint**:
 
 Reload the dashboard - at the bottom of the **Debug** tab you'll find a **Variables** pane which will allow you to inspect the `this` object (or alternatively type in the **Console** `this` and hit enter). The current `this` object will be returned (so `this` object generated within the `clickAction` function where we set the **breakpoint**). If you explore the `this` object, you will see that it has a `rawData` property which in turn holds the `resultset`. So we can extract the required context info from there. Thanks to **Nelson Sousa** for showing me this and highlighting the problems mentioned above. 
 
@@ -198,7 +198,7 @@ this.rawData.resultset.forEach(function(r, i){ console.log(r[0] + ", index: " + 
 this.rawData.resultset.forEach(function(r, i){ if(r[0] == "Credits") console.log(i);})
 ```
 
-...
+Remove the breakpoint now before progressing with the exercise.
 
 Add this to the **Click Action** of the table component:
 
@@ -208,29 +208,37 @@ function(){
 }
 ```
 
-...
+And explore the `this` object, which is returned on the console.
 
 In the **Table Component** set the **Column Formats** for the `Member Full Path` and `Member Ordinal` to `hidden`. This will remove the columns from the **DOM**, however, the data will still be available in the table component's **resultset**.
 
+![](/images/mdx-drilldownmember-12.png)
+
 Another important improvement is to use the CDE **clickAction** instead of the **JQuery click event** we currently use in the **PostExecution** function - in fact, this is the recommended/best practice approach.
 
-```
+```javascript
 function(e){
-	var chosenPath = e.rawData.resultset[e.rowIdx].[e.colIdx+1];
+    var chosenPath = e.rawData.resultset[e.rowIdx][e.colIdx+1];
 	console.log(chosenPath);
 			var mdxFragment =
-				"DRILLDOWNMEMBER(DESCENDANTS([WIT.WIT Hierarchy], 1, SELF_AND_BEFORE),"
+				"DRILLDOWNMEMBER(DESCENDANTS([Product], 1, SELF_AND_BEFORE),"
 				+ chosenPath
 				+ ")"
 			;
 			// update parameter value with chosen member
-			dashboard.fireChange("param_wit", mdxFragment);
-}
+			dashboard.fireChange("param_line", mdxFragment);
+} 
 ```
 
 As you can see using the CDE **clickAction** is a lot easier, as the required contextual information like row and column index are available straight away.
 
-For now we can test that this approach is working. However, as you can see, this still does not get rid of the **MDX Injection problem**. So instead of sending an MDX fragment as the parameter value, we should send something less sensitive, like just a simple value that cannot do any harm:
+Make sure you clear out the click function we previously set up for the **postExecution** function.
+
+Preview the dashboard:
+
+![](/images/mdx-drilldownmember-13.png)
+
+For now we can see that this approach is working. However, this still does not get rid of the **MDX Injection problem**. So instead of sending an MDX fragment as the parameter value, we should send something less sensitive, like just a simple value that cannot do any harm. Update the **clickAction** with the following code:
 
 ```
 function(e){
