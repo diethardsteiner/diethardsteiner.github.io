@@ -47,7 +47,7 @@ WHERE [Time].[Years].[2004]
 
 Click on the **Apply** button and JPivot will swiftly return the resultset. Partial screenshot below:
 
-![](/images/mdx-drilldownmember-1.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-1.png)
 
 Next create a **CDE dashboard** (**New > CDE Dashboard**). I will not go through all the details on how to create this, just mention a few main points. 
 
@@ -55,7 +55,7 @@ Next create a **CDE dashboard** (**New > CDE Dashboard**). I will not go through
 
 In the **Layout** add a super simple layout: 3 rows with one column each. Set the columns to 12 (Extra Small Devices) and name them `html_title`, `html_date_picker`, `html_main_report`:
 
-![](/images/mdx-drilldownmember-4.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-4.png)
 
 Remove all the height settings (default `300`) from the row and column elements. Inside the `html_title` column add an HTML element and insert following content:
 
@@ -78,16 +78,18 @@ SELECT
  FROM [SteelWheelsSales] 
 ```
 
-![](/images/mdx-drilldownmember-2.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-2.png)
 
 > **Note**: Once you save the dashboard, in the same folder you'll find a CDA file. Double click on it and you will be able to preview the data for each query you define in the dashboard. Ultra handy! Just make sure you refresh the tab once you define a new query:
 
-![](/images/mdx-drilldownmember-5.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-5.png)
 
 Next create a **Simple Parameter** (Generic > Simple Parameter) in the **Components Panel** and set the **Prototype value** to `2014` (this is the default value). Then add a **Select Component** (Selects > Select Component), call it `comp_year_picker`, assign the parameter `param_year`, the data source `qry_list_years` and the **html object** `html_date_picker`:
 
-![](/images/mdx-drilldownmember-3.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-3.png)
 
+
+## Create the report (table)
 
 For the drill down functionality, we create a custom parameter called `param_line` and set its default value to:
 
@@ -101,7 +103,7 @@ This will display the overall summary (the `All` level) as will as the first lev
 
 Next define the MDX query called `qry_main_report` and register both parameters (`param_year` and `param_line`).
 
-![](/images/mdx-drilldownmember-6.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-6.png)
 
 > **Important**: Make sure that you do not define any default values for `param_line` when you pass down the parameters to a component or MDX query! So in example, when you define the parameter for the MDX query in CDE, leave the `Value` field empty.
 
@@ -128,7 +130,7 @@ WHERE [Time].[Years].[${param_year}]
 
 Next, in the **Components Panel**, add a **table component** (Others > Table Component), **name** it `comp_main_report`, assign the **query** `qry_main_report` and the **html object** `html_main_report`. Notice the consistent naming convention here: It is always good practice! As **Listener** define `param_year` and as **Parameters** `param_year` and `param_line`.
 
-![](/images/mdx-drilldownmember-7.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-7.png)
 
 Next click on **Advanced Properties** set following properties to `False`:
 
@@ -145,7 +147,7 @@ We will use all the columns return by the MDX query (including the full path col
 
 **Preview** the dashboard (or even better open the dashboard in a separate window/tab). It should like this now:
 
-![](/images/mdx-drilldownmember-8.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-8.png)
 
 A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of returned columns/fields will not change. If we **drill down**, only the children's names will be displayed. So we do not have to change the table layout for the drill down.
 
@@ -175,7 +177,7 @@ The above snippet will make sure that we pick up the full path / unique name of 
 
 Preview the dashboard and click on the `[Product].[Motorcycles]` **Member Full Path** table cell (the click action currently only works on this column) and you will see the table refreshing to show the children (partial screenshot only):
 
-![](/images/mdx-drilldownmember-10.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-10.png)
 
 Now while the above works, it is not a good idea! **There are two problems**:
 
@@ -186,7 +188,7 @@ We can actually get hold of the underlying data itself instead of using **jQuery
 
 Reload the dashboard - at the bottom of the **Debug** tab you'll find a **Variables** pane which will allow you to inspect the `this` object (or alternatively type in the **Console** `this` and hit enter). The current `this` object will be returned (so `this` object generated within the `clickAction` function where we set the **breakpoint**). If you explore the `this` object, you will see that it has a `rawData` property which in turn holds the `resultset`. So we can extract the required context info from there. Thanks to **Nelson Sousa** for showing me this and highlighting the problems mentioned above. 
 
-![](/images/mdx-drilldownmember-11.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-11.png)
 
 Go ahead and play with the object a bit in the **Console** to get familiar with it, e.g.:
 
@@ -212,7 +214,7 @@ And explore the `this` object, which is returned on the console.
 
 In the **Table Component** set the **Column Formats** for the `Member Full Path` and `Member Ordinal` to `hidden`. This will remove the columns from the **DOM**, however, the data will still be available in the table component's **resultset**.
 
-![](/images/mdx-drilldownmember-12.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-12.png)
 
 Another important improvement is to use the CDE **clickAction** instead of the **JQuery click event** we currently use in the **PostExecution** function - in fact, this is the recommended/best practice approach.
 
@@ -236,7 +238,7 @@ Make sure you clear out the click function we previously set up for the **postEx
 
 Preview the dashboard:
 
-![](/images/mdx-drilldownmember-13.png)
+![](/images/mdx-drilldownmember/mdx-drilldownmember-13.png)
 
 For now we can see that this approach is working. However, this still does not get rid of the **MDX Injection problem**. So instead of sending an **MDX fragment** as the parameter value, we should send something less sensitive, like just a simple value that cannot do any harm. Update the **clickAction** with the following code:
 
@@ -284,7 +286,7 @@ FROM [SteelWheelsSales]
 WHERE [Time].[Years].[${param_year}]
 ```
 
-Make sure your MDX query has `param_report_level` defined as additional parameter.
+Make sure your **MDX query** has `param_report_level` defined as additional parameter.
 
 **Important considerations** for setting default value for a custom parameter:
 
@@ -316,20 +318,25 @@ Next we adjust the **clickAction** for the table component:
 
 ```javascript
 function(e){
+    console.log("======== CLICK ACTION =======");
     // pick up member name only - not whole path
 	var chosenMember = e.rawData.resultset[e.rowIdx][e.colIdx];
+    console.log("Chosen member: " + chosenMember); 
 	// pick up level ordinal
 	var reportLevel = e.rawData.resultset[e.rowIdx][e.colIdx+2];
+    console.log("Report level: " + reportLevel); 
 	// update parameter value with chosen member
 	if (reportLevel < 2){
-    dashboard.setParameter("param_line", chosenMember);
+      dashboard.setParameter("param_line", chosenMember);
+      console.log("Setting param_line to: " + chosenMember);
     } else {
       // do not overwrite
       // dashboard.setParameter("param_line", chosenMember);
       dashboard.setParameter("param_vendor", chosenMember);
+      console.log("Setting param_vendor to: " + chosenMember);
     }
     dashboard.fireChange("param_report_level", reportLevel);
-} 
+}  
 ```
 
 Adjust the **MDX Query**:
@@ -347,7 +354,7 @@ SET PRODUCT AS
             , [Product].[Line].[${param_line}]
         )
         , DRILLDOWNMEMBER(
-            , DRILLDOWNMEMBER(
+            DRILLDOWNMEMBER(
                 DESCENDANTS([Product], 1, SELF_AND_BEFORE)
                 , [Product].[Line].[${param_line}]
             )
@@ -371,23 +378,27 @@ WHERE [Time].[Years].[${param_year}]
 ```
 
 Make sure you register the `param_vendor` parameter with the **table component** as well as with the **MDX query**.
+
+Make the **table component** listen to `param_report_level`.
+
+![](/images/mdx-drilldownmember/mdx-drilldownmember-14.png)
  
 ## Making the data readable
 
-We add some **JavaScript** to tag the rows with CSS properties according to MDX level. Add to table component's **Draw Function**:
+We add some **JavaScript** to tag the rows with CSS properties according to MDX ordinal. Add to table component's **Draw Function** the following:
 
 ```javascript
 function(){
-	var myData = this.rawData.resultset;
-	// check if resultset is not empty
-	// otherwise we will get an error and no empty table will be displayed
+    var myData = this.rawData.resultset;
+  // check if resultset is not empty
+  // otherwise we will get an error and no empty table will be displayed
   if(myData.length > 0){
-  	$("#" + this.htmlObject).find("tbody > tr").each(
-  		function(i, d){
-  			$(d).addClass("drill-down-level-" + myData[i][2]);
-  			$(d).find("td:first").addClass("drill-down-level-" + myData[i][2] + "-node");
-  		}
-  	)
+    $("#" + this.htmlObject).find("tbody > tr").each(
+      function(i, d){
+        $(d).addClass("drill-down-level-" + myData[i][2]);
+        $(d).find("td:first").addClass("drill-down-level-" + myData[i][2] + "-node");
+      }
+    )
   }
 }
 ```
@@ -396,7 +407,9 @@ function(){
 
 We will use a simple colour palette, just shades of grey (see [here](http://www.htmlportal.net/colors/shades-of-gray.php)).
 
-Finally we add some very basic CSS properties to **Layout > Inline CSS**:
+For the **table component** change the **style** to `Classic`.
+
+Finally we add some very basic CSS properties to **Layout > Add Resource**. Choose **Resource Type** `Css` and **Resource Source** `Code Snippet`:
 
 ```css
 .numeric{
@@ -451,7 +464,71 @@ tbody > tr > td.column0:hover{
 }
 ```
 
+You will realise that most of the formats do not get properly applied. Let's analyse one example: `.drill-down-level-1`. You could just add `!important` at the end of the property definition, however, this is not a recommended approach. It is best to analyse which other property overwrites this one. Once you know this one, you can make our current property more specific than the other one, since more specific ones will overwrite the more generic ones. Right click on a row which should have the `.drill-down-level-1` class assigned to it and choose **Inspect Element**. Make sure you select the `<tr>` element in the HTML panel and then in the style panel observe that `table.dataTable > tbody > tr` is overwriting `.drill-down-level-1`:
 
+![](/images/mdx-drilldownmember/mdx-drilldownmember-15.png)
 
+So know we know how to make our selector more specific:
 
+```css
+table.dataTable > tbody > tr.drill-down-level-1
+```
 
+Adjust the CSS:
+
+```css
+.numeric{
+  text-align:right;
+}
+
+th{
+  font-size:0.9em;
+  padding-left:0.2em;
+  background-color:gold;
+  border-bottom: 1px solid white;
+}
+
+td{
+  font-size:0.9em;
+}
+
+tbody > tr > td.column0:hover{
+  background-color:lightblue;
+}  
+
+table.dataTable > tbody > tr > td.drill-down-level-0-node {
+	padding-left: 0.4em;
+}
+
+table.dataTable > tbody > tr > td.drill-down-level-1-node {
+	padding-left: 1em;
+}
+
+table.dataTable > tbody > tr > td.drill-down-level-2-node {
+	padding-left: 2em;
+}
+
+table.dataTable > tbody > tr > td.drill-down-level-3-node {
+	padding-left: 3em;
+}
+
+table.dataTable > tbody > tr.drill-down-level-0 {
+	background-color:#E0E0E0;
+}
+
+table.dataTable > tbody > tr.drill-down-level-1 {
+	background-color:#E8E8E8;
+}
+
+table.dataTable > tbody > tr.drill-down-level-2 {
+	background-color:#F0F0F0;
+}
+
+table.dataTable > tbody > tr.drill-down-level-3 {
+  background-color:#F8F8F8;
+}
+```
+
+And here our final result:
+
+![](/images/mdx-drilldownmember/mdx-drilldownmember-16.png)

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="qry_main_report" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="qry_list_years" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" connection="qry_main_report" id="qry_main_report" type="mdx">
+      <Name>qry_main_report</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="" name="param_year" type="String"/>
+         <Parameter default="" name="param_line" type="String"/>
+         <Parameter default="" name="param_report_level" type="String"/>
+         <Parameter default="" name="param_vendor" type="String"/>
+      </Parameters>
+      <Query><![CDATA[WITH
+SET PRODUCT AS
+  IIF(
+    "${param_report_level}" = "" OR "${param_report_level}" = "0"
+    , DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+    , IIF(
+        "${param_report_level}" = "1"
+        , DRILLDOWNMEMBER(
+            DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+            , [Product].[Line].[${param_line}]
+        )
+        , DRILLDOWNMEMBER(
+            DRILLDOWNMEMBER(
+                DESCENDANTS([Product], 1, SELF_AND_BEFORE)
+                , [Product].[Line].[${param_line}]
+            )
+            , [Product].[${param_line}].[${param_vendor}]
+        )
+    )
+  )
+  MEMBER [Measures].[Member Full Path] AS
+    [Product].CurrentMember.UniqueName
+  MEMBER [Measures].[Member Ordinal] AS
+    [Product].CurrentMember.Ordinal
+SELECT
+  NON EMPTY PRODUCT ON ROWS
+  , {
+    [Measures].[Member Full Path]
+    , [Measures].[Member Ordinal]
+    , [Measures].[Sales]
+  } ON COLUMNS
+FROM [SteelWheelsSales]
+WHERE [Time].[Years].[${param_year}]]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="qry_list_years" id="qry_list_years" type="mdx">
+      <Name>qry_list_years</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters/>
+      <Query><![CDATA[SELECT
+  [Time].[Years].Members ON ROWS
+  , {} ON COLUMNS
+ FROM [SteelWheelsSales]]]></Query>
+   </DataAccess>
+</CDADescriptor>
