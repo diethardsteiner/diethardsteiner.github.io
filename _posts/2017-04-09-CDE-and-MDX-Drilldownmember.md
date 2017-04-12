@@ -343,6 +343,8 @@ function(){
 
 > **Note**: Did you realise how we use the underlying dataset to extract the current level ordinal? True separation of content and display.
 
+We will use a simple colour palette, just shades of grey (see [here](http://www.htmlportal.net/colors/shades-of-gray.php)).
+
 Finally we add some very basic CSS properties to **Layout > Inline CSS**:
 
 ```css
@@ -382,19 +384,19 @@ tbody > tr > td.column0:hover{
 }
 
 .drill-down-level-0 {
-	background-color:#9999ff;
+	background-color:#E0E0E0;
 }
 
 .drill-down-level-1 {
-	background-color:#b2b2ff;
+	background-color:#E8E8E8;
 }
 
 .drill-down-level-2 {
-	background-color:#ccccff;
+	background-color:#F0F0F0;
 }
 
 .drill-down-level-3 {
-  background-color:#e5e5ff;
+  background-color:#F8F8F8;
 }
 ```
 
