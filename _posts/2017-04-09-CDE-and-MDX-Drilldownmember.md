@@ -10,19 +10,19 @@ published: false
 
 ## CDE Table Component Setup and MDX Drilldownmember
 
-We are discussing how to create a **Pentaho CDE** dashboard here, so I expect you are familiar with the concepts of CDE. I also expect that you have a good understanding of **MDX**.
-
 **MDX** is an extremely **powerful query language**. Over the years I got exposed to various MDX functions, some of which I only started to appreciate later on, when I was facing a particular challenge. One of such function was `DRILLDOWNMEMBER`. I read about this function a long time ago but only recently used it in a project. 
 
-A few days ago I was asked to put together a **CDE dashboard** for a client. The specs were really quite straight forward: Display a high level summary and allow us to drill down. Now you'd be inclined to think that this is quite a popular request and hence CDE has something in store to cover this scenario: Well, the **table component** has  an **Expand on click** feature, which displays an inline table, which is not as elegant for this purpose as a drill down in Analyer, Saiku or even JPivot. So here is how I tackled the challenge:
+A few days ago I was asked to put together a **CDE dashboard** for a client. The specs were really quite straight forward: Display a high level summary and allow us to drill down. Now you'd be inclined to think that this is quite a popular request and hence **CDE** has something in store to cover this scenario: Well, the **table component** has  an **Expand on click** feature, which displays an inline table, which is not as elegant for this purpose as a drill down in **Analyzer**, **Saiku** or even **JPivot**. So here is how I tackled the challenge:
 
-We will be using the **SteelWheelsSales** Cube, which ships with every **Pentaho Server**. For this example I am using the current version 7. Download it via [SourceForge](https://sourceforge.net/projects/pentaho/files/Business%20Intelligence%20Server/). We will provide drill down functionality for the **Product Dimension**. The product dimension has following level (top to bottom):
+We are discussing how to create a **Pentaho CDE** dashboard here, so I expect that you are familiar with the concepts of CDE. I also expect that you have a good understanding of **MDX**.
+
+We will be using the **SteelWheelsSales** Cube, which ships with every **Pentaho Server**. For this example I am using the current version 7. Download it via [SourceForge](https://sourceforge.net/projects/pentaho/files/Business%20Intelligence%20Server/). We will provide **drill down functionality** for the **Product Dimension**. The product dimension has following level (top to bottom):
 
 - Line
 - Vendor
 - Product
 
-To familiarse yourself with the SteelWheelsSales Mondrian schema, you can play around with it using good old (shall I say very old and trusted) JPivot (via **File > New > JPivot View**) and you can also download the Mondrian Schema via **File > Manage Data Sources**.
+To familiarse yourself with the **SteelWheelsSales** Mondrian schema, you can play around with it using good old (shall I say very old and trusted) JPivot (via **File > New > JPivot View**) and you can also download the Mondrian Schema via **File > Manage Data Sources**.
 
 In **JPivot** click the **MDX** button and run following query:
 
@@ -53,7 +53,7 @@ Next create a **CDE dashboard** (**New > CDE Dashboard**). I will not go through
 
 ## Create the layout
 
-In the **Layout** add a super simple layout: 3 rows with one column each. Set the columns to 12 (Extra Small Devices) and name them `html_title`, `html_date_picker`, `html_main_report`:
+In the **Layout** add a super simple structure: 3 rows with one column each. Set the columns to 12 (Extra Small Devices) and name them `html_title`, `html_date_picker`, `html_main_report`:
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-4.png)
 
@@ -67,7 +67,7 @@ Set the **height** of the `html_date_picker` to `60`.
 
 ## Creating the year picker
 
-The end user should be able to choose the year. For this purpose we can simply use **Select component** and **parameter** called `param_year`.
+The end user should be able to choose the reporting year. For this purpose we can simply use **Select component** and **parameter** called `param_year`.
 
 To drive the **Select component** we use the following MDX query using a **mdx over mondrianJndi** data source (from the **Data Source Panel** called `qry_list_years`:
 
@@ -80,7 +80,7 @@ SELECT
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-2.png)
 
-> **Note**: Once you save the dashboard, in the same folder you'll find a CDA file. Double click on it and you will be able to preview the data for each query you define in the dashboard. Ultra handy! Just make sure you refresh the tab once you define a new query:
+> **Note**: Once you save the dashboard, in the same folder you'll find a **CDA** (Community Data Access) file. Double click on it and you will be able to preview the data for each query you define in the dashboard. Ultra handy! Just make sure you refresh the tab once you define a new query:
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-5.png)
 
@@ -91,17 +91,17 @@ Next create a **Simple Parameter** (Generic > Simple Parameter) in the **Compone
 
 ## Create the report (table)
 
-For the drill down functionality, we create a custom parameter called `param_line` and set its default value to:
+For the drill down functionality, we create a **custom parameter** called `param_line` and set its default value to:
 
-```
+```javascript
 "Descendants([Product].[(All)].Members, 1, SELF_AND_BEFORE)"
 ```
 
-Just be warned, I start off by doing things in the wrong way and then gradually show you how to get it right, to perfectly illustrate best practices. There are always more than one way to do things, but not necessarily all approach are good ones.
+Just be warned, I start off by doing things in the wrong way and then gradually show you how to get it right, to perfectly illustrate best practices. There is always more than one way to do things, but not necessarily all approach are good ones.
 
-This will display the overall summary (the `All` level) as will as the first level and its members.
+This query will display the overall summary (the `All` level) as well as the first level and its members.
 
-Next define the MDX query called `qry_main_report` and register both parameters (`param_year` and `param_line`).
+Next define the **MDX query** called `qry_main_report` and register both parameters (`param_year` and `param_line`) with it.
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-6.png)
 
@@ -143,13 +143,13 @@ Next click on **Advanced Properties** set following properties to `False`:
 Set **Style** to `Bootstrap`.
 Set the **Column Types** to `String`, `String`, `Numeric` and `Numeric`.
 
-We will use all the columns return by the MDX query (including the full path column, which we will hide later on). We can use the `Member Ordinal` value later on to add conditional formatting for the table so that it is easier to read.
+We will use all the columns return by the **MDX query** (including the full path column, which we will hide later on). We can use the `Member Ordinal` value later on to add **conditional formatting** for the table so that it is easier to read.
 
 **Preview** the dashboard (or even better open the dashboard in a separate window/tab). It should like this now:
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-8.png)
 
-A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of returned columns/fields will not change. If we **drill down**, only the children's names will be displayed. So we do not have to change the table layout for the drill down.
+A very nice benefit of using `DRILLDOWNMEMBER` is that the amount of returned columns/fields does not change. If we **drill down**, only the children's names will be displayed. So we do not have to change the table layout for the drill down.
 
 Let's implement the first drill down now. For the table component's **PostExecution** function we define the following:
 
@@ -234,7 +234,7 @@ function(e){
 
 As you can see using the CDE **clickAction** is a lot easier, as the required contextual information like row and column index are available straight away.
 
-Make sure you clear out the click function we previously set up for the **postExecution** function.
+Make sure you delete the click function we previously set up for the **postExecution** function.
 
 Preview the dashboard:
 
@@ -242,7 +242,7 @@ Preview the dashboard:
 
 For now we can see that this approach is working. However, this still does not get rid of the **MDX Injection problem**. So instead of sending an **MDX fragment** as the parameter value, we should send something less sensitive, like just a simple value that cannot do any harm. Update the **clickAction** with the following code:
 
-```
+```javascript
 function(e){
 	// pick up member name only - not whole path
 	var chosenMember = e.rawData.resultset[e.rowIdx][e.colIdx];
@@ -468,7 +468,7 @@ You will realise that most of the formats do not get properly applied. Let's ana
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-15.png)
 
-So know we know how to make our selector more specific:
+So now we know how to make our selector more specific:
 
 ```css
 table.dataTable > tbody > tr.drill-down-level-1
@@ -532,3 +532,7 @@ table.dataTable > tbody > tr.drill-down-level-3 {
 And here our final result:
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-16.png)
+
+The Dashboard can be downloaded from [here](/sample-files/cde/MDX-Drilldownmember).
+
+Finally, special thanks to Nelson Sousa for his insightful contribution.
