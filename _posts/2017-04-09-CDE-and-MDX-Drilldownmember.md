@@ -5,7 +5,7 @@ summary: We discuss an elegent use case for DRILLDOWNMEMBER within a CDE table
 date: 2017-04-09
 categories: MDX
 tags: MDX
-published: false
+published: true
 ---
 
 ## CDE Table Component Setup and MDX Drilldownmember
