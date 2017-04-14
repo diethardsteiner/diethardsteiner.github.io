@@ -8,7 +8,7 @@ tags: PDI
 published: true
 ---  
 
-Note: Written Dec 2016, put on hold because of some issues faced when using file based (as opposed to repo) approach. Since I do not have time for now to revisit the topic, I'll publish it (Apr 2017) in any case, because the article should contain quite a lot of useful info regardless of the issues faced. I recommend using the repo for now.
+> **Note**: Written Dec 2016, put on hold because of some issues faced when using file based (as opposed to repo) approach. Since I do not have time for now to revisit the topic, I'll publish it (Apr 2017) in any case, because the article should contain quite a lot of useful info regardless of the issues faced. I recommend using the repo for now.
 
 I was probably not the only one who wondered what was behind the **Streamlined Data Refinery** (SDR) marketing buzz. So what is it then? Really?
 
