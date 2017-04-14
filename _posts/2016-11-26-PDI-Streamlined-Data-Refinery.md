@@ -14,6 +14,8 @@ I was probably not the only one who wondered what was behind the **Streamlined D
 
 SDR is mainly an answer to the need of exploring Big Data. While not necessarily limited to Big Data, SDR enables companies to offer on-demand custom analytical solutions which get automatically generated. Now this sounds a bit vague: Ultimately what this burns down to is allowing the end user to choose and pick certain attributes from a dataset via a form, which triggers in the background the preparation of data and automatic generation of a model (semantic layer) which will be made available to the end user for exploration. The form is based on **App Builder** (previously known as Sparkl, a plugin for the Pentaho Server) and the data prep and model generation by **PDI** (previously known as Kettle), Pentaho's Data Integration component. The automatically generated solution gets published to the **Pentaho Server**, which offers a web front-end to explore the data. SDR is a showcase of Pentaho's ambition to tightly integrate all the various components. 
 
+![](/images/sdr/IMG_0027.PNG)
+
 Within PDI, following steps and job entries were added to support SDR:
 
 - **Annotate Stream** (transformation step)
