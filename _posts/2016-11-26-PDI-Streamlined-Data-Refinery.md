@@ -23,11 +23,11 @@ Those of you who have every create a Cube (**Mondrian** schema) will know that *
 
 When you configure the step settings, you have the option to store the annotations **locally** or as a **shared** artefact (the latter option allowing you to use the annotations with any other transformation). The easiest way to define the annotations is to click on the **Select Fields** button, which will auto-populated the annotations table. Then simply double click on the first row, which will open the **Annotate** dialog. For each field you can define the details:
 
-- **Create Attribute**: In the classic Mondrian world this is called a **Level** of a dimension. In the list of details to provide you will find **Dimension** and **Hierarchy**. Note that there is no separate dialog to define these, just simple type in the values (ignore the drop down when creating them the first time round). Once to move on to other fields, existing  dimension and hiearchy values will then be available in the drop-down menu.
+- **Create Attribute**: In the classic Mondrian world this is called a **Level** of a dimension. In the list of details to provide you will find **Dimension** and **Hierarchy**. Note that there is no separate dialog to define these, just simple type in the values (ignore the drop down when creating them the first time round). Once to move on to other fields, existing  dimension and hierarchy values will then be available in the drop-down menu.
 - **Create Measure**
 - **Create Linked Dimension**
 
-The result of providing these annotations becomes a lot quicker available these days by using the DET (Data Exploration Tool), which in simple words builds a cube and makes the data available for visual analysis à la Analyzer. Basically you can check to output of each step in your transformation via this new feature, which is only available in the **Enterprise Edition**. If you use the **Community Edition**, there is currently no such feature available.
+The result of providing these annotations becomes a lot quicker available these days by using the **DET** (Data Exploration Tool), which in simple words builds a cube and makes the data available for visual analysis à la Analyzer. Basically you can check to output of each step in your transformation via this new feature, which is only available in the **Enterprise Edition**. If you use the **Community Edition**, there is currently no such feature available.
 
 # Enriching the Stream
 
@@ -35,7 +35,7 @@ The result of providing these annotations becomes a lot quicker available these 
 
 Let's start with a very simple example, a transformation called `tr_sdr_fact_sales`: Imagine you have some sales data as shown in the below screenshot and want to enrich the stream with some cube attributes:
 
-![](/images/sdr/Screenshot from 2016-11-27 11-15-49.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2011-15-49.png)
 
 Add an **Annotate Stream** step and double click on it. Click on **Select Fields** at the bottom of the dialog box and select the all fields except `unit_price`. Then double click on the first row in the **Annotations** table.
 
@@ -47,7 +47,7 @@ For the `date` field we choose **Create Attribute** because it is a dimensional 
 - For **Dimension** provide following value: `Date` (so do not use the pull down menu but hard code the value - this is only require the first time you mention the dimension. If a dimensions has more than one attribute, you can pick the dimension name then from the pull down menu). 
 - Next hard code the **Hierarchy** as `Date` (same principles apply to the hierarchy in regards to defining the name as for the dimension):
 
-![](/images/sdr/Screenshot from 2016-11-27 10-27-44.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2010-27-44.png)
 
 Click **Next**.
 
@@ -59,7 +59,7 @@ For the `country` field we choose **Create Attribute** because it is a dimension
 - Next hard code the **Hierarchy** name to `Geography`.
 - Set **Is Unique** to `True`.
 
-![](/images/sdr/Screenshot from 2016-11-27 10-49-26.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2010-49-26.png)
 
 Click **Next**.
 
@@ -71,7 +71,7 @@ For the `city` field we choose **Create Attribute** because it is a dimensional 
 - Now instead of hard coding the value for the **Dimension** pick `Geography` from the pull down menu. 
 - Pick `Geography` from the pull down menu as **Hierarchy** name.
 
-![](/images/sdr/Screenshot from 2016-11-27 10-43-58.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2010-43-58.png)
 
 Click **Next**.
 
@@ -82,7 +82,7 @@ For the `product_category` field we choose **Create Attribute** because it is a 
 - Next hard code the **Hierarchy** name to `Product`:
 - Set **Is Unique** to `True`.
 
-![](/images/sdr/Screenshot from 2016-11-27 10-50-15.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2010-50-15.png)
 
 Click **Next**.
 
@@ -94,7 +94,7 @@ For the `product_number` field we choose **Create Attribute** because it is a di
 - Pick `Product` from the pull down menu for **Hierarchy**.
 - Set **Is Unique** to `True`
 
-![](/images/sdr/Screenshot from 2016-11-27 10-51-15.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2010-51-15.png)
 
 Click **Next**.
 
@@ -104,7 +104,7 @@ For the `quantity_sold` field we choose **Create Measure**:
 - Pick `SUM` from the pull down menu for **Aggregation Type**.
 - Pick `#,##0` from the pull down menu for **Format**.
 
-![](/images/sdr/Screenshot from 2016-11-27 10-56-13.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2010-56-13.png)
 
 Click **Next**.
 
@@ -116,11 +116,11 @@ Next we will create a calculated measure, so click on the **Add Calculated Measu
 - Set the **Format** to `#,###.00`.
 - Set the **Formula** to `[Measures].[Revenue] / [Measures].[Quantity Sold]`. The formula is based on **MDX**.
 
--[](Screenshot from 2016-11-27 11-09-06.png)
+-[](Screenshot%20from%202016-11-27%2011-09-06.png)
 
 Click **OK**. You can edit the definitions at any point by double clicking on the respective row.
 
-![](/images/sdr/Screenshot from 2016-11-27 11-11-16.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2011-11-16.png)
 
 After providing all these annotations, it would be quite interesting to see what advantages we can obtain with enriching the stream. In the **PDI Enterprise Edition** you can instantly see the benefits by highlighting the **Annotations step** and then clicking on the blue **Play** icon (with a chart in the background) to load the **DET** (Data Exploration Tool) perspective ...
 
@@ -128,11 +128,11 @@ For those using the **Community Edition**, you can still see quite some benefit 
 
 ## Creating a Shared Dimension
 
-Now it gets a bit more interesting! Certain dimensions like data lend itself very well to being define on a global level, so that you can reuse the definition in various cubes. **PDI** enables you to create one by using the **Shared Dimension** step (you guessed it!).
+Now it gets a bit more interesting! Certain dimensions like date lend itself very well to being define on a global level, so that you can reuse the definition in various cubes. **PDI** enables you to create one by using the **Shared Dimension** step (you guessed it!).
 
 Again we will create a very basic transformation called `tr_sdr_dim_date` for a **shared date dimension**. For this example we auto-generate some data like this:
 
-![](/images/sdr/Screenshot from 2016-11-27 11-49-37.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2011-49-37.png)
 
 Next add an **Annotate Stream** step between the **Select values** and **Shared Dimension** step. Configure the step settings:
 
@@ -146,29 +146,29 @@ For the field `date_tk` define the following:
 - **Actions**: `Create Dimensions Key`
 - Hard code `Date` as **Dimension** name.
 
-![](/images/sdr/Screenshot from 2016-11-27 12-16-31.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2012-16-31.png)
 
 Click **Next**.
 
 Set the annotations for field `the_date` up as shown below:
 
-![](/images/sdr/Screenshot from 2016-11-27 12-21-02.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2012-21-02.png)
 
 Click **Next**.
 
 Set the annotations for field `the_year` up as shown below:
 
-![](/images/sdr/Screenshot from 2016-11-27 12-22-50.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2012-22-50.png)
 
 Click **Next**.
 
 Set the annotations for field `the_month` up as shown below:
 
-![](/images/sdr/Screenshot from 2016-11-27 12-24-43.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2012-24-43.png)
 
 Click **OK**. The definition of the **shared dimension** should look like this now:
 
-![](/images/sdr/Screenshot from 2016-11-27 12-27-38.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2012-27-38.png)
 
 You might be wondering where the definition of the **shared dimension** gets stored if you are using a file based setup: It is part of the **Metastore**, which resides by default under:
 
@@ -209,11 +209,11 @@ Double click on the `date_tk` record in the **Annotations** table.
 - Hard code `Date` as **Dimension Name**.
 - Pick `Date Dimension` from the pull-down menu as **Shared Dimension**. Click **OK**.
 
-![](/images/sdr/Screenshot from 2016-11-27 13-53-32.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2013-53-32.png)
 
 The settings should look like this now:
 
-![](/images/sdr/Screenshot from 2016-11-27 13-59-22.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2013-59-22.png)
 
 Next enable and configure the **Table output** steps in all transformations.
 
@@ -229,11 +229,11 @@ I've mentioned before that we will eventually build and publish the model. So le
 
 Build a job which looks like the one shown below:
 
-![](/images/sdr/Screenshot from 2016-11-27 14-45-12.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2014-45-12.png)
 
 Then double click on the **Build Model** job entry and inspect the entries in the **Source** pull down menu. You will see `Table output` listed twice. At this point it becomes apparent that we have to rename the **Table output** steps in our transformations to uniquely identify them. So rename one to `Table output - Fact Sales` and the other one to `Table output - Dim Date`. Once this is done, go back to the **Build Model** settings and pick `Table output - Fact Sales` from the **Source** pull down menu and set **Model Name** to `Sales`. Leave all other setting on their defaults.
 
-![](/images/sdr/Screenshot from 2016-11-27 14-45-12.png)
+![](/images/sdr/Screenshot%20from%202016-11-27%2014-45-12.png)
 
 Next double click on the **Publish Model** job entry. We will use parameters to make the setup as flexible as possible:
 
