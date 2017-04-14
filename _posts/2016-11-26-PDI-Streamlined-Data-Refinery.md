@@ -27,7 +27,7 @@ When you configure the step settings, you have the option to store the annotatio
 - **Create Measure**
 - **Create Linked Dimension**
 
-The result of providing these annotations becomes a lot quicker available these days by using the ??, which in simple words builds a cube and makes the data available for visual analysis à la Analyzer. Basically you can check to output of each step in your transformation via this new feature, which is only available in the **Enterprise Edition**. If you use the **Community Edition** ...?
+The result of providing these annotations becomes a lot quicker available these days by using the DET (Data Exploration Tool), which in simple words builds a cube and makes the data available for visual analysis à la Analyzer. Basically you can check to output of each step in your transformation via this new feature, which is only available in the **Enterprise Edition**. If you use the **Community Edition**, there is currently no such feature available.
 
 # Enriching the Stream
 
