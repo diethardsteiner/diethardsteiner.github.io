@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Pentaho Data Integration: Streamline Data Refinery"
+title: "Pentaho Data Integration: Streamlined Data Refinery"
 summary: This article discusses what is behind the Pentaho Streamline Data Refinery marketing buzz 
 date: 2016-11-26
 categories: PDI
