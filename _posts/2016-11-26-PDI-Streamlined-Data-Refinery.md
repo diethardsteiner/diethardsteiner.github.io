@@ -5,8 +5,10 @@ summary: This article discusses what is behind the Pentaho Streamline Data Refin
 date: 2016-11-26
 categories: PDI
 tags: PDI
-published: false
+published: true
 ---  
+
+Note: Written Dec 2016, put on hold because of some issues faced when using file based (as opposed to repo) approach. Since I do not have time for now to revisit the topic, I'll publish it (Apr 2017) in any case, because the article should contain quite a lot of useful info regardless of the issues faced. I recommend using the repo for now.
 
 I was probably not the only one who wondered what was behind the **Streamlined Data Refinery** (SDR) marketing buzz. So what is it then? Really?
 
@@ -35,7 +37,7 @@ The result of providing these annotations becomes a lot quicker available these 
 
 Let's start with a very simple example, a transformation called `tr_sdr_fact_sales`: Imagine you have some sales data as shown in the below screenshot and want to enrich the stream with some cube attributes:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2011-15-49.png)
+![](/images/sdr/Screenshot from 2016-11-27 11-15-49.png)
 
 Add an **Annotate Stream** step and double click on it. Click on **Select Fields** at the bottom of the dialog box and select the all fields except `unit_price`. Then double click on the first row in the **Annotations** table.
 
@@ -47,7 +49,7 @@ For the `date` field we choose **Create Attribute** because it is a dimensional 
 - For **Dimension** provide following value: `Date` (so do not use the pull down menu but hard code the value - this is only require the first time you mention the dimension. If a dimensions has more than one attribute, you can pick the dimension name then from the pull down menu). 
 - Next hard code the **Hierarchy** as `Date` (same principles apply to the hierarchy in regards to defining the name as for the dimension):
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2010-27-44.png)
+![](/images/sdr/Screenshot from 2016-11-27 10-27-44.png)
 
 Click **Next**.
 
@@ -59,7 +61,7 @@ For the `country` field we choose **Create Attribute** because it is a dimension
 - Next hard code the **Hierarchy** name to `Geography`.
 - Set **Is Unique** to `True`.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2010-49-26.png)
+![](/images/sdr/Screenshot from 2016-11-27 10-49-26.png)
 
 Click **Next**.
 
@@ -71,7 +73,7 @@ For the `city` field we choose **Create Attribute** because it is a dimensional 
 - Now instead of hard coding the value for the **Dimension** pick `Geography` from the pull down menu. 
 - Pick `Geography` from the pull down menu as **Hierarchy** name.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2010-43-58.png)
+![](/images/sdr/Screenshot from 2016-11-27 10-43-58.png)
 
 Click **Next**.
 
@@ -82,7 +84,7 @@ For the `product_category` field we choose **Create Attribute** because it is a 
 - Next hard code the **Hierarchy** name to `Product`:
 - Set **Is Unique** to `True`.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2010-50-15.png)
+![](/images/sdr/Screenshot from 2016-11-27 10-50-15.png)
 
 Click **Next**.
 
@@ -94,7 +96,7 @@ For the `product_number` field we choose **Create Attribute** because it is a di
 - Pick `Product` from the pull down menu for **Hierarchy**.
 - Set **Is Unique** to `True`
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2010-51-15.png)
+![](/images/sdr/Screenshot from 2016-11-27 10-51-15.png)
 
 Click **Next**.
 
@@ -104,7 +106,7 @@ For the `quantity_sold` field we choose **Create Measure**:
 - Pick `SUM` from the pull down menu for **Aggregation Type**.
 - Pick `#,##0` from the pull down menu for **Format**.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2010-56-13.png)
+![](/images/sdr/Screenshot from 2016-11-27 10-56-13.png)
 
 Click **Next**.
 
@@ -116,13 +118,13 @@ Next we will create a calculated measure, so click on the **Add Calculated Measu
 - Set the **Format** to `#,###.00`.
 - Set the **Formula** to `[Measures].[Revenue] / [Measures].[Quantity Sold]`. The formula is based on **MDX**.
 
--[](Screenshot%20from%202016-11-27%2011-09-06.png)
+-[](Screenshot from 2016-11-27 11-09-06.png)
 
 Click **OK**. You can edit the definitions at any point by double clicking on the respective row.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2011-11-16.png)
+![](/images/sdr/Screenshot from 2016-11-27 11-11-16.png)
 
-After providing all these annotations, it would be quite interesting to see what advantages we can obtain with enriching the stream. In the **PDI Enterprise Edition** you can instantly see the benefits by highlighting the **Annotations step** and then clicking on the blue **Play** icon (with a chart in the background) to load the **DET** (Data Exploration Tool) perspective ...
+After providing all these annotations, it would be quite interesting to see what advantages we can obtain with enriching the stream. In the **PDI Enterprise Edition** you can instantly see the benefits by highlighting the **Annotations step** and then clicking on the blue **Play** icon (with a chart in the background) to load the **DET** (Data Exploration Tool) perspective.
 
 For those using the **Community Edition**, you can still see quite some benefit by publising the model to the **BA Server** (the same functionality is available in the Enterprise Edition as well). We will take a look at this a bit later on.
 
@@ -132,7 +134,7 @@ Now it gets a bit more interesting! Certain dimensions like date lend itself ver
 
 Again we will create a very basic transformation called `tr_sdr_dim_date` for a **shared date dimension**. For this example we auto-generate some data like this:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2011-49-37.png)
+![](/images/sdr/Screenshot from 2016-11-27 11-49-37.png)
 
 Next add an **Annotate Stream** step between the **Select values** and **Shared Dimension** step. Configure the step settings:
 
@@ -146,38 +148,38 @@ For the field `date_tk` define the following:
 - **Actions**: `Create Dimensions Key`
 - Hard code `Date` as **Dimension** name.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2012-16-31.png)
+![](/images/sdr/Screenshot from 2016-11-27 12-16-31.png)
 
 Click **Next**.
 
 Set the annotations for field `the_date` up as shown below:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2012-21-02.png)
+![](/images/sdr/Screenshot from 2016-11-27 12-21-02.png)
 
 Click **Next**.
 
 Set the annotations for field `the_year` up as shown below:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2012-22-50.png)
+![](/images/sdr/Screenshot from 2016-11-27 12-22-50.png)
 
 Click **Next**.
 
 Set the annotations for field `the_month` up as shown below:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2012-24-43.png)
+![](/images/sdr/Screenshot from 2016-11-27 12-24-43.png)
 
 Click **OK**. The definition of the **shared dimension** should look like this now:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2012-27-38.png)
+![](/images/sdr/Screenshot from 2016-11-27 12-27-38.png)
 
-You might be wondering where the definition of the **shared dimension** gets stored if you are using a file based setup: It is part of the **Metastore**, which resides by default under:
+You might be wondering where the definition of the **shared dimension** gets stored if you are using a file based (non repository) setup: It is part of the **Metastore**, which resides by default under:
 
 ```
 $ ls ~/.pentaho/metastore/pentaho/SharedDimensionGroup/
 'Date Dimension.xml'
 ```
 
-The location of the Metastore can be configured via the `PENTAHO_METASTORE_FOLDER` environment variable. You will have to change `spoon.sh` to take this variable into account. Simple add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` to the end of the `OPT=` section:
+The location of the **Metastore** can be configured via the `PENTAHO_METASTORE_FOLDER` environment variable. You will have to change `spoon.sh` to take this variable into account. Simple add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` to the end of the `OPT=` section:
 
 Before:
 
@@ -209,11 +211,11 @@ Double click on the `date_tk` record in the **Annotations** table.
 - Hard code `Date` as **Dimension Name**.
 - Pick `Date Dimension` from the pull-down menu as **Shared Dimension**. Click **OK**.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2013-53-32.png)
+![](/images/sdr/Screenshot from 2016-11-27 13-53-32.png)
 
 The settings should look like this now:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2013-59-22.png)
+![](/images/sdr/Screenshot from 2016-11-27 13-59-22.png)
 
 Next enable and configure the **Table output** steps in all transformations.
 
@@ -229,11 +231,11 @@ I've mentioned before that we will eventually build and publish the model. So le
 
 Build a job which looks like the one shown below:
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2014-45-12.png)
+![](/images/sdr/Screenshot from 2016-11-27 14-45-12.png)
 
 Then double click on the **Build Model** job entry and inspect the entries in the **Source** pull down menu. You will see `Table output` listed twice. At this point it becomes apparent that we have to rename the **Table output** steps in our transformations to uniquely identify them. So rename one to `Table output - Fact Sales` and the other one to `Table output - Dim Date`. Once this is done, go back to the **Build Model** settings and pick `Table output - Fact Sales` from the **Source** pull down menu and set **Model Name** to `Sales`. Leave all other setting on their defaults.
 
-![](/images/sdr/Screenshot%20from%202016-11-27%2014-45-12.png)
+![](/images/sdr/Screenshot from 2016-11-27 14-45-12.png)
 
 Next double click on the **Publish Model** job entry. We will use parameters to make the setup as flexible as possible:
 
@@ -299,14 +301,13 @@ Once you inspect the **Mondrian** file, you will make some interesting discovery
 ...
 ```
 
-Now clearly the product dimension has nothing to do with date, so how did we end up in this situation? What did we miss?
-
-
-Having this synergy between the different products is a real benefit. The ease of creating and publishing a model to the server from within PDI is a real treat. If you then consider that these all the steps support **metadata injection** and most of the settings of the **job entries** can be parameter driven, then you realise that the opportunities are vast.
+Now clearly the product dimension has nothing to do with date, so how did we end up in this situation? What did we miss? I couldn't resolve this issue in the file based setup (Dec 2016).
 
 ## My Thoughts on SDR
 
-From my point of view SDR is a very interesting concept and has been for the most part nicely implemented by Pentaho. I've been working with Pentaho products for over 10 years and SDR brings a lot of advantages, especially an easier way to develop solutions. 
+Having this synergy between the different products is a real benefit. The ease of creating and publishing a model to the server from within PDI is a real treat. If you then consider that these all the steps support **metadata injection** and most of the settings of the **job entries** can be parameter driven, then you realise that the opportunities are vast.
+
+From my point of view **SDR** is a very interesting concept and has been for the most part nicely implemented by Pentaho. I've been working with Pentaho products for over 10 years and SDR brings a lot of advantages, especially an easier way to develop solutions. 
 
 Certainly, there is still room for improvement: Not all Cube definitions are supported (e.g. aggregations are missing). What I feel is still a bit a hurdle is that the **AppBuilder** and **PDI** are still two compeletely different applications. I can understand that for newbies switching between these two applications when building a SDR solution is a bit of a headache as well as a challenge. Certainly, with the recent announcement of **WebSpoon** (PDI's web-interface - a prototype and currently not supported by Pentaho) a tighter integration might be on the horizon within the next 2 to 3 years.
 
