@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "MDX ToggleDrillState"
-summary: We discuss an elegent use case for DRILLDOWNMEMBER within a CDE table
-date: 2017-04-09
+summary: We discuss an elegent use case for ToggleDrillState
+date: 2017-04-17
 categories: MDX
 tags: MDX
 published: true
