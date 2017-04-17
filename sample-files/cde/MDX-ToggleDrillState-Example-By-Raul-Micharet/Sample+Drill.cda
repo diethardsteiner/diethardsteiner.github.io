@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="mdx_years" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+      <Connection id="mdx_products" type="mondrian.jndi">
+         <Catalog>mondrian:/SteelWheels</Catalog>
+         <Jndi>SampleData</Jndi>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" connection="mdx_years" id="mdx_years" type="mdx">
+      <Name>mdx_years</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters/>
+      <Query><![CDATA[SELECT
+  [Time].[Years].Members ON ROWS
+  , {} ON COLUMNS
+ FROM [SteelWheelsSales]]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="mdx_products" id="mdx_products" type="mdx">
+      <Name>mdx_products</Name>
+      <BandedMode>compact</BandedMode>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="" name="param_year" type="String"/>
+         <Parameter default="" name="param_product" type="String"/>
+      </Parameters>
+      <Query><![CDATA[With 
+    Member [Measures].[Ordinal]     as '[Product].CurrentMember.Ordinal'
+    Member [Measures].[UniqueName]  as '[Product].CurrentMember.UniqueName'
+    Member [Measures].[Childrens]   as 'Count([Product].CurrentMember.Children)'
+SELECT
+NON EMPTY {[Measures].[Sales], [Measures].[Ordinal], [Measures].[UniqueName], [Measures].[Childrens]} ON COLUMNS,
+NON EMPTY 
+    ${param_product}
+ ON ROWS
+FROM [SteelWheelsSales]
+where 
+ ([Time].[${param_year}])]]></Query>
+   </DataAccess>
+</CDADescriptor>

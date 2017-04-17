@@ -38,7 +38,8 @@ Add the following to `~/.bash_profile` (adjust if required):
 ## HADOOP
 
 export HADOOP_HOME=/Applications/Development/Hadoop/hadoop-2.6.0
-export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+export PATH=$PATH:$HADOOP_HOME/sbin
+export PATH=$PATH:$HADOOP_HOME/bin
 ```
 
 `JAVA_HOME` must be set in `~/.bash_profile` already.
