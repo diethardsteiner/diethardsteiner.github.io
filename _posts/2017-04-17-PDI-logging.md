@@ -1,19 +1,21 @@
 ---
 layout: post
-title:  "Customising Logging"
+title:  "Log4J and Pentaho"
 summary: 
-date: 2017-04-17
+date: 2017-04-19
 categories: PDI
 tags: PDI
-published: false
+published: true
 ---
 
 # Log4j explained
 
-Mostly copied from [here](https://logging.apache.org/log4j/1.2/manual.html):
+Mostly copied from [here](https://logging.apache.org/log4j/1.2/manual.html).
+
+Log4J consists of following parts:
 
 - **Loggers**: Categorise the logging space. Loggers are named entities and follow a hierarchical naming rule, e.g. `com.foo`: `com` is the parent of `foo`. Loggers may be assigned **Levels**: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` and `FATAL` (from very to least verbose).
-- **Appenders**: An appender is an output destination, e.g. console, file etc. More than one appender can be attached to a **logger**. Each enabled logging request for a given logger will be forwarded to all the appneders in that logger as well as the appenders higher in the hierarchy. For example, if a console appender is added to the root logger, then all enabled logging requests will at least print on the console. If in addition a file appender is added to a logger, say C, then enabled logging requests for C and C's children will print on a file and on the console. So in other words, children inherit appenders defined in the ancestors unless the **additivity flag** is set to `false`. 
+- **Appenders**: An appender is an output destination, e.g. console, file etc. More than one appender can be attached to a **logger**. Each enabled logging request for a given logger will be forwarded to all the appenders in that logger as well as the appenders higher in the hierarchy. For example, if a console appender is added to the root logger, then all enabled logging requests will at least print on the console. If in addition a file appender is added to a logger, say C, then enabled logging requests for C and C's children will print on a file and on the console. So in other words, children inherit appenders defined in the ancestors unless the **additivity flag** is set to `false`. 
 - **Layouts**: This allows you to define what should go into the line of the log file. This can be configured via **patterns**.
 
 
@@ -41,29 +43,19 @@ To:
 <priority value ="INFO"></priority>
 ```
 
-When you start up Spoon now and watch the log, you'll realise that we have 3 different log formats now, e.g.:
-
-```
-Apr 13, 2017 5:01:34 PM org.apache.cxf.endpoint.ServerImpl initDestination
-INFO: Setting the server's publish address to be /i18n
-SLF4J: Class path contains multiple SLF4J bindings.
-SLF4J: Found binding in [jar:file:/home/dsteiner/apps/pdi-ce-7.0/launcher/../lib/slf4j-log4j12-1.7.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: Found binding in [jar:file:/home/dsteiner/apps/pdi-ce-7.0/plugins/pentaho-big-data-plugin/lib/slf4j-log4j12-1.7.3.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
-SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
-2017/04/13 17:01:34 - RepositoriesMeta - Reading repositories XML file: /home/dsteiner/.kettle/repositories.xml
-2017-04-13 17:01:34.795 INFO  di:61 - RepositoriesMeta - Reading repositories XML file: /home/dsteiner/.kettle/repositories.xml
-```
-
-Notice: `Apr 13, 2017 5:01:34 PM` vs `2017/04/13 17:01:34` vs `2017-04-13 17:01:34.795`. Not so cool.
-
-To resolve this, add or change the following **Kettle Properties**:
+Change the following **Kettle Properties**:
 
 ```
 KETTLE_REDIRECT_STDERR=Y
 KETTLE_REDIRECT_STDOUT=Y
+KETTLE_DISABLE_CONSOLE_LOGGING=Y
 ```
 
+Once you run a job or transformation, the log lines should be printed with milliseconds. When you run Spoon and look at the linked console output, you will notice that other appenders are also publishing details - these appenders write log lines with a different timestamp format.
+
+![](/images/pdi-milliseconds-logging.png)
+
+Thanks a lot to Pentaho wizard Alex Schurman for providing these details.
 
 # Pentaho Server
 
@@ -89,3 +81,5 @@ The first category `mondrian` prints everything that's Mondrian related. The oth
 Here again you can see the hierarchical structure of log4j.
 
 If you want to see absolutely everything logged about Mondrian, enable the first appender.
+
+A lot of other Pentaho products use **Log4J**, so once you understand the basics for one product, adjusting logging with the other products will be a piece of cake.
