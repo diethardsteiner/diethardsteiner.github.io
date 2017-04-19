@@ -533,6 +533,6 @@ And here our final result:
 
 ![](/images/mdx-drilldownmember/mdx-drilldownmember-16.png)
 
-The Dashboard can be downloaded from [here](/sample-files/cde/MDX-Drilldownmember).
+The Dashboard can be downloaded from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/cde/MDX-Drilldownmember).
 
 Finally, special thanks to Nelson Sousa for his insightful contribution.

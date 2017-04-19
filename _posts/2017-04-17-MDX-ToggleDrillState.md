@@ -139,5 +139,5 @@ WHERE
 
 As you can see from the last result, existing drill downs dont' get closed when navigating several times up and down (see last screenshot). The approach we used basically records all the drill downs and ups you were performing, so over time the query can get quite verbose. You could certainly counteract this by including a bit more logic in CDE (so that lower levels get automatically excluded once you drill up / drill down from a higher level member).
 
-Overall though this is a very useful and easy to use function and I am glad it got pointed out by a vivid reader of this very blog post. Raúl adjusted my example to take advantage of `ToggleDrillState` - you can download his version of the dashboard from [here](/sample-files/cde/MDX-ToggleDrillState-Example-By-Raul-Micharet).
+Overall though this is a very useful and easy to use function and I am glad it got pointed out by a vivid reader of this very blog post. Raúl adjusted my example to take advantage of `ToggleDrillState` - you can download his version of the dashboard from [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/cde/MDX-ToggleDrillState-Example-By-Raul-Micharet).
 
