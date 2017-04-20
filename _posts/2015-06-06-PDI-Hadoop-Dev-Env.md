@@ -12,7 +12,7 @@ Recently I realized that I hadn't written a blogpost about **Pentaho Data Integr
 
 [Dan Keeley](https://dankeeley.wordpress.com) published an interesting blogpost on installing the **Cloudera Hadoop** distribution some time ago to illustrate a way to test **PDI** with **Hadoop** on an environment with limited resources. 
 
-In this article I'd like to explain how to set up **Vanilla Hadoop** and configure **PDI** for it. For our development evironment we might only need HDFS and Hive. Although setting up Hadoop might sound like an extermely complex task, the reality is that it is usually fairly straight forward (unless you hit a few bugs). We will first install **Apache Hadoop**, then **Apache Hive** and finally configure **Pentaho Data Integration** to access these services. **Pentaho Data Integration** allows you to import data to Hadoop from a variate of sources (databases, text file etc), create **MapReduce jobs** and also export the data to a variaty of destinations, all this via a simple to use GUI (without any coding). All this functionality is available in the **open source** edition! I bet you are really motivated by now, so let's see how this is done: 
+In this article I'd like to explain how to set up **Vanilla Hadoop** and configure **PDI** for it. For our development evironment we might only need HDFS and Hive. Although setting up Hadoop might sound like an extremely complex task, the reality is that it is usually fairly straight forward (unless you hit a few bugs). We will first install **Apache Hadoop**, then **Apache Hive** and finally configure **Pentaho Data Integration** to access these services. **Pentaho Data Integration** allows you to import data to Hadoop from a variate of sources (databases, text file etc), create **MapReduce jobs** and also export the data to a variety of destinations, all this via a simple to use GUI (without any coding). All this functionality is available in the **open source** edition! I bet you are really motivated by now, so let's see how this is done: 
 
 # Apache Hadoop and Hive Installation: Minimal Dev Environment
 
@@ -291,18 +291,18 @@ stop-dfs.sh
 
 Then source the bash profile file.
 
-## Installing Hive ##
+## Installing Hive
 
 ### Initial Setup
 
 Some sources mention to first create the dedicated Hive directory on HDFS, however, this is not really necessary, as once you create a managed Hive table, Hive will automatically create this directory:
 
 ```
-hadoop fs -mkdir /user/hive/warehouse
+hadoop fs -mkdir -p /user/hive/warehouse
 hadoop fs -chmod g+w /user/hive/warehouse
 ```
 
-You will also need a permanent HDFS directory, because otherwise the Metastore will get confused (as the HDFS data gets delete with every restart of the machine).
+You will also need a permanent **HDFS** directory, because otherwise the **Metastore** will get confused (as the HDFS data gets delete with every restart of the machine).
 
 Download **Hive** from [here](http://hive.apache.org/downloads.html) and extract it in a convenient location. 
 
@@ -315,13 +315,19 @@ export PATH=$PATH:$HIVE_HOME/bin
 
 Source `.bash_profile` and then you can start the **Hive** shell like this:
 
-> **WARNING**: When issuing the below command, the Hive **Metastore** will be created in the same directory as the command was issued from. For this reason make sure that you are in a suitable directory before issuing this command the first time. The Megastore is stored in a directory called `metastore_db`. For this mode an embedded Derby database is used, to which **only one user at a time can connect**.
+> **WARNING**: When issuing the below command, the Hive **Metastore** will be created in the same directory as the command was issued from. For this reason make sure that you are in a suitable directory before issuing this command the first time. The Metastore is stored in a directory called `metastore_db`. For this mode an embedded Derby database is used, to which **only one user at a time can connect**.
 
 ```
 hive
 ```
 
 Now issue SQL commands like `SHOW TABLES` etc.
+
+If Hive returns errors on startup and then exits, search the log for errors. If there is not enough info, run Hive in debug mode:
+
+```
+hive -hiveconf hive.root.logger=DEBUG,console
+```
 
 ### Setting up a local metastore
 
@@ -335,58 +341,97 @@ Create the database upfront (e.g. for PostgreSQL):
 
 ```sql
 CREATE DATABASE hive_metastore_db;
+-- CREATE DATABASE hive_stats;
 ```
 
 Configuration ([hive-site.xml](https://cwiki.apache.org/confluence/display/Hive/AdminManual+Configuration#AdminManualConfiguration-ConfiguringHive))
 
-Add the respective JDBC driver to `$HIVE_HOME/lib` directory. In the `$HIVE_HOME/conf` directory take a copy of `hive-default.xml.template` and rename it to `hive-site.xml`. Open this file and delete everything between the `<configuration>` tags and then add this inside it (adjust to your settings):
+Find the [Metadstore Admin Manual here](https://cwiki.apache.org/confluence/display/Hive/AdminManual+MetastoreAdmin).
 
-This is an example for PostgreSQL (although when starting hive it showed some weird exception ` INFO metastore.MetaStoreDirectSql: MySQL check failed, assuming we are not on mysql: ERROR: syntax error at or near "@@"` - so I chose to go with MySQL instead - find config details further down):
+Find some info on how to configure the Hive Stats DB [here](http://www.cloudera.com/documentation/manager/5-0-x/Cloudera-Manager-Managing-Clusters/cm5mc_hive_table_stats.html).
+
+Add the respective **JDBC driver** to `$HIVE_HOME/lib` directory. 
+
+In the `$HIVE_HOME/conf` directory take a copy of `hive-default.xml.template` and rename it to `hive-site.xml`. 
+
+> **Note**: Since Hive 0.14 you can put all **Metastore specific settings** into `hivemetastore-site.xml` and **HiveServer2 specific settings** into `hiveserver2-site.xml`. This is optional, so you can still stick everything into `hive-site.xml`. A few properties, like `hive.metastore.uris` are expected to be in both `hive-site.xml` and `hivemetastore-site.xml`, so for simplicity sake, we progress with using just `hive-site.xml`.
+
+Open this file and delete everything between the `<configuration>` tags and then add this inside it (adjust to your settings):
+
+This is an example for PostgreSQL:
 
 **PostgreSQL**:
 
 ```xml
 <configuration>
-<property>
-  <name>javax.jdo.option.ConnectionURL</name>
-  <value>jdbc:postgresql://localhost:5432/hive_metastore_db</value>
-  <description>JDBC connect string for a JDBC metastore</description>
-</property>
-
-<property>
-  <name>javax.jdo.option.ConnectionDriverName</name>
-  <value>org.postgresql.Driver</value>
-  <description>Driver class name for a JDBC metastore</description>
-</property>
-
-<property>
-  <name>javax.jdo.option.ConnectionUserName</name>
-  <value>postgres</value>
-  <description>username to use against metastore database</description>
-</property>
-
-<property>
-  <name>javax.jdo.option.ConnectionPassword</name>
-  <value>postgres</value>
-  <description>password to use against metastore database</description>
-</property>
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:postgresql://localhost:5432/hive_metastore_db</value>
+    <description>JDBC connect string for a JDBC metastore</description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>org.postgresql.Driver</value>
+    <description>Driver class name for a JDBC metastore</description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionUserName</name>
+    <value>postgres</value>
+    <description>username to use against metastore database</description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>postgres</value>
+    <description>password to use against metastore database</description>
+  </property>
+  <property>
+    <name>datanucleus.autoStartMechanism</name>
+    <value>SchemaTable</value>
+  </property>
   <property>
     <name>datanucleus.fixedDatastore</name>
     <value>true</value>
-    <description></description>
+    <description/>
   </property>
   <property>
     <name>datanucleus.autoCreateSchema</name>
     <value>false</value>
-    <description></description>
+    <description/>
   </property>
   <property>
     <name>hive.metastore.uris</name>
     <value>thrift://127.0.0.1:9083</value>
-    <description></description>
+    <description/>
   </property>
+  <property>
+    <name>hive.server2.enable.doAs</name>
+    <value>false</value>
+  </property>
+  <!-- only MySQL supported
+  <property>
+    <name>hive.stats.dbclass</name>
+    <value>jdbc:postgresql</value>
+    <description/>
+  </property>
+  <property>
+    <name>hive.stats.dbconnectionstring</name>
+    <value>jdbc:postgresql://localhost:5432/hive_stats?user=postgres&password=postgres</value>
+    <description/>
+  </property>
+  <property>
+    <name>hive.stats.jdbcdriver</name>
+    <value>org.postgresql.Driver</value>
+    <description/>
+  </property>
+  <property>
+    <name>hive.aux.jars.path</name>
+    <value>file:///home/dsteiner/apps/apache-hive-2.1.1-bin/lib/postgresql-42.0.0.jar</value>
+    <description/>
+  </property>
+  -->
 </configuration>
 ```
+
 
 **MySQL**: Make sure the DB user has a password otherwise it will not work.
 
@@ -397,57 +442,180 @@ This is an example for PostgreSQL (although when starting hive it showed some we
     <value>jdbc:mysql://localhost:3306/hive_metastore_db?createDatabaseIfNotExist=true</value>
     <description>JDBC connect string for a JDBC metastore</description>
   </property>
-  
   <property>
     <name>javax.jdo.option.ConnectionDriverName</name>
     <value>com.mysql.jdbc.Driver</value>
     <description>Driver class name for a JDBC metastore</description>
   </property>
-  
   <property>
     <name>javax.jdo.option.ConnectionUserName</name>
     <value>root</value>
     <description>username to use against metastore database</description>
   </property>
-  
   <property>
     <name>javax.jdo.option.ConnectionPassword</name>
     <value>root</value>
     <description>password to use against metastore database</description>
   </property>
-  
   <property>
     <name>hive.metastore.warehouse.dir</name>
     <value>/user/hive/warehouse</value>
     <description>location of default database for the warehouse</description>
   </property>
   <property>
+    <name>datanucleus.autoStartMechanism</name>
+    <value>SchemaTable</value>
+  </property>
+  <property>
     <name>datanucleus.fixedDatastore</name>
     <value>true</value>
-    <description></description>
+    <description/>
   </property>
   <property>
     <name>datanucleus.autoCreateSchema</name>
     <value>false</value>
-    <description></description>
+    <description/>
   </property>
   <property>
     <name>hive.metastore.uris</name>
     <value>thrift://127.0.0.1:9083</value>
-    <description></description>
+    <description/>
   </property>
+  <property>
+    <name>hive.server2.enable.doAs</name>
+    <value>false</value>
+  </property>
+  <!--
+  <property>
+    <name>hive.stats.dbclass</name>
+    <value>jdbc:mysql</value>
+  </property>
+  <property>
+    <name>hive.stats.jdbcdriver</name>
+    <value>com.mysql.jdbc.Driver</value>
+  </property>
+  <property>
+    <name>hive.stats.dbconnectionstring</name>    <value>jdbc:mysql://<stats_mysql_host>:3306/<stats_db_name>?useUnicode=true&amp;characterEncoding=UTF-8&amp;
+             user=<stats_user>&amp;password=<stats_password></value>
+  </property>
+  <property>
+    <name>hive.aux.jars.path</name>
+    <value>file:///usr/share/java/mysql-connector-java.jar</value>
+  </property>
+  -->
 </configuration>
 ```
 
 > **Note**: These are the correct settings as well for using **HiverServer2**. The last 3 properties I copied from the CDH VM Hive settings.
 
-Now start the Hive CLI like this to see the log output in the terminal:
+Create the tables:
+
+```bash
+schematool --verbose -dbType postgres -initSchema
+```
+
+Some notes on certain properties:
+
+`hive.server2.enable.doAs`: This is related to **HiveServer2**, which we will take a look at a bit later on. When connecting via a client to **HiveServer2**, this property specifies whether **HiveServer2** should impersonate the connected user or not. For our little and simple set up we want to disable this so that we can log on without username and password.
+
+Note that you can configure various authentication mechanisms via HiveServer2, see [here](https://community.hortonworks.com/questions/21955/create-new-hive-user.html) for more details.
+
+You also see a commented section for the **Hive Stats DB**:
+
+- `hive.stats.dbclass`
+- `hive.stats.dbconnectionstring`
+- `hive.stats.jdbcdriver`
+
+> **Note**: Hive table statistics are not supported for PostgreSQL or Oracle - MySQL only!
+
+The reason why I commented/disabled them is that table and column stats show up with out this extra DB any ways. You can check this be running e.g.:
+
+```sql
+CREATE TABLE test (foo STRING, bar STRING);
+
+ANALYZE TABLE test COMPUTE STATISTICS;
+DESCRIBE EXTENDED test;
+ANALYZE TABLE test COMPUTE STATISTICS FOR COLUMNS;
+DESCRIBE EXTENDED test;
+
+-- this one shows up in the metastore, not the dedicated stats db
+SELECT * FROM "TAB_COL_STATS";
+```
+
+I am not too sure what the purpose of this dedicated stats database is, the manual says that it **stores temporary hive statistics** ... but no more details are given.
+
+The **Metastore** has to run as a **service**. Start it like this:
+
+```
+hive --service metastore
+```
+
+You might get following error:
+
+```
+MetaException(message:Version information not found in metastore. )
+```
+
+Just as an interesting side node: This days Hive includes a [Hive Schema Tool](https://cwiki.apache.org/confluence/display/Hive/Hive+Schema+Tool), which can be used to verify if the Metastore schema is suitable for the version of Hive used. It also enables you via a command line tool to initialise (create) the schema and also upgrade it from one version to the next. The error message we saw above is returned by the schema validator of this very tool, but in our case it means that some tables are missing. To resolve the issue, we can simply use this command:
+
+```bash
+schematool -dbType postgres -info
+```
+
+In my case this returned:
+
+```
+org.apache.hadoop.hive.metastore.HiveMetaException: Failed to get schema version.
+Underlying cause: org.postgresql.util.PSQLException : ERROR: relation "VERSION" does not exist
+```
+
+When I checked which tables existed (using `psql`), I saw that only a few tables were created. I recreated the database and create the schema with the Hive `schematool`:
+
+```bash
+# drop existing database
+psql -Upostgres -c "DROP DATABASE hive_metastore_db;"
+# create database
+psql -Upostgres -c "CREATE DATABASE hive_metastore_db;"
+# create the hive metastore schema
+schematool --verbose -dbType postgres -initSchema
+# validate hive metastore schema
+schematool -dbType postgres -info
+# start hive metastore service
+hive --service metastore
+```
+
+So taking the learnings from this error, it is better if we use the `schematool` to create the schema instead of the `datanucleus.autoCreateSchema=true` setting in the `hive-site.xml`.
+
+Another note on using **PostgreSQL** with Hive. Since most of the metastore tables are in upper case, you have to quote them when selecting from them:
+
+```sql
+hive=# SELECT * FROM VERSION;
+ERROR:  relation "version" does not exist
+LINE 1: SELECT * FROM VERSION;
+                      ^
+hive=# 
+hive=# SELECT * FROM "VERSION";
+ VER_ID | SCHEMA_VERSION |      VERSION_COMMENT       
+--------+----------------+----------------------------
+      1 | 2.1.0          | Hive release version 2.1.0
+```
+
+
+Now start the Hive CLI **in a new terminal tab** like this to see the log output in the terminal:
 
 ```
 hive --hiveconf hive.root.logger=INFO,console
 ```
 
-For MySQL I got following error:
+And finally, another note on **PostgreSQL**: If you are tempted to use a dedicated schema within the database, don't try, it won't work. The reason for this is that within the Metastore DDL the `search_path` is set to `public`, so this schema is used even if you try to add `searchpath=<yourSchema>` or `currentSchema=<yourSchema>` to the connection URL. You can find the metastore DDL following folder:
+
+```
+scripts/metastore/upgrade/postgres/
+# there is one file for each version, example:
+scripts/metastore/upgrade/postgres/hive-schema-0.14.0.postgres.sql
+```
+
+For **MySQL** I got following error:
 
 ```
 ERROR DataNucleus.Datastore: Error thrown executing CREATE TABLE `SERDE_PARAMS`
@@ -477,15 +645,17 @@ CREATE TABLE `SERDE_PARAMS`
 
 You should be able to start Hive CLI without problems now.
 
+Since Hive is moving away from MapReduce to Spark, you should also have a look at [Hive on Spark: Getting Started](Hive on Spark: Getting Started)
+
 ### HiveServer2
 
-To connect to Hive via JDBC, we have to set up **HiveServer2**. 
+To connect to Hive via JDBC (and beeline client, which uses JDBC), we have to set up **HiveServer2**. 
 
 > **Note**: These days **Hive** supports transactions (ACID) and also the `UPDATE` and `DELETE` command. These features rely on dedicated locking tables in the metastore tables, which are managed by at least one **Zookeeper** instance ([Source](http://www.cloudera.com/content/cloudera/en/documentation/cdh4/v4-3-1/CDH4-Installation-Guide/cdh4ig_topic_18_5.html)). For our setup, we do not require any of these features and hence also not **Zookeeper**.
 
-Configuring **HiveServer2**: For the very basic setup no configuration is required. If you require transaction etc, then you will have to amend the configuration details.
+Configuring **HiveServer2**: For the very basic setup no configuration is required. If you require transaction etc, then you will have to amend the configuration details. See for more details [Setting Up HiveServer2](https://cwiki.apache.org/confluence/display/Hive/Setting+Up+HiveServer2)
 
-Next let's start HiveServer2:
+Next let's start **HiveServer2**:
 
 ```
 hiveserver2
@@ -510,9 +680,31 @@ DROP DATABASE hive_metastore_db;
 CREATE DATABASE hive_metastore_db character set latin1;
 ```
 
-Then I executed `scripts/metastore/update/hive-schema-0.14.0.mysql.sql`. After restarting the HiveServer2 the error message were gone.
+Then I executed `scripts/metastore/update/hive-schema-0.14.0.mysql.sql`. After restarting the HiveServer2 the error message was gone.
 
-Now shutdown hiveserver2. 
+If **HiveServer2** started successfully, try to connect via beeline:
+
+```
+$ beeline
+beeline> !connect jdbc:hive2://localhost:10000
+```
+
+You will be prompted for username and password, which you can leave empty.
+
+**Errors**
+
+I got following error (essential bits shown only):
+
+```
+Error: Could not establish connection to jdbc:hive2://localhost:10000: Required field 'serverProtocolVersion' is unset!
+...
+errorCode:0, errorMessage:Failed to open new session: java.lang.RuntimeException: org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.security.authorize.AuthorizationException): User: dsteiner is not allowed to impersonate dsteiner), serverProtocolVersion:null) (state=08S01,code=0)
+```
+
+This was related to `hive.server2.enable.doAs`. Setting it to `false` solved the problem.
+
+[Source 1](https://community.hortonworks.com/questions/34468/hive-impersonation-not-working-after-hdp-upgrade-t.html)
+[Source 2](https://www.cloudera.com/documentation/enterprise/5-7-x/topics/cdh_sg_hiveserver2_security.html)
 
 
 **Validate Hive Installation**
@@ -555,7 +747,7 @@ You will be asked for:
 
 More info: [Apache Wiki Reference](https://cwiki.apache.org/confluence/display/Hive/Setting+Up+HiveServer2)
 
-### Creating Start and Stop Scripts ###
+### Creating Start and Stop Scripts
 
 If everything worked as expected, we can create the following shell files to conveniently start and stop the Hive services (adjust the DB commands).
 
