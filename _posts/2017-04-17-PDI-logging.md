@@ -28,9 +28,9 @@ Change:
 ```xml
 <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
 ...
-<level value="INFO"/>
+<level value="NONE"/>
 ...
-<priority value ="INFO"></priority>
+<priority value ="NONE"></priority>
 ```
 
 To:
@@ -43,6 +43,8 @@ To:
 <priority value ="INFO"></priority>
 ```
 
+Instead of `INFO` you can also set it to `DEBUG` if you need more details.
+
 Change the following **Kettle Properties**:
 
 ```
@@ -54,6 +56,21 @@ KETTLE_DISABLE_CONSOLE_LOGGING=Y
 Once you run a job or transformation, the log lines should be printed with milliseconds. When you run Spoon and look at the linked console output, you will notice that other appenders are also publishing details - these appenders write log lines with a different timestamp format.
 
 ![](/images/pdi-milliseconds-logging.png)
+
+
+The mapping of error level from PDI to Log4J is not one to one:
+
+PDI | Log4J
+------------|-------------
+BASIC | INFO
+MINIMAL | INFO
+DEBUG | DEBUG
+ERROR | ERROR
+DETAILED | INFO
+ROWLEVEL | DEBUG
+NOTHING | OFF
+
+[Source](https://github.com/pentaho/pentaho-kettle/blob/master/plugins/kettle5-log4j-plugin/src/org/pentaho/di/core/logging/KettleLogChannelAppender.java#L47)
 
 Thanks a lot to Pentaho wizard Alex Schurman for providing these details.
 
