@@ -772,6 +772,23 @@ Find some more interesting info on the [Hortonworks Wiki](http://docs.hortonwork
 
 More info on [Hive Clients](https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Clients).
 
+# Final Cross Check - Basic Hadoop Setup
+
+Check that all processes are running. A very quick way to do so is using `jps`:
+
+```bash
+$ jps
+4066 JobHistoryServer
+3811 NodeManager
+3238 DataNode
+3463 SecondaryNameNode
+4458 Jps
+3053 NameNode
+4222 RunJar
+3646 ResourceManager
+4223 RunJar
+```
+
 # Pentaho Data Integeration (PDI) and Hadoop
 
 ## Installing PDI

@@ -20,11 +20,22 @@ PDI comes bundled with a few steps that allow you to extract metadata from file 
 
 ## How to get file metadata
 
+`Get File Names`
+
+
+`File Metadata` (from the Marketplace)
+
 [Apache Tika](https://tika.apache.org/) "toolkit detects and extracts metadata and text from over a thousand different file types (such as PPT, XLS, and PDF)".
 
 ## How to get database table metadata
 
-A very classic approach has been to use a combination of the **Table input** step and **Get Metadata from Stream** step to get the most essential metadata. You would configure the **Table input** step to just source one record, something like this:
+
+`Get tables names from database`: Returns **Catalogs**, **Schemas**, **Tables**, **Views**, **Procedures** and/or **Synonyms**. The screenshot below shows the list of schemas return from a PostgreSQL database. Note that we disabled the retrieval of tables and views here as you cannot do this at the same time:
+
+![](pdi-get-metadata-1.png)
+
+
+A very classic approach has been to use a combination of the `Table input` step and `Metadata from Stream` step to get the most essential metadata. You would configure the **Table input** step to just source one record, something like this:
 
 ```sql
 SELECT
@@ -34,3 +45,5 @@ LIMIT 1
 ```
 
 This works fine and is the default approach in older versions of PDI.
+
+`JDBC Metadata` (from the Marketplace)
