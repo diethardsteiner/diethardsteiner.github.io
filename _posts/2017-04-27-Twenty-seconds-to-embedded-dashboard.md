@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "20 Seconds to Embedding a CDE Dashboard and Fixing RequireJS Cache Problem"
+title: "20 Seconds to Embedding a CDE Dashboard and RequireJS"
 summary: This article discusses how to embed a CDE dashboard in an external site
 date: 2017-04-27
 categories: CDE
@@ -77,7 +77,11 @@ The most basic skeleton looks like this (read inline comments):
 </html>
 ```
 
-## Adding JS resources
+## Adding the JavaScript resources
+
+Embedding CDE Dashboards was one of the main reasons why **RequireJS** support was introduced a while back in CDE (around Pentaho Server version 5). First of all dashboard objects shouldn't polute the global space (avoiding conflicts with variable names that are in common with your custom scripts) and secondly only resources required to render that particular dashboard should be downloaded, not all of them. We will go through an extremely simple example here. 
+
+> **Note**: When you create a new **CDE Dashboard**, in the settings panel the option to use **RequireJS** is enabled by default.
 
 We follow the **RequireJS** approach outlined [here](http://redmine.webdetails.org/projects/cde/wiki/RequireJS).
 
@@ -93,11 +97,11 @@ define(function() {
 });
 ```
 
-In your dashboard, refernce it as an external resource (as you usually would do, nothing changes here). The CDE **Property Name** that you define for the external resource will be the name of the variable accessible in the dashboard context. So in my case I called it `myOptions`:
+In your CDE dashboard, reference it as an external resource (as you usually would do, nothing changes here). The CDE **Property Name** that you define for the external resource will be the name of the variable accessible in the dashboard context. So in my case I called it `mySpecialOptions`:
 
 ![](/images/cde-embedded/cde-requirejs-1.png)
 
-Once you render the dashboard, take a look at the resources in the dev tools of your web browser, and you should see the in the `generatedContents`
+Once you render the dashboard, take a look at the resources in the dev tools of your web browser, and you should see the details in the `generatedContents`:
 
 ![](/images/cde-embedded/cde-requirejs-2.png)
 
@@ -110,6 +114,47 @@ Browser Debugging Tools: I am using Firefox here, but it will be fairly similar 
 - **Network Manager**: Scroll down the list to find your file. Clicking on the name reveals more info.
 
   ![](/images/cde-embedded/cde-requirejs-4.png)
+
+## Making use of the functions
+
+Following the example above, where we defined `mySpecialOptions` as the Dashboard context variable for our Javascript, we can just make use of it like so (example for **TextComponent** expression):
+
+
+```javascript
+function(){
+  return mySpecialOptions.option1;
+} 
+```
+
+## JavaScript file with dependency on other JavaScript file
+
+So imagine we create a new **JavaScript** file called `myExtendedOptions`, which requires some functionality from our other JavaScript file (`myOptions`). In this case we can reference it like so (here we also reference jquery, although strictly speaking we don't need it):
+
+```javascript
+define(["cdf/lib/jquery", "cde/resources/public/embedded/scripts/myOptions"], function($, myBaseOptions) {
+  return {
+    option1: myBaseOptions.option1
+    , option2: myBaseOptions.option2
+    , option3: 'Light breeze'
+    , option4: 'Snow'
+  };
+});
+```
+
+
+There are a few things to note here:
+
+- **CDE Core Libraries** are referenced using this base path: `cdf/lib/`.
+- Your **Custom JavaScript Files** are referenced using this base path: `cde/resources/`
+- As function parameters the object variables are passed, in this case `$` for JQuery and `myBaseOptions` as reference to the `myOptions` script.
+
+You register this **JavaScript** file with CDE as an external JavaScript file. I gave it the property name `mySpecialExtendedOptions`. Now we can reference it like so (using a **Text Component** again) e.g.:
+
+```javascript
+function(){
+  return mySpecialExtendedOptions.option3;
+} 
+```
 
 ## Issue: Changes in files are not reflected client-side
 
