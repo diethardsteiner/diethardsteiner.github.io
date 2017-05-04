@@ -5,10 +5,10 @@ summary: This article discusses how to embed a CDE dashboard in an external site
 date: 2017-04-27
 categories: CDE
 tags: CDE
-published: false
+published: true
 ---  
 
-While CDE dashboard can be displayed within the Pentaho User Console (the web interface), quite often the requirement is to embed the dashboard within an extrernal site. Luckily these days this is fairly easy to accomplish: We will have a look at how to achieve this using an extremely basic example. 
+While **CDE dashboard** can be displayed within the Pentaho User Console (the web interface), quite often the requirement is to **embed the dashboard** within an extrernal site. Luckily these days this is fairly easy to accomplish: We will have a look at how to achieve this using an extremely basic example. 
 
 ## C-Tools Config Changes
 
@@ -26,8 +26,6 @@ Perform the same change for `pentaho-solutions/system/pentaho-cdf/settings.xml`.
 
 Create your CDE dashboard as usual if you don't have one already.
 
-Create a sample external html page which will allow us to reference the CDE dashboard.
-
 ## Configuring the MyCompany WebApp
 
 We will create an extremely simple web app, which will allow us to embed the dashboard we created earlier on:
@@ -37,7 +35,7 @@ $ cd <pentaho-server-root>
 $ mkdir -p tomcat/webapps/mycompany/scripts
 ```
 
-Download requirejs (the minified version) from [here]() and copy it into the `scripts` folder.
+Download requirejs (the minified version) from [here](http://requirejs.org/docs/download.html) and copy it into the `scripts` folder.
 
 Create an `index.html` file and save it inside the `mycompany` folder.
 
@@ -77,6 +75,12 @@ The most basic skeleton looks like this (read inline comments):
 </html>
 ```
 
+As you can see, embedding **CDE Dashboards** is quite straight forward.
+
+An extremely simple example:
+
+![](/images/cde-embedded/cde-embedded-1.png)
+
 ## Adding the JavaScript resources
 
 Embedding CDE Dashboards was one of the main reasons why **RequireJS** support was introduced a while back in CDE (around Pentaho Server version 5). First of all dashboard objects shouldn't polute the global space (avoiding conflicts with variable names that are in common with your custom scripts) and secondly only resources required to render that particular dashboard should be downloaded, not all of them. We will go through an extremely simple example here. 
@@ -89,7 +93,6 @@ Create you JavaScript file. Make sure it follows the **AMD module** convention. 
 
 ```javascript
 define(function() {
-
   return {
     option1: 'Eternal sunshine',
     option2: 'Tropical thunderstorms'
@@ -105,7 +108,7 @@ Once you render the dashboard, take a look at the resources in the dev tools of 
 
 ![](/images/cde-embedded/cde-requirejs-2.png)
 
-Browser Debugging Tools: I am using Firefox here, but it will be fairly similar in other web browsers. You can get hold of info on your javascript file the following way:
+**Browser Debugging Tools**: I am using Firefox here, but it will be fairly similar in other web browsers. You can get hold of info on your javascript file the following way:
 
 - **Debugger > Sources**: `myOptions` shows up there:
 
@@ -148,7 +151,7 @@ There are a few things to note here:
 - Your **Custom JavaScript Files** are referenced using this base path: `cde/resources/`
 - As function parameters the object variables are passed, in this case `$` for JQuery and `myBaseOptions` as reference to the `myOptions` script.
 
-You register this **JavaScript** file with CDE as an external JavaScript file. I gave it the property name `mySpecialExtendedOptions`. Now we can reference it like so (using a **Text Component** again) e.g.:
+You register this **JavaScript** file with CDE as an external JavaScript file. I gave it the **property name** `mySpecialExtendedOptions`. Now we can reference it like so (using a **Text Component** again) e.g.:
 
 ```javascript
 function(){
@@ -178,8 +181,7 @@ Ok, based on this we can change our external HTML file (where we embed the conte
     <script type="text/javascript" src="http://localhost:8080/pentaho/plugin/pentaho-cdf-dd/api/renderer/cde-embed.js"></script>
 ```
 
-> **Note**: You will have to clear the cache once using `CTRL+R` after implementing this changes, but thereafter no cache-clearing should be necessary any more!
-
+> **Note**: You will have to clear the cache once using `CTRL+R` after implementing these changes, but thereafter no cache-clearing should be necessary any more!
 
 The approach shown above is ideal for developing, when you release your code you want to use a more static approach as we do not want to load all the dependencies each time in the client/web browser, e.g.:
 
@@ -197,4 +199,10 @@ The approach shown above is ideal for developing, when you release your code you
 
 Naturally you could also have some release script set the version value for you.
 
-If you wanted to add this code snipped directly in **CDE** ... [OPEN]
+If you wanted to add this code snipped directly in **CDE**, there is currently no way of doing this. You can change the following Pentaho Server system CDF config file:
+
+```
+pentaho-cdf-dd/js/cde-require-js-cfg.js
+```
+
+Just be careful, as this file will be overwritten with each update of CDF, so you should have a deployment process in place which takes care of this problem.
