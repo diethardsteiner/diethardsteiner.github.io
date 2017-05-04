@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "20 Seconds to Embedding a CDE Dashboard and RequireJS"
+title: "20 Seconds to Embedding a CDE Dashboard"
 summary: This article discusses how to embed a CDE dashboard in an external site
 date: 2017-04-27
 categories: CDE
