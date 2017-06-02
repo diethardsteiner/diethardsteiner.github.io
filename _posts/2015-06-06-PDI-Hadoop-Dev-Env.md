@@ -881,9 +881,9 @@ Info about Shims:
 - [Shims on CI](http://ci.pentaho.org/view/Big%20Data/job/pentaho-hadoop-shims-5.3/): There are several shim sections, 5.3 is just one of them, so search around in the **Big Data** section and try to find the right one. Then click on **Last Successful Artifacts**, on the next page choose the shim you want from the folder. On the next page click on the `dist` folder. Then finally all the files are shown. Choose the package file to download, e.g. `pentaho-hadoop-shims-hdp22-package-5.3-SNAPSHOT.zip`.
 
 
-## Using HDFS ##
+## Using HDFS
 
-### How Do I Connect to HDFS? ###
+### How Do I Connect to HDFS?
 
 To connect to Hadoop you connect directly to the **HDFS namenode**. How do you find out the exact port number? Either inspect `core-site.xml` or you go to the HDFS Namenode website, usually found on `http://localhost:50070/dfshealth.html#tab-overview`. The first heading will reveal the full URL with the port number, e.g.:
 
@@ -891,7 +891,7 @@ To connect to Hadoop you connect directly to the **HDFS namenode**. How do you f
 Overview 'localhost:8020' (active)
 ```
 
-### Specifying the Hadoop Cluster ###
+### Specifying the Hadoop Cluster
 
 Under **View > Jobs > Hadoop Clusters** right click and choose **New**.
 
@@ -917,7 +917,11 @@ If you are not sure about the default Yarn Port, take a look at [this reference]
 
 These settings can be used in job entries like **Pentaho MapReduce**. Note that settings somehow do not get updated in the job if you change the cluster settings. In this case, open the **Pentaho MapReduce** job entry, click on the **Cluster** tab and then **Edit** next to the **Connection** input box. Just click **OK** to confirm the settings and save the job.
 
-### How to Test the Hadoop Connection ###
+Additional Web UIs:
+
+- [NamesNodes overview](localhost:8088/cluster/nodes)
+
+### How to Test the Hadoop Connection
 
 The Hadoop Cluster config panel doesn't have a check connection option. However, the **Hadoop Copy Files** job entry has a **Browse** feature for **File/Folder Destination**, which will allow you to browse HDFS directories and hence will confirm if your connection details are correct.
 

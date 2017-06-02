@@ -36,6 +36,7 @@ SHIFT + CMD + Space | Show variables list
 SHIFT + CMD + arrow OR ALT + CMD + arrow | Align steps/job entries
 ALT + CMD + up or down arrow | Move row up or down in a config table (e.g. Select Values step)
 fn + DEL | Delete row in a config table
+Ctrl+ Cmd + F5 | Open Metastore Browser
 
 ## Text and icons too small on the Retina display
 
