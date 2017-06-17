@@ -11,9 +11,44 @@ published: false
 
 # Components
 
-- Jenkins: CI and CD
-- Artifactory or Nexus: external artifact repositories
-- Ansible: Deployment
+
+Normally, the steps are as follows:
+
+(1) Agile Development (AD)
+
+(2) Continuous Integration (CI) / Integration Test
+
+- Checkout code
+- Compile solution
+- Run unit test
+
+(3) Continuous Delivery
+
+- Same as before and
+- ready to be deployed without human intervention (so this includes a **release**)
+
+(4) Continuous Deployment (CD)
+
+- end-to-end solution deployment into production without any human intervention.
+
+DevOps:
+
+Stages  | AD | CI | CDel | CD | PDI fit (differences)
+--------|----|----|------|----|-----------------
+Code    | X  | X  | X    | X  | no code, but XML (instructions)
+Build   | X  | X  | X    | X  | nothing to compile
+Test    |    | X  | X    | X  | no existing test frameworks
+Release |    |    | X    | X  | static cut of XML
+Deploy  |    |    | X    | X  |
+Operate |    |    |      | X  |
+First stage (Plan) not shown above.
+
+
+Software Packages:
+
+- **Contiuous Integration Server** (e.g. Jenkins with jUnit): CI and CD
+- **Binary Artifact Repository** (e.g. [Artifactory](https://www.jfrog.com/Artifactory) or [Nexus](https://www.sonatype.com/nexus-repository-oss))
+- **Automatic Deployment Framework** (e.g. [Ansible](https://www.ansible.com/)): Deployment
 
 
 # Jenkins
@@ -123,9 +158,24 @@ A **unit test** should be written by the same ETL developer who creates the tran
 
 We can keep unit testing simple: We run our transformation in a dedicated environment with our testing data. **Unit testing is just another environment**: This way we do not have to replace input and output steps - we just create a new environment for performing unit tests. In the simplest case we have one unit test per transformation. We can run the whole master job with our test data. All that we have to do then is to check the output of this process against the expected output (our **golden dataset**). For the comparison we can just use the two Kettle transformation which Andrea Torre highlighted in [this blog post](http://andtorg.github.io/bi/2015/08/12/testing-with-kettle) and a master job.
 
+In general the approach could be:
+
+1. Developer has a local dev environment with synthetic data (which is either provided or the developer creates himself/herself). The developer also prepares the golden dataset. Once her/his transformation passes the unit test, the code gets commit
+2. Integration Test and Unit Test: Run the whole process with the synthetic data in a dedicated environment.
+3. Integration Test with subset of real data
+4. Deploy to Artifactory
+
+Note that each environment is using the same models, so if you use Hadoop in production, all the other environments must be set up in the same way. Unit testing in this case does not mean actually dynamically replacing input and output steps with the test data, as it quite happens with junit etc, but we just run the whole process as is in a dedicated environment with the test data and in addition compare the results to the golden datasets.
+
+Ad 2) Maybe instead of doing everything in PDI, we can just offload the work to the DB directly?
+
+Ad 4) There are no binary artifacts with PDI. Unless maybe you create the environment with a Docker image?
+
+
+
 ---
 
-## Simple Example
+## Our First Pipeline: Run Transformation
 
 First we try without Docker. Our aim it to only clone the repo to a dedicated workspace and run a transformation.
 
@@ -182,3 +232,15 @@ Next click on **Build Now**.
 If the build fails, just click on **Console Output** to understand what went wrong.
 
 ![](/images/pdi-jenkins-ci/pic1.png)
+
+## Publish Code to Artifactory
+
+- [Example here](https://jenkins.io/doc/pipeline/examples/#artifactory-generic-upload-download)
+- [Working With Pipeline Jobs in Jenkins](https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins)
+
+We have to install the [Jenkins Artifactory Plugin](https://github.com/JFrogDev/jenkins-artifactory-plugin) which provides support for **Artifactory** operations as part of the Pipeline script DSL. The plugin provides following features:
+
+- downloading of dependencies
+- uploading of artifacts and 
+- publishing build-info to Artifactory
+

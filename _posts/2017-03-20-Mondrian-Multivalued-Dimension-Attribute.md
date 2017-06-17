@@ -54,41 +54,39 @@ Cube Definition:
 
 ```xml
 <Schema name="Multivalued Dimension Attribute">
-  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Student">
-    <Hierarchy name="Student Name" visible="true" hasAll="true" primaryKey="student_tk">
-      <Table name="dim_student" schema="multivalued">
-      </Table>
-      <Level name="Student Name" visible="true" column="student_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
-      </Level>
+  <Dimension type="StandardDimension" name="Student">
+    <Hierarchy name="Student Name" hasAll="true" primaryKey="student_tk">
+      <Table name="dim_student" schema="multivalued"/>
+      <Level name="Student Name" column="student_name" type="String" uniqueMembers="true" levelType="Regular"/>
     </Hierarchy>
   </Dimension>
-  <Cube name="Grades" visible="true" cache="true" enabled="true">
-    <Table name="fact_grades" schema="multivalued">
-    </Table>
-    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Course Name">
-      <Hierarchy name="Course Name" visible="true" hasAll="true">
-        <Level name="Course Name" visible="true" column="course_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+  <Dimension type="TimeDimension" name="Date">
+    <Hierarchy name="Date" hasAll="true" primaryKey="date_tk">
+      <Table name="dim_date" schema="multivalued"/>
+      <Level name="Date" column="the_date" type="Date" uniqueMembers="true" levelType="TimeDays"/>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="Grades" cache="true" enabled="true">
+    <Table name="fact_grades" schema="multivalued"/>
+    <Dimension type="StandardDimension" name="Course Name">
+      <Hierarchy name="Course Name" hasAll="true">
+        <Level name="Course Name" column="course_name" type="String" uniqueMembers="false" levelType="Regular">
         </Level>
       </Hierarchy>
     </Dimension>
-    <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk">
-    </DimensionUsage>
-    <Measure name="Grade" column="grade" datatype="Integer" aggregator="avg" visible="true">
-    </Measure>
+    <DimensionUsage source="Student" name="Student" foreignKey="student_tk"/>
+    <Measure name="Grade" column="grade" datatype="Integer" aggregator="avg"/>
   </Cube>
-  <Cube name="Hobbies" visible="true" cache="true" enabled="true">
-    <Table name="fact_student_hobbies" schema="multivalued">
-    </Table>
-    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Hobby Name">
-      <Hierarchy name="Hobby Name" visible="true" hasAll="true">
-        <Level name="Hobby Name" visible="true" column="hobby_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+  <Cube name="Hobbies" cache="true" enabled="true">
+    <Table name="fact_student_hobbies" schema="multivalued"/>
+    <Dimension type="StandardDimension" name="Hobby Name">
+      <Hierarchy name="Hobby Name" hasAll="true">
+        <Level name="Hobby Name" column="hobby_name" type="String" uniqueMembers="false" levelType="Regular">
         </Level>
       </Hierarchy>
     </Dimension>
-    <DimensionUsage source="Student" name="Student" visible="true" foreignKey="student_tk">
-    </DimensionUsage>
-    <Measure name="Count Hobbies" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum" visible="true">
-    </Measure>
+    <DimensionUsage source="Student" name="Student" foreignKey="student_tk"/>
+    <Measure name="Count Hobbies" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum"/>
   </Cube>
 </Schema>
 ```
@@ -162,6 +160,8 @@ Use a **global (conforming) dimension** for this purpose. In our case the `Stude
 <VirtualCubeDimension name="Student"/>
 ```
 
+> **Important**: Note that with the common dimension we do not define the `baseCube` attribute value.
+
 **Q**: Does this then in effect require the definition of `CubeUsage` as well since in this case the `VirtualCubeDimension` element does not specify a value for the `cubeName`? Otherwise how does Mondrian know that this global dimension exists in both base cubes and that it can hence use it to join the base cubes?
 
 **A**: `CubeUsage` is optional and not required. If you reference a global dimension in the **virtual cube**, Mondrian will check the base cubes defined for the **virtual measures** to see if this **global dimension** is referenced in the **base cubes**.
@@ -169,22 +169,19 @@ Use a **global (conforming) dimension** for this purpose. In our case the `Stude
 Full Virtual Cube definition:
 
 ```xml
-  <VirtualCube enabled="true" name="Grades and Hobbies" visible="true">
-    <VirtualCubeDimension visible="true" highCardinality="false" name="Student">
-    </VirtualCubeDimension>
-    <VirtualCubeDimension cubeName="Grades" visible="true" highCardinality="false" name="Course Name">
-    </VirtualCubeDimension>
-    <VirtualCubeDimension cubeName="Hobbies" visible="true" highCardinality="false" name="Hobby Name">
-    </VirtualCubeDimension>
-    <VirtualCubeMeasure cubeName="Hobbies" name="[Measures].[Count Hobbies]" visible="true">
-    </VirtualCubeMeasure>
-    <VirtualCubeMeasure cubeName="Grades" name="[Measures].[Grade]" visible="true">
-    </VirtualCubeMeasure>
-  </VirtualCube>
+<VirtualCube name="Grades and Hobbies" enabled="true">
+  <!-- common dimensions -->
+  <VirtualCubeDimension name="Student"/>
+  <!-- specific dimensions -->
+  <VirtualCubeDimension name="Course Name" cubeName="Grades"/>
+  <VirtualCubeDimension name="Hobby Name" cubeName="Hobbies"/>
+  <VirtualCubeMeasure name="[Measures].[Count Hobbies]" cubeName="Hobbies"/>
+  <VirtualCubeMeasure name="[Measures].[Grade]" cubeName="Grades"/>
+</VirtualCube>
 ```
 
 
-Let's create a list of students with a count of hobbies and the average of grades:
+Let's create a list of students with a **count of hobbies** and the **average of grades**:
 
 ```sql
 SELECT
@@ -432,57 +429,52 @@ The cube definition: In this case **client** is our global dimension which links
 
 ```xml
 <Schema name="Multivalued Dimension Attribute">
-  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="Date">
-    <Hierarchy name="Date" visible="true" hasAll="true" primaryKey="date_tk">
+  <Dimension type="TimeDimension" name="Date">
+    <Hierarchy name="Date" hasAll="true" primaryKey="date_tk">
       <Table name="dim_date" schema="multivalued"/>
-      <Level name="Date" visible="true" column="the_date" type="Date" uniqueMembers="false" levelType="TimeDays" hideMemberIf="Never">
-      </Level>
+      <Level name="Date" column="the_date" type="Date" uniqueMembers="true" levelType="TimeDays"/>
     </Hierarchy>
   </Dimension>
-  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Product">
-    <Hierarchy name="Product Name" visible="true" hasAll="true" primaryKey="product_tk">
+  <Dimension type="StandardDimension" name="Product">
+    <Hierarchy name="Product Name" hasAll="true" primaryKey="product_tk">
       <Table name="dim_product" schema="multivalued"/>
-      <Level name="Product Name" visible="true" column="product_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
-      </Level>
+      <Level name="Product Name" column="product_name" type="String" uniqueMembers="true" levelType="Regular"/>
     </Hierarchy>
   </Dimension>
-  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Client">
-    <Hierarchy name="Client Name" visible="true" hasAll="true" primaryKey="client_tk">
+  <Dimension type="StandardDimension" name="Client">
+    <Hierarchy name="Client Name" hasAll="true" primaryKey="client_tk">
       <Table name="dim_client" schema="multivalued"/>
-      <Level name="Client Name" visible="true" column="client_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
-      </Level>
+      <Level name="Client Name" column="client_name" type="String" uniqueMembers="true" levelType="Regular"/>
     </Hierarchy>
   </Dimension>
-  <Cube name="Sales" visible="true" cache="true" enabled="true">
+  <Cube name="Sales" cache="true" enabled="true">
     <Table name="fact_sales" schema="multivalued"/>
-    <DimensionUsage source="Date" name="Date" visible="true" foreignKey="date_tk" highCardinality="false"/>
-    <DimensionUsage source="Client" name="Client" visible="true" foreignKey="client_tk" highCardinality="false"/>
-    <DimensionUsage source="Product" name="Product" visible="true" foreignKey="product_tk" highCardinality="false"/>
-    <Measure name="Number of Units" column="no_of_units" datatype="Integer" formatString="#,###" aggregator="sum" visible="true"/>
-    <Measure name="Revenue" column="amount_spent" datatype="Numeric" formatString="#,###.00" aggregator="sum" visible="true"/>
+    <DimensionUsage source="Date" name="Date" foreignKey="date_tk"/>
+    <DimensionUsage source="Client" name="Client" foreignKey="client_tk"/>
+    <DimensionUsage source="Product" name="Product" foreignKey="product_tk"/>
+    <Measure name="Number of Units" column="no_of_units" datatype="Integer" formatString="#,###" aggregator="sum"/>
+    <Measure name="Revenue" column="amount_spent" datatype="Numeric" formatString="#,###.00" aggregator="sum"/>
   </Cube>
-  <Cube name="Interests" visible="true" cache="true" enabled="true">
+  <Cube name="Interests" cache="true" enabled="true">
     <Table name="fact_client_interests" schema="multivalued"/>
-    <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Interest Name">
-      <Hierarchy name="Interest Name" visible="true" hasAll="true">
-        <Level name="Interest Name" visible="true" column="interest_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never"/>
+    <Dimension type="StandardDimension" name="Interest Name">
+      <Hierarchy name="Interest Name" hasAll="true">
+        <Level name="Interest Name" column="interest_name" type="String" uniqueMembers="true" levelType="Regular"/>
       </Hierarchy>
     </Dimension>
-    <DimensionUsage source="Client" name="Client" visible="true" foreignKey="client_tk" highCardinality="false">
-    </DimensionUsage>
-    <Measure name="Count Interests" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum" visible="true">
-    </Measure>
+    <DimensionUsage source="Client" name="Client" foreignKey="client_tk"/>
+    <Measure name="Count Interests" column="cnt" datatype="Integer" formatString="#,###" aggregator="sum"/>
   </Cube>
-  </VirtualCube>
-  <VirtualCube enabled="true" name="Sales and Interests" visible="true">
-    <VirtualCubeDimension visible="true" highCardinality="false" name="Client"/>
-    <VirtualCubeDimension cubeName="Sales" visible="true" highCardinality="false" name="Date"/>
-    <VirtualCubeDimension cubeName="Sales" visible="true" highCardinality="false" name="Product"/>
-    <VirtualCubeDimension cubeName="Interests" visible="true" highCardinality="false" name="Interest Name"/>
-    <VirtualCubeMeasure cubeName="Sales" name="[Measures].[Number of Units]" visible="true"/>
-    <VirtualCubeMeasure cubeName="Sales" name="[Measures].[Revenue]" visible="true"/>
-    <VirtualCubeMeasure cubeName="Interests" name="[Measures].[Count Interests]" visible="true">
-    </VirtualCubeMeasure>
+  <VirtualCube name="Sales and Interests" enabled="true">
+    <!-- common dimensions -->
+    <VirtualCubeDimension name="Client"/>
+    <!-- specific dimensions -->
+    <VirtualCubeDimension name="Date" cubeName="Sales"/>
+    <VirtualCubeDimension name="Product" cubeName="Sales"/>
+    <VirtualCubeDimension name="Interest Name" cubeName="Interests"/>
+    <VirtualCubeMeasure name="[Measures].[Number of Units]" cubeName="Sales"/>
+    <VirtualCubeMeasure name="[Measures].[Revenue]" cubeName="Sales"/>
+    <VirtualCubeMeasure name="[Measures].[Count Interests]" cubeName="Interests"/>
   </VirtualCube>
 </Schema>
 ```
@@ -582,3 +574,53 @@ Client Name	| Revenue
 ------------|------------
 Joe | 4.00
 Tim |
+
+# Valid Measure
+
+In some cases you might want to show figures even though in the current selection they are not available. Take this senario:
+
+When we choose `Date`, `Client` and `Product Name`we can see values for `Number of Units` and `Revenue`, but not for `Count Interests`:
+
+![](/images/multi-valued-dimension-attribute/pic2.png)
+
+If we want to see the `Count Interests` figures, but have to choose `Client Name` and `Interest` as dimensions, but in this case `Number of Units` and `Revenue` are empty:
+
+![](/images/multi-valued-dimension-attribute/pic3.png)
+
+Now let's assume we wanted to show the closest `Number of Units` and `Revenue` in this context, how could we implement this. We do know that the closest available figure would be the total by `Client Name`, so basically this figure would be repeated several times. It is always worth confirming with business users if this is indeed an acceptable behaviour.
+
+To implement this, set the original virtual measures to invisible and create a **calculated member** in the **virtual cube** using the `ValidMeasure()` functions, which should reference the original virtual measure. It should like this:
+
+```xml
+<VirtualCube name="Sales and Interests" enabled="true">
+  <!-- common dimensions -->
+  <VirtualCubeDimension name="Client"/>
+  <!-- specific dimensions -->
+  <VirtualCubeDimension name="Date" cubeName="Sales"/>
+  <VirtualCubeDimension name="Product" cubeName="Sales"/>
+  <VirtualCubeDimension name="Interest Name" cubeName="Interests"/>
+  <VirtualCubeMeasure name="[Measures].[Number of Units]" cubeName="Sales" visible="false"/>
+  <VirtualCubeMeasure name="[Measures].[Revenue]" cubeName="Sales" visible="false"/>
+  <VirtualCubeMeasure name="[Measures].[Count Interests]" cubeName="Interests"/>
+  <CalculatedMember name="No of Units" dimension="Measures">
+    <Formula>
+      <![CDATA[
+        ValidMeasure([Measures].[Number of Units])
+      ]]>
+    </Formula>
+  </CalculatedMember>
+  <CalculatedMember name="Total Revenue" dimension="Measures">
+    <Formula>
+      <![CDATA[
+        ValidMeasure([Measures].[Revenue])
+      ]]>
+    </Formula>
+  </CalculatedMember>
+</VirtualCube>
+```
+
+The report based on this new virtual cube will look like this:
+
+![](/images/multi-valued-dimension-attribute/pic1.png)
+
+Here in example for Joe we know that he is interested in cooking, fishing and photography and that in total he has bought 6 units which resulted in a total revenue of 16.
