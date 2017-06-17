@@ -152,7 +152,7 @@ And then we can create a **virtual cube** to answer questions that span both fac
 I recommend reading through the official 
 [Mondrian Docu on Virtual Cubes](http://mondrian.pentaho.com/documentation/schema.php#Virtual_cubes) to understand how to construct virtual cubes.
 
-### Virtual Cube: How to join base cubes
+### Virtual Cube: How to join the base cubes
 
 Use a **global (conforming) dimension** for this purpose. In our case the `Student` dimension links the two fact tables and is defined as global dimension.
 
@@ -160,7 +160,7 @@ Use a **global (conforming) dimension** for this purpose. In our case the `Stude
 <VirtualCubeDimension name="Student"/>
 ```
 
-> **Important**: Note that with the common dimension we do not define the `baseCube` attribute value.
+> **Important**: Note that with the common dimension we do not define the `cubeName` attribute value.
 
 **Q**: Does this then in effect require the definition of `CubeUsage` as well since in this case the `VirtualCubeDimension` element does not specify a value for the `cubeName`? Otherwise how does Mondrian know that this global dimension exists in both base cubes and that it can hence use it to join the base cubes?
 
@@ -624,3 +624,9 @@ The report based on this new virtual cube will look like this:
 ![](/images/multi-valued-dimension-attribute/pic1.png)
 
 Here in example for Joe we know that he is interested in cooking, fishing and photography and that in total he has bought 6 units which resulted in a total revenue of 16.
+
+# Virtual Cubes: Denormalised Fact Tables
+
+Virtual cubes rely on global dimensions, however, if you are dealing with denormalised fact tables, chances are that you use degenerate dimensions. So does this mean you cannot create virtual cubes for them? Not quite. You can trick the system: 
+
+Just create a view for each degenerate table (e.g. `vw_dim_location`) and use this one in the table reference of the global dim. 
