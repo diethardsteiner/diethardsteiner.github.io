@@ -2,10 +2,8 @@
 // which in turn is based on GeoMesa's MapReduce example: http://www.geomesa.org/documentation/tutorials/geomesa-examples-gdelt.html
 // slightly adjusted here to work with GeoMesa 1.3.1
 // test data can be found here: https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/tree/master/geomesa-utils-1.5/src/main/resources
-
+// the test data is also available in this repo in the src/main/resource folder
 package examples
-
-package io.gzet.geomesa.ingest
 
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -37,7 +35,7 @@ object IngestDataWithSpark {
     "zookeepers" -> "127.0.0.1:2181",
     "user" -> "root",
     "password" -> "password",
-    "tableName" -> "myNamespace.gdelt")
+    "tableName" -> "sparkImportTest.gdelt")
 
   var LATITUDE_COL_IDX = 39
   var LONGITUDE_COL_IDX = 40
@@ -110,26 +108,37 @@ object IngestDataWithSpark {
     "DATEADDED:Integer",
     "*geom:Point:srid=4326")
 
-  val featureType: SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
-  val ds = DataStoreFinder.
-    getDataStore(dsConf).
-    asInstanceOf[AccumuloDataStore].
-    createSchema(featureType)
+  val featureType:SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
+  // create the schema/feature
+  val ds = DataStoreFinder
+      .getDataStore(dsConf)
+      .asInstanceOf[AccumuloDataStore]
+      .createSchema(featureType)
 
-  def createSimpleFeature(value: String): SimpleFeature = {
+  def createSimpleFeature(value:String):SimpleFeature = {
 
     val attributes: Array[String] = value.toString.split("\\t", -1)
     val formatter: SimpleDateFormat = new SimpleDateFormat("yyyyMMdd")
 
     featureBuilder.reset
-    val lat: Double = attributes(LATITUDE_COL_IDX).toDouble
-    val lon: Double = attributes(LONGITUDE_COL_IDX).toDouble
+    val lat:Double = attributes(LATITUDE_COL_IDX).toDouble
+    val lon:Double = attributes(LONGITUDE_COL_IDX).toDouble
     if (Math.abs(lat) > 90.0 || Math.abs(lon) > 180.0) {
       // log invalid lat/lon
     }
 
-    val geom: Geometry = geometryFactory.createPoint(new Coordinate(lon, lat))
-    val simpleFeature: SimpleFeature = featureBuilder.buildFeature(attributes(ID_COL_IDX))
+    val geom:Geometry =
+        geometryFactory
+          .createPoint(
+            new Coordinate(lon, lat)
+          )
+
+    val simpleFeature:SimpleFeature =
+        featureBuilder
+          .buildFeature(
+            attributes(ID_COL_IDX)
+          )
+
     var i: Int = 0
     while (i < attributes.length) {
       simpleFeature.setAttribute(i, attributes(i))
@@ -143,7 +152,7 @@ object IngestDataWithSpark {
   // same example available for 1.3.1, see: http://www.geomesa.org/documentation/tutorials/geomesa-examples-gdelt.html
   // code available: geomesa-examples-gdelt/src/main/java/com/example/geomesa/gdelt/GDELTIngest.java
   @throws(classOf[SchemaException])
-  def buildGDELTFeatureType(featureName: String, attributes: util.ArrayList[String]): SimpleFeatureType = {
+  def buildGDELTFeatureType(featureName:String, attributes:util.ArrayList[String]):SimpleFeatureType = {
     val name = featureName
     val spec = Joiner.on(",").join(attributes)
     val featureType = DataUtilities.createType(name, spec)
@@ -159,7 +168,7 @@ object IngestDataWithSpark {
 
     val distDataRDD = sc.textFile(ingestFile)
 
-    val processedRDD: RDD[SimpleFeature] = distDataRDD.mapPartitions { valueIterator =>
+    val processedRDD:RDD[SimpleFeature] = distDataRDD.mapPartitions { valueIterator =>
 
       if (valueIterator.isEmpty) {
         Collections.emptyIterator

@@ -121,12 +121,7 @@ The last command returns the row with the key `gdelt~stats-date`. The command ju
 
 Take a look at this example: [Map-Reduce Ingest of GDELT](http://www.geomesa.org/documentation/tutorials/geomesa-examples-gdelt.html)
 
-### Ingesting Data with Spark
-
-The code in this section is mainly based on code provided with the [Mastering Spark for Data Science](https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/tree/master/geomesa-utils-1.5) book. I adjusted the code to make it work with GeoMesa v1.3.1.
-
-[OPEN] ... to be added in due time
-
+There is a section further down explaining how to ingest the data with Spark. 
 
 ## Using the GeoMesa Accumulo Spark Runtime
 
@@ -592,6 +587,7 @@ Build fat jar as shown in previous section.
 Run job:
 
 ```bash
+sbt clean assembly
 # submit job
 spark-submit --master local[4] \
   --class examples.SpatialDensities \
@@ -685,11 +681,51 @@ For a detailed explanation read the official docu: [SparkSQL — GeoMesa 1.3.1 M
 Create the fat jar and run the job:
 
 ```bash
+sbt clean assembly
 # submit job
 spark-submit --master local[4] \
   --class examples.SparkSQLExample \
   target/scala-2.11/GeoMesaSparkExample-assembly-0.1.jar
 ```
+
+## Ingesting Data with Spark
+
+The code in this section is mainly based on code provided with the [Mastering Spark for Data Science](https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/tree/master/geomesa-utils-1.5) book. I adjusted the code to make it work with GeoMesa v1.3.1.
+
+Let's first set up a new **Accumulo namespace** for this import:
+
+```bash
+accumulo shell -u root -p password
+> createnamespace sparkImportTest
+> grant NameSpace.CREATE_TABLE -ns sparkImportTest -u root
+> config -s general.vfs.context.classpath.sparkImportTest=hdfs://localhost:8020/accumulo/classpath/sparkImportTest/[^.].*.jar
+> config -ns sparkImportTest -s table.classpath.context=sparkImportTest
+> exit
+```
+
+[OPEN] ... to be added in due time
+
+```scala
+[OPEN -- add code]
+```
+
+Run the code:
+
+```bash
+sbt clean assembly
+# submit job
+spark-submit --master local[4] \
+  --class examples.IngestDataWithSpark \
+  target/scala-2.11/GeoMesaSparkExample-assembly-0.1.jar
+```
+
+### Errors
+
+```
+org.opengis.referencing.NoSuchAuthorityCodeException: No code "EPSG:4326" from authority "EPSG" found for object of type "EngineeringCRS"
+```
+
+[Solution](https://stackoverflow.com/questions/27429097/geotools-cannot-find-hsql-epsg-db-throws-error-nosuchauthoritycodeexception)
 
 
 ## GeoServer Integration
