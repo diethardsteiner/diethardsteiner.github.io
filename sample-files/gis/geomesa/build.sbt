@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   , "org.apache.accumulo" % "accumulo-core" % "1.7.3"
 )
 
+
 assemblyMergeStrategy in assembly := {
   case path => {
     val strategy = (assemblyMergeStrategy in assembly).value(path)
@@ -36,4 +37,17 @@ assemblyMergeStrategy in assembly := {
     }
   }
 }
+
+
+/**
+assemblyMergeStrategy in assembly := {
+
+  case PathList("org","geotools", xs @ _*) => MergeStrategy.last
+  case x => 
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
+**/
+
+
   

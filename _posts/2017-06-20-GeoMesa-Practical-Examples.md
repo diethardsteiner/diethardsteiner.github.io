@@ -725,8 +725,56 @@ spark-submit --master local[4] \
 org.opengis.referencing.NoSuchAuthorityCodeException: No code "EPSG:4326" from authority "EPSG" found for object of type "EngineeringCRS"
 ```
 
+If you paste `EngineeringCRS` into a new line in IntelliJ IDEA, an info box will tell you 
+
+```
+org.opengis.referencing.crs.EngineeringCRS
+```
+
 [Solution](https://stackoverflow.com/questions/27429097/geotools-cannot-find-hsql-epsg-db-throws-error-nosuchauthoritycodeexception)
 
+So take a look at the jar file with `vim` in example and to a search like this: `?CRSAuthorityFactory`. You will find this entry:
+
+```
+org/opengis/referencing/crs/CRSAuthorityFactory.class
+```
+
+Try to run the `assembly` command again and pay attention to the `[warn]` messages. You will see the following:
+
+```
+[warn] Merging 'META-INF/maven/org.geotools/gt-referencing/pom.properties' with strategy 'discard'
+[warn] Merging 'META-INF/maven/org.geotools/gt-referencing/pom.xml' with strategy 'discard'
+```
+
+`gt-referencing` is mentioned in the Stackoverflow response as one of the jar files that contain `CRSAuthorityFactory` (the other jar being `gt-epsg-hsql.jar`).
+
+
+
+[Mastering Spark ...](https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/blob/master/Chapter05/pom.xml) uses this:
+
+```
+<configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+</configuration>
+```
+
+We have to adjust the [SBT Assembly Merge Strategy](https://github.com/sbt/sbt-assembly#merge-strategy).
+
+[OPEN] Is there a command to show the conflicts?
+
+There is also [Shading](https://github.com/sbt/sbt-assembly#shading).
 
 ## GeoServer Integration
 

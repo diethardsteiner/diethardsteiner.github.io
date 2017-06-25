@@ -10,20 +10,25 @@ import java.text.SimpleDateFormat
 import java.util
 import java.util.Collections
 
-import com.google.common.base.Joiner
-import com.google.common.collect.Lists
-import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
+
+import com.google.common.base.Joiner
+import com.google.common.collect.Lists
+
+import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
+
 import org.geotools.data.{DataStoreFinder, DataUtilities}
 import org.geotools.feature.SchemaException
 import org.geotools.feature.simple.SimpleFeatureBuilder
 import org.geotools.geometry.jts.JTSFactoryFinder
+
 import org.locationtech.geomesa.accumulo.data.AccumuloDataStore
 //import org.locationtech.geomesa.accumulo.index.Constants
 import org.locationtech.geomesa.utils.interop.SimpleFeatureTypes
 import org.locationtech.geomesa.spark.GeoMesaSpark
 import org.locationtech.geomesa.spark.api.java.JavaSpatialRDDProvider
+
 import org.opengis.feature.simple.{SimpleFeature, SimpleFeatureType}
 
 import scala.collection.JavaConversions._
@@ -199,6 +204,7 @@ object IngestDataWithSpark {
     // New save method explained on:
     // http://www.geomesa.org/documentation/user/spark/core.html
     GeoMesaSpark(dsConf).save(processedRDD, dsConf, featureName)
+
 
   }
 }
