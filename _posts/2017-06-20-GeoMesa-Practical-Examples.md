@@ -692,6 +692,12 @@ spark-submit --master local[4] \
 
 The code in this section is mainly based on code provided with the [Mastering Spark for Data Science](https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/tree/master/geomesa-utils-1.5) book. I adjusted the code to make it work with GeoMesa v1.3.1.
 
+Add this dependency to your `build.sbt`:
+
+```
+"org.geotools" % "gt-epsg-hsql" % "17.1"
+```
+
 Let's first set up a new **Accumulo namespace** for this import:
 
 ```bash
@@ -703,10 +709,218 @@ accumulo shell -u root -p password
 > exit
 ```
 
-[OPEN] ... to be added in due time
+Next upload the GeoMesa dependencies to HDFS (adjust to your version and setup):
+
+```bash
+export VERSION=1.3.2-SNAPSHOT
+cd $GEOMESA_ACCUMULO_HOME
+hdfs dfs -mkdir -p /accumulo/classpath/sparkImportTest
+hdfs dfs -copyFromLocal dist/accumulo/geomesa-accumulo-distributed-runtime_2.11-$VERSION.jar /accumulo/classpath/sparkImportTest 
+hdfs dfs -ls /accumulo/classpath/sparkImportTest
+```
+
+Upload the file to ingest to HDFS (although this is not really necessary):
+
+```bash
+hdfs dfs -mkdir -p /users/dsteiner/gdelt-staging
+hdfs dfs -copyFromLocal src/main/resources/gdeltEventsTestFile.csv /users/dsteiner/gdelt-staging
+```
+
+The code to ingest the file looks like this:
 
 ```scala
-[OPEN -- add code]
+import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
+
+import org.geotools.data.{DataStoreFinder, DataUtilities}
+import org.geotools.feature.SchemaException
+import org.geotools.feature.simple.SimpleFeatureBuilder
+import org.geotools.geometry.jts.JTSFactoryFinder
+
+import org.locationtech.geomesa.accumulo.data.AccumuloDataStore
+//import org.locationtech.geomesa.accumulo.index.Constants
+import org.locationtech.geomesa.utils.interop.SimpleFeatureTypes
+import org.locationtech.geomesa.spark.GeoMesaSpark
+import org.locationtech.geomesa.spark.api.java.JavaSpatialRDDProvider
+
+import org.opengis.feature.simple.{SimpleFeature, SimpleFeatureType}
+
+import scala.collection.JavaConversions._
+
+object IngestDataWithSpark {
+
+  val dsConf = Map(
+    "instanceId" -> "BISSOL_CONSULTING",
+    "zookeepers" -> "127.0.0.1:2181",
+    "user" -> "root",
+    "password" -> "password",
+    "tableName" -> "sparkImportTest.gdelt")
+
+  var LATITUDE_COL_IDX = 39
+  var LONGITUDE_COL_IDX = 40
+  var DATE_COL_IDX = 1
+  var ID_COL_IDX = 0
+  var MINIMUM_NUM_FIELDS = 41
+  var featureBuilder: SimpleFeatureBuilder = null
+  var geometryFactory: GeometryFactory = JTSFactoryFinder.getGeometryFactory
+
+  val featureName = "event"
+//  val ingestFile = "file:///gdeltEventsTestFile.csv"
+  val ingestFile = "hdfs:///users/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
+  var attributes = Lists.newArrayList(
+    "GLOBALEVENTID:Integer",
+    "SQLDATE:Date",
+    "MonthYear:Integer",
+    "Year:Integer",
+    "FractionDate:Float",
+    "Actor1Code:String",
+    "Actor1Name:String",
+    "Actor1CountryCode:String",
+    "Actor1KnownGroupCode:String",
+    "Actor1EthnicCode:String",
+    "Actor1Religion1Code:String",
+    "Actor1Religion2Code:String",
+    "Actor1Type1Code:String",
+    "Actor1Type2Code:String",
+    "Actor1Type3Code:String",
+    "Actor2Code:String",
+    "Actor2Name:String",
+    "Actor2CountryCode:String",
+    "Actor2KnownGroupCode:String",
+    "Actor2EthnicCode:String",
+    "Actor2Religion1Code:String",
+    "Actor2Religion2Code:String",
+    "Actor2Type1Code:String",
+    "Actor2Type2Code:String",
+    "Actor2Type3Code:String",
+    "IsRootEvent:Integer",
+    "EventCode:String",
+    "EventBaseCode:String",
+    "EventRootCode:String",
+    "QuadClass:Integer",
+    "GoldsteinScale:Float",
+    "NumMentions:Integer",
+    "NumSources:Integer",
+    "NumArticles:Integer",
+    "AvgTone:Float",
+    "Actor1Geo_Type:Integer",
+    "Actor1Geo_FullName:String",
+    "Actor1Geo_CountryCode:String",
+    "Actor1Geo_ADM1Code:String",
+    "Actor1Geo_Lat:Float",
+    "Actor1Geo_Long:Float",
+    "Actor1Geo_FeatureID:Integer",
+    "Actor2Geo_Type:Integer",
+    "Actor2Geo_FullName:String",
+    "Actor2Geo_CountryCode:String",
+    "Actor2Geo_ADM1Code:String",
+    "Actor2Geo_Lat:Float",
+    "Actor2Geo_Long:Float",
+    "Actor2Geo_FeatureID:Integer",
+    "ActionGeo_Type:Integer",
+    "ActionGeo_FullName:String",
+    "ActionGeo_CountryCode:String",
+    "ActionGeo_ADM1Code:String",
+    "ActionGeo_Lat:Float",
+    "ActionGeo_Long:Float",
+    "ActionGeo_FeatureID:Integer",
+    "DATEADDED:Integer",
+    "*geom:Point:srid=4326")
+
+  val featureType:SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
+  // create the schema/feature
+  val ds = DataStoreFinder
+      .getDataStore(dsConf)
+      .asInstanceOf[AccumuloDataStore]
+      .createSchema(featureType)
+
+  def createSimpleFeature(value:String):SimpleFeature = {
+
+    val attributes: Array[String] = value.toString.split("\\t", -1)
+    val formatter: SimpleDateFormat = new SimpleDateFormat("yyyyMMdd")
+
+    featureBuilder.reset
+    val lat:Double = attributes(LATITUDE_COL_IDX).toDouble
+    val lon:Double = attributes(LONGITUDE_COL_IDX).toDouble
+    if (Math.abs(lat) > 90.0 || Math.abs(lon) > 180.0) {
+      // log invalid lat/lon
+    }
+
+    val geom:Geometry =
+        geometryFactory
+          .createPoint(
+            new Coordinate(lon, lat)
+          )
+
+    val simpleFeature:SimpleFeature =
+        featureBuilder
+          .buildFeature(
+            attributes(ID_COL_IDX)
+          )
+
+    var i: Int = 0
+    while (i < attributes.length) {
+      simpleFeature.setAttribute(i, attributes(i))
+      i += 1
+    }
+    simpleFeature.setAttribute("SQLDATE", formatter.parse(attributes(DATE_COL_IDX)))
+    simpleFeature.setDefaultGeometry(geom)
+    simpleFeature
+  }
+  // this section is based on 1.2.1, see: http://www.geomesa.org/documentation/1.2.1/tutorials/geomesa-examples-gdelt.html
+  // same example available for 1.3.1, see: http://www.geomesa.org/documentation/tutorials/geomesa-examples-gdelt.html
+  // code available: geomesa-examples-gdelt/src/main/java/com/example/geomesa/gdelt/GDELTIngest.java
+  @throws(classOf[SchemaException])
+  def buildGDELTFeatureType(featureName:String, attributes:util.ArrayList[String]):SimpleFeatureType = {
+    val name = featureName
+    val spec = Joiner.on(",").join(attributes)
+    val featureType = DataUtilities.createType(name, spec)
+    // featureType.getUserData.put(Constants.SF_PROPERTY_START_TIME, "SQLDATE")
+    featureType.getUserData().put(SimpleFeatureTypes.DEFAULT_DATE_KEY, "SQLDATE");
+    featureType
+  }
+
+  def main(args: Array[String]) {
+
+    val conf = new SparkConf()
+    val sc = new SparkContext(conf.setAppName("Geomesa Ingest"))
+
+    val distDataRDD = sc.textFile(ingestFile)
+
+    val processedRDD:RDD[SimpleFeature] = distDataRDD.mapPartitions { valueIterator =>
+
+      if (valueIterator.isEmpty) {
+        Collections.emptyIterator
+      }
+
+      //  setup code for SimpleFeatureBuilder
+      try {
+        val featureType: SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
+        featureBuilder = new SimpleFeatureBuilder(featureType)
+      }
+      catch {
+        case e: Exception => {
+          throw new IOException("Error setting up feature type", e)
+        }
+      }
+
+      valueIterator.map { s =>
+        // Processing as before to build the SimpleFeatureType
+        val simpleFeature = createSimpleFeature(s)
+        if (!valueIterator.hasNext) {
+          // cleanup here
+        }
+        simpleFeature
+      }
+    }
+
+
+    // New save method explained on:
+    // http://www.geomesa.org/documentation/user/spark/core.html
+    GeoMesaSpark(dsConf).save(processedRDD, dsConf, featureName)
+
+
+  }
+}
 ```
 
 Run the code:
@@ -725,56 +939,25 @@ spark-submit --master local[4] \
 org.opengis.referencing.NoSuchAuthorityCodeException: No code "EPSG:4326" from authority "EPSG" found for object of type "EngineeringCRS"
 ```
 
-If you paste `EngineeringCRS` into a new line in IntelliJ IDEA, an info box will tell you 
+As Matthew Hallett pointed out in the Geomesa User Group, there is a missing dependency, see this [forum thread](http://osgeo-org.1560.x6.nabble.com/Facing-NoSuchAuthorityCodeException-problem-when-deployed-GeoTools-on-server-td4885362.html): "To decode a CRS code, you need access to the EPSG database, which it seems it's not present. Make sure you add gt-epsg-hsql in your project, and its dependencies, if any (you could use other EPSG factories as well, but that's the most usual)." 
+
+Let's look on MVNRepository for the correct version: [click here](https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql).
+
+Add this dependency to your `build.sbt`:
 
 ```
-org.opengis.referencing.crs.EngineeringCRS
+"org.geotools" % "gt-epsg-hsql" % "17.1"
 ```
 
-[Solution](https://stackoverflow.com/questions/27429097/geotools-cannot-find-hsql-epsg-db-throws-error-nosuchauthoritycodeexception)
+Simply adding this dependency solves the issue.
 
-So take a look at the jar file with `vim` in example and to a search like this: `?CRSAuthorityFactory`. You will find this entry:
+Jim Hughes provided further info on this error:
 
-```
-org/opengis/referencing/crs/CRSAuthorityFactory.class
-```
+The error is due to the lack of a GeoTools EPSG factory being available on the classpath at runtime ([More info about the EPSG options in GeoTools](http://docs.geotools.org/stable/userguide/library/referencing/index.html)).  Generally, it seems that SBT has two issues to address:  first, it doesn't necessarily pull in all the transitive dependencies list POMs and second, code loaded via SPI needs some handling to preserve entries in `META-INF/services`. 
 
-Try to run the `assembly` command again and pay attention to the `[warn]` messages. You will see the following:
+[The SO question](https://stackoverflow.com/questions/27429097/geotools-cannot-find-hsql-epsg-db-throws-error-nosuchauthoritycodeexception) address the latter concern.  For the former, it may suffice to add a dependency on gt-epsg-hsql or gt-epsg-wkt.  The HSQL version of the library is preferable since it has a few more codes. 
 
-```
-[warn] Merging 'META-INF/maven/org.geotools/gt-referencing/pom.properties' with strategy 'discard'
-[warn] Merging 'META-INF/maven/org.geotools/gt-referencing/pom.xml' with strategy 'discard'
-```
-
-`gt-referencing` is mentioned in the Stackoverflow response as one of the jar files that contain `CRSAuthorityFactory` (the other jar being `gt-epsg-hsql.jar`).
-
-
-
-[Mastering Spark ...](https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/blob/master/Chapter05/pom.xml) uses this:
-
-```
-<configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-</configuration>
-```
-
-We have to adjust the [SBT Assembly Merge Strategy](https://github.com/sbt/sbt-assembly#merge-strategy).
-
-[OPEN] Is there a command to show the conflicts?
-
-There is also [Shading](https://github.com/sbt/sbt-assembly#shading).
+That said, there are some caveats.  I have seen mismatches between the version of HSQL that GeoTools uses and versions available in Hadoop.  Also, HSQL sets up a temp directory in a common (yet configurable!) location.  For a system where multiple users are going to use the GeoMesa tools, some care may be required.  If those problems prove too much, one can try out the `gt-epsg-wkt` option instead.
 
 ## GeoServer Integration
 

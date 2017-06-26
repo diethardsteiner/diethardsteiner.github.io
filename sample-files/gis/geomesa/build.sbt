@@ -24,6 +24,7 @@ libraryDependencies ++= Seq(
   , "ch.qos.logback" % "logback-classic" % "1.1.7"
   , "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
   , "org.apache.accumulo" % "accumulo-core" % "1.7.3"
+  , "org.geotools" % "gt-epsg-hsql" % "17.1"
 )
 
 

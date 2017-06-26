@@ -36,7 +36,7 @@ import scala.collection.JavaConversions._
 object IngestDataWithSpark {
 
   val dsConf = Map(
-    "instanceId" -> "accumulo",
+    "instanceId" -> "BISSOL_CONSULTING",
     "zookeepers" -> "127.0.0.1:2181",
     "user" -> "root",
     "password" -> "password",
@@ -51,8 +51,8 @@ object IngestDataWithSpark {
   var geometryFactory: GeometryFactory = JTSFactoryFinder.getGeometryFactory
 
   val featureName = "event"
-  val ingestFile = "file:///gdeltEventsTestFile.csv"
-
+//  val ingestFile = "file:///gdeltEventsTestFile.csv"
+  val ingestFile = "hdfs:///users/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
   var attributes = Lists.newArrayList(
     "GLOBALEVENTID:Integer",
     "SQLDATE:Date",
