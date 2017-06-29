@@ -12,17 +12,14 @@ import java.util.Collections
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-
 import com.google.common.base.Joiner
 import com.google.common.collect.Lists
-
 import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
-
+import org.apache.spark.sql.SparkSession
 import org.geotools.data.{DataStoreFinder, DataUtilities}
 import org.geotools.feature.SchemaException
 import org.geotools.feature.simple.SimpleFeatureBuilder
 import org.geotools.geometry.jts.JTSFactoryFinder
-
 import org.locationtech.geomesa.accumulo.data.AccumuloDataStore
 //import org.locationtech.geomesa.accumulo.index.Constants
 import org.locationtech.geomesa.utils.interop.SimpleFeatureTypes
@@ -36,19 +33,13 @@ import scala.collection.JavaConversions._
 object IngestDataWithSpark {
 
   val dsConf = Map(
-    "instanceId" -> "BISSOL_CONSULTING",
-    "zookeepers" -> "127.0.0.1:2181",
-    "user" -> "root",
-    "password" -> "password",
-    "tableName" -> "sparkImportTest.gdelt")
+    "instanceId"  -> "BISSOL_CONSULTING",
+    "zookeepers"  -> "127.0.0.1:2181",
+    "user"        -> "root",
+    "password"    -> "password",
+    "tableName"   -> "sparkImportTest.gdelt"
+  )
 
-  var LATITUDE_COL_IDX = 39
-  var LONGITUDE_COL_IDX = 40
-  var DATE_COL_IDX = 1
-  var ID_COL_IDX = 0
-  var MINIMUM_NUM_FIELDS = 41
-  var featureBuilder: SimpleFeatureBuilder = null
-  var geometryFactory: GeometryFactory = JTSFactoryFinder.getGeometryFactory
 
   val featureName = "event"
 //  val ingestFile = "file:///gdeltEventsTestFile.csv"
@@ -114,16 +105,26 @@ object IngestDataWithSpark {
     "*geom:Point:srid=4326")
 
   val featureType:SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
-  // create the schema/feature
+
+  // Create the schema/feature
   val ds = DataStoreFinder
       .getDataStore(dsConf)
       .asInstanceOf[AccumuloDataStore]
       .createSchema(featureType)
 
-  def createSimpleFeature(value:String):SimpleFeature = {
+  val LATITUDE_COL_IDX = 39
+  val LONGITUDE_COL_IDX = 40
+  val DATE_COL_IDX = 1
+  val ID_COL_IDX = 0
+  val MINIMUM_NUM_FIELDS = 41
+  var featureBuilder:SimpleFeatureBuilder = null
+  val geometryFactory:GeometryFactory = JTSFactoryFinder.getGeometryFactory
 
-    val attributes: Array[String] = value.toString.split("\\t", -1)
-    val formatter: SimpleDateFormat = new SimpleDateFormat("yyyyMMdd")
+  def createSimpleFeature(value:String):SimpleFeature = {
+    // split the row by tab and save tokens in array
+    val attributes:Array[String] = value.toString.split("\\t", -1)
+
+    val formatter:SimpleDateFormat = new SimpleDateFormat("yyyyMMdd")
 
     featureBuilder.reset
     val lat:Double = attributes(LATITUDE_COL_IDX).toDouble
@@ -144,13 +145,23 @@ object IngestDataWithSpark {
             attributes(ID_COL_IDX)
           )
 
-    var i: Int = 0
-    while (i < attributes.length) {
-      simpleFeature.setAttribute(i, attributes(i))
-      i += 1
+//    var i: Int = 0
+//    while (i < attributes.length) {
+//      simpleFeature.setAttribute(i, attributes(i))
+//      i += 1
+//    }
+
+    // loop through values of row/array and assign to simple feature attribute
+    val mySeq = 0 to attributes.length
+    for(index <- mySeq){
+      simpleFeature.setAttribute(index, attributes(index))
     }
+
+    // create simple feature attribute SQLDATE by parsing original string representation of date
     simpleFeature.setAttribute("SQLDATE", formatter.parse(attributes(DATE_COL_IDX)))
+    // add longitude and latitude / default geometry
     simpleFeature.setDefaultGeometry(geom)
+    // return simpleFeature
     simpleFeature
   }
   // this section is based on 1.2.1, see: http://www.geomesa.org/documentation/1.2.1/tutorials/geomesa-examples-gdelt.html
@@ -168,43 +179,75 @@ object IngestDataWithSpark {
 
   def main(args: Array[String]) {
 
-    val conf = new SparkConf()
-    val sc = new SparkContext(conf.setAppName("Geomesa Ingest"))
+//    val conf = new SparkConf()
+//    val sc = new SparkContext(conf.setAppName("Geomesa Ingest"))
+//
+//    val distDataRDD = sc.textFile(ingestFile)
+//
+//
+//    println("--------NO OF RECORDS: " + distDataRDD.count() + "-------------")
+//    println("")
+//    println("Sample of 10 lines read from source file:")
+//    println("-----------------------------------------")
+//    distDataRDD.take(10).foreach(println)
 
-    val distDataRDD = sc.textFile(ingestFile)
 
-    val processedRDD:RDD[SimpleFeature] = distDataRDD.mapPartitions { valueIterator =>
+    val spark = SparkSession
+      .builder()
+      .appName("Geomesa Ingest")
+      .getOrCreate()
 
-      if (valueIterator.isEmpty) {
-        Collections.emptyIterator
-      }
+    val ingestData = spark
+      .read
+        .option("header", "false")
+        .option("delimiter","\\t")
+        .option("ignoreLeadingWhiteSpace","true")
+        .option("ignoreTrailingWhiteSpace","true")
+        .option("treatEmptyValuesAsNulls","true")
+        .option("inferSchema", "true")
+        .csv(ingestFile)
 
-      //  setup code for SimpleFeatureBuilder
-      try {
-        val featureType: SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
-        featureBuilder = new SimpleFeatureBuilder(featureType)
-      }
-      catch {
-        case e: Exception => {
-          throw new IOException("Error setting up feature type", e)
-        }
-      }
+    ingestData.show(10)
 
-      valueIterator.map { s =>
-        // Processing as before to build the SimpleFeatureType
-        val simpleFeature = createSimpleFeature(s)
-        if (!valueIterator.hasNext) {
-          // cleanup here
-        }
-        simpleFeature
-      }
+// [OPEN] Assign proper schema so that we can later on reference fields by name
+
+/**
+    val processedRDD:RDD[SimpleFeature] = distDataRDD
+      .mapPartitions {
+
+        valueIterator =>
+
+          if (valueIterator.isEmpty) {
+            Collections.emptyIterator
+          }
+
+          //  setup code for SimpleFeatureBuilder
+          try {
+            val featureType: SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
+            featureBuilder = new SimpleFeatureBuilder(featureType)
+          }
+          catch {
+            case e: Exception => {
+              throw new IOException("Error setting up feature type", e)
+            }
+          }
+
+          valueIterator.map {
+            s =>
+              // Processing as before to build the SimpleFeatureType
+              val simpleFeature = createSimpleFeature(s)
+              if (!valueIterator.hasNext) {
+                // cleanup here
+              }
+              simpleFeature
+          }
     }
 
 
     // New save method explained on:
     // http://www.geomesa.org/documentation/user/spark/core.html
     GeoMesaSpark(dsConf).save(processedRDD, dsConf, featureName)
-
+**/
 
   }
 }
