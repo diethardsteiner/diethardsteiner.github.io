@@ -13,14 +13,18 @@ resolvers ++= Seq(
   "media.javax" at "http://maven.geotoolkit.org"
 )
 
+val sparkVersion = "2.0.2"
+val geomesaVersion = "1.3.1"
+//val geomesaVersion = "1.3.2"
+
 libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % "2.0.2" % "provided"
-  , "org.apache.spark" %% "spark-catalyst" % "2.0.2" % "provided"
-  , "org.apache.spark" %% "spark-sql" % "2.0.2" % "provided"
-/**  , "org.apache.spark" %% "spark-yarn" % "2.0.2" % "provided" **/
-  , "org.locationtech.geomesa" %% "geomesa-accumulo-datastore" % "1.3.1"
-  , "org.locationtech.geomesa" %% "geomesa-accumulo-spark" % "1.3.1"
-  , "org.locationtech.geomesa" %% "geomesa-spark-sql" % "1.3.1"
+  "org.apache.spark" %% "spark-core" % sparkVersion % "provided"
+  , "org.apache.spark" %% "spark-catalyst" % sparkVersion % "provided"
+  , "org.apache.spark" %% "spark-sql" % sparkVersion % "provided"
+/**  , "org.apache.spark" %% "spark-yarn" % sparkVersion % "provided" **/
+  , "org.locationtech.geomesa" %% "geomesa-accumulo-datastore" % geomesaVersion
+  , "org.locationtech.geomesa" %% "geomesa-accumulo-spark" % geomesaVersion
+  , "org.locationtech.geomesa" %% "geomesa-spark-sql" % geomesaVersion
   , "ch.qos.logback" % "logback-classic" % "1.1.7"
   , "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
   , "org.apache.accumulo" % "accumulo-core" % "1.7.3"

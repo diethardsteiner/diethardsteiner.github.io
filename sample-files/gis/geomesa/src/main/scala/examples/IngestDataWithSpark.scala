@@ -52,7 +52,7 @@ object IngestDataWithSpark {
 
   val featureName = "event"
 //  val ingestFile = "file:///gdeltEventsTestFile.csv"
-  val ingestFile = "hdfs:///users/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
+  val ingestFile = "hdfs:///user/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
   var attributes = Lists.newArrayList(
     "GLOBALEVENTID:Integer",
     "SQLDATE:Date",
