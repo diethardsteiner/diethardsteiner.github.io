@@ -16,6 +16,7 @@ import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types._
 import org.geotools.data.{DataStoreFinder, DataUtilities}
 import org.geotools.feature.SchemaException
 import org.geotools.feature.simple.SimpleFeatureBuilder
@@ -43,7 +44,8 @@ object IngestDataWithSpark {
 
   val featureName = "event"
 //  val ingestFile = "file:///gdeltEventsTestFile.csv"
-  val ingestFile = "hdfs:///user/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
+  val ingestFile = "file:///home/dsteiner/git/diethardsteiner.github.io/sample-files/gis/geomesa/src/main/resources/gdeltEventsTestFile.csv"
+//  val ingestFile = "hdfs:///user/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
   var attributes = Lists.newArrayList(
     "GLOBALEVENTID:Integer",
     "SQLDATE:Date",
@@ -192,20 +194,99 @@ object IngestDataWithSpark {
 //    distDataRDD.take(10).foreach(println)
 
 
+    val gdeltSchema = StructType(
+      Array(
+        StructField("GlobalEventId",IntegerType, true)
+        , StructField("SqlDate",DateType, true)
+        , StructField("MonthYear",IntegerType, true)
+        , StructField("Year",IntegerType, true)
+        , StructField("FractionDate",FloatType, true)
+        , StructField("Actor1Code",StringType, true)
+        , StructField("Actor1Name",StringType, true)
+        , StructField("Actor1CountryCode",StringType, true)
+        , StructField("Actor1KnownGroupCode",StringType, true)
+        , StructField("Actor1EthnicCode",StringType, true)
+        , StructField("Actor1Religion1Code",StringType, true)
+        , StructField("Actor1Religion2Code",StringType, true)
+        , StructField("Actor1Type1Code",StringType, true)
+        , StructField("Actor1Type2Code",StringType, true)
+        , StructField("Actor1Type3Code",StringType, true)
+        , StructField("Actor2Code",StringType, true)
+        , StructField("Actor2Name",StringType, true)
+        , StructField("Actor2CountryCode",StringType, true)
+        , StructField("Actor2KnownGroupCode",StringType, true)
+        , StructField("Actor2EthnicCode",StringType, true)
+        , StructField("Actor2Religion1Code",StringType, true)
+        , StructField("Actor2Religion2Code",StringType, true)
+        , StructField("Actor2Type1Code",StringType, true)
+        , StructField("Actor2Type2Code",StringType, true)
+        , StructField("Actor2Type3Code",StringType, true)
+        , StructField("IsRootEvent",IntegerType, true)
+        , StructField("EventCode",StringType, true)
+        , StructField("EventBaseCode",StringType, true)
+        , StructField("EventRootCode",StringType, true)
+        , StructField("QuadClass",IntegerType, true)
+        , StructField("GoldsteinScale",FloatType, true)
+        , StructField("NumMentions",IntegerType, true)
+        , StructField("NumSources",IntegerType, true)
+        , StructField("NumArticles",IntegerType, true)
+        , StructField("AvgTone",FloatType, true)
+        , StructField("Actor1Geo_Type",IntegerType, true)
+        , StructField("Actor1Geo_FullName",StringType, true)
+        , StructField("Actor1Geo_CountryCode",StringType, true)
+        , StructField("Actor1Geo_ADM1Code",StringType, true)
+        , StructField("Actor1Geo_Lat",FloatType, true)
+        , StructField("Actor1Geo_Long",FloatType, true)
+        , StructField("Actor1Geo_FeatureID",StringType, true) /** used to be IntegerType but there are some string values in this column **/
+        , StructField("Actor2Geo_Type",IntegerType, true)
+        , StructField("Actor2Geo_FullName",StringType, true)
+        , StructField("Actor2Geo_CountryCode",StringType, true)
+        , StructField("Actor2Geo_ADM1Code",StringType, true)
+        , StructField("Actor2Geo_Lat",FloatType, true)
+        , StructField("Actor2Geo_Long",FloatType, true)
+        , StructField("Actor2Geo_FeatureID",StringType, true) /** used to be IntegerType but there are some string values in this column **/
+        , StructField("ActionGeo_Type",IntegerType, true)
+        , StructField("ActionGeo_FullName",StringType, true)
+        , StructField("ActionGeo_CountryCode",StringType, true)
+        , StructField("ActionGeo_ADM1Code",StringType, true)
+        , StructField("ActionGeo_Lat",FloatType, true)
+        , StructField("ActionGeo_Long",FloatType, true)
+        , StructField("ActionGeo_FeatureID",StringType, true) /** used to be IntegerType but there are some string values in this column **/
+        , StructField("DateAdded",IntegerType, true)
+        , StructField("Url",StringType, true)
+      )
+    )
+
     val spark = SparkSession
       .builder()
       .appName("Geomesa Ingest")
       .getOrCreate()
 
-    val ingestData = spark
-      .read
-        .option("header", "false")
-        .option("delimiter","\\t")
-        .option("ignoreLeadingWhiteSpace","true")
-        .option("ignoreTrailingWhiteSpace","true")
-        .option("treatEmptyValuesAsNulls","true")
-        .option("inferSchema", "true")
-        .csv(ingestFile)
+    val ingestData = (
+      spark
+        .read
+          .option("header", "false")
+          .option("delimiter","\\t")
+          .option("ignoreLeadingWhiteSpace","true")
+          .option("ignoreTrailingWhiteSpace","true")
+          .option("treatEmptyValuesAsNulls","true")
+          .option("dateFormat","yyyyMMdd")
+          .schema(gdeltSchema)
+          .csv(ingestFile)
+      )
+//
+//    val ingestData2 = (
+//      spark
+//        .read
+//        .option("header", "false")
+//        .option("delimiter","\\t")
+//        .option("ignoreLeadingWhiteSpace","true")
+//        .option("ignoreTrailingWhiteSpace","true")
+//        .option("treatEmptyValuesAsNulls","true")
+//        .option("dateFormat","yyyyMMdd")
+//        .option("inferSchema","true")
+//        .csv(ingestFile)
+//      )
 
     ingestData.show(10)
 
