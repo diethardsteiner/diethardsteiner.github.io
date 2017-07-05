@@ -306,6 +306,7 @@ $ cd geomesa
 $ git checkout -b geomesa-1.3.1 geomesa_2.11-1.3.1
 $ mvn clean install -DskipTests=true
 # OR TO COMPILE THE LATEST VERSION FOR ACCUMULO 1.8.1
+$ git checkout master
 $ mvn clean install -Paccumulo-1.8 -DskipTests=true
 ```
 
@@ -313,7 +314,7 @@ In case you are wondering what `maven install` does: "This command tells Maven t
 
 > **Note**: As Jim from the GoeMesa mailing list pointed out: "you'll need to make sure that sbt picks up the artifacts which you have built locally".
 
-If you need the very latest, you can also build of the master branch. Then you can e.g. just copy the `geomesa-accumulo-dist` target jar and unzip it in a convenient directory:
+If you need the very latest, you can also build of the master branch. Then you can e.g. just copy the `geomesa-accumulo-dist` target `tar.gz` file and unzip it in a convenient directory:
 
 ```
 cp geomesa/geomesa-accumulo/geomesa-accumulo-dist/target/geomesa-accumulo_2.11-1.3.2-SNAPSHOT-bin.tar.gz .
