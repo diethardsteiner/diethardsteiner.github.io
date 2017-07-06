@@ -16,6 +16,7 @@ import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.types._
 import org.geotools.data.{DataStoreFinder, DataUtilities}
 import org.geotools.feature.SchemaException
@@ -24,6 +25,7 @@ import org.geotools.geometry.jts.JTSFactoryFinder
 import org.locationtech.geomesa.accumulo.data.AccumuloDataStore
 //import org.locationtech.geomesa.accumulo.index.Constants
 import org.locationtech.geomesa.utils.interop.SimpleFeatureTypes
+
 import org.locationtech.geomesa.spark.GeoMesaSpark
 import org.locationtech.geomesa.spark.api.java.JavaSpatialRDDProvider
 
@@ -33,7 +35,7 @@ import scala.collection.JavaConversions._
 
 object IngestDataWithSpark {
 
-  val dsConf = Map(
+  val dsParams = Map(
     "instanceId"  -> "BISSOL_CONSULTING",
     "zookeepers"  -> "127.0.0.1:2181",
     "user"        -> "root",
@@ -43,10 +45,9 @@ object IngestDataWithSpark {
 
 
   val featureName = "event"
-//  val ingestFile = "file:///gdeltEventsTestFile.csv"
-  val ingestFile = "file:///home/dsteiner/git/diethardsteiner.github.io/sample-files/gis/geomesa/src/main/resources/gdeltEventsTestFile.csv"
-//  val ingestFile = "hdfs:///user/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
-  var attributes = Lists.newArrayList(
+
+  // GeoMesa Feature
+  var geoMesaSchema = Lists.newArrayList(
     "GLOBALEVENTID:Integer",
     "SQLDATE:Date",
     "MonthYear:Integer",
@@ -104,13 +105,16 @@ object IngestDataWithSpark {
     "ActionGeo_Long:Float",
     "ActionGeo_FeatureID:Integer",
     "DATEADDED:Integer",
-    "*geom:Point:srid=4326")
+    "Url:String",
+    "*geom:Point:srid=4326"
+  )
 
+  /**
   val featureType:SimpleFeatureType = buildGDELTFeatureType(featureName, attributes)
 
   // Create the schema/feature
   val ds = DataStoreFinder
-      .getDataStore(dsConf)
+      .getDataStore(dsParams)
       .asInstanceOf[AccumuloDataStore]
       .createSchema(featureType)
 
@@ -166,6 +170,7 @@ object IngestDataWithSpark {
     // return simpleFeature
     simpleFeature
   }
+
   // this section is based on 1.2.1, see: http://www.geomesa.org/documentation/1.2.1/tutorials/geomesa-examples-gdelt.html
   // same example available for 1.3.1, see: http://www.geomesa.org/documentation/tutorials/geomesa-examples-gdelt.html
   // code available: geomesa-examples-gdelt/src/main/java/com/example/geomesa/gdelt/GDELTIngest.java
@@ -178,8 +183,13 @@ object IngestDataWithSpark {
     featureType.getUserData().put(SimpleFeatureTypes.DEFAULT_DATE_KEY, "SQLDATE");
     featureType
   }
-
+**/
   def main(args: Array[String]) {
+
+
+    //  val ingestFile = "file:///gdeltEventsTestFile.csv"
+    val ingestFile = "file:///home/dsteiner/git/diethardsteiner.github.io/sample-files/gis/geomesa/src/main/resources/gdeltEventsTestFile.csv"
+    //  val ingestFile = "hdfs:///user/dsteiner/gdelt-staging/gdeltEventsTestFile.csv"
 
 //    val conf = new SparkConf()
 //    val sc = new SparkContext(conf.setAppName("Geomesa Ingest"))
@@ -262,35 +272,45 @@ object IngestDataWithSpark {
       .appName("Geomesa Ingest")
       .getOrCreate()
 
-    val ingestData = (
+    // load Geomesa UDFs
+    org.apache.spark.sql.SQLTypes.init(spark.sqlContext)
+
+    val ingestedData = (
       spark
         .read
-          .option("header", "false")
-          .option("delimiter","\\t")
-          .option("ignoreLeadingWhiteSpace","true")
-          .option("ignoreTrailingWhiteSpace","true")
-          .option("treatEmptyValuesAsNulls","true")
-          .option("dateFormat","yyyyMMdd")
-          .schema(gdeltSchema)
-          .csv(ingestFile)
+        .option("header", "false")
+        .option("delimiter","\\t")
+        .option("ignoreLeadingWhiteSpace","true")
+        .option("ignoreTrailingWhiteSpace","true")
+        .option("treatEmptyValuesAsNulls","true")
+        .option("dateFormat","yyyyMMdd")
+        .schema(gdeltSchema)
+        .csv(ingestFile)
       )
-//
-//    val ingestData2 = (
-//      spark
-//        .read
-//        .option("header", "false")
-//        .option("delimiter","\\t")
-//        .option("ignoreLeadingWhiteSpace","true")
-//        .option("ignoreTrailingWhiteSpace","true")
-//        .option("treatEmptyValuesAsNulls","true")
-//        .option("dateFormat","yyyyMMdd")
-//        .option("inferSchema","true")
-//        .csv(ingestFile)
-//      )
 
-    ingestData.show(10)
+    ingestedData.show(10)
+    println(ingestedData.getClass)
 
-// [OPEN] Assign proper schema so that we can later on reference fields by name
+    ingestedData.createOrReplaceTempView("ingested_data")
+    // for debugging only
+    // val prepedData = spark.sql("""SELECT Actor1Geo_Lat, Actor1Geo_Long, st_makePoint(Actor1Geo_Lat, Actor1Geo_Long) as geom FROM ingested_data""")
+    // prepedData.show(10)
+    val prepedData = spark.sql("""SELECT *, st_makePoint(Actor1Geo_Lat, Actor1Geo_Long) as geom FROM ingested_data""")
+
+    prepedData.show(10)
+
+    prepedData
+      .write
+      .format("geomesa")
+      .options(dsParams)
+      .option("geomesa.feature","gdelt")
+
+
+
+    // however you can create datasets with case classes which can have custom data types, no?
+    // or do we have to go all the way back to RDDs?
+
+
 
 /**
     val processedRDD:RDD[SimpleFeature] = distDataRDD
@@ -327,7 +347,7 @@ object IngestDataWithSpark {
 
     // New save method explained on:
     // http://www.geomesa.org/documentation/user/spark/core.html
-    GeoMesaSpark(dsConf).save(processedRDD, dsConf, featureName)
+    GeoMesaSpark(dsParams).save(processedRDD, dsParams, featureName)
 **/
 
   }

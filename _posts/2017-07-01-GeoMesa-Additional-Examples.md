@@ -289,10 +289,35 @@ spark-submit --master local[4] \
 Let's check if the data got imported:
 
 ```
-
+$ accumulo shell -u root -p password
+$ tables -ns sparkImportTest
+gdelt
+gdelt_records_v2
+gdelt_stats
+gdelt_z2_v3
+gdelt_z3_v4
+$ scan -t sparkImportTest.gdelt_records_v2
 ```
 
-### Errors
+
+On my first try I got following error:
+
+```  
+Exception in thread "main" org.apache.spark.sql.AnalysisException: Undefined function: 'st_makePoint'. This function is neither a registered temporary function nor a permanent function registered in the database 'default'.; 
+```
+ 
+Jim Hughes from Locationtech explains: GeoMesa uses a private bit of the Spark API to add user-defined types and functions.  You'll want to make sure that the geomesa-spark-sql_2.11 jar is on the classpath, and then you can call
+
+```
+org.apache.spark.sql.SQLTypes.init(sqlContext)
+```
+
+Calling this function will add the geometric types, functions, and optimizations to the SQL Context.  As part of loading a GeoMesa dataset into Spark SQL, the code calls this function.  (This is why all these functions work when you use GeoMesa, etc.)
+
+As another alternative, you can use the GeoMesa Converter library to load GDELT as a DataFrame.  You should be able to use a `spark.read("geomesa").options(params)` call to parse GDELT CSVs straight into SimpleFeatures.  That'd save needing to write SQL to munge columns into geometries, etc.
+
+
+## Errors
 
 ```
 org.opengis.referencing.NoSuchAuthorityCodeException: No code "EPSG:4326" from authority "EPSG" found for object of type "EngineeringCRS"

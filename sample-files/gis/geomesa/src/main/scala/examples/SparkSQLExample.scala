@@ -37,7 +37,8 @@ object SparkSQLExample {
   def main(args: Array[String]) {
 
     // Create SparkSession
-    val sparkSession = SparkSession.builder()
+    val sparkSession = SparkSession
+      .builder()
       .appName("testSpark")
       .config("spark.sql.crossJoin.enabled", "true")
       .master("local[*]")
