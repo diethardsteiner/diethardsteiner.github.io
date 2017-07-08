@@ -47,7 +47,9 @@ First stage (Plan) not shown above.
 Software Packages:
 
 - **Contiuous Integration Server** (e.g. Jenkins with jUnit): CI and CD
-- **Binary Artifact Repository** (e.g. [Artifactory](https://www.jfrog.com/Artifactory) or [Nexus](https://www.sonatype.com/nexus-repository-oss))
+- **Binary Artifact Repository**, e.g.:
+	- [Artifactory](https://www.jfrog.com/Artifactory) 
+	- [Nexus](https://www.sonatype.com/nexus-repository-oss)), see also [The Nexus Community](http://www.sonatype.org/nexus/)
 - **Automatic Deployment Framework** (e.g. [Ansible](https://www.ansible.com/)): Deployment
 
 

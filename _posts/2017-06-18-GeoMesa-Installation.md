@@ -294,6 +294,8 @@ For more details, see [Command Line Tools](http://www.geomesa.org/documentation/
 
 #### Build from Source
 
+> **Note**: Latest builds are also available directly from the [Locationtech Artifactory](https://repo.locationtech.org/#nexus-search;quick~geomesa-accumulo-dist)
+
 As an alternative you can build **GeoMesa** from source.
 
 Just a brief description here:
