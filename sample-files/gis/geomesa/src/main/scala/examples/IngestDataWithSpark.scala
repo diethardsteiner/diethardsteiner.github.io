@@ -44,7 +44,7 @@ object IngestDataWithSpark {
 
   val featureName = "event"
 
-  // GeoMesa Feature
+  // Create GeoMesa Feature
   val geoMesaSchema = Lists.newArrayList(
     "GlobalEventId:Integer",
     "SqlDate:Date",

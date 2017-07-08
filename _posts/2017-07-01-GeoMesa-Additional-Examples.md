@@ -10,38 +10,9 @@ published: false
 
 ## Ingesting Data with Spark
 
-I couldn't get this example working with Geomesa v1.3.1, so I tried to get it going with a locally compile version of 1.3.2 (the latest and greatest at the time of this writing). How to compile the code locally was explained in the first part of the series. I set up a new project folder and a new sbt build file as well as dedicated `lib` folder inside it to store the local jar files that I wanted to reference. These jar files we copy over from the locally compiled code:
+This example demonstrates how to load data into **GeoMesa Accumulo** using **Spark SQL**:
 
-```bash
-export VERSION=1.3.2-SNAPSHOT
-# create a new project
-mkdir geomesa-local-jar-dependencies
-cd geomesa-local-jar-dependencies
-mkdir lib
-cd lib
-export GEOMESA_GIT_HOME=/home/dsteiner/git/geomesa
-cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-datastore/target/geomesa-accumulo-datastore_2.11-$VERSION.jar .
-cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-tools/target/geomesa-accumulo-tools_2.11-$VERSION.jar .
-cp $GEOMESA_GIT_HOME/geomesa-utils/target/geomesa-utils_2.11-$VERSION.jar .
-cp $GEOMESA_GIT_HOME/geomesa-utils/target/geomesa-utils_2.11-$VERSION-sources.jar .
-cp $GEOMESA_GIT_HOME/geomesa-spark/geomesa-spark-core/target/geomesa-spark-core_2.11-$VERSION.jar .
-cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-spark/target/geomesa-accumulo-spark_2.11-$VERSION.jar .
-
-cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-distributed-runtime/target/geomesa-accumulo-distributed-runtime_2.11-$VERSION.jar .
-
-# not required as in distributed runtime
-#cp ~/.ivy2/cache/org.geotools/gt-main/jars/gt-main-15.1.jar .
-#cp ~/.ivy2/cache/org.geotools/gt-api/jars/gt-api-15.1.jar .
-#cp ~/.ivy2/cache/com.vividsolutions/jts/jars/jts-1.13.jar .
-```
-
-The `build.sbt` file is pretty much the same as with the previous project, just that all the locationtech references are commented out.
-
-In **IntelliJ IDEA** right click on the `lib` folder and choose **Add as Library**. Confirm the upcoming dialog (**Level** can stay on *Project Level*).
-
-The code in this section is mainly based on code provided with the [Mastering Spark for Data Science](https://github.com/PacktPublishing/Mastering-Spark-for-Data-Science/tree/master/geomesa-utils-1.5) book. I adjusted the code to make it work with GeoMesa v1.3.1.
-
-Add this dependency to your `build.sbt`:
+Add this **dependency** to your `build.sbt`:
 
 ```
 "org.geotools" % "gt-epsg-hsql" % "17.1"
@@ -79,10 +50,56 @@ hdfs dfs -ls /user/dsteiner/gdelt-staging
 
 Restart **Accumulo**.
 
-The code to ingest the file looks like this:
+The code to ingest the file looks like this (essential section shown only - full example available on my Github repo):
 
 ```scala
+   val spark = SparkSession
+      .builder()
+      .appName("Geomesa Ingest")
+      .getOrCreate()
 
+    // load Geomesa UDFs
+    org.apache.spark.sql.SQLTypes.init(spark.sqlContext)
+
+    val ingestedData = (
+      spark
+        .read
+        .option("header", "false")
+        .option("delimiter","\\t")
+        .option("ignoreLeadingWhiteSpace","true")
+        .option("ignoreTrailingWhiteSpace","true")
+        .option("treatEmptyValuesAsNulls","true")
+        .option("dateFormat","yyyyMMdd")
+        .schema(gdeltSchema)
+        .csv(ingestFile)
+      )
+
+    ingestedData.show(10)
+    println(ingestedData.getClass)
+
+    ingestedData.createOrReplaceTempView("ingested_data")
+    // for debugging only
+    // val prepedData = spark.sql("""SELECT Actor1Geo_Lat, Actor1Geo_Long, st_makePoint(Actor1Geo_Lat, Actor1Geo_Long) as geom FROM ingested_data""")
+    // prepedData.show(10)
+    val prepedData = spark.sql("""SELECT *, st_makePoint(Actor1Geo_Lat, Actor1Geo_Long) as geom FROM ingested_data""")
+
+    prepedData.show(10)
+
+    val prepedDataFiltered = prepedData
+      .filter("geom IS NOT NULL")
+      // filter out invalid lat and long
+      .filter("NOT(ABS(Actor1Geo_Lat) > 90.0 OR ABS(Actor1Geo_Long) > 90.0)")
+
+    println("========= FINAL OUTPUT ===============")
+
+    prepedDataFiltered.show(10)
+
+    prepedDataFiltered
+      .write
+      .format("geomesa")
+      .options(dsParams)
+      .option("geomesa.feature","event")
+      .save()
 ```
 
 As you can see, using GeoMesa Spark SQL (as opposed to GeoMesa Spark Core) to ingest data is a piece of cake. You can find a more complete example [here](https://github.com/locationtech/geomesa/blob/master/geomesa-accumulo/geomesa-accumulo-spark-runtime/src/test/scala/org/locationtech/geomesa/accumulo/spark/AccumuloSparkProviderTest.scala#L86).
@@ -161,6 +178,41 @@ The error is due to the lack of a GeoTools EPSG factory being available on the c
 [The SO question](https://stackoverflow.com/questions/27429097/geotools-cannot-find-hsql-epsg-db-throws-error-nosuchauthoritycodeexception) address the latter concern.  For the former, it may suffice to add a dependency on gt-epsg-hsql or gt-epsg-wkt.  The HSQL version of the library is preferable since it has a few more codes. 
 
 That said, there are some caveats.  I have seen mismatches between the version of HSQL that GeoTools uses and versions available in Hadoop.  Also, HSQL sets up a temp directory in a common (yet configurable!) location.  For a system where multiple users are going to use the GeoMesa tools, some care may be required.  If those problems prove too much, one can try out the `gt-epsg-wkt` option instead.
+
+## How to create a project based on the latest code
+
+If the current version of **Geomesa** doesn't provide the features you require / the feature is only available in the latest code version, you can compile **Geomesa** from source. How to compile the code locally was explained in the first part of this series. 
+
+Set up a **new project** folder and a new **sbt build file** as well as dedicated `lib` folder inside it to store the **local jar files** that you want to reference. These jar files we can copy over from the locally compiled code:
+
+```bash
+export VERSION=1.3.2-SNAPSHOT
+# create a new project
+mkdir geomesa-local-jar-dependencies
+cd geomesa-local-jar-dependencies
+mkdir lib
+cd lib
+export GEOMESA_GIT_HOME=/home/dsteiner/git/geomesa
+cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-datastore/target/geomesa-accumulo-datastore_2.11-$VERSION.jar .
+cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-tools/target/geomesa-accumulo-tools_2.11-$VERSION.jar .
+cp $GEOMESA_GIT_HOME/geomesa-utils/target/geomesa-utils_2.11-$VERSION.jar .
+cp $GEOMESA_GIT_HOME/geomesa-utils/target/geomesa-utils_2.11-$VERSION-sources.jar .
+cp $GEOMESA_GIT_HOME/geomesa-spark/geomesa-spark-core/target/geomesa-spark-core_2.11-$VERSION.jar .
+cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-spark/target/geomesa-accumulo-spark_2.11-$VERSION.jar .
+
+cp $GEOMESA_GIT_HOME/geomesa-accumulo/geomesa-accumulo-distributed-runtime/target/geomesa-accumulo-distributed-runtime_2.11-$VERSION.jar .
+
+# not required as in distributed runtime
+#cp ~/.ivy2/cache/org.geotools/gt-main/jars/gt-main-15.1.jar .
+#cp ~/.ivy2/cache/org.geotools/gt-api/jars/gt-api-15.1.jar .
+#cp ~/.ivy2/cache/com.vividsolutions/jts/jars/jts-1.13.jar .
+```
+
+The `build.sbt` file is pretty much the same as with the previous project, just that all the Locationtech references are commented out.
+
+In **IntelliJ IDEA** right click on the `lib` folder and choose **Add as Library**. Confirm the upcoming dialog (**Level** can stay on *Project Level*).
+
+Process as normal.
 
 ## GeoServer Integration
 
