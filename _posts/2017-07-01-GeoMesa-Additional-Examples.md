@@ -10,7 +10,7 @@ published: true
 
 ## Ingesting Data with Spark
 
-This example demonstrates how to load data into **GeoMesa Accumulo** using **Spark SQL**:
+This example demonstrates how to load data into **GeoMesa Accumulo** using **Spark SQL**. The code for the examples discussed in this post can be found [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/gis/geomesa).
 
 Add this **dependency** to your `build.sbt`:
 
