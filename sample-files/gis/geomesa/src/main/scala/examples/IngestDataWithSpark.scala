@@ -115,8 +115,8 @@ object IngestDataWithSpark {
     val name = featureName
     val spec = Joiner.on(",").join(attributes)
     val featureType = DataUtilities.createType(name, spec)
-    // featureType.getUserData.put(Constants.SF_PROPERTY_START_TIME, "SQLDATE")
-    featureType.getUserData().put(SimpleFeatureTypes.DEFAULT_DATE_KEY, "SQLDATE");
+    // featureType.getUserData.put(Constants.SF_PROPERTY_START_TIME, "SqlDate")
+    featureType.getUserData().put(SimpleFeatureTypes.DEFAULT_DATE_KEY, "SqlDate")
     featureType
   }
 
