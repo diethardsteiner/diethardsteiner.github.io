@@ -218,6 +218,25 @@ gdelt_z3_v4
 $ scan -t sparkImportTest.gdelt_records_v2
 ```
 
+## Data Types
+
+**GeoMesa** geospatial data types are made available as **Spark User Defined Data Types**:
+
+| Spatial Data Type | Example | Spark Data Type
+|------------------|----------|-----------------
+| Points  | Locations, Events, Instantaneous Positions | `PointUDT`, `MultiPointUDT`
+| Lines   | Road networks, Voyages, Trips, Trajectories | `LineUDT`, `MultiLineUDT`
+| Polygons | Administrative Regions, Airspaces | `PolygonUDT`, `MultiPolygonUDF` 
+
+
+Within your **Spark Session** you can access them via running this snippet first:
+
+```scala
+org.apache.spark.sql.SQLTypes.init(spark.sqlContext)
+```
+
+[Source](https://www.slideshare.net/mobile/databricks/geomesa-on-apache-spark-sql-with-anthony-fox), these Spark SQL types are different from the ones shown in [the official docu](http://www.geomesa.org/documentation/user/spark/sparksql.html).
+
 ## Errors
 
 ### Undefined function
