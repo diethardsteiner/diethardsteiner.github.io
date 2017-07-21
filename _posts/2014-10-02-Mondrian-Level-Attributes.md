@@ -40,7 +40,7 @@ Imagine we just started writing the date dimension definition and it looks like 
         <Table name="dim_date" schema="common"/>
         <Level name="Year" column="year4" type="Integer" uniqueMembers="false" levelType="TimeYears" hideMemberIf="Never" visible="true" />
         
-    </Hierarchy>	      
+    </Hierarchy>
 </Dimension>
 ```
 
@@ -58,7 +58,7 @@ Let's define the **Quarter Level**:
 <Level 
     name="Quarter" 
     column="year_quarter_int"
-    type="Integer"  
+    type="Integer"
     captionColumn="year_quarter"
     ordinalColumn="year_quarter_int" 
     levelType="TimeQuarters"
@@ -97,6 +97,6 @@ Just to summarize:
 
 If you **do NOT** define a `captionColumn` or `nameColumn` then the end user will see the value of the key `column` in their analysis. The data analyst writing the MDX query will as well use the value of the key `column`.
 
-If you don't define a `captionColumn` but **NOT** `nameColumn` then the end user will see the value of the `captionColumn` in their analysis. The data analyst writing the MDX query will however use the value of the key `column`.
+If you define a `captionColumn` but **NOT** `nameColumn` then the end user will see the value of the `captionColumn` in their analysis. The data analyst writing the MDX query will however use the value of the key `column`.
 
 If you define a `captionColumn` and a `nameColumn` then the end user will see the value of the `captionColumn` in their analysis. The data analyst writing the MDX query will however use the value of the `nameColumn`. So in this last case non of the users works directly with the key `column` values.
