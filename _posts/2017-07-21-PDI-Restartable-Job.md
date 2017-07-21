@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Pentaho Data Integration: Restartable Job"
-summary: This article explains how to configure PDI to run with Spark
+summary: This article explains how to easily add restartablility to Pentaho jobs
 date: 2017-07-21
 categories: PDI
 tags: PDI
