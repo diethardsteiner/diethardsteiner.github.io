@@ -151,10 +151,9 @@ Emilio and Jim kindly clarified:
 
 We use the geotools shapefile data store to read a shapefile - I believe that you pass it the primary .shp file, but it expects the other files to be alongside.
 
-We have assumptions that data is in EPSG:4326 (longitude, latitude) and the points are inside that CRS's bounding box.  
+We have assumptions that data is in EPSG:4326 (longitude, latitude) and the points are inside that CRS's bounding box.
 
-
-If the shapefile violates either of those conditions, it might need a little pre-processing TLC.  
+If the shapefile violates either of those conditions, it might need a little pre-processing TLC.
 
 Generally, with those assumptions, as Emilio said, you shouldn't need to create the schema beforehand."
 
@@ -208,6 +207,9 @@ shapeFile
 ```
 
 Here we try to find out the schema name for the countries data we uploaded earlier on.
+
+
+[OPEN]: Scala code missing
 
 
 #### Run Job
