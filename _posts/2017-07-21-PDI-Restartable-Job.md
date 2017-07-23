@@ -5,7 +5,7 @@ summary: This article explains how to easily add restartablility to Pentaho jobs
 date: 2017-07-21
 categories: PDI
 tags: PDI
-published: false
+published: true
 ---  
 
 
