@@ -37,6 +37,9 @@ INSERT INTO snapshot_example.dim_events VALUES
   (1,2321, 20160201, 20160205, 'open')
   , (2,2321, 20160205, 20160207, 'assigned')
   , (3,2321, 20160207, 20160208, 'closed')
+  , (4,2322, 20160202, 20160204, 'open')
+  , (5,2322, 20160204, 20160207, 'assigned')
+  , (6,2322, 20160208, 20160208, 'closed')
 ;
 
 -- create snapshot by exploding the events

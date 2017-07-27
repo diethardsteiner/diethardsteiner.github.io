@@ -115,4 +115,51 @@ The final join helps us to **materialise** the view which the **OLAP/Cube** tool
 
 The output of the query above might be in some cases a bit too granular, but performing an aggregation of top of this is very easy.
 
+## Pentaho Metadata Layer
 
+Just as a side node, if you were ever to implement a similar model with the good old Pentaho Metadata Editor, you could define the two tables in the model and a **complex join** between them which could look something like this:
+
+```
+AND(["BT_DIM_DATE_DIM_DATE.BC_DIM_DATE_DATE_TK"] >= ["BT_DIM_EVENTS_DIM_EVENTS.BC_DIM_EVENTS_VALID_FROM"] ;
+["BT_DIM_DATE_DIM_DATE.BC_DIM_DATE_DATE_TK"] < ["BT_DIM_EVENTS_DIM_EVENTS.BC_DIM_EVENTS_VALID_TO"])
+```
+
+This replicates the same logic we applied in the very last logic above. 
+
+A screenshot of this complex join is shown below:
+
+![](/images/snapshot-alternative-pic1.png)
+
+This approach puts a lot of weight onto the database, so if you are dealing with a lot of data, it might be better to materialise the result of this join upfront.
+
+Let's extend our sample data a bit (complete data set shown, not just additional records):
+
+```
+INSERT INTO snapshot_example.dim_events VALUES
+  (1,2321, 20160201, 20160205, 'open')
+  , (2,2321, 20160205, 20160207, 'assigned')
+  , (3,2321, 20160207, 20160208, 'closed')
+  , (4,2322, 20160202, 20160204, 'open')
+  , (5,2322, 20160204, 20160207, 'assigned')
+  , (6,2322, 20160208, 20160208, 'closed')
+;
+```
+
+If we were just interested in understanding, how many cases/events there were within a certain period and event status, then we can add a new field in the metadata model at the table level called `Count Events` and define as **Aggregation Type** `Count` and as **Formula** `event_tk`.
+
+![](/images/snapshot-alternative-pic2.png)
+
+Alternatively we could also just add a counter to our base table directly.
+
+We can test if we generate the correct figures by using the built-in query builder:
+
+![](/images/snapshot-alternative-pic3.png)
+
+And the result looks like this:
+
+![](/images/snapshot-alternative-pic4.png)
+
+Which is in line with our expectations.
+ 
+
+The sample files are available [here](/sample-files/sql/snapshot-alternative).
