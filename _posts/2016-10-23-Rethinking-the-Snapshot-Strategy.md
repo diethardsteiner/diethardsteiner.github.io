@@ -162,4 +162,4 @@ And the result looks like this:
 Which is in line with our expectations.
  
 
-The sample files are available [here](/sample-files/sql/snapshot-alternative).
+The sample files are available [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/sql/snapshot-alternative).
