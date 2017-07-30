@@ -19,3 +19,18 @@ The idea is that we create an empty file (a **control file**) for every **unit o
 
 ![](/images/pdi-restartable-jb-1.png)
 
+Now that we understand the simple concept perfectly, let's go one step further. Always creating a master job as shown in the screenshot would be cumbersome, hence, we will create a module/wrapper, which centralises all the functionality we need. The wrapper looks like this: 
+
+![](/images/pdi-restartable-jb-2.png)
+
+It accept following parameters:
+
+
+
+Now from your master job, you can simply call the wrapper and pass down the parameter values:
+
+![](/images/pdi-restartable-jb-3.png)
+
+Here is an example of the parameter mapping:
+
+![](/images/pdi-restartable-jb-4.png)
