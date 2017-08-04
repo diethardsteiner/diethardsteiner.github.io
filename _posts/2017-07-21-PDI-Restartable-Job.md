@@ -23,8 +23,16 @@ Now that we understand the simple concept perfectly, let's go one step further. 
 
 ![](/images/pdi-restartable-jb-2.png)
 
-It accept following parameters:
+It accepts following parameters:
 
+Parameter                    | Description
+-----------------------------|------------------------------
+`IS_LAST_UNIT_OF_WORK`         | Is this the last job or transformation to be executed? Set to `Y` or `N`
+`PARAM_CONTROL_FILE_DIRECTORY` | location of the control file. must be a dedicated directory as all files will be deleted from it at the end of this process.
+`PARAM_CONTROL_FILE_NAME`      | file name of the control file
+`PARAM_UNIT_OF_WORK_DIRECTORY` | directory of the transformation or job to be executed
+`PARAM_UNIT_OF_WORK_NAME`      | file name of the transformation or job to be executed
+`PARAM_UNIT_OF_WORK_TYPE`      | set to `job` or `transformation`
 
 
 Now from your master job, you can simply call the wrapper and pass down the parameter values:
