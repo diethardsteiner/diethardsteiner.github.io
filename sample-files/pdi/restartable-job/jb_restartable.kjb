@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
-  <name>jb_sample_master</name>
+  <name>jb_restartable</name>
   <description />
   <extended_description />
   <job_version />
   <job_status>0</job_status>
   <directory>/</directory>
   <created_user>-</created_user>
-  <created_date>2017/07/30 22:16:53.072</created_date>
+  <created_date>2017/08/07 22:24:53.077</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2017/07/30 22:16:53.072</modified_date>
+  <modified_date>2017/08/07 22:24:53.077</modified_date>
   <parameters>
     <parameter>
       <name>PARAM_CONTROL_FILE_DIRECTORY</name>
@@ -293,7 +293,7 @@
   <shared_objects_file />
   <entries>
     <entry>
-      <name>Run Job</name>
+      <name>Run Job 1</name>
       <description />
       <type>JOB</type>
       <specification_method>filename</specification_method>
@@ -320,7 +320,7 @@
         <parameter>
           <name>IS_LAST_UNIT_OF_WORK</name>
           <stream_name />
-          <value />
+          <value>N</value>
         </parameter>
         <parameter>
           <name>PARAM_CONTROL_FILE_DIRECTORY</name>
@@ -330,7 +330,7 @@
         <parameter>
           <name>PARAM_CONTROL_FILE_NAME</name>
           <stream_name />
-          <value>master</value>
+          <value>file1</value>
         </parameter>
         <parameter>
           <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
@@ -340,20 +340,20 @@
         <parameter>
           <name>PARAM_UNIT_OF_WORK_NAME</name>
           <stream_name />
-          <value>jb_restartable.kjb</value>
+          <value>jb_dummy.kjb</value>
         </parameter>
         <parameter>
           <name>PARAM_UNIT_OF_WORK_TYPE</name>
           <stream_name />
-          <value>master</value>
+          <value>job</value>
         </parameter>
       </parameters>
       <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>464</xloc>
-      <yloc>240</yloc>
+      <xloc>512</xloc>
+      <yloc>320</yloc>
     </entry>
     <entry>
       <name>Success</name>
@@ -362,8 +362,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>464</xloc>
-      <yloc>416</yloc>
+      <xloc>512</xloc>
+      <yloc>864</yloc>
     </entry>
     <entry>
       <name>START</name>
@@ -382,14 +382,160 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>464</xloc>
-      <yloc>64</yloc>
+      <xloc>512</xloc>
+      <yloc>144</yloc>
+    </entry>
+    <entry>
+      <name>Run Job 2</name>
+      <description />
+      <type>JOB</type>
+      <specification_method>filename</specification_method>
+      <job_object_id />
+      <filename>${Internal.Entry.Current.Directory}/jb_restartable_job_wrapper.kjb</filename>
+      <jobname />
+      <arg_from_previous>N</arg_from_previous>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile />
+      <logext />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <slave_server_name />
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <expand_remote_job>N</expand_remote_job>
+      <create_parent_folder>N</create_parent_folder>
+      <pass_export>N</pass_export>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>IS_LAST_UNIT_OF_WORK</name>
+          <stream_name />
+          <value>N</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_CONTROL_FILE_DIRECTORY</name>
+          <stream_name />
+          <value>${PARAM_CONTROL_FILE_DIRECTORY}</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_CONTROL_FILE_NAME</name>
+          <stream_name />
+          <value>file2</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
+          <stream_name />
+          <value>${Internal.Entry.Current.Directory}</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_UNIT_OF_WORK_NAME</name>
+          <stream_name />
+          <value>jb_dummy.kjb</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_UNIT_OF_WORK_TYPE</name>
+          <stream_name />
+          <value>job</value>
+        </parameter>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>512</xloc>
+      <yloc>496</yloc>
+    </entry>
+    <entry>
+      <name>Run Transformation 1</name>
+      <description />
+      <type>JOB</type>
+      <specification_method>filename</specification_method>
+      <job_object_id />
+      <filename>${Internal.Entry.Current.Directory}/jb_restartable_job_wrapper.kjb</filename>
+      <jobname />
+      <arg_from_previous>N</arg_from_previous>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile />
+      <logext />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <slave_server_name />
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <expand_remote_job>N</expand_remote_job>
+      <create_parent_folder>N</create_parent_folder>
+      <pass_export>N</pass_export>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>IS_LAST_UNIT_OF_WORK</name>
+          <stream_name />
+          <value>Y</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_CONTROL_FILE_DIRECTORY</name>
+          <stream_name />
+          <value>${PARAM_CONTROL_FILE_DIRECTORY}</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_CONTROL_FILE_NAME</name>
+          <stream_name />
+          <value>file3</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
+          <stream_name />
+          <value>${Internal.Entry.Current.Directory}</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_UNIT_OF_WORK_NAME</name>
+          <stream_name />
+          <value>tr_dummy.ktr</value>
+        </parameter>
+        <parameter>
+          <name>PARAM_UNIT_OF_WORK_TYPE</name>
+          <stream_name />
+          <value>transformation</value>
+        </parameter>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>512</xloc>
+      <yloc>672</yloc>
+    </entry>
+    <entry>
+      <name>DUMMY</name>
+      <description />
+      <type>SPECIAL</type>
+      <start>N</start>
+      <dummy>Y</dummy>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>736</xloc>
+      <yloc>560</yloc>
     </entry>
   </entries>
   <hops>
     <hop>
       <from>START</from>
-      <to>Run Job</to>
+      <to>Run Job 1</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -397,7 +543,25 @@
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Run Job</from>
+      <from>Run Job 1</from>
+      <to>Run Job 2</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run Job 2</from>
+      <to>Run Transformation 1</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run Transformation 1</from>
       <to>Success</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
@@ -405,18 +569,36 @@
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
+    <hop>
+      <from>START</from>
+      <to>DUMMY</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>N</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>DUMMY</from>
+      <to>Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>N</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
   </hops>
   <notepads>
     <notepad>
-      <note>Sample master job demonstrating 
-the master lock control file functionality.
+      <note>Sample master job demonstrating how the
+modular restartability wrapper can be applied.
 
-Job entry references the 
+All these job entries reference the 
 restartability wrapper and pass down 
 parameters.</note>
-      <xloc>672</xloc>
-      <yloc>48</yloc>
-      <width>441</width>
+      <xloc>688</xloc>
+      <yloc>112</yloc>
+      <width>494</width>
       <heigth>202</heigth>
       <fontname>Cantarell</fontname>
       <fontsize>9</fontsize>
@@ -434,20 +616,4 @@ parameters.</note>
       <drawshadow>Y</drawshadow>
     </notepad>
   </notepads>
-  <attributes>
-    <group>
-      <name>METASTORE.pentaho</name>
-      <attribute>
-        <key>Default Run Configuration</key>
-        <value>{"namespace":"pentaho","id":"Default Run Configuration","name":"Default Run Configuration","description":"Defines a default run configuration","metaStoreName":null}</value>
-      </attribute>
-    </group>
-    <group>
-      <name>{"_":"Embedded MetaStore Elements","namespace":"pentaho","type":"Default Run Configuration"}</name>
-      <attribute>
-        <key>Pentaho local</key>
-        <value>{"children":[{"children":[],"id":"server","value":null},{"children":[],"id":"clustered","value":"N"},{"children":[],"id":"name","value":"Pentaho local"},{"children":[],"id":"description","value":null},{"children":[],"id":"readOnly","value":"Y"},{"children":[],"id":"sendResources","value":"N"},{"children":[],"id":"logRemoteExecutionLocally","value":"N"},{"children":[],"id":"remote","value":"N"},{"children":[],"id":"local","value":"Y"},{"children":[],"id":"showTransformations","value":"N"}],"id":"Pentaho local","value":null,"name":"Pentaho local","owner":null,"ownerPermissionsList":[]}</value>
-      </attribute>
-    </group>
-  </attributes>
 </job>

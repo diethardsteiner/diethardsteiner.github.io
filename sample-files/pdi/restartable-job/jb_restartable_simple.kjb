@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
-  <name>jb_restartable</name>
+  <name>jb_restartable_simple</name>
   <description />
   <extended_description />
   <job_version />
