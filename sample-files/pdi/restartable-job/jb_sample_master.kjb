@@ -298,7 +298,7 @@
       <type>JOB</type>
       <specification_method>filename</specification_method>
       <job_object_id />
-      <filename>${Internal.Entry.Current.Directory}/jb_restartable_job_wrapper.kjb</filename>
+      <filename>${Internal.Entry.Current.Directory}/jb_lock_control_wrapper.kjb</filename>
       <jobname />
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -318,11 +318,6 @@
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
         <parameter>
-          <name>IS_LAST_UNIT_OF_WORK</name>
-          <stream_name />
-          <value />
-        </parameter>
-        <parameter>
           <name>PARAM_CONTROL_FILE_DIRECTORY</name>
           <stream_name />
           <value>${PARAM_CONTROL_FILE_DIRECTORY}</value>
@@ -341,11 +336,6 @@
           <name>PARAM_UNIT_OF_WORK_NAME</name>
           <stream_name />
           <value>jb_restartable.kjb</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_TYPE</name>
-          <stream_name />
-          <value>master</value>
         </parameter>
       </parameters>
       <set_append_logfile>N</set_append_logfile>
@@ -412,10 +402,10 @@
 the master lock control file functionality.
 
 Job entry references the 
-restartability wrapper and pass down 
-parameters.</note>
-      <xloc>672</xloc>
-      <yloc>48</yloc>
+lock control wrapper and pass down 
+required parameters.</note>
+      <xloc>624</xloc>
+      <yloc>64</yloc>
       <width>441</width>
       <heigth>202</heigth>
       <fontname>Cantarell</fontname>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
-  <name>jb_restartable_job_wrapper</name>
+  <name>jb_restartability_control_wrapper</name>
   <description />
   <extended_description />
   <job_version />
@@ -14,7 +14,7 @@
     <parameter>
       <name>IS_LAST_UNIT_OF_WORK</name>
       <default_value />
-      <description>Is this the last job or transformation to be executed? Set to `Y` or `N`. Not applicable for `PARAM_UNIT_OF_WORK_TYPE=master`.</description>
+      <description>Is this the last job or transformation to be executed? Set to `Y` or `N`. </description>
     </parameter>
     <parameter>
       <name>PARAM_CONTROL_FILE_DIRECTORY</name>
@@ -39,7 +39,7 @@
     <parameter>
       <name>PARAM_UNIT_OF_WORK_TYPE</name>
       <default_value />
-      <description>set to `job` or `transformation`. If you want to use the master job lock file functionality, set this value to `master`.</description>
+      <description>set to `job` or `transformation`</description>
     </parameter>
   </parameters>
   <slaveservers>
@@ -367,7 +367,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1184</xloc>
+      <xloc>1216</xloc>
       <yloc>720</yloc>
     </entry>
     <entry>
@@ -473,7 +473,7 @@
       <draw>Y</draw>
       <nr>0</nr>
       <xloc>1008</xloc>
-      <yloc>592</yloc>
+      <yloc>448</yloc>
     </entry>
     <entry>
       <name>Success</name>
@@ -515,8 +515,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1472</xloc>
-      <yloc>1232</yloc>
+      <xloc>1008</xloc>
+      <yloc>672</yloc>
     </entry>
     <entry>
       <name>Abort job CF</name>
@@ -562,8 +562,8 @@ Nothing to do - exiting
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>464</xloc>
-      <yloc>880</yloc>
+      <xloc>368</xloc>
+      <yloc>720</yloc>
     </entry>
     <entry>
       <name>Write To Log - CF</name>
@@ -599,206 +599,6 @@ Hence deleted all control files.
       <nr>0</nr>
       <xloc>704</xloc>
       <yloc>1264</yloc>
-    </entry>
-    <entry>
-      <name>Is Master?</name>
-      <description />
-      <type>SIMPLE_EVAL</type>
-      <valuetype>variable</valuetype>
-      <fieldname>PARAM_UNIT_OF_WORK_TYPE</fieldname>
-      <variablename>PARAM_UNIT_OF_WORK_TYPE</variablename>
-      <fieldtype>string</fieldtype>
-      <mask />
-      <comparevalue>master</comparevalue>
-      <minvalue />
-      <maxvalue />
-      <successcondition>equal</successcondition>
-      <successnumbercondition>equal</successnumbercondition>
-      <successbooleancondition>false</successbooleancondition>
-      <successwhenvarset>N</successwhenvarset>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1008</xloc>
-      <yloc>448</yloc>
-    </entry>
-    <entry>
-      <name>Delete Lock File</name>
-      <description />
-      <type>DELETE_FILES</type>
-      <arg_from_previous>N</arg_from_previous>
-      <include_subfolders>N</include_subfolders>
-      <fields>
-        <field>
-          <name>${PARAM_CONTROL_FILE_DIRECTORY}/lock-control</name>
-          <filemask>.*</filemask>
-        </field>
-      </fields>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1536</xloc>
-      <yloc>1056</yloc>
-    </entry>
-    <entry>
-      <name>Does Lock Folder exist?</name>
-      <description />
-      <type>FILES_EXIST</type>
-      <filename />
-      <fields>
-        <field>
-          <name>${PARAM_CONTROL_FILE_DIRECTORY}/lock-control</name>
-        </field>
-      </fields>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1472</xloc>
-      <yloc>896</yloc>
-    </entry>
-    <entry>
-      <name>Run Master Job</name>
-      <description />
-      <type>JOB</type>
-      <specification_method>filename</specification_method>
-      <job_object_id />
-      <filename>${PARAM_UNIT_OF_WORK_DIRECTORY}/${PARAM_UNIT_OF_WORK_NAME}</filename>
-      <jobname />
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile />
-      <logext />
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <slave_server_name />
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <expand_remote_job>N</expand_remote_job>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <set_append_logfile>N</set_append_logfile>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1760</xloc>
-      <yloc>624</yloc>
-    </entry>
-    <entry>
-      <name>Create lock control file</name>
-      <description />
-      <type>CREATE_FILE</type>
-      <filename>${PARAM_CONTROL_FILE_DIRECTORY}/lock-control/${PARAM_CONTROL_FILE_NAME}</filename>
-      <fail_if_file_exists>Y</fail_if_file_exists>
-      <add_filename_result>N</add_filename_result>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1760</xloc>
-      <yloc>448</yloc>
-    </entry>
-    <entry>
-      <name>Delete Lock File Success</name>
-      <description />
-      <type>DELETE_FILES</type>
-      <arg_from_previous>N</arg_from_previous>
-      <include_subfolders>N</include_subfolders>
-      <fields>
-        <field>
-          <name>${PARAM_CONTROL_FILE_DIRECTORY}/lock-control</name>
-          <filemask>.*</filemask>
-        </field>
-      </fields>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1856</xloc>
-      <yloc>800</yloc>
-    </entry>
-    <entry>
-      <name>Success Master</name>
-      <description />
-      <type>SUCCESS</type>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1856</xloc>
-      <yloc>1248</yloc>
-    </entry>
-    <entry>
-      <name>Delete Lock File Error</name>
-      <description />
-      <type>DELETE_FILES</type>
-      <arg_from_previous>N</arg_from_previous>
-      <include_subfolders>N</include_subfolders>
-      <fields>
-        <field>
-          <name>${PARAM_CONTROL_FILE_DIRECTORY}/lock-control</name>
-          <filemask>.*</filemask>
-        </field>
-      </fields>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1760</xloc>
-      <yloc>944</yloc>
-    </entry>
-    <entry>
-      <name>Abort job Master</name>
-      <description />
-      <type>ABORT</type>
-      <message>Failed to run Master</message>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>1760</xloc>
-      <yloc>1136</yloc>
-    </entry>
-    <entry>
-      <name>Is Master? Exists</name>
-      <description />
-      <type>SIMPLE_EVAL</type>
-      <valuetype>variable</valuetype>
-      <fieldname>PARAM_UNIT_OF_WORK_TYPE</fieldname>
-      <variablename>PARAM_UNIT_OF_WORK_TYPE</variablename>
-      <fieldtype>string</fieldtype>
-      <mask />
-      <comparevalue>master</comparevalue>
-      <minvalue />
-      <maxvalue />
-      <successcondition>equal</successcondition>
-      <successnumbercondition>equal</successnumbercondition>
-      <successbooleancondition>false</successbooleancondition>
-      <successwhenvarset>N</successwhenvarset>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>368</xloc>
-      <yloc>592</yloc>
-    </entry>
-    <entry>
-      <name>Write To Log - Master Running</name>
-      <description />
-      <type>WRITE_TO_LOG</type>
-      <logmessage>===========================
-
-Lock control file already exists
-Hence process is already running!
-Process is not allow to run more than once!
-Exiting ...
-===========================</logmessage>
-      <loglevel>Basic</loglevel>
-      <logsubject />
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>368</xloc>
-      <yloc>768</yloc>
     </entry>
   </entries>
   <hops>
@@ -939,115 +739,7 @@ Exiting ...
     </hop>
     <hop>
       <from>Write To Log - Run</from>
-      <to>Is Master?</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Is Master?</from>
       <to>Is Transformation?</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Run Transformation</from>
-      <to>Does Lock Folder exist?</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Run Job</from>
-      <to>Does Lock Folder exist?</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Does Lock Folder exist?</from>
-      <to>Abort job</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Does Lock Folder exist?</from>
-      <to>Delete Lock File</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Delete Lock File</from>
-      <to>Abort job</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Is Master?</from>
-      <to>Create lock control file</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Create lock control file</from>
-      <to>Run Master Job</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Delete Lock File Success</from>
-      <to>Success Master</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Run Master Job</from>
-      <to>Delete Lock File Success</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Run Master Job</from>
-      <to>Delete Lock File Error</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Delete Lock File Error</from>
-      <to>Abort job Master</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -1056,16 +748,16 @@ Exiting ...
     </hop>
     <hop>
       <from>Does control file exist?</from>
-      <to>Is Master? Exists</to>
+      <to>Write To Log - No Run</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Is Master? Exists</from>
-      <to>Write To Log - No Run</to>
+      <from>Run Transformation</from>
+      <to>Abort job</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -1073,21 +765,12 @@ Exiting ...
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Is Master? Exists</from>
-      <to>Write To Log - Master Running</to>
+      <from>Run Job</from>
+      <to>Abort job</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Write To Log - Master Running</from>
-      <to>Success</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
+      <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
@@ -1104,30 +787,6 @@ via property files.
       <yloc>48</yloc>
       <width>773</width>
       <heigth>234</heigth>
-      <fontname>Cantarell</fontname>
-      <fontsize>9</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>0</fontcolorred>
-      <fontcolorgreen>0</fontcolorgreen>
-      <fontcolorblue>0</fontcolorblue>
-      <backgroundcolorred>255</backgroundcolorred>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>100</bordercolorred>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorblue>100</bordercolorblue>
-      <drawshadow>Y</drawshadow>
-    </notepad>
-    <notepad>
-      <note>Lock folder might 
-not exist if lock 
-functionality is not 
-used.</note>
-      <xloc>1456</xloc>
-      <yloc>736</yloc>
-      <width>214</width>
-      <heigth>138</heigth>
       <fontname>Cantarell</fontname>
       <fontsize>9</fontsize>
       <fontbold>N</fontbold>

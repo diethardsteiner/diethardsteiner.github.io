@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
-  <name>jb_restartable</name>
+  <name>jb_lock_control_wrapper</name>
   <description />
   <extended_description />
   <job_version />
   <job_status>0</job_status>
   <directory>/</directory>
   <created_user>-</created_user>
-  <created_date>2017/08/07 22:24:53.077</created_date>
+  <created_date>2017/08/08 19:22:06.291</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2017/08/07 22:24:53.077</modified_date>
+  <modified_date>2017/08/08 19:22:06.291</modified_date>
   <parameters>
     <parameter>
       <name>PARAM_CONTROL_FILE_DIRECTORY</name>
-      <default_value>/tmp/control</default_value>
-      <description />
+      <default_value />
+      <description>location of the control file. must be a dedicated directory as all files will be deleted from it at the end of this process.</description>
+    </parameter>
+    <parameter>
+      <name>PARAM_CONTROL_FILE_NAME</name>
+      <default_value />
+      <description>file name of the control file</description>
+    </parameter>
+    <parameter>
+      <name>PARAM_LOCK_CONTROL_SUBFOLDER</name>
+      <default_value>lock-control</default_value>
+      <description>sub folder nested within PARAM_CONTROL_FILE_DIRECTORY - this value does not have to be passed down</description>
+    </parameter>
+    <parameter>
+      <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
+      <default_value />
+      <description>directory of the transformation or job to be executed</description>
+    </parameter>
+    <parameter>
+      <name>PARAM_UNIT_OF_WORK_NAME</name>
+      <default_value />
+      <description>file name of the transformation or job to be executed</description>
     </parameter>
   </parameters>
   <slaveservers>
@@ -293,12 +313,12 @@
   <shared_objects_file />
   <entries>
     <entry>
-      <name>Run Job 1</name>
+      <name>Run Master Job</name>
       <description />
       <type>JOB</type>
       <specification_method>filename</specification_method>
       <job_object_id />
-      <filename>${Internal.Entry.Current.Directory}/jb_restartability_control_wrapper.kjb</filename>
+      <filename>${PARAM_UNIT_OF_WORK_DIRECTORY}/${PARAM_UNIT_OF_WORK_NAME}</filename>
       <jobname />
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -317,53 +337,83 @@
       <pass_export>N</pass_export>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
-        <parameter>
-          <name>IS_LAST_UNIT_OF_WORK</name>
-          <stream_name />
-          <value>N</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_CONTROL_FILE_DIRECTORY</name>
-          <stream_name />
-          <value>${PARAM_CONTROL_FILE_DIRECTORY}</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_CONTROL_FILE_NAME</name>
-          <stream_name />
-          <value>file1</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
-          <stream_name />
-          <value>${Internal.Entry.Current.Directory}</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_NAME</name>
-          <stream_name />
-          <value>jb_dummy.kjb</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_TYPE</name>
-          <stream_name />
-          <value>job</value>
-        </parameter>
       </parameters>
       <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>224</yloc>
+      <xloc>720</xloc>
+      <yloc>512</yloc>
     </entry>
     <entry>
-      <name>Success</name>
+      <name>Create lock control file</name>
+      <description />
+      <type>CREATE_FILE</type>
+      <filename>${PARAM_CONTROL_FILE_DIRECTORY}/${PARAM_LOCK_CONTROL_SUBFOLDER}/${PARAM_CONTROL_FILE_NAME}</filename>
+      <fail_if_file_exists>Y</fail_if_file_exists>
+      <add_filename_result>N</add_filename_result>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>720</xloc>
+      <yloc>288</yloc>
+    </entry>
+    <entry>
+      <name>Delete Lock File Success</name>
+      <description />
+      <type>DELETE_FILES</type>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${PARAM_CONTROL_FILE_DIRECTORY}/${PARAM_LOCK_CONTROL_SUBFOLDER}</name>
+          <filemask>.*</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>848</xloc>
+      <yloc>688</yloc>
+    </entry>
+    <entry>
+      <name>Success Master</name>
       <description />
       <type>SUCCESS</type>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>880</yloc>
+      <xloc>848</xloc>
+      <yloc>1136</yloc>
+    </entry>
+    <entry>
+      <name>Delete Lock File Error</name>
+      <description />
+      <type>DELETE_FILES</type>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${PARAM_CONTROL_FILE_DIRECTORY}/${PARAM_LOCK_CONTROL_SUBFOLDER}</name>
+          <filemask>.*</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>720</xloc>
+      <yloc>832</yloc>
+    </entry>
+    <entry>
+      <name>Abort job Master</name>
+      <description />
+      <type>ABORT</type>
+      <message>Failed to run Master</message>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>720</xloc>
+      <yloc>1024</yloc>
     </entry>
     <entry>
       <name>START</name>
@@ -382,163 +432,139 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>48</yloc>
+      <xloc>272</xloc>
+      <yloc>112</yloc>
     </entry>
     <entry>
-      <name>Run Job 2</name>
+      <name>Does control file exist?</name>
       <description />
-      <type>JOB</type>
-      <specification_method>filename</specification_method>
-      <job_object_id />
-      <filename>${Internal.Entry.Current.Directory}/jb_restartability_control_wrapper.kjb</filename>
-      <jobname />
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile />
-      <logext />
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <slave_server_name />
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <expand_remote_job>N</expand_remote_job>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-        <parameter>
-          <name>IS_LAST_UNIT_OF_WORK</name>
-          <stream_name />
-          <value>N</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_CONTROL_FILE_DIRECTORY</name>
-          <stream_name />
-          <value>${PARAM_CONTROL_FILE_DIRECTORY}</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_CONTROL_FILE_NAME</name>
-          <stream_name />
-          <value>file2</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
-          <stream_name />
-          <value>${Internal.Entry.Current.Directory}</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_NAME</name>
-          <stream_name />
-          <value>jb_dummy.kjb</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_TYPE</name>
-          <stream_name />
-          <value>job</value>
-        </parameter>
-      </parameters>
-      <set_append_logfile>N</set_append_logfile>
+      <type>FILES_EXIST</type>
+      <filename />
+      <fields>
+        <field>
+          <name>${PARAM_CONTROL_FILE_DIRECTORY}/${PARAM_LOCK_CONTROL_SUBFOLDER}/${PARAM_CONTROL_FILE_NAME}</name>
+        </field>
+      </fields>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>400</yloc>
+      <xloc>272</xloc>
+      <yloc>496</yloc>
     </entry>
     <entry>
-      <name>Run Transformation 1</name>
+      <name>Write To Log - Run</name>
       <description />
-      <type>JOB</type>
-      <specification_method>filename</specification_method>
-      <job_object_id />
-      <filename>${Internal.Entry.Current.Directory}/jb_restartability_control_wrapper.kjb</filename>
-      <jobname />
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile />
-      <logext />
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <slave_server_name />
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <expand_remote_job>N</expand_remote_job>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-        <parameter>
-          <name>IS_LAST_UNIT_OF_WORK</name>
-          <stream_name />
-          <value>Y</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_CONTROL_FILE_DIRECTORY</name>
-          <stream_name />
-          <value>${PARAM_CONTROL_FILE_DIRECTORY}</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_CONTROL_FILE_NAME</name>
-          <stream_name />
-          <value>file3</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_DIRECTORY</name>
-          <stream_name />
-          <value>${Internal.Entry.Current.Directory}</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_NAME</name>
-          <stream_name />
-          <value>tr_dummy.ktr</value>
-        </parameter>
-        <parameter>
-          <name>PARAM_UNIT_OF_WORK_TYPE</name>
-          <stream_name />
-          <value>transformation</value>
-        </parameter>
-      </parameters>
-      <set_append_logfile>N</set_append_logfile>
+      <type>WRITE_TO_LOG</type>
+      <logmessage>===========================
+
+Job to be executed: 
+${PARAM_UNIT_OF_WORK_DIRECTORY}/${PARAM_UNIT_OF_WORK_NAME}
+
+===========================</logmessage>
+      <loglevel>Basic</loglevel>
+      <logsubject />
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>576</yloc>
+      <xloc>720</xloc>
+      <yloc>112</yloc>
     </entry>
     <entry>
-      <name>Abort job</name>
+      <name>Write To Log - CF</name>
       <description />
-      <type>ABORT</type>
-      <message />
+      <type>WRITE_TO_LOG</type>
+      <logmessage>==============================================
+
+Control file: ${PARAM_CONTROL_FILE_DIRECTORY}/${PARAM_LOCK_CONTROL_SUBFOLDER}/${PARAM_CONTROL_FILE_NAME}
+
+==============================================</logmessage>
+      <loglevel>Basic</loglevel>
+      <logsubject />
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>640</xloc>
-      <yloc>400</yloc>
+      <xloc>272</xloc>
+      <yloc>304</yloc>
     </entry>
     <entry>
-      <name>Wait for</name>
+      <name>Write To Log - Master Running</name>
       <description />
-      <type>DELAY</type>
-      <maximumTimeout>30</maximumTimeout>
-      <scaletime>0</scaletime>
+      <type>WRITE_TO_LOG</type>
+      <logmessage>===========================
+
+Lock control file already exists
+Hence process is already running!
+Process is not allow to run more than once!
+Exiting ...
+===========================</logmessage>
+      <loglevel>Basic</loglevel>
+      <logsubject />
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>400</xloc>
-      <yloc>720</yloc>
+      <xloc>272</xloc>
+      <yloc>880</yloc>
+    </entry>
+    <entry>
+      <name>Success</name>
+      <description />
+      <type>SUCCESS</type>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>272</xloc>
+      <yloc>1104</yloc>
     </entry>
   </entries>
   <hops>
     <hop>
+      <from>Create lock control file</from>
+      <to>Run Master Job</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run Master Job</from>
+      <to>Delete Lock File Error</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete Lock File Error</from>
+      <to>Abort job Master</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run Master Job</from>
+      <to>Delete Lock File Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete Lock File Success</from>
+      <to>Success Master</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
       <from>START</from>
-      <to>Run Job 1</to>
+      <to>Write To Log - CF</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -546,8 +572,8 @@
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Run Job 1</from>
-      <to>Run Job 2</to>
+      <from>Write To Log - Run</from>
+      <to>Create lock control file</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -555,8 +581,8 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Run Job 2</from>
-      <to>Run Transformation 1</to>
+      <from>Write To Log - CF</from>
+      <to>Does control file exist?</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -564,8 +590,8 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Run Job 1</from>
-      <to>Abort job</to>
+      <from>Does control file exist?</from>
+      <to>Write To Log - Run</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -573,26 +599,8 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Run Job 2</from>
-      <to>Abort job</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Run Transformation 1</from>
-      <to>Abort job</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Run Transformation 1</from>
-      <to>Wait for</to>
+      <from>Does control file exist?</from>
+      <to>Write To Log - Master Running</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -600,7 +608,7 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Wait for</from>
+      <from>Write To Log - Master Running</from>
       <to>Success</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
@@ -611,38 +619,13 @@
   </hops>
   <notepads>
     <notepad>
-      <note>Sample master job demonstrating how the
-modular restartability wrapper can be applied.
-
-All these job entries reference the 
-restartability control wrapper and pass down 
-required parameters.</note>
-      <xloc>576</xloc>
-      <yloc>48</yloc>
-      <width>494</width>
-      <heigth>202</heigth>
-      <fontname>Cantarell</fontname>
-      <fontsize>9</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>0</fontcolorred>
-      <fontcolorgreen>0</fontcolorgreen>
-      <fontcolorblue>0</fontcolorblue>
-      <backgroundcolorred>255</backgroundcolorred>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>100</bordercolorred>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorblue>100</bordercolorblue>
-      <drawshadow>Y</drawshadow>
-    </notepad>
-    <notepad>
-      <note>&lt; Only used to demonstrate
-that lock file gets created.</note>
-      <xloc>592</xloc>
-      <yloc>720</yloc>
-      <width>306</width>
-      <heigth>74</heigth>
+      <note>Lock control file
+should only exist
+while job is running</note>
+      <xloc>880</xloc>
+      <yloc>496</yloc>
+      <width>213</width>
+      <heigth>106</heigth>
       <fontname>Cantarell</fontname>
       <fontsize>9</fontsize>
       <fontbold>N</fontbold>
