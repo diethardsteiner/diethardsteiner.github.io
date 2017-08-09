@@ -12,6 +12,8 @@ published: true
 
 The code for the examples discussed in this post can be found [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pdi/restartable-job).
 
+# Restartable Job
+
 This blog post could as well be labeled *The world's simplest restartable job*. My main aim here is to have a fast and easy implementation, without any dependencies. It is very simple and very basic. 
 
 The idea is that we create an empty file (a **control file**) for every **unit of work** successfully done. Simple. That's it really. If a unit of work does not get completed successfully, no file will be written out. Before executing a unit of work, we check if the **control file** exits. If it exists, we do not execute the current unit of work, but move on to check if the **control file** for the next unit of work exists. Once we completed the last unit of work successfully, we know that the whole **process** finished successfully, hence we can **delete** all **control files.**
@@ -21,6 +23,8 @@ The idea is that we create an empty file (a **control file**) for every **unit o
 > **Note**: When you take a look at the screenshot of the Pentaho Data Integration job, you will notice that the unit of work is represented by a *Wait* job entry. In reality, this would be a job or transformation job entry.
 
 ![](/images/pdi-restartable-jb-1.png)
+
+# Restartability Wrapper
 
 Now that we understand the simple concept perfectly, let's go one step further. Always creating a master job as shown in the screenshot would be cumbersome, hence, we will create a module/wrapper, which centralises all the functionality we need. The wrapper looks like this: 
 
@@ -38,7 +42,7 @@ Parameter                    | Description
 `PARAM_UNIT_OF_WORK_TYPE`      | set to `job` or `transformation`
 
 
-Now from your master job, you can simply call the wrapper and pass down the parameter values:
+Now from your master job, you can simply call the **wrapper** and **pass down the parameter** values:
 
 ![](/images/pdi-restartable-jb-3.png)
 
@@ -46,9 +50,9 @@ Here is an example of the parameter mapping:
 
 ![](/images/pdi-restartable-jb-4.png)
 
-# Additional features
+# Lock Control Wrapper
 
-There is one more use case we can add. There are two kind of **control files** we are interest in:
+There is at least one more use case we can add. There are two kind of **control files** we are interest in:
 
 - **Restart control files**
 - Master job **lock control file**
@@ -64,15 +68,21 @@ The **implementation** of this looks this:
 It is best to keep the logic in separate jobs. Moving forward we will have **two wrappers**:
 
 - `jb_lock_control_wrapper`: takes care of the **lock control** file logic.
-- `jb_restartability_control_wrapper`: takes care of the **restartability** logic.
+- `jb_restartability_control_wrapper`: takes care of the **restartability** logic. This is the same job as outlined in the first section of this article.
 
 A screenshot of `jb_lock_control_wrapper`:
 
 ![](/images/pdi-restartable-jb-5.png)
 
-A screenshot of `jb_restartability_control_wrapper`:
+It accepts following parameters:
 
-![](/images/pdi-restartable-jb-6.png)
+Parameter                    | Description
+-----------------------------|------------------------------
+`PARAM_CONTROL_FILE_DIRECTORY` | location of the control file. must be a dedicated directory as all files will be deleted from it at the end of this process.
+`PARAM_CONTROL_FILE_NAME`      | file name of the control file
+`PARAM_UNIT_OF_WORK_DIRECTORY` | directory of the job to be executed
+`PARAM_UNIT_OF_WORK_NAME`      | file name of the job to be executed
+
 
 Other **considerations**:
 
@@ -80,6 +90,8 @@ When using these **wrappers**, we have to be mindful: We cannot reference `jb_lo
 
 - **Job Level 1**: Call wrapper for **lock functionality**
 - **Job Level 2**: Call wrapper for **restartability functionality**
+
+![](/images/pdi-restartable-jb-9.png)
 
 A screenshot of the master job:
 
