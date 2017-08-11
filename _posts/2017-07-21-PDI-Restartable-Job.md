@@ -101,6 +101,10 @@ A screenshot of the slave job:
 
 ![](/images/pdi-restartable-jb-8.png)
 
+
+> **Note**: Since the control files are created on the local filesystem, this doesn't stop someone from kicking off the same job on another machine. If you want to avoid this situation, you can simply write the file to a shared file system, like HDFS. This can be achieved easily by using the virtual file system references, which all of the PDI steps used in the wrapper support.
+
+
 ## Design Decisions
 
 **Why use a wrapper?**:
