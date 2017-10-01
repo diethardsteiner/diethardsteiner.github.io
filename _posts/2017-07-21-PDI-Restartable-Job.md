@@ -101,6 +101,10 @@ A screenshot of the slave job:
 
 ![](/images/pdi-restartable-jb-8.png)
 
+
+> **Note**: Since the control files are created on the local filesystem, this doesn't stop someone from kicking off the same job on another machine. If you want to avoid this situation, you can simply write the file to a shared file system, like HDFS. This can be achieved easily by using the virtual file system references, which all of the PDI steps used in the wrapper support.
+
+
 ## Design Decisions
 
 **Why use a wrapper?**:
@@ -124,6 +128,8 @@ Remember how I told you that using the wrapper to access both features (**master
 ```
 master -> wrapper -> restartable job -> wrapper -> other job(s)
 ```
+
+![](/images/pdi-restartable-jb-10.png)
 
 It turns out that this setup does not work in this case since the wrapper file name is the same - unless: Well, actually, the behaviour is pretty inconsistent. If you use the **file base repo** (and I assume any other PDI repo), this runs without problems. I tested this with **PDI v5.4**. If you use the **normal files** (so not any PDI repo), then you get an error about **recursive job usage**:
 
