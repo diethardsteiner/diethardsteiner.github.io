@@ -240,6 +240,21 @@ Student Name |
 Bob | 
 Lilian |
 
+
+**Q**: What is the average grade by Hobby?
+
+```sql
+SELECT
+ [Course Name].Members ON ROWS
+  , {[Measures].[Grade]} ON COLUMNS
+FROM [Grades and Hobbies]
+```
+
+Course Name | Grade
+------------|-----
+Math        | 6.333
+Physics     | 3
+
 **Learning Exercise**
 
 Let's go back to understanding some basics: Pay attention to the slicer (`WHERE`) in the following query:

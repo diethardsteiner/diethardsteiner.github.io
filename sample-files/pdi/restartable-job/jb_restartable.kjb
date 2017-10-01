@@ -619,8 +619,8 @@ restartability control wrapper and pass down
 required parameters.</note>
       <xloc>576</xloc>
       <yloc>48</yloc>
-      <width>494</width>
-      <heigth>202</heigth>
+      <width>582</width>
+      <heigth>232</heigth>
       <fontname>Cantarell</fontname>
       <fontsize>9</fontsize>
       <fontbold>N</fontbold>
@@ -641,8 +641,8 @@ required parameters.</note>
 that lock file gets created.</note>
       <xloc>592</xloc>
       <yloc>720</yloc>
-      <width>306</width>
-      <heigth>74</heigth>
+      <width>360</width>
+      <heigth>84</heigth>
       <fontname>Cantarell</fontname>
       <fontsize>9</fontsize>
       <fontbold>N</fontbold>
