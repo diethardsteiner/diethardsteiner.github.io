@@ -5,7 +5,7 @@ summary: This article explains how to make averages work with Mondrian aggregate
 date: 2017-10-01
 categories: Mondrian
 tags: Mondrian
-published: true
+published: false
 --- 
 
 This article explains how to make averages work with **Mondrian aggregated tables**. To understand this article, basic knowledge on Mondrian aggregate tables is required.
@@ -118,8 +118,22 @@ FROM agg_fact_sales_by_department
 
 The **important thing** here is that `total_sales` and `total_sales_fact_count` get first multiplied on a row level and then summed up, the result of which then gets divided by the sum of `total_sales_fact_count`. Let's illustrate this with an example:
 
-| total_sales | total_sales_fact_count | row level multiplication | final average result
+| `total_sales` | `total_sales_fact_count` | row level multiplication | final average result
 |-----|-----|---------|------
 | 2000 | 100 | 200000 | 
 | 3000 | 150 | 450000 | 
 | Total | 250 | 650000 | 2600
+
+If you want to implement this for BA Server prior to v7.1:
+
+1. To the fact table add: `total_sales_fact_count`
+2. To the cube add an invisible measure `[Total Sales Fact Count]` with the aggregation type `SUM`. Then add a calculated member `[Avg Sales]` with the formula `[Measures].[Total Sales] / [Measures].[Total Sales Fact Count]`.
+
+3. The aggregation table remains the same, so add:
+
+  - `total_sales`
+  - `total_sales_fact_count`
+
+4. The SQL to populate the aggregate table should sum up `total_sales` and `total_sales_fact_count` (using the these columns from the fact table).
+
+5. In the cube, add the aggregate table definition. Define both `total_sales` and `total_sales_fact_count` as `AggMeasure`.
