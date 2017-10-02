@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: "Mondrian: Averages in Aggregate Tables"
