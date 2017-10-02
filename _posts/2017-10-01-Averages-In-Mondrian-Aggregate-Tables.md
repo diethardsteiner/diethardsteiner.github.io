@@ -1,3 +1,4 @@
+
 ---
 layout: post
 title: "Mondrian: Averages in Aggregate Tables"
@@ -5,7 +6,7 @@ summary: This article explains how to make averages work with Mondrian aggregate
 date: 2017-10-01
 categories: Mondrian
 tags: Mondrian
-published: true
+published: false
 --- 
 
 This article explains how to make averages work with **Mondrian aggregated tables**. To understand this article, basic knowledge on Mondrian aggregate tables is required.
