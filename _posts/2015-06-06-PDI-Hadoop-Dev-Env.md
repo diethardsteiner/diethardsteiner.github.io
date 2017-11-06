@@ -1004,3 +1004,6 @@ Import files into the HDFS for the Hive tables using **Hadoop Copy Files** or us
 OPT="$OPT .... -DHADOOP_USER_NAME=HadoopNameToSpoof"
 ```
 
+## Next Steps
+
+The follow up article on how to setup the fast Big Data query engine **Presto** is available [here](/big/data/2016/02/14/Presto.html).
