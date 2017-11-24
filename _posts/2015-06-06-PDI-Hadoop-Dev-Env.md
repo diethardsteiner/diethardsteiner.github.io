@@ -122,6 +122,8 @@ For **pseudo-distributed** node add this:
 </configuration>
 ```
 
+> **Note**: All possible **properties** and **default values** for `hdfs-site.xml` you can find [here](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml).
+
 Next:
 
 `mapred-site.xml`:
@@ -134,6 +136,8 @@ Next:
   </property>
 </configuration>
 ```
+
+> **Note**: All possible **properties** and **default values** for `mapred-site.xml` you can find [here](https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml).
 
 And finally:
 
@@ -169,10 +173,23 @@ And finally:
      <name>yarn.resourcemanager.admin.address</name>
      <value>localhost:8033</value>
   </property> 
+  <property>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+    <description>Whether virtual memory limits will be enforced for containers</description>
+  </property>
+  <property>
+    <name>yarn.nodemanager.vmem-pmem-ratio</name>
+    <value>4</value>
+    <description>Ratio between virtual memory to physical memory when setting memory limits for containers</description>
+  </property> 
 </configuration>
 ```
 
-Now we can format the namenode:
+> **Note**: All possible **properties** and **default values** for `yarn-site.xml` you can find [here](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-common/yarn-default.xml).
+
+
+Now we can format the **namenode**:
 
 ```
 hdfs namenode -format
@@ -199,27 +216,54 @@ Check that the following websites are accessible:
 Create user directory:
 
 ```
-hadoop fs -mkdir -p /user/$USER
+hdfs dfs -mkdir -p /user/$USER
 ```
 
 Browse the file system:
 
 ```
-hadoop fs -ls /
+hdfs dfs -ls /
 ```
 
-Inside the Hadoop folder try to run this map reduce job to check everything is working (amend version number). Note the first command will put the file directly into the current user's **HDFS** directory (so make sure it exists):
+Inside the root folder of your Hadoop installation try to run this map-reduce job to check everything is working (amend version number). 
+
+> **Note**: The first command will put the file directly into the current user's **HDFS** directory (so make sure it exists). So although only `input` is mentioned, it will automatically be expande to `/user/$USER/input`.
 
 ```
 hdfs dfs -put etc/hadoop input
+# remove one directory that would cause problems with map-reduce job we will run
+# this didn't happen in version 2.6 but in 2.8
+hdfs dfs -rm -r /user/dsteiner/input/hadoop
 # check that the input dir got created
-hadoop fs -ls /user/diethardsteiner/input
-hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep input output 'dfs[a-z.]+'
+hdfs dfs -ls /user/diethardsteiner/input
+# make sure to amend the version if required 
+# hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep input output 'dfs[a-z.]+'  # old version, use this instead
+yarn jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep input output 'dfs[a-z.]+'
 # check for output files
-hadoop fs -ls /user/diethardsteiner/output
+hdfs dfs -ls /user/diethardsteiner/output
 ```
 
-If the map reduce fails, go to the **Resource Manager** website, click on the **application id link**, then on the logs for one of the attempts, then on the stderr. In my case it said: `/bin/bash: /bin/java: No such file or directory`. This is an [issue](https://issues.apache.org/jira/browse/HADOOP-8717) particular to **Mac OS X** and [the workaround](http://blog.godatadriven.com/local-and-pseudo-distributed-cdh5-hadoop-on-your-laptop.html) is to amend the `$HADOOP_HOME/libext/hadoop-config.sh` file:
+> **Note**: The `yarn jar` command replaces the older `hadoop jar` command. See [YARN docu](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YarnCommands.html#jar) VS [Hadoop Docu](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/CommandsManual.html).
+
+### Solving Problems
+
+> **Note**: **If the map-reduce job fails**, go to the **Resource Manager** website, click on the **application id link**, then on the logs for one of the attempts, then on the stderr. 
+
+#### ResourceManager not starting up
+
+**Scenario**: You run `jps` and cannot see `ResourceManager` in the returned list. You can also not access `http://localhost:8088`. However, when you run `ps -ef | grep yarn` you can see that the daemons are running.
+
+**Solution**: Check if port `8088` is already taken by another process:
+
+```bash
+sudo netstat -lanp | grep 8088
+```
+
+If this returns something another process is already using this port. You have two options now: Either stop the other process or change the port for the ResoureManager Web UI.
+
+#### MacOS: Java no such file or directory
+
+In my case it said: `/bin/bash: /bin/java: No such file or directory`. This is an [issue](https://issues.apache.org/jira/browse/HADOOP-8717) particular to **Mac OS X** and [the workaround](http://blog.godatadriven.com/local-and-pseudo-distributed-cdh5-hadoop-on-your-laptop.html) is to amend the `$HADOOP_HOME/libext/hadoop-config.sh` file:
 
 Replace this:
 
@@ -250,6 +294,43 @@ with this:
 
 Now restart Yarn: `stop-yarn.sh && start-yarn.sh`. And try to run the MapReduce example again.
 
+#### Running Beyond Virtual Memory Limits Error 143
+
+
+**Scenario**: When running the map-reduce job, you get following error ...
+
+```bash
+17/11/24 21:27:11 INFO mapreduce.Job: Job job_1511556774115_0007 failed with state FAILED due to: Application application_1511556774115_0007 failed 2 times due to AM Container for appattempt_1511556774115_0007_000002 exited with  exitCode: -103
+Failing this attempt.Diagnostics: Container [pid=13437,containerID=container_1511556774115_0007_02_000001] is running beyond virtual memory limits. Current usage: 345.4 MB of 2 GB physical memory used; 4.6 GB of 4.2 GB virtual memory used. Killing container.
+...
+Container killed on request. Exit code is 143
+```
+
+**Solution**: As stated in [this post on stackoverflow](https://stackoverflow.com/questions/21005643/container-is-running-beyond-memory-limits): There is a check placed at Yarn level for Vertual and Physical memory usage ratio. Issue is not only that VM doesn't have sufficient pysical memory. But it is because Virtual memory usage is more than expected for given physical memory.
+
+> **Note** : This is happening on Centos/RHEL 6/Fedora due to its aggressive allocation of virtual memory.
+
+It can be resolved either by :
+
+-  Disable virtual memory usage check by setting `yarn.nodemanager.vmem-check-enabled` to `false`.
+- Increase VM:PM ratio by setting `yarn.nodemanager.vmem-pmem-ratio` to some higher value.
+
+Add following property in `yarn-site.xml`:
+
+```xml
+  <property>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+    <description>Whether virtual memory limits will be enforced for containers</description>
+  </property>
+  <property>
+    <name>yarn.nodemanager.vmem-pmem-ratio</name>
+    <value>4</value>
+    <description>Ratio between virtual memory to physical memory when setting memory limits for containers</description>
+  </property> 
+```
+
+#### Final instructions
 
 To stop them, run:
 
@@ -259,7 +340,7 @@ stop-yarn.sh
 stop-dfs.sh
 ```
 
-Now that we know that everything is working, let's fine-tune our setup. Ideally we should keep the config files (all `*site.xml` files) separate from the install directory (so that it is e.g. easier to upgrade). I copied these files to a dedicated Dropbox folder and use the `HADOOP_CONFIG_DIR` env variable to point to it. Another benefit is that now I can use the same config files for my dev environment on another machine.
+Now that we know that everything is working, let's fine-tune our setup. Ideally we should keep the config files (all `*site.xml` files) separate from the install directory (so that it is e.g. easier to upgrade). I copied these files to a dedicated Dropbox folder and use the `HADOOP_CONFIG_DIR` environment variable to point to it. Another benefit is that now I can use the same config files for my dev environment on another machine.
 
 > **Note**: It seems like you have to copy all files in this conf directory, as I saw error messages that e.g. the slaves file could not be found.
 
@@ -310,6 +391,13 @@ stop-dfs.sh
 ```
 
 Then source the bash profile file.
+
+### Command Line Utilities
+
+You've already been exposed to the two essential commands:
+
+- `hdfs`: [Documentation](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html)
+- `yarn`: [Documentation](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YarnCommands.html)
 
 ## Installing Hive
 
