@@ -16,21 +16,21 @@ In this article I'd like to explain how to set up **Vanilla Hadoop** and configu
 
 # Apache Hadoop and Hive Installation: Minimal Dev Environment
 
-This article focuses on setting up a minimal Hadoop dev environment. There are certainly easier ways, e.g. using one of the VMs supplied by one of the major commercial Hadoop vendors: If you have a machine with **enough memory** this is certainly the most convenient way to go. However, you might not want to sacrifice a vast amount of **RAM** or not have such a high spec machine, so setting up **Hadoop** natively on your machine is the way to go. It might not be the easiest way, but you'll certainly learn a few interesting details on the way - that's what any great journey is about!
+This article focuses on setting up a minimal Hadoop dev environment. There are certainly easier ways, e.g. using one of the VMs supplied by one of the major commercial Hadoop vendors; if you have a machine with **enough memory** this is certainly the most convenient way to go. However, you might not want to sacrifice a vast amount of **RAM** or not have such a high spec machine, so setting up **Hadoop** natively on your machine is the way to go. It might not be the easiest way, but you'll certainly learn a few interesting details on the way - that's what any great journey is about!
 
-If you very interested in Hadoop, I can strongely recommend the excellent book **Hadoop - The Definitive Guide** by Tom White.
+If you are very interested in Hadoop, I can strongly recommend the excellent book **Hadoop - The Definitive Guide** by Tom White.
 
 ## Installing HDFS
 
 ### Downloading the required files
 
-You can download the files directly from the [Apache Hadoop](https://hadoop.apache.org/releases.html) website or they might be available via your packaging system (e.g. on Fedora it is available via yum or dnf). The instructions here will mainly follow my setup on **Mac OS X** - your milage may vary.
+You can download the files directly from the [Apache Hadoop](https://hadoop.apache.org/releases.html) website or they might be available via your packaging system (e.g. on Fedora it is available via yum or dnf). The instructions here will mainly follow my setup on **Mac OS X** - your mileage may vary.
 
 On **Mac OS X** you can alternatively install Hadoop via **Homebrew**: `brew install hadoop`, in which case all the files will be located in `/usr/local/Cellar/hadoop/<version>`.
 
 I assume you have **JDK** already installed: Check that you are using the correct [supported Java version](http://wiki.apache.org/hadoop/HadoopJavaVersions).
 
-I added the hadoop files under `/Applications/Development/Hadoop`, you can choose any other suitable directory.
+I added the Hadoop files under `/Applications/Development/Hadoop`, you can choose any other suitable directory.
 
 Add the following to `~/.bash_profile` (adjust if required):
 
@@ -42,11 +42,15 @@ export PATH=$PATH:$HADOOP_HOME/sbin
 export PATH=$PATH:$HADOOP_HOME/bin
 ```
 
-`JAVA_HOME` must be set in `~/.bash_profile` already.
+`JAVA_HOME` must be set in `~/.bash_profile` already:
+```
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+export PATH=$PATH:$JAVA_HOME/bin
+```
 
 Next we have to enable passwordless login:
 
-In regards to **ssh** there is not much to do on **Mac OS X**: Just make sure that you enable **Remote Login** via the Mac OS X **System Settings** > **Sharing**. There is no need to install anything else. **Linux Users** might have to install ssh and openssh-server.
+In regards to **ssh** there is not much to do on **Mac OS X**: Just make sure that you enable **Remote Login** via the Mac OS X **System Settings** > **Sharing**. There is no need to install anything else. **Linux Users** might have to install openssh-client and openssh-server.
 
 Generate a new **SSH key** with an **empty passphrase**:
 
@@ -90,10 +94,10 @@ For **pseudo-distributed** node add this:
 
 > **Note**: The default port for HDFS (the namenode) will be `8020`. You can however set the port as well in the config above like so: `hdfs://localhost:9000`.
 
-`hdfs-site.xml`:
-
+`hdfs-site.xml`:  
+<a name="slink1">
 **Option 1**: data gets stored in `/tmp` directory.
-
+</a>  
 ```xml
 <configuration>
   <property>
@@ -103,7 +107,7 @@ For **pseudo-distributed** node add this:
 </configuration>
 ```
 
-**Option 2**: Dedicated **permanent data directory**. You do not have to create the directories on the file system upfront - it will be created automatically for you.
+**Option 2**: Dedicated **permanent data directory**. You do not have to create the directories on the file system upfront - they will be created automatically for you.
 
 ```xml
 <configuration>
@@ -122,7 +126,7 @@ For **pseudo-distributed** node add this:
 </configuration>
 ```
 
-> **Note**: All possible **properties** and **default values** for `hdfs-site.xml` you can find [here](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml).
+> **Note**: All possible **properties** and **default values** for `hdfs-site.xml` can be found [here](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml).
 
 Next:
 
@@ -137,7 +141,7 @@ Next:
 </configuration>
 ```
 
-> **Note**: All possible **properties** and **default values** for `mapred-site.xml` you can find [here](https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml).
+> **Note**: All possible **properties** and **default values** for `mapred-site.xml` can be found [here](https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml).
 
 And finally:
 
@@ -186,7 +190,7 @@ And finally:
 </configuration>
 ```
 
-> **Note**: All possible **properties** and **default values** for `yarn-site.xml` you can find [here](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-common/yarn-default.xml).
+> **Note**: All possible **properties** and **default values** for `yarn-site.xml` can be found [here](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-common/yarn-default.xml).
 
 
 Now we can format the **namenode**:
@@ -197,9 +201,9 @@ hdfs namenode -format
 
 Pay attention to the last few lines of the log output, where you will find the root directory of your HDFS file system, e.g.: `/tmp/hadoop-diethardsteiner/dfs/name`.
 
-To start **HDFS**, **YARN** and **MapReduce**, run the below commands (this can be run from any directory):
+To start **HDFS**, **YARN** and **MapReduce**, run the below commands (they can be run from any directory):
 
-> **IMPORTANT**: Before you start Hadoop, make sure that **HDFS** is formatted. Even after the original setup it might be necessary to do this upfront as the HDFS directory might be located in `/tmp` (and hence gets lost each time you restart your machine).
+> **IMPORTANT**: Before you start Hadoop, make sure that **HDFS** is formatted. Even after the original setup it might be necessary to do this upfront if the HDFS directory is located in `/tmp` (and hence gets lost each time you restart your machine) as explained in [**Option 1**](#slink1).
 
 ```
 start-dfs.sh
@@ -212,6 +216,11 @@ Check that the following websites are accessible:
 - [Namenode](http://localhost:50070/)
 - [Resource Manager](http://localhost:8088/)
 - [History Server](http://localhost:19888/)
+
+In Linux, it could be necessary to update etc/environment with a reference to JAVA for dfs and yarn to work:
+```
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+```
 
 Create user directory:
 
@@ -227,7 +236,7 @@ hdfs dfs -ls /
 
 Inside the root folder of your Hadoop installation try to run this map-reduce job to check everything is working (amend version number). 
 
-> **Note**: The first command will put the file directly into the current user's **HDFS** directory (so make sure it exists). So although only `input` is mentioned, it will automatically be expande to `/user/$USER/input`.
+> **Note**: The first command will put the file directly into the current user's **HDFS** directory (so make sure it exists). So although only `input` is mentioned, it will automatically be expanded to `/user/$USER/input`.
 
 ```
 hdfs dfs -put etc/hadoop input
@@ -259,7 +268,7 @@ hdfs dfs -ls /user/diethardsteiner/output
 sudo netstat -lanp | grep 8088
 ```
 
-If this returns something another process is already using this port. You have two options now: Either stop the other process or change the port for the ResoureManager Web UI.
+If this returns something another process is already using this port. You have two options now: either stop the other process or change the port for the ResoureManager Web UI.
 
 #### MacOS: Java no such file or directory
 
@@ -306,7 +315,7 @@ Failing this attempt.Diagnostics: Container [pid=13437,containerID=container_151
 Container killed on request. Exit code is 143
 ```
 
-**Solution**: As stated in [this post on stackoverflow](https://stackoverflow.com/questions/21005643/container-is-running-beyond-memory-limits): There is a check placed at Yarn level for Vertual and Physical memory usage ratio. Issue is not only that VM doesn't have sufficient pysical memory. But it is because Virtual memory usage is more than expected for given physical memory.
+**Solution**: As stated in [this post on stackoverflow](https://stackoverflow.com/questions/21005643/container-is-running-beyond-memory-limits): There is a check placed at Yarn level for Virtual and Physical memory usage ratio. Issue is not only that VM doesn't have sufficient physical memory. But it is because Virtual memory usage is more than expected for given physical memory.
 
 > **Note** : This is happening on Centos/RHEL 6/Fedora due to its aggressive allocation of virtual memory.
 
@@ -340,7 +349,7 @@ stop-yarn.sh
 stop-dfs.sh
 ```
 
-Now that we know that everything is working, let's fine-tune our setup. Ideally we should keep the config files (all `*site.xml` files) separate from the install directory (so that it is e.g. easier to upgrade). I copied these files to a dedicated Dropbox folder and use the `HADOOP_CONFIG_DIR` environment variable to point to it. Another benefit is that now I can use the same config files for my dev environment on another machine.
+Now that we know that everything is working, let's fine-tune our setup. Ideally we should keep the config files (all `*site.xml` files included in /Applications/Development/Hadoop/hadoop-2.6.0/etc/hadoop) separate from the install directory (so that it is easier to upgrade). I copied these files to a dedicated Dropbox folder and use the `HADOOP_CONFIG_DIR` environment variable to point to it. Another benefit is that now I can use the same config files for my dev environment on another machine.
 
 > **Note**: It seems like you have to copy all files in this conf directory, as I saw error messages that e.g. the slaves file could not be found.
 
@@ -390,7 +399,10 @@ stop-yarn.sh
 stop-dfs.sh
 ```
 
-Then source the bash profile file.
+Change permissions to those files so that they are executables, then source the bash profile file:
+```
+source ~/.bash_profile
+```
 
 ### Command Line Utilities
 
@@ -452,9 +464,15 @@ CREATE DATABASE hive_metastore_db;
 -- CREATE DATABASE hive_stats;
 ```
 
+It is suggested to add a user to the database:
+```sql
+>grant all on hive_metastore_db.* TO 'stats_user'@'%' IDENTIFIED BY 'stats_password';
+```
+These details will be used in a configuration file later on.
+
 Configuration ([hive-site.xml](https://cwiki.apache.org/confluence/display/Hive/AdminManual+Configuration#AdminManualConfiguration-ConfiguringHive))
 
-Find the [Metadstore Admin Manual here](https://cwiki.apache.org/confluence/display/Hive/AdminManual+MetastoreAdmin).
+Find the Metastore Admin Manual [here](https://cwiki.apache.org/confluence/display/Hive/AdminManual+MetastoreAdmin).
 
 Find some info on how to configure the Hive Stats DB [here](http://www.cloudera.com/documentation/manager/5-0-x/Cloudera-Manager-Managing-Clusters/cm5mc_hive_table_stats.html).
 
@@ -622,6 +640,13 @@ Create the tables:
 schematool --verbose -dbType postgres -initSchema
 ```
 
+or
+
+```bash
+schematool --verbose -dbType mysql -initSchema
+```
+
+
 Some notes on certain properties:
 
 `hive.server2.enable.doAs`: This is related to **HiveServer2**, which we will take a look at a bit later on. When connecting via a client to **HiveServer2**, this property specifies whether **HiveServer2** should impersonate the connected user or not. For our little and simple set up we want to disable this so that we can log on without username and password.
@@ -636,7 +661,7 @@ You also see a commented section for the **Hive Stats DB**:
 
 > **Note**: Hive table statistics are not supported for PostgreSQL or Oracle - MySQL only!
 
-The reason why I commented/disabled them is that table and column stats show up with out this extra DB any ways. You can check this be running e.g.:
+The reason why I commented/disabled them is that table and column stats show up without this extra DB anyway. You can check this by running e.g.:
 
 ```sql
 CREATE TABLE test (foo STRING, bar STRING);
@@ -669,6 +694,10 @@ Just as an interesting side node: This days Hive includes a [Hive Schema Tool](h
 ```bash
 schematool -dbType postgres -info
 ```
+or
+```bash
+schematool -dbType mysql -info
+```
 
 In my case this returned:
 
@@ -691,6 +720,7 @@ schematool -dbType postgres -info
 # start hive metastore service
 hive --service metastore
 ```
+(in the commands above, replace _psql_ with _mysql_ and _postgres_ with _mysql_ if needed)
 
 So taking the learnings from this error, it is better if we use the `schematool` to create the schema instead of the `datanucleus.autoCreateSchema=true` setting in the `hive-site.xml`.
 
@@ -821,7 +851,7 @@ This was related to `hive.server2.enable.doAs`. Setting it to `false` solved the
 
 1. Make sure the hive database (e.g. MySQL) is up and running
 
-2. Start the metastore service: `nohup hive --service metastore>/tmp/hive.out 2>/tmp/hive.log &`
+2. Start the metastore service: `nohup hive --service metastore > /tmp/hive.out 2>/tmp/hive.log & tail -f /tmp/hive.log`
 
 3. Test Hive:
 
@@ -836,8 +866,7 @@ This was related to `hive.server2.enable.doAs`. Setting it to `false` solved the
 4. Start HiveServer2:
 
 	```
-	nohup hiveserver2 > /tmp/hiveserver2.out 2> /tmp/hiveserver2.log &
-	tail -f /tmp/hiveserver2.log
+	nohup hiveserver2 > /tmp/hiveserver2.out 2>/tmp/hiveserver2.log & tail -f /tmp/hiveserver2.log
 	```
 
 5. Open Beeline command line shell to interact with HiveServer2.
@@ -865,8 +894,8 @@ In a convenient folder outside the Hive install directory place these start and 
 
 ```bash
 mysql.server start
-nohup hive --service metastore>/tmp/hive.out 2>/tmp/hive.log &
-nohup hiveserver2 > /tmp/hiveserver2.out 2> /tmp/hiveserver2.log &
+nohup hive --service metastore >/tmp/hive.out 2 >/tmp/hive.log &
+nohup hiveserver2 >/tmp/hiveserver2.out 2 >/tmp/hiveserver2.log &
 ```
 
 `stop-hive.sh`: This this one on your OS - this is my custom version for Mac OS X.
@@ -901,7 +930,7 @@ $ jps
 
 ## Installing PDI
 
-It's extremely easy to install PDI: Just download the latest version from [Sourceforge](http://sourceforge.net/projects/pentaho/files/Data%20Integration/), unzip the folder and place it in a convientent location (e.g. Applications folder).
+It's extremely easy to install PDI: Just download the latest version from [Sourceforge](https://sourceforge.net/projects/pentaho/files/Data%20Integration/), unzip the folder and place it in a convientent location (e.g. Applications folder).
 
 ## Configurating PDI 
 
@@ -932,7 +961,7 @@ Sources:
 
 If you are using the vanilla **Apache Hadoop** installation (so not Cloudera or similar), then there is one important point to consider: PDI ships with an ancient Big Data shim for this **Apache Hadoop**. The default PDI shim is **hadoop-20** which refers to an Apache Hadoop 0.20.x distribution ([Source](http://stackoverflow.com/questions/25043374/unable-to-connect-to-hdfs-using-pdi-step)), so don't be fooled that the `20` suffix refers to the Hadoop 2.x.x release you just downloaded.
 
-Matt Burgess suggested using the Hortenworks (HDP) shim instead (for the reason that **Hortonworks** feeds most of the in-house improvements back into the open source projects). This works fine out-of-the-box if you are only using **HDFS** directly (so copying files etc). To use MapReduce, we have to make a few amendments:
+Matt Burgess suggested using the Hortonworks (HDP) shim instead (for the reason that **Hortonworks** feeds most of the in-house improvements back into the open source projects). This works fine out-of-the-box if you are only using **HDFS** directly (so copying files etc). To use MapReduce, we have to make a few amendments:
 
 **How to figure out which version of Hadoop a particular shim uses**: Go into the `<shim>/lib/client` folder and see which version number the `hadoop*` files have. This will help you understand if your vanilla Hadoop distro version is supported or not. In my case I had vanilla Apache Hadoop 2.6.0 installed and required a shim that supported just this version. PDI-CE-5.3 ships with the **hdp21** shim, which seems to support Hadoop 2.4. Luckily Pentaho had already a newer **Hortonworks** shim available: You can browse all the available [Shims on Github](https://github.com/pentaho/pentaho-hadoop-shims) and download a compiled version from [Shims on CI](http://ci.pentaho.org/view/Big%20Data/job/pentaho-hadoop-shims-5.3/) (note this is PDI version specific, see notes further down also for detailed download instructions). The shim that supported the same version was **hdp22**.
 
@@ -980,7 +1009,7 @@ active.hadoop.configuration=hdp22
 
 All the configuration details are set up now.
 
-For more details on how to adjust the PDI Shin to specific distributions see [here](http://wiki.pentaho.com/display/BAD/Additional+Configuration+for+YARN+Shims).
+For more details on how to adjust the PDI Shim to specific distributions see [here](http://wiki.pentaho.com/display/BAD/Additional+Configuration+for+YARN+Shims).
 
 Info about Shims:
 
