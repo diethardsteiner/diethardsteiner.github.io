@@ -6,7 +6,7 @@ date: 2017-07-21
 categories: PDI
 tags: PDI
 published: true
----  
+---
 
 **Motivation**: When you build a job, also think of the people that have to support/monitor it moving forward. You want to make their life as easy as possible. Keep in mind that they have hundred other jobs to take care of. When your job falls over, it should not require support to dive into a 100 page instruction booklet and to find out how many special case are to consider when restarting the job (apart from also learning how to restart the job). You want to go to them and say: "**Hey folks, if the job every falls over, simply restart it**". That's easy enough. Worry free times. Hurray! Now we will take a look at how to achieve this in a very simple fashion. 
 

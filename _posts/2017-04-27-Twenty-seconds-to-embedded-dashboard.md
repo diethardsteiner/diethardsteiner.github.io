@@ -6,13 +6,13 @@ date: 2017-04-27
 categories: CDE
 tags: CDE
 published: true
----  
+---
 
 While **CDE dashboard** can be displayed within the Pentaho User Console (the web interface), quite often the requirement is to **embed the dashboard** within an extrernal site. Luckily these days this is fairly easy to accomplish: We will have a look at how to achieve this using an extremely basic example. 
 
-## C-Tools Config Changes
+## Pentaho Server C-Tools Config Changes
 
-First off we have to change `pentaho-solutions/system/pentaho-cdf-dd/settings.xml` to allow cross-domain requests:
+First off we have to change `<pentaho-server-dir>/pentaho-solutions/system/pentaho-cdf-dd/settings.xml` to allow cross-domain requests:
 
 ```
 <allow-cross-domain-resources>true</allow-cross-domain-resources>
@@ -20,7 +20,9 @@ First off we have to change `pentaho-solutions/system/pentaho-cdf-dd/settings.xm
 
 Add this just after the first `<settings>` tag.
 
-Perform the same change for `pentaho-solutions/system/pentaho-cdf/settings.xml`.
+Apply the same change for `<pentaho-server-dir>/pentaho-solutions/system/pentaho-cdf/settings.xml`.
+
+Restart the server.
 
 ## Create CDE Dashboard
 
@@ -35,7 +37,7 @@ $ cd <pentaho-server-root>
 $ mkdir -p tomcat/webapps/mycompany/scripts
 ```
 
-Download requirejs (the minified version) from [here](http://requirejs.org/docs/download.html) and copy it into the `scripts` folder.
+If requirejs (the minified version) is not already part of your web app, download it from [here](http://requirejs.org/docs/download.html) and copy it into the `scripts` folder.
 
 Create an `index.html` file and save it inside the `mycompany` folder.
 
@@ -46,12 +48,15 @@ The most basic skeleton looks like this (read inline comments):
   <head>
   <meta http-equiv="content-type" content="text/html" charset="utf-8">
     <title>Demo of embedded CDE content</title>
+    <!-- CHANGE HERE IF REQUIRED -->
     <script src="scripts/require.js"></script>
+    <!-- CHANGE HERE IF REQUIRED -->
     <script type="text/javascript" src="http://localhost:8080/pentaho/plugin/pentaho-cdf-dd/api/renderer/cde-embed.js"></script>
     
     <script type="text/javascript">
       require(
         // define the location of the dashboard
+        //  CHANGE HERE IF REQUIRED
         ['dash!/public/embedded/demo.wcdf']
         // Demo is just a sample argument name, can be anything
         , function(Demo){
