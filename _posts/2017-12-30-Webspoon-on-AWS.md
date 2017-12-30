@@ -1,3 +1,13 @@
+---
+layout: post
+title: "Pentaho Data Integration: WebSpoon on AWS and adding Storage Volumes"
+summary: This article explains how to get WebSpoon running on AWS and how to add storage volumes
+date: 2017-12-30
+categories: PDI
+tags: PDI, AWS
+published: true
+---
+
 This is a long overdue artilce on **Hiromu's WebSpoon**. For completeness sake I took the liberty of copying Hiromu's instructions on how the set up the intial **AWS Elastic Beanstalk** environment. My main focus here is to provide simple approaches on how to add persistant storage options to your WebSpoon setup, some of which are fairly manual approaches (which should be later on replaced by a dedicated automatic setup). The article is more aimed toward users which are new to AWS.
 
 > **Note**: Once finished, always remember to terminate your AWS environment to stop occuring costs. 
