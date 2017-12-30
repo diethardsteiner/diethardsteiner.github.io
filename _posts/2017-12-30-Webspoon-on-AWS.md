@@ -8,7 +8,15 @@ tags: PDI, AWS
 published: true
 ---
 
-This is a long overdue artilce on **Hiromu's WebSpoon**. For completeness sake I took the liberty of copying Hiromu's instructions on how the set up the intial **AWS Elastic Beanstalk** environment. My main focus here is to provide simple approaches on how to add persistant storage options to your WebSpoon setup, some of which are fairly manual approaches (which should be later on replaced by a dedicated automatic setup). The article is more aimed toward users which are new to AWS.
+This is a long overdue artilce on **Hiromu's WebSpoon**. Hiromu has done a fantastic work on **WebSpoon** - finally bringing the familiar Spoon Desktop UI to the web browser. 
+
+- [Github: Webspoon](https://github.com/HiromuHota/pentaho-kettle)
+- [Github: Webspoon Docker](https://github.com/HiromuHota/webspoon-docker)
+- [Docker page](https://hub.docker.com/r/hiromuhota/webspoon/)
+- [Slide deck: Hands-on demo of PDI using webSpoon](https://www.slideshare.net/HiromuHota/handson-demo-of-pdi-using-webspoon)
+- [Cloud Deployment](https://github.com/HiromuHota/pentaho-kettle/wiki/Cloud-Deployment)
+
+For completeness sake I took the liberty of copying Hiromu's instructions on how the set up the intial **AWS Elastic Beanstalk** environment. My main focus here is to provide simple approaches on how to add persistant storage options to your WebSpoon setup, some of which are fairly manual approaches (which should be later on replaced by a dedicated automatic setup). The article is more aimed toward users which are new to AWS.
 
 > **Note**: Once finished, always remember to terminate your AWS environment to stop occuring costs. 
 
@@ -31,13 +39,13 @@ These are the rough steps using the new Amazon Configuration Interface:
 
 1. Head to the [AWS Console](https://aws.amazon.com/elasticbeanstalk/) and sign into the console. Choose **Beanstalk** from the main menu. Then click **Get Started** or **Create New Application**:
   
-  ![Get started](images/webspoon-on-aws/AWS_EB_1.png)
+  ![Get started](/images/webspoon-on-aws/AWS_EB_1.png)
 
 2. In the **Choose Environment** dialog pick **Web server environment**.
 
 3. In the **Platform** section, choose *Multi-container Docker* as a **Preconfigure platform**.
   
-  ![Platform](images/webspoon-on-aws/AWS_EB_2.png)
+  ![Platform](/images/webspoon-on-aws/AWS_EB_2.png)
 
 4. While we have a `Dockerfile` to **provision** our machine(s), we still need a method of **orchestrating** the setup of our cluster. This is where the `Dockerrun.aws.json` file comes in. In the **Application code** section, tick **Upload your code** and choose [Dockerrun.aws.json](https://raw.githubusercontent.com/HiromuHota/webspoon-docker/master/Dockerrun.aws.json) as an **Application code** - contents copied below for convenience:
 
@@ -68,30 +76,30 @@ These are the rough steps using the new Amazon Configuration Interface:
   }
   ```
   
-  ![Application](images/webspoon-on-aws/AWS_EB_3.png)
+  ![Application](/images/webspoon-on-aws/AWS_EB_3.png)
 
 5. Click **Configure more options** instead of **Create application**.
 6. On the next screen under **Configuration presets** you have two options. If you just want to run the container on one node choose **Custom Configuration**, otherwise choose **High Availability**.
   
-  ![Configure](images/webspoon-on-aws/AWS_EB_4.png)
+  ![Configure](/images/webspoon-on-aws/AWS_EB_4.png)
 
 7. On the same page, **change EC2 instance type** from `t2.micro` to `t2.small` or an instance type with **2GB+ memory**. Click **Save**.
 8. Optional: If you plan to ssh into the EC2 instance, **edit** the **Security** settings: Define your **key pair**. 
 9. Click **Create Environment**. Wait until your application and environment are created, which will take a few minutes:
   
-  ![Wait](images/webspoon-on-aws/AWS_EB_5.png)
+  ![Wait](/images/webspoon-on-aws/AWS_EB_5.png)
 
 10. **High Availability option only:** The screen will look like this one the environment is ready. Click on **Configuration** in side panel.
   
-  ![Configuration](images/webspoon-on-aws/AWS_EB_6.png)
+  ![Configuration](/images/webspoon-on-aws/AWS_EB_6.png)
 
 11. **High Availability option only:**  Scroll down to find the **Load Balancing** section and click on the wheel icon:
   
-  ![Load Balancing](images/webspoon-on-aws/AWS_EB_7.png)
+  ![Load Balancing](/images/webspoon-on-aws/AWS_EB_7.png)
 
 12. **High Availability option only:** On the following screen enable **session stickiness**:
   
-  ![Session stickiness](images/webspoon-on-aws/AWS_EB_8.png)
+  ![Session stickiness](/images/webspoon-on-aws/AWS_EB_8.png)
 
 13. You can access the **Spoon Web Interface** via this URL:
   
@@ -374,7 +382,7 @@ As you can see, now everything looks fine.
  
 Once you have the new configuration running, you might want to check if the new **volumes** got created: You can do this by going to the **EC2** section of the **AWS console**. On the side panel under **Elastic Block Storage** click on **Volumes**:
 
-![](images/webspoon-on-aws/see-attached-esb-volumes.png)
+![](/images/webspoon-on-aws/see-attached-esb-volumes.png)
 
 > **Note**: **Elastic Beanstalk** will by default create also a volume `/dev/xvdcz` to store the Docker image. 
 
@@ -403,7 +411,7 @@ Ok, so instead of this, we can leave the original **Docker container** to **EC2 
 
 And just use one **ESB** volume, which we mount to `/data`.
 
-![](images/webspoon-on-aws/ebs-docker-volume-webspoon.png)
+![](/images/webspoon-on-aws/ebs-docker-volume-webspoon.png)
 
 Create a **new project** directory called `beanstalk-with-ebs-one-volume`.
 
@@ -537,7 +545,7 @@ xvdh    202:112  0   1G  0 disk /var/app/current.old/kettle
 
 So what is the point of this exercise really? Why did we do this? Our main intention was to have some form of **persistent storage**. Still, if we were to terminate the **Beanstalk environment** now, all our **EBS volumes** would disappear as well! However, via the **EC2** panel under **Elastic Block Storage** there is a way to **detach the volume**:
 
-![](images/webspoon-on-aws/detach-esb-volume.png)
+![](/images/webspoon-on-aws/detach-esb-volume.png)
 
 The normal **Detach Volume** command might not work, because the volume is still used by our **EC2 instance**. You can, however, choose the **Force Detach Volume** command, which should succeed. Wait until the state of the drive shows **available**.
 
@@ -586,7 +594,7 @@ If you want to go down the manual road, you can as well create the EBS Drive man
 2. Click on the **Create Volume** button. Fill out the required settings and confirm to create the volume.
 3. Next go to the **Elastic Beanstalk** area of the **AWS Console**. Start a new **Beanstalk environment**: Use the `Dockerrun.aws.json` file from the `beanstalk-with-ebs-one-volume` project (if you skipped the previous sections, the instructions for setting up the Beanstalk environment are quite at the beginning of this article). This time also change edit the **Capacity** settings on the **Configure env name** page. For the **Availability Zone** define the **same zone** as your **EBS Drive** resides in.  
 4. Once the **environment** is up and running, you can **Attach the Volume**. On the **EC2 page** in the **AWS Console** go to the EBS **Volumes**:
-  ![](images/webspoon-on-aws/ebs-volumes-screen.png)
+  ![](/images/webspoon-on-aws/ebs-volumes-screen.png)
 5. Mark our **EBS drive** and right click: Choose **Attach Volume**. In a dialog you will be able to define to which instance you want to attach the EBS drive to. 
 6. Once it is attached, grab the public URL of your **EC2 Instance** from the **EC2** area of the **AWS console** (click on **Instances** in the side panel). Ssh into your **EC2 instance** and then run the following:
 
@@ -653,10 +661,10 @@ Follow these steps:
 
 1. Create a new **Beanstalk environment** with the `Dockerrun.aws.json` file from the `beanstalk-with-ebs-one-volume` project.
 2. In the **EFS Console**, expand the details on your EFS Volume and you will find a link on how to mount the volume to an EC2 instance. The steps below are mostly a copy and paste of these instructions.
-  ![](images/webspoon-on-aws/efs-volume-detailed-info.png)
+  ![](/images/webspoon-on-aws/efs-volume-detailed-info.png)
 3. Check which security group is assigned to your **EFS Volume Mount targets**. Chances are that it is the **default** security group. We have to add the same **security group** to our **EC2 instance(s)**, so that the instance can access the **EFS mount target**.
 4. Head over to the **EC2 console** and click on **Instance**, then right click on your currently running instance: **Networking > Change Security Groups**. 
-  ![](images/webspoon-on-aws/ec2-instance-change-security-groups.png)
+  ![](/images/webspoon-on-aws/ec2-instance-change-security-groups.png)
 5. Tick the **default** security group and confirm changes.
 6. Next copy the **Public DNS** of your EC2 instance, then from the command line, **ssh** into your instance.
 7. Once logged in, let's install the **NFS client**: `sudo yum install -y nfs-utils`
@@ -695,7 +703,7 @@ We will deploy new artifacts one by one to make sure that everything is working 
 4. Next go to the **EFS Console** and create a new EFS Volume. Once the volume is ready, expand the details on your EFS Volume and copy the ID of Volume.
 5. Check which security group is assigned to your **EFS Volume Mount targets**. Chances are that it is the **default** security group. We have to add the same **security group** to our **EC2 instance(s)**, so that the instance can access the EFS mount target.
 6. Head over to the **EC2 console** and click on **Instance**, then right click on your currently running instance: **Networking > Change Security Groups**. 
-  ![](images/webspoon-on-aws/ec2-instance-change-security-groups.png)
+  ![](/images/webspoon-on-aws/ec2-instance-change-security-groups.png)
 7. Tick the **default** security group and confirm changes.
 8. Inside this your project directory (`beanstalk-with-efs-mount-existing-volume`), create a subdirectory called `.ebextensions`.
 9. In the `.ebextensions` directory create a new file called `storage-efs-mountfilesystem.config` and populate it with this content:
@@ -787,7 +795,7 @@ We will deploy new artifacts one by one to make sure that everything is working 
   Replace the `FILE_SYSTEM_ID` with the id of your **EFS Volume Id**. The config file I use here is fairly similar to this [example](https://github.com/awslabs/elastic-beanstalk-docs/blob/master/configuration-files/aws-provided/instance-configuration/storage-efs-mountfilesystem.config), just that I commented out the section that creates the **mount point**, since this one **already exists** in our case: Remember that this directory gets created already by the instructions in our `Dockerrun.aws.json` (where we ask it to create the Docker volumes).
 10. Next **zip** the two files up as we did before.
 11. Go to the **Dashboard** page of your **Beanstalk app** and click on **Upload and Deploy**.
-  ![](images/webspoon-on-aws/deploy-new-config-on-running-beanstalk-env.png) 
+  ![](/images/webspoon-on-aws/deploy-new-config-on-running-beanstalk-env.png) 
 3. Add the **zip** file we just created and provide a version number. Confirm changes. It will attempt to deploy the new configuration: The good things now is that if this fails, it will automatically revert to the previous version, so at no point your are left with a broken environment.
 4. Once the deployment succeeds, ssh into the **EC2 instance** and verify that the mounting was successful:
 
@@ -884,16 +892,16 @@ We actually have to do this in three major steps:
   
 1. Once **Beanstalk environment** is created, the dedicated **VPC** is set up as well. Go to the [VPN management console](https://console.aws.amazon.com/vpc) and get the **VPC ID**. Paste it into the relevant section within your `storage-efs-createfilesystem.config` file.
   
-  ![](images/webspoon-on-aws/get-vpc-id.png)
+  ![](/images/webspoon-on-aws/get-vpc-id.png)
   
 7.  Next get the **Subnet IDs**. Paste them into the relevant section within your `storage-efs-createfilesystem.config` file.
   
-  ![](images/webspoon-on-aws/get-subnet-ids.png)
+  ![](/images/webspoon-on-aws/get-subnet-ids.png)
   
 8.  Next **zip** up the two files as we did before.
 9. Go to the **Dashboard** page of your **Beanstalk app** and click on **Upload and Deploy**.
   
-  ![](images/webspoon-on-aws/deploy-new-config-on-running-beanstalk-env.png) 
+  ![](/images/webspoon-on-aws/deploy-new-config-on-running-beanstalk-env.png) 
   
 10. Add the zip file we just created and provide a version number. Confirm changes. It will attempt to deploy the new configuration: The good things now is that if this fails, it will automatically revert to the previous version, so at no point your are left with a broken environment. Once deployment is successful, you should see the new volume in the **EFS panel** (Web UI).
 11. Next add the `storage-efs-mountfilesystem.config` from the `beanstalk-with-efs-mount-existing-volume` project. We just have to make a small modification: Replace the hardcoded `FILE_SYSTEM_ID` with a variable:
