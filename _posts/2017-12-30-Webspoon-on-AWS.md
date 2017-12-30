@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Pentaho Data Integration: WebSpoon on AWS and adding Storage Volumes"
+title: "Pentaho Data Integration: WebSpoon on AWS Elastic Beanstalk and adding EBS or EFS Storage Volumes"
 summary: This article explains how to get WebSpoon running on AWS and how to add storage volumes
 date: 2017-12-30
 categories: PDI
