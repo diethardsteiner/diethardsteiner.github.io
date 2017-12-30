@@ -1,0 +1,53 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "kettle",
+      "host": {
+        "sourcePath": "/data/kettle"
+      }
+    },
+    {
+      "name": "pentaho",
+      "host": {
+        "sourcePath": "/data/pentaho"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "webSpoon",
+      "image": "hiromuhota/webspoon:latest-full",
+      "essential": true,
+      "memory": 1920,
+      "environment": [
+        {
+          "name": "JAVA_OPTS",
+          "value": "-Xms1024m -Xmx1920m"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 8080
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "kettle",
+          "containerPath": "/root/.kettle",
+          "readOnly": false
+        },
+        {
+          "sourceVolume": "pentaho",
+          "containerPath": "/root/.pentaho",
+          "readOnly": false
+        },
+        {
+          "sourceVolume": "awseb-logs-webSpoon",
+          "containerPath": "/usr/local/tomcat/logs"
+        }
+      ]
+    }
+  ]
+}
