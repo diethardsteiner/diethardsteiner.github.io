@@ -20,7 +20,7 @@ We will start in a simple fashion by creating a **Deployment** to house our **We
 If you wish, you can read up on some background info here:
 
 - [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)
-- [Google Kubernetes Engine Docs](https://cloud.google.com/kubernetes-engine/docs/
+- [Google Kubernetes Engine Docs](https://cloud.google.com/kubernetes-engine/docs/)
 - [GCP Kubernetes Quickstart](https://cloud.google.com/kubernetes-engine/docs/quickstart)
 - [Gloud Command Line Client](https://cloud.google.com/sdk/gcloud/)
 - [kubectl command overview](https://kubernetes-v1-4.github.io/docs/user-guide/kubectl-overview/)
