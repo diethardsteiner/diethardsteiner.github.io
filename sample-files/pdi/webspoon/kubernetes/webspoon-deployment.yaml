@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webspoon-deployment
+spec:
+  replicas: 2
+  minReadySeconds: 20
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: webspoon-server
+        zone: dev
+        version: v1
+    spec:
+      containers:
+      - name: webspoon
+        image: hiromuhota/webspoon:0.8.0.13-full
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+        env:
+          - name: JAVA_OPTS
+            value: "-Xms1024m -Xmx1920m"
