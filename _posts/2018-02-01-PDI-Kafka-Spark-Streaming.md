@@ -10,6 +10,8 @@ published: false
 
 Kafka is everywhere these days! So it is about time that we take a look at how to populate a Kafka stream (aka topic) with PDI and how to fetch the data on the other side.
 
+If you need a quick intro to Kafka, take a look at [this article](https://sookocheff.com/post/kafka/kafka-in-a-nutshell/).
+
 ## Starting Kafka
 
 Download Kafka from [here](https://kafka.apache.org/downloads) and extract the file in a convenient directory. Make sure you choose a Kafka version which goes in line with your Scala version!
