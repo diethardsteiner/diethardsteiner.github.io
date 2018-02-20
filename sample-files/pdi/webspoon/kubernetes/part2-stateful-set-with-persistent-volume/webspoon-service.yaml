@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webspoon-service
+  labels:
+    # must be some of the labels used for 
+    # spec.template.metadata.labels in the StatefulSet
+    app: webspoon-server
+    zone: dev
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 30702
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    # has to match app name defined in StatefulSet
+    app: webspoon-server
+  sessionAffinity: None
+  type: LoadBalancer

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # the name you assign to the claim
+  name: webspoon-persistent-volume-claim
+spec:
+  accessModes:
+    # - ReadWriteOnce
+    - ReadOnlyMany
+  # volumeMode: Filesystem
+  resources:
+    requests:
+      # amount of storage in gigabytes to request for the cluster
+      storage: 2Gi

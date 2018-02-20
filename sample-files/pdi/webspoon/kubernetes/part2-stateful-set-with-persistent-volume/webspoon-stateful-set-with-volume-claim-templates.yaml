@@ -1,0 +1,54 @@
+apiVersion: 'apps/v1beta1'
+kind: 'StatefulSet'
+metadata:
+  name: 'webspoon-stateful-set'
+spec:
+  selector:
+      matchLabels:
+        # has to match .spec.template.metadata.labels
+        app: 'webspoon-server'
+  # reference back to the service name we created earlier on
+  serviceName: 'webspoon-service'
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        # has to match .spec.selector.matchLabels
+        app: 'webspoon-server' 
+        version: 'v1'
+        zone: 'dev'
+    spec:
+      terminationGracePeriodSeconds: 30
+      # volumes:
+      # - name: 'webspoon-storage'
+      #   persistentVolumeClaim:
+      #     claimName: 'webspoon-persistent-volume-claim'
+      containers:
+      - name: 'webspoon'
+        image: 'hiromuhota/webspoon:0.8.0.13-full'
+        env:
+        - name: 'JAVA_OPTS'
+          value: '-Xms1024m -Xmx1920m'
+        ports:
+        - containerPort: 8080
+          protocol: 'TCP'
+        resources:
+          requests:
+            cpu: '1'
+            memory: '2Gi'
+        volumeMounts:
+          # has to match the volume name defined further up
+        # - name: 'webspoon-storage'
+        - name: 'webspoon-persistent-volume-claim'
+          # mount path within the container
+          mountPath: '/data'   
+  volumeClaimTemplates:
+  - metadata:
+      name: 'webspoon-persistent-volume-claim'
+    spec:
+      accessModes: 
+        - 'ReadOnlyMany'
+      storageClassName: webspoon-storage-class
+      resources:
+        requests:
+          storage: '2Gi'

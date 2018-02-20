@@ -12,6 +12,8 @@ Kafka is everywhere these days! So it is about time that we take a look at how t
 
 If you need a quick intro to Kafka, take a look at [this article](https://sookocheff.com/post/kafka/kafka-in-a-nutshell/).
 
+# Basics
+
 ## Starting Kafka
 
 Download Kafka from [here](https://kafka.apache.org/downloads) and extract the file in a convenient directory. Make sure you choose a Kafka version which goes in line with your Scala version!
@@ -220,3 +222,17 @@ Error:KeeperErrorCode = NodeExists for /consumers
 
 I deleted all files from `/tmp/zookeeper` and `/tmp/kafka-logs`. 
 Next you will have to kill the currently running Zookeeper and Kafka processes (cancelling out of them is not enough).
+
+# Scaling
+
+Scaling the setup can be achieved via using PDI AEL Spark on both the producer and consumer side
+
+Kurtis Walker explains:
+
+"Consuming Kafka on spark will scale up to use as many spark executors as you have partitions in your kafka topic. (assuming your cluster has enough executors)  So, if you want to run 20 Consumers, you need to have 20 partitions and at least 20 available spark executors.  There isn't a config to control it directly.
+
+On the Producing side you aren't limited by the number of partitions.  You'll get one thread for every spark executor that is processing the RDD.  So if you have 50 executors and your transform is big enough that it can use all 50, they will all be writing messages to Kafka.
+
+Kafka handles all the mapping of keys to partitions automatically.  It uses a consistent hash on the key to choose which partition it goes to.  So the same key always goes to the same partition.  Null keys get randomly placed.  Kafka does have custom partitioning, but the PDI step does not leverage that feature.  It's something we could look at in the future if it turns out users want it.
+
+Oh, one more important thing.  When using the Kafka Consumer on spark, we can only batch based on duration.  The setting for number of rows is ignored when running on spark."

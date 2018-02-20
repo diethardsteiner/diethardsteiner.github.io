@@ -1,0 +1,27 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mywebspoon
+spec:
+  volumes:
+  - name: 'webspoon-storage'
+    persistentVolumeClaim:
+      claimName: 'webspoon-persistent-volume-claim'
+  containers:
+  - name: 'webspoon'
+    image: 'hiromuhota/webspoon:0.8.0.13-full'
+    env:
+    - name: 'JAVA_OPTS'
+      value: '-Xms1024m -Xmx1920m'
+    ports:
+    - containerPort: 8080
+      protocol: 'TCP'
+    resources:
+      requests:
+        cpu: '1'
+        memory: '2Gi'
+    volumeMounts:
+      # has to match the volume name defined further up
+    - name: 'webspoon-storage'
+      # mount path within the container
+      mountPath: '/data'

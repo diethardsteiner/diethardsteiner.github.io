@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  # name that you assign to the persistent volume
+  name: webspoon-persistent-volume
+spec:
+  # this storage class has to be referenced in the
+  # persistent storage claim later on
+  # so that pv and pvc are linked together 
+  storageClassName: webspoon-storage-class
+  # storage capacity in gigabytes
+  capacity:
+    storage: 10Gi
+  accessModes:
+    # - ReadWriteOnces
+    - ReadOnlyMany
+  gcePersistentDisk:
+    # name of the persistent disk in the environment
+    # has to be the name you specified before when
+    # running the gcloud compute disks create command
+    pdName: webspoon-volume
+    # file system type of the volume
+    fsType: ext4

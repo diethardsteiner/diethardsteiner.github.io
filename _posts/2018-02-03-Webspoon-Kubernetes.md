@@ -76,8 +76,22 @@ gcloud config set project kubwebspoon
 # list of available zones
 # https://cloud.google.com/compute/docs/regions-zones/#available
 gcloud config set compute/zone us-west1-a
+```
+
+Next we will create our **Kubernetes cluster**. While the `gcloud container clusters create` command provides defaults for many settings, you might want to define the **machine type** and the **number of nodes**.
+
+You can find info on the GCP **machine types** [here](https://cloud.google.com/compute/docs/machine-types) or alternatively you can run this command:
+
+```
+gcloud compute machine-types list
+```
+
+Let's create a **cluster** with **3 nodes** and **machine type** `n1-standard-1` :
+
+```bash
 # create kubernetes engine cluster
-gcloud container clusters create cluster-webspoon
+# running command again after enabling API
+gcloud container clusters create webspoon-cluster --machine-type=n1-standard-1 --num-nodes=3
 ```
 
 At this stage I got following error:
@@ -97,7 +111,7 @@ It will take some time for the **Google Kubernetes Engine API** to be enabled.
 ```bash
 # create kubernetes engine cluster
 # running command again after enabling API
-gcloud container clusters create cluster-webspoon
+gcloud container clusters create webspoon-cluster --machine-type=n1-standard-1 --num-nodes=3
 ```
 
 It will take a few minutes for the **cluster** to **initialise**. 
@@ -113,7 +127,7 @@ Next we have to retrieve the **authentication details**:
 
 ```bash
 # get authentication credentials to interact with cluster
-gcloud container clusters get-credentials cluster-webspoon
+gcloud container clusters get-credentials webspoon-cluster
 ```
 
 The last command fetches cluster endpoint and auth data and generates a `kubeconfig` entry for our project. This will link our Google Cloud Platform details with the `kubectl` command. In other words, `kubectl` is aware of our deployment environment now.
@@ -242,7 +256,7 @@ Finally, we might want to **destroy the environment** to stop incurring charges:
 # destroy service
 kubectl delete service webspoon-server
 # delete cluster
-gcloud container clusters delete cluster-webspoon
+gcloud container clusters delete webspoon-cluster
 ```
 
 # Declarative Approach
