@@ -19,13 +19,16 @@ spec:
         zone: 'dev'
     spec:
       terminationGracePeriodSeconds: 30
-      # volumes:
-      # - name: 'webspoon-storage'
-      #   persistentVolumeClaim:
-      #     claimName: 'webspoon-persistent-volume-claim'
       containers:
       - name: 'webspoon'
         image: 'hiromuhota/webspoon:0.8.0.13-full'
+        volumeMounts:
+        # has to match name in volume claim templates
+        - name: 'webspoon-persistent-volume-claim-kettle'
+          mountPath: /root/.kettle
+        # has to match name in volume claim templates
+        - name: 'webspoon-persistent-volume-claim-pentaho'
+          mountPath: /root/.pentaho
         env:
         - name: 'JAVA_OPTS'
           value: '-Xms1024m -Xmx1920m'
@@ -36,19 +39,22 @@ spec:
           requests:
             cpu: '1'
             memory: '2Gi'
-        volumeMounts:
-          # has to match the volume name defined further up
-        # - name: 'webspoon-storage'
-        - name: 'webspoon-persistent-volume-claim'
-          # mount path within the container
-          mountPath: '/data'   
   volumeClaimTemplates:
   - metadata:
-      name: 'webspoon-persistent-volume-claim'
+      name: 'webspoon-persistent-volume-claim-kettle'
     spec:
       accessModes: 
-        - 'ReadWriteOnces'
-      storageClassName: webspoon-storage-class
+        - 'ReadWriteOnce'
+      storageClassName: 'webspoon-storage-class'
       resources:
         requests:
-          storage: '2Gi'
+          storage: '1Gi'
+  - metadata:
+      name: 'webspoon-persistent-volume-claim-pentaho'
+    spec:
+      accessModes: 
+        - 'ReadWriteOnce'
+      storageClassName: 'webspoon-storage-class'
+      resources:
+        requests:
+          storage: '1Gi'

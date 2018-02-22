@@ -1,0 +1,30 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mywebspoon
+spec:
+  volumes:
+  - name: 'kettle-config-volume'
+    persistentVolumeClaim:
+      claimName: 'webspoon-persistent-volume-claim-kettle'
+  - name: 'pentaho-config-volume'
+    persistentVolumeClaim:
+      claimName: 'webspoon-persistent-volume-claim-pentaho'
+  containers:
+  - name: 'webspoon'
+    image: 'hiromuhota/webspoon:0.8.0.13-full'
+    volumeMounts:
+    - name: kettle-config-volume
+      mountPath: /root/.kettle
+    - name: pentaho-config-volume
+      mountPath: /root/.pentaho
+    env:
+    - name: 'JAVA_OPTS'
+      value: '-Xms1024m -Xmx1920m'
+    ports:
+    - containerPort: 8080
+      protocol: 'TCP'
+    resources:
+      requests:
+        cpu: '1'
+        memory: '2Gi'

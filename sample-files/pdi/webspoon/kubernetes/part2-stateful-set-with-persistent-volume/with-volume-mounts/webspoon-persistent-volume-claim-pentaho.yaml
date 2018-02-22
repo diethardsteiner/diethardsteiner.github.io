@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # the name you assign to the claim
+  name: webspoon-persistent-volume-claim-pentaho
+spec:
+  # refer back to the storage class defined in the persistent volume def
+  storageClassName: webspoon-storage-class
+  # if you didn't specify a storage class in the persistent volume def
+  # use this:
+  # storageClassName: ''
+  accessModes:
+    - ReadWriteOnce
+    # - ReadOnlyMany
+  # volumeMode: Filesystem
+  resources:
+    requests:
+      # amount of storage in gigabytes to request for the cluster
+      storage: 1Gi

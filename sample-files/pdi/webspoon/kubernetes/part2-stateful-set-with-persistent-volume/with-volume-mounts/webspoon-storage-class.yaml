@@ -1,0 +1,9 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: webspoon-storage-class
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+  zone: us-west1-a
+  # zones: us-central1-a, us-central1-b
