@@ -71,6 +71,18 @@ $ gcloud help container clusters create
 
 To understand the various **layers** better that are involved in making a **volume** available to a specific **pod** (Kubernetes term for an environment where a container runs in), we'll first take a high level look at how everything hangs together:
 
+Let's understand what each layer does:
+
+- **Disk request**: An admin will request a physical disk/volume to be made available.
+- **Storage Class**: Is a high level abstraction of the storage requirements.
+- **Persistent Volume** (PV): Allocates a given physical volume to the Kubernetes cluster. Can be linked to a Storage Class.
+- **Persistent Volume Claim** (PVC): Creates a contract between a pod and a persistent volume
+- **Controllers**:
+  - **Pod**: Runs one or more containers. To scale horizontally usually there are more than one pod. One pod requrest one PVC to access persistent storage.
+  - **Deployment**: used to deploy stateless applications consisting of several pods.
+  - **StatefulSet**: used to deploy stateful applications consisting of several pods.
+
+Here are some scenarios: Our aim is to link one of the controllers (pods, deployments, stateful sets) with volumes:
 
 - **Case 1**: Pod with Volume referencing Persistent Volume Claim (using   `volumes.persistentVolumeClaim.ClaimName`)
 - **Case 2**: Same as Case 1, just that we either use the default cluster storage class or create our own one and rely on the PVC to automatically create the PV as well as request the physical disk
@@ -78,24 +90,15 @@ To understand the various **layers** better that are involved in making a **volu
 
 | Layers                 |  Case 1: Pod | Case 2: Pod |  Case 3: Stateful Set |
 | -----------------------| :----: | :----: | :----: |
-| Disk request           |   N    |   Y    |    Y   |                        
-| Storage Class          |   N    | Optional |    Y   |                        
+| Storage Class          |   N    | Optional |    Y   |                        |        |        |        |
+| Disk request           |   N    |   Y    |    Y   |                       
 | Persistent Volume      |   N    |   Y    |    Y   |                        
 | Persistent Volume Claim|   N    |   N    |    Y   |                        
 | Controller             |   N    |   N    |    Y   |
 
 > **Important**: As you can imagine using the pods controller directly is not meant for scaling applications.
 
-
-Let's understand what each layer does:
-
-- **Disk request**: An admin will request a physical disk/volume to be made available.
-- **Storage Class**: Is a high level abstraction of the storage requirements.
-- **Persistent Volume** (PV): Allocates a given physical volume to the Kubernetes cluster. Can be linked to a Storage Class.
-- **Persistent Volume Claim** (PVC): Creates a contract between a pod and a persistent volume
-- **Pod**: Runs one or more containers. To scale horizontally usually there are more than one pod. One pod requrest one PVC to access persistent storage.
-- **Deployment**:
-- **StatefulSet**: 
+![](/images/webspoon-kubernetes/kubernetes-volumes-provisioning.png)
 
 # Automatic Storage Allocation
 
@@ -138,6 +141,7 @@ Then run the following command:
 ```bash
 kubectl apply -f webspoon-persistent-volume-claim-using-default-storage-class.yaml
 ```
+
 
 Next create the pod definition:
 
@@ -264,8 +268,7 @@ AttachVolume.Attach failed for volume "pvc-852bb2c8-1672-11e8-b97b-42010a8a0015"
 
 - A given **pod** has to be linked to a unique **PVC**
 - A given **PVC** has to linked to unique **PV**
-- A given **PV** has to be linked to a unique **disk** (?? is the last one true ??? surely you can have shared network drives? So the storage type must have something to do with this as well!) [OPEN]
-
+- A given **PV** has to be linked to a unique **disk** (in the case of GCP persistent volume in write once mode)
 
 Since we explicitly mention the **PVC** in the spec of the two pods, we get the error shown above! Had we created two **PVCs**, we wouln't be in this trouble now.
 
@@ -309,7 +312,7 @@ Sources:
 
 The `StatefulSet` controller is used to manage **stateful applications**. Unlike with the `Deployment` controller that we used in part 1 of this blog series, the `StatefulSet` controller maintains a **sticky identity** for each pod, so these pods are not interchangeable (although the have the same spec).
 
-We will use the declaritive approach to configure the `StatefulSet`:
+We will use the **declaritive approach** to configure the `StatefulSet`:
 
 You will be happy to hear that this is a very easy approach: No volumes have to be created upfront by the administrator, the user does neither have to create a **persistent volume** definition nor a **persistent volume claim** definition.
 
@@ -424,6 +427,16 @@ The status of the **PVCs**: Note how the name of the `volumeClaimTemplates` is u
 
 ### Mapping Container Volume Mounts to Volumes
 
+#### One pod only for testing
+
+Layer  | Manual Creation | Automatic Creation
+-------|---------------------|-----------------------
+Storage Class |  0  |  
+Disk   |     |  X
+PV  |     |  X
+PSV   |   X   |  
+Pod |  X |
+
 > **Note**: Before following the next excerise, delete any stateful sets and PVCs via the web console. The following yaml files are located within the `with-volume-mounts` folder in the project directory.
 
 While the setup so far works, it is not ideal: We currently just mount the volume to the `/data` directory within the the **container**. To verify this you could log on to the container (this described towards the end of this article).
@@ -437,14 +450,97 @@ These directories can be specified via `containers.volumeMounts`.
 
 First we will create one single pod to make sure our setup is working before scaling it out. We will create a dedicated **storage class** (we'll use the same one as we created previously), two **PVCs** (one for the `.kettle` and one for the `.pentaho` directory) and a **pod** specification.
 
-
+We start of with the **storage class** definition:
 
 ```yaml
-spec:
-
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: webspoon-storage-class
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+  zone: us-west1-a
+  # zones: us-central1-a, us-central1-b
 ```
 
-Let's apply the declarations:
+The **PVC** for the Kettle volume:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # the name you assign to the claim
+  name: webspoon-persistent-volume-claim-kettle
+spec:
+  # refer back to the storage class defined in the persistent volume def
+  storageClassName: webspoon-storage-class
+  accessModes:
+    - ReadWriteOnce
+  # volumeMode: Filesystem
+  resources:
+    requests:
+      # amount of storage in gigabytes to request for the cluster
+      storage: 1Gi
+```
+
+The **PVC** for the Pentaho volume:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # the name you assign to the claim
+  name: webspoon-persistent-volume-claim-pentaho
+spec:
+  # refer back to the storage class defined in the persistent volume def
+  storageClassName: webspoon-storage-class
+  accessModes:
+    - ReadWriteOnce
+    # - ReadOnlyMany
+  # volumeMode: Filesystem
+  resources:
+    requests:
+      # amount of storage in gigabytes to request for the cluster
+      storage: 1Gi
+```
+
+And finally the **pod** definition:
+
+```yaml
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mywebspoon
+spec:
+  volumes:
+  - name: 'kettle-config-volume'
+    persistentVolumeClaim:
+      claimName: 'webspoon-persistent-volume-claim-kettle'
+  - name: 'pentaho-config-volume'
+    persistentVolumeClaim:
+      claimName: 'webspoon-persistent-volume-claim-pentaho'
+  containers:
+  - name: 'webspoon'
+    image: 'hiromuhota/webspoon:0.8.0.13-full'
+    volumeMounts:
+    - name: kettle-config-volume
+      mountPath: /root/.kettle
+    - name: pentaho-config-volume
+      mountPath: /root/.pentaho
+    env:
+    - name: 'JAVA_OPTS'
+      value: '-Xms1024m -Xmx1920m'
+    ports:
+    - containerPort: 8080
+      protocol: 'TCP'
+    resources:
+      requests:
+        cpu: '1'
+        memory: '2Gi'
+```
+
+Let's apply these declarations:
 
 ```bash
 kubectl apply -f webspoon-storage-class.yaml
@@ -468,7 +564,19 @@ root@mywebspoon:/usr/local/tomcat# mount | grep pentaho
 
 As you can see, the volumes got correctly mounted. If you wanted to have a minimal setup, you could already expose this one pod and make it accessible to the external world. 
 
-We will go a bit further and a **Stateful Set**. Let's clear the way:
+#### Stateful Sets
+
+Layer  | Manual Creation | Automatic Creation
+-------|---------------------|-----------------------
+Storage Class |  0  |  
+Disk   |     |  X
+PV  |     |  X
+PSV   |      | X 
+StatefulSet with volumeClaimTemplates |  X |
+
+We will go a bit further and create a **Stateful Set** to scale the setup. 
+
+Let's clear the way:
 
 ```bash
 $ kubectl get pods
@@ -485,12 +593,74 @@ persistentvolumeclaim "webspoon-persistent-volume-claim-kettle" deleted
 persistentvolumeclaim "webspoon-persistent-volume-claim-pentaho" deleted
 ```
 
-Now we only have to create the definition for the stateful set:
+We only need a dedicated **storage class** (which we reuse from the previous section) and a **stateful set** declartion.
+
+Now we only have to create the definition for the **stateful set**:
 
 ```yaml
-
+apiVersion: 'apps/v1beta1'
+kind: 'StatefulSet'
+metadata:
+  name: 'webspoon-stateful-set'
+spec:
+  selector:
+      matchLabels:
+        # has to match .spec.template.metadata.labels
+        app: 'webspoon-server'
+  # reference back to the service name we created earlier on
+  serviceName: 'webspoon-service'
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        # has to match .spec.selector.matchLabels
+        app: 'webspoon-server' 
+        version: 'v1'
+        zone: 'dev'
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: 'webspoon'
+        image: 'hiromuhota/webspoon:0.8.0.13-full'
+        volumeMounts:
+        # has to match name in volume claim templates
+        - name: 'webspoon-persistent-volume-claim-kettle'
+          mountPath: /root/.kettle
+        # has to match name in volume claim templates
+        - name: 'webspoon-persistent-volume-claim-pentaho'
+          mountPath: /root/.pentaho
+        env:
+        - name: 'JAVA_OPTS'
+          value: '-Xms1024m -Xmx1920m'
+        ports:
+        - containerPort: 8080
+          protocol: 'TCP'
+        resources:
+          requests:
+            cpu: '1'
+            memory: '2Gi'
+  volumeClaimTemplates:
+  - metadata:
+      name: 'webspoon-persistent-volume-claim-kettle'
+    spec:
+      accessModes: 
+        - 'ReadWriteOnce'
+      storageClassName: 'webspoon-storage-class'
+      resources:
+        requests:
+          storage: '1Gi'
+  - metadata:
+      name: 'webspoon-persistent-volume-claim-pentaho'
+    spec:
+      accessModes: 
+        - 'ReadWriteOnce'
+      storageClassName: 'webspoon-storage-class'
+      resources:
+        requests:
+          storage: '1Gi'
 ```
 
+Note how the `volumeMounts` section changed to accomodate the two **PVCs**.
 
 Let's apply the declarations:
 
@@ -499,12 +669,9 @@ kubectl apply -f webspoon-storage-class.yaml
 kubectl apply -f webspoon-stateful-set-with-volume-claim-templates.yaml
 ```
 
+> **Note**: While it is an interesting exercise to create a **stateful set**, it is always worth questioning if your app is really **stateful**. In the case of Webspoon you could argue strongly against it. Ideally you'd want a shared network drive to store the files or a central database repository. Currently GCP does not seem to offer a shared network drive with the Kubernetes service.
 
-
-
-> **Note**: While it is an interesting exercise to create a stateful set, it is always worth questioning if your app is really stateful. In the case of Webspoon you could argue strongly against it. Ideally you'd want a shared network drive to store the files or a central database repository. Currently GCP does not seem to offer a shared network drive with the Kubernetes service.
-
-### Exposing the app: Creating a Load Balancer
+#### Exposing the app: Creating a Load Balancer
 
 In order to access our app from the outside world, we will set up a **load balancer**. This is a single **entrypoint** which will distribute the workload to the available pods. Should the IP address of a given pod every change (e.g. one dies and it get rescheduled somewhere else), **Kubernetes** will automatically take care of making the load balancer aware of these changes. Also we can easily add or removed pods - the load balancer (or the service to be precise) will be automatically made aware of these changes.
 
@@ -561,9 +728,16 @@ http://35.199.186.251:8080/spoon/spoon
 
 > **Important**: This approach is not scalable. We cover this here for background info only.
 
-## Create the volume
+Layer  | Manual Creation | Automatic Creation
+-------|---------------------|-----------------------
+Storage Class |  0  |  
+Disk   |  X  |  
+PV  |   X |  
+PSV   |   X   |  
+Pod |  X |
 
-[OPEN]: Only got the pod working by skipping this section!
+
+## Create the volume
 
 You create a persistent volume like so:
 
@@ -644,10 +818,6 @@ spec:
     fsType: ext4
 ```
 
-
-[OPEN]: how can the `PersistentVolume` specify a storage class if storage classes are used for dynamic provisioning?
-
-
 > **Important**: The above definition defines the `StorageClass` named `webspoon-storage-class` for the `PersistentVolume`, which will be used to bind `PersistentVolumeClaim` requests to this `PersistentVolume` later on.
 
 Add volume to **cluster**:
@@ -700,7 +870,7 @@ spec:
       storage: 2Gi
 ```
 
-> **Note**: If you don't specify a `storageClassName` for the PVC, Kubernetes will default it to `standard`, which in turn will trigger an automatic generation of a PV defintion. This one will then trigger the alloaction of the actual volume to the cluster. If you want to prevent this automatic behaviour, set `storageClassName` to blank (as in `storageClassName=''`) if you didn't specify a dedicated storage class in the PV definition or otherwise mentioned the same storage class in the PVC that you specified in the PV.
+> **Note**: If you don't specify a `storageClassName` for the PVC, Kubernetes will default it to `standard`, which in turn will trigger an automatic generation of a PV defintion. This one will then trigger the alloaction of the actual volume to the cluster. If you want to prevent this automatic behaviour, set `storageClassName` to blank (as in `storageClassName=''`) if you didn't specify a dedicated storage class in the PV definition or otherwise mentioned the same storage class in the **PVC** that you specified in the **PV**.
 
 
 Apply the config:
@@ -738,7 +908,7 @@ And details on the **claim** can be retrieved via the **Volume** section:
 
 ## Pod
 
-Before we conquer the cluster, we first want to make sure that we get one pod running:
+We want to get one pod running:
 
 Create a file called `webspoon-pod.yaml` with following content:
 
