@@ -90,7 +90,7 @@ Here are some deployment **scenarios**: Our aim is to link pods with a dedicated
 
 | Layers                 |  Case 1: Pod | Case 2: Pod |  Case 3: Stateful Set |
 | -----------------------| :----: | :----: | :----: |
-| Storage Class          |   N    | Optional |    Y   |                        |        |        |        |
+| Storage Class          |   N    | Optional |    Y   |
 | Disk request           |   N    |   Y    |    Y   |                       
 | Persistent Volume      |   N    |   Y    |    Y   |                        
 | Persistent Volume Claim|   N    |   N    |    Y   |                        
@@ -722,6 +722,7 @@ webspoon-service   LoadBalancer   10.55.242.149   35.199.186.251   8080:30702/TC
 ```
 
 In my case **Webspoon** was available on: 
+
 ```
 http://35.199.186.251:8080/spoon/spoon
 ```
