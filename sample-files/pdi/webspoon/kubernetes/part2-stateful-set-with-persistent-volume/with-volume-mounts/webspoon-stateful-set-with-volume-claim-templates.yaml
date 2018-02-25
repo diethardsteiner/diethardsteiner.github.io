@@ -39,6 +39,20 @@ spec:
           requests:
             cpu: '1'
             memory: '2Gi'
+        # checking if the container is still alive
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 240
+          periodSeconds: 20
+        # checking if the container is ready for accepting traffic
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 240
+          periodSeconds: 20
   volumeClaimTemplates:
   - metadata:
       name: 'webspoon-persistent-volume-claim-kettle'

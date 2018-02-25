@@ -1,14 +1,14 @@
 ---
 layout: post
 title: "Kubernetes: Manual and Automatic Volume Provisioning"
-summary: This article explains how to easily deploy Webspoon with Kubernetes on Google Cloud Platform
+summary: This article explains how to easily deploy a stateful web app with Kubernetes on Google Cloud Platform
 date: 2018-02-11
 categories: PDI
 tags: PDI, Kubernetes, Google Cloud Platform
-published: false
+published: true
 ---
 
-The the second part of our **Kubernetes on Google Cloud Platform** series we will be taking a look at how to attach a persistent volume to the instance that runs WebSpoon.
+The the second part of our **Kubernetes on Google Cloud Platform** series we will be taking a look at how to attach a **persistent volume** to the pods that run a given web app. The web app in our example will be WebSpoon, but it could be any other one.
 
 # Creating the Kubernetes Cluster
 
@@ -76,16 +76,16 @@ Let's understand what each layer does:
 - **Disk request**: An admin will request a physical disk/volume to be made available.
 - **Storage Class**: Is a high level abstraction of the storage requirements.
 - **Persistent Volume** (PV): Allocates a given physical volume to the Kubernetes cluster. Can be linked to a Storage Class.
-- **Persistent Volume Claim** (PVC): Creates a contract between a pod and a persistent volume
-- **Controllers**:
-  - **Pod**: Runs one or more containers. To scale horizontally usually there are more than one pod. One pod requrest one PVC to access persistent storage.
+- **Persistent Volume Claim** (PVC): Creates a contract between a pod and a persistent volume.
+- **Pod**: Runs one or more containers. To scale horizontally usually there are more than one pod. One pod requrest one PVC to access persistent storage.
+- **Controllers**: Manage multiple pods. Controllers have a varying degree of features.
   - **Deployment**: used to deploy stateless applications consisting of several pods.
   - **StatefulSet**: used to deploy stateful applications consisting of several pods.
 
-Here are some scenarios: Our aim is to link one of the controllers (pods, deployments, stateful sets) with volumes:
+Here are some deployment **scenarios**: Our aim is to link pods with a dedicated persistent volume:
 
-- **Case 1**: Pod with Volume referencing Persistent Volume Claim (using   `volumes.persistentVolumeClaim.ClaimName`)
-- **Case 2**: Same as Case 1, just that we either use the default cluster storage class or create our own one and rely on the PVC to automatically create the PV as well as request the physical disk
+- **Case 1**: Unmanaged pod. All levels created manually.
+- **Case 2**: Unmanaged pod.  We either use the default cluster storage class or create our own one and rely on the PVC to automatically create the PV as well as request the physical disk. Pod specified with Volume referencing Persistent Volume Claim (using   `volumes.persistentVolumeClaim.ClaimName`)
 - **Case 3**: StatefulSet with Volume Claim Templates (using `volumeClaimTemplates`)
 
 | Layers                 |  Case 1: Pod | Case 2: Pod |  Case 3: Stateful Set |
@@ -96,7 +96,7 @@ Here are some scenarios: Our aim is to link one of the controllers (pods, deploy
 | Persistent Volume Claim|   N    |   N    |    Y   |                        
 | Controller             |   N    |   N    |    Y   |
 
-> **Important**: As you can imagine using the pods controller directly is not meant for scaling applications.
+> **Important**: As you can imagine creating pods directly is not meant for scaling applications.
 
 ![](/images/webspoon-kubernetes/kubernetes-volumes-provisioning.png)
 
@@ -105,19 +105,19 @@ Here are some scenarios: Our aim is to link one of the controllers (pods, deploy
 We will start with the easiest option: Making use of Kubernetes **automatic storage allocation** features. We will also only map one volume to our container.
 
 
-## Pod with PSV
+## Pod with PVC
 
 Layer  | Manual Creation | Automatic Creation
 -------|---------------------|-----------------------
 Storage Class |  0  |  
 Disk   |     |  X
 PV  |     |  X
-PSV   |   X   |  
+PVC   |   X   |  
 Pod |  X |
 
 > **Note**: The **storage class** can be created manually or some clusters might come **pre-configured** with a standard storage class. If the latter one meets your requirements, there is no no need to create one manually.
 
-Create a ReadWriteOnces called `webspoon-persistent-volume-claim-using-default-storage-class.yaml` with following content:
+Create a **PVC** called `webspoon-persistent-volume-claim-using-default-storage-class.yaml` with following content:
 
 ```yaml
 apiVersion: v1
@@ -143,7 +143,7 @@ kubectl apply -f webspoon-persistent-volume-claim-using-default-storage-class.ya
 ```
 
 
-Next create the pod definition:
+Next create the **pod** definition (name the file `webspoon-pod.yaml`):
 
 ```yaml
 kind: Pod
@@ -266,13 +266,13 @@ AttachVolume.Attach failed for volume "pvc-852bb2c8-1672-11e8-b97b-42010a8a0015"
 
 **It is important to understand the relationships**:
 
-- A given **pod** has to be linked to a unique **PVC**
-- A given **PVC** has to linked to unique **PV**
+- A given **pod** has to be linked to a unique **PVC**.
+- A given **PVC** has to linked to unique **PV**.
 - A given **PV** has to be linked to a unique **disk** (in the case of GCP persistent volume in write once mode)
 
 Since we explicitly mention the **PVC** in the spec of the two pods, we get the error shown above! Had we created two **PVCs**, we wouln't be in this trouble now.
 
-> **Important**: This shows that the same **PVC** cannot be reused! This is important to understand. When we create a bit later on a `StatefulSet` - an easier approach to scale stateful apps horizontally - we cannot just reference the volume via claim but have to create a volume claim template, which will make sure that each pod gets a unique **PVC** and a unique **PV**!
+> **Important**: This shows that the same **PVC** cannot be reused! This is important to understand. When we create a bit later on a `StatefulSet` - an easier approach to scale stateful apps horizontally - we cannot just reference the volume via a claim but have to create a volume claim template as well, which will make sure that each pod gets a unique **PVC** and a unique **PV**!
 
 With these learnings in mind we can proceed and create a `StatefulSet` in a bit to scale horizontally.
 
@@ -300,7 +300,7 @@ Layer  | Manual Creation | Automatic Creation
 Storage Class |  0  |  
 Disk   |     |  X
 PV  |     |  X
-PSV   |      | X 
+PVC   |      | X 
 StatefulSet with volumeClaimTemplates |  X |
 
 > **Note**: Some **Kubernetes clusters** are already pre-configured with a standard **storage class**. If this one meets your requirements, there is no need to create one manually.
@@ -377,9 +377,11 @@ spec:
           storage: '2Gi'
 ```
 
+> **Note**: The service `webspoon-service`, which is referenced in the spec above, should be really created upfront, but we ignore this minor detail for now.
+
 The important bit here is that we use a `volumeClaimTemplates` as opposed to a volume with a claim. The `volumeClaimTemplates` will make sure that **for each pod** a **unique PVC** is automatically generated. And in turn each unique **PVC** requests a unique **PV** which in turn requests a unique disk.
 
-> **Note**:  When you use `volumeClaimTemplates` you don't have to neither create a `PersistentVolumeClaim` definition nor a `PersitentVolumes` definition. Everything gets automatically created.
+> **Note**:  When you use `volumeClaimTemplates` you neither have to create a `PersistentVolumeClaim` definition nor a `PersitentVolumes` definition. Everything gets automatically created.
 
 Run the following command the create the **stateful set**:
 
@@ -434,7 +436,7 @@ Layer  | Manual Creation | Automatic Creation
 Storage Class |  0  |  
 Disk   |     |  X
 PV  |     |  X
-PSV   |   X   |  
+PVC   |   X   |  
 Pod |  X |
 
 > **Note**: Before following the next excerise, delete any stateful sets and PVCs via the web console. The following yaml files are located within the `with-volume-mounts` folder in the project directory.
@@ -448,7 +450,7 @@ We have to understand which directories of our app we actually want to have pers
 
 These directories can be specified via `containers.volumeMounts`.
 
-First we will create one single pod to make sure our setup is working before scaling it out. We will create a dedicated **storage class** (we'll use the same one as we created previously), two **PVCs** (one for the `.kettle` and one for the `.pentaho` directory) and a **pod** specification.
+First we will create one single pod to make sure our setup is working before scaling it out. We will create a dedicated **storage class** (we'll reuse the same one as we created previously), two **PVCs** (one for the `.kettle` and one for the `.pentaho` directory) and a **pod** specification.
 
 We start of with the **storage class** definition:
 
@@ -562,7 +564,7 @@ root@mywebspoon:/usr/local/tomcat# mount | grep pentaho
 /dev/sdc on /root/.pentaho type ext4 (rw,relatime,data=ordered)
 ```
 
-As you can see, the volumes got correctly mounted. If you wanted to have a minimal setup, you could already expose this one pod and make it accessible to the external world. 
+As you can see, the **volumes** got correctly mounted. If you wanted to have a minimal setup, you could already expose this one pod and make it accessible to the external world. 
 
 #### Stateful Sets
 
@@ -571,7 +573,7 @@ Layer  | Manual Creation | Automatic Creation
 Storage Class |  0  |  
 Disk   |     |  X
 PV  |     |  X
-PSV   |      | X 
+PVC   |      | X 
 StatefulSet with volumeClaimTemplates |  X |
 
 We will go a bit further and create a **Stateful Set** to scale the setup. 
@@ -710,7 +712,7 @@ kubectl apply -f webspoon-service.yaml
 > **Note**: The Kubernetes API is fast evolving and there might be changes in future to it. In case this happens, there is the command `kubectl convert -f webspoon-stateful-set.yaml` to "upgrade" the spec.
 
 
-To get the entrypoint IP address run:
+To get the **entrypoint** IP address run:
 
 ```bash
 $ kubectl get service
@@ -733,13 +735,13 @@ Layer  | Manual Creation | Automatic Creation
 Storage Class |  0  |  
 Disk   |  X  |  
 PV  |   X |  
-PSV   |   X   |  
+PVC   |   X   |  
 Pod |  X |
 
 
 ## Create the volume
 
-You create a persistent volume like so:
+You create a **persistent volume** like so:
 
 ```bash
 gcloud compute disks create [DISK_NAME] \
@@ -755,7 +757,7 @@ To find out more about this command, run:
 gcloud help compute disks create
 ```
 
-There are two disk types available: `pd-ssd` or `pd-standard`. The last one is sufficient for our purpose: storing PDI jobs and transformations. The volume has to be specified as multiples of `GB` or `TB` - it can't be less than 10 GB. Let's run following command now:
+There are **two disk types** available: `pd-ssd` or `pd-standard`. The last one is sufficient for our purpose: storing PDI jobs and transformations. The volume has to be specified as multiples of `GB` or `TB` - it can't be less than 10 GB. Let's run following command now:
 
 ```
 # create persistent volume
@@ -784,7 +786,7 @@ parameters:
   # zones: us-central1-a, us-central1-b
 ```
 
-> **Note**: Your **Kubernetes** cluster might already provide a standard storage class. If it suits your purpose, you can use this one and don't have to create an additional one.
+> **Note**: Your **Kubernetes** cluster might already provide a standard **storage class**. If it suits your purpose, you can use this one and don't have to create an additional one.
 
 ## Assign the volume to our cluster  
 
@@ -870,7 +872,7 @@ spec:
       storage: 2Gi
 ```
 
-> **Note**: If you don't specify a `storageClassName` for the PVC, Kubernetes will default it to `standard`, which in turn will trigger an automatic generation of a PV defintion. This one will then trigger the alloaction of the actual volume to the cluster. If you want to prevent this automatic behaviour, set `storageClassName` to blank (as in `storageClassName=''`) if you didn't specify a dedicated storage class in the PV definition or otherwise mentioned the same storage class in the **PVC** that you specified in the **PV**.
+> **Note**: If you don't specify a `storageClassName` for the PVC, Kubernetes will default it to `standard`, which in turn will trigger an automatic generation of a PV defintion. This one will then trigger the alloaction of the new volume to the cluster. If you want to prevent this automatic behaviour, set `storageClassName` to blank (as in `storageClassName=''`) if you didn't specify a dedicated storage class in the PV definition. Another option is to mentioned the same storage class in the **PVC** that you specified in the **PV**.
 
 
 Apply the config:
@@ -887,9 +889,9 @@ NAME                         CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS  
 webspoon-persistent-volume   10Gi       RWO            Retain           Bound     default/webspoon-persistent-volume-claim   standard                 4m
 ```
 
-**Important**: In the previous output you have the check that `STATUS` is set to `BOUND`! Otherwise a persistent volume got **dynamically provisioned** and bound to the persistent volume claim.
+> **Important**: In the previous output you have the check that `STATUS` is set to `BOUND`! Otherwise a persistent volume got **dynamically provisioned** and bound to the persistent volume claim.
 
-Or you can also find out via the command line which volume got bound to the **persistent volume claim** (pvc):
+You can also find out via the command line which volume got bound to the **persistent volume claim** (pvc):
 
 ```bash
 # Find out which persistent volume the claim is referencing
@@ -942,13 +944,13 @@ spec:
       mountPath: '/data'
 ```
 
-Once the app is running, to log onto the container, you can run:
+Once the app is running, to **log onto the container**, you can run:
 
 ```bash
 kubectl exec -it mywebspoon -c webspoon -- /bin/bash
 ```
 
-We can check that the data directory exists:
+We can check that the **data directory** exists:
 
 ```bash
 # check that the data directory exists
@@ -965,18 +967,30 @@ Currently **Google Cloud Platform** does not seem to offer a **network file stor
 
 # Clean-up
 
+Here are some command suggestions:
+
 ```bash
 ## destroy app
 # destroy service
+kubectl get service
 kubectl delete service webspoon-server
+# destroy persistent volume claims
+kubectl get pvc
 kubectl delete pvc webspoon-persistent-volume-claim
-# delete volume
-gcloud compute disks delete webspoon-volume
+# delete stateful set
+kubectl get sts
+kubectl delete sts webspoon-stateful-set
+# delete storage class
+kubectl get storageclass
+kubectl delete storageclass [STORAGECLASS]
 # delete cluster
 gcloud container clusters delete webspoon-cluster
+# make sure no volumes are still running
+gcloud compute disks list
+gcloud compute disks delete [DISK-ID]
 ```
 
-> **Important**: Make sure that you check on the Web console under **Compute Engine > Disks** that there are no volumes left after all these actions. If volumes got dynamically provisioned, it can be that they will not deleted automatically. 
+> **Important**: Make sure that you check on the Web console under **Compute Engine > Disks** that there are no volumes left after all these actions. If volumes got dynamically provisioned, it can be that they will not deleted automatically.
 
 # Sources
 

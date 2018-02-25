@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Pentaho Data Integration: Deploying Webspoon with Kubernetes on Google Cloud Platform (Part 1)"
+title: "Kubernetes: Deployment Example WebSpoon"
 summary: This article explains how to easily deploy Webspoon with Kubernetes on Google Cloud Platform
 date: 2018-02-03
 categories: PDI
