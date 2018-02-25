@@ -88,13 +88,13 @@ Here are some deployment **scenarios**: Our aim is to link pods with a dedicated
 - **Case 2**: Unmanaged pod.  We either use the default cluster storage class or create our own one and rely on the PVC to automatically create the PV as well as request the physical disk. Pod specified with Volume referencing Persistent Volume Claim (using   `volumes.persistentVolumeClaim.ClaimName`)
 - **Case 3**: StatefulSet with Volume Claim Templates (using `volumeClaimTemplates`)
 
-| Layers                 |  Case 1: Pod | Case 2: Pod |  Case 3: Stateful Set |
-| -----------------------| :----: | :----: | :----: |
-| Storage Class          |   N    | Optional |    Y   |
-| Disk request           |   N    |   Y    |    Y   |                       
-| Persistent Volume      |   N    |   Y    |    Y   |                        
-| Persistent Volume Claim|   N    |   N    |    Y   |                        
-| Controller             |   N    |   N    |    Y   |
+| Layers                 |   Case 1: Pod |   Case 2: Pod |    Case 3: Stateful Set |
+| -----------------------| :-----------: | :-----------: | :---------------------: |
+| Storage Class          |   Manual      |   Optional    |    Auto                 |
+| Disk request           |   Manual      |   Auto        |    Auto                 |                       
+| Persistent Volume      |   Manual      |   Auto        |    Auto                 |                        
+| Persistent Volume Claim|   Manual      |   Manual      |    Auto                 |                        
+| Controller             |   Manual      |   Manual      |    Manual               |
 
 > **Important**: As you can imagine creating pods directly is not meant for scaling applications.
 
