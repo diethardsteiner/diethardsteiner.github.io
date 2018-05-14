@@ -389,6 +389,8 @@ spec:
             name: init-databases.sh
 ```
 
+Note that we attach a persistent volume to store the data. We should also take backups of this volume in regular intervals (not covered here).
+
 And our `Service` definition looks like this:
 
 ```yaml
