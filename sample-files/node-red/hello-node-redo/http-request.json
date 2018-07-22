@@ -1,0 +1,117 @@
+[
+  {
+    "id": "1e7b58f0.47a32f",
+    "type": "tab",
+    "label": "http-request",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "38a77e23.7430ca",
+    "type": "http in",
+    "z": "1e7b58f0.47a32f",
+    "name": "",
+    "url": "/hello",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 90,
+    "y": 80,
+    "wires": [
+      [
+        "cd5ab785.d724e"
+      ]
+    ]
+  },
+  {
+    "id": "64098e74.4dcf78",
+    "type": "debug",
+    "z": "1e7b58f0.47a32f",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "x": 450,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "472e6d51.2d795c",
+    "type": "http response",
+    "z": "1e7b58f0.47a32f",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 430,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "eb7e1e36.f763a",
+    "type": "template",
+    "z": "1e7b58f0.47a32f",
+    "name": "add html",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "<style> {{{css}}} </style> \n<h1>My response:</h1>\n<div id=\"hello\">{{payload}}</div>",
+    "output": "str",
+    "x": 240,
+    "y": 380,
+    "wires": [
+      [
+        "64098e74.4dcf78",
+        "472e6d51.2d795c"
+      ]
+    ]
+  },
+  {
+    "id": "cd5ab785.d724e",
+    "type": "change",
+    "z": "1e7b58f0.47a32f",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "Hello World!",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 210,
+    "y": 140,
+    "wires": [
+      [
+        "178e75a9.133b9a"
+      ]
+    ]
+  },
+  {
+    "id": "178e75a9.133b9a",
+    "type": "template",
+    "z": "1e7b58f0.47a32f",
+    "name": "add css",
+    "field": "css",
+    "fieldType": "msg",
+    "format": "css",
+    "syntax": "mustache",
+    "template": "body {\n    font-family: Arial, Helvetica, sans-serif;\n}\n#hello {\n    color: cadetblue;\n    font-weight: bold;\n    font-size: 2em;\n}",
+    "output": "str",
+    "x": 220,
+    "y": 260,
+    "wires": [
+      [
+        "eb7e1e36.f763a"
+      ]
+    ]
+  }
+]

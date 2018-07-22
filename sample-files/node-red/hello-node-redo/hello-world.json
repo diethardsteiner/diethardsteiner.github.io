@@ -1,0 +1,43 @@
+[
+  {
+    "id": "888ef023.299fe",
+    "type": "tab",
+    "label": "Hello World",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "540b6ac8.49b164",
+    "type": "inject",
+    "z": "888ef023.299fe",
+    "name": "",
+    "topic": "Hello World!",
+    "payload": "",
+    "payloadType": "str",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 110,
+    "y": 100,
+    "wires": [
+      [
+        "4608464f.4a5978"
+      ]
+    ]
+  },
+  {
+    "id": "4608464f.4a5978",
+    "type": "debug",
+    "z": "888ef023.299fe",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "x": 160,
+    "y": 240,
+    "wires": []
+  }
+]
