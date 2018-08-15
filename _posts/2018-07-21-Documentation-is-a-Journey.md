@@ -76,19 +76,34 @@ Show E/R diagram
 
 Mention any issues that you found when analysing the data and any issues you were told about.
 
+## Parameters
+
+
+| Parameter | Description
+|-----------|-------------
+| ... | ...
+
 # Implementation Details
 
-**Main artefacts**:
+## Artefacts
 
-- `[CODE-REPO]/sql/cmpgn_reponses.sql`: Holds the main logic to source and combine the data. We exclude ... because ... . This was necessary due to ... . We further narrow the result down by constraining on ... . This ensures that ... . Finally we group by ... .
-- `[CODE-REPO]/etl/cmpgn/cmpgn_main.kjb`: This job runs the above mentioned sql script and ... .
-- `[ENV-CONFIG-REPO]/shell-scripts/run_cmpgn_main.sh`: This shell script can be used to execute the process.
-- `[ENV-CONFIG-REPO]/properties/cmpgn_main.properties`: 
+| Artefact | Description
+|----------|------------------
+| `[CODE-REPO]/sql/cmpgn_reponses.sql` | Holds the main logic to source and combine the data. We exclude ... because ... . This was necessary due to ... . We further narrow the result down by constraining on ... . This ensures that ... . Finally we group by ... .
+| `[CODE-REPO]/etl/cmpgn/cmpgn_main.kjb` | This job runs the above mentioned sql script and ... .
+| `[ENV-CONFIG-REPO]/shell-scripts/run_cmpgn_main.sh` | This shell script can be used to execute the process.
+| `[ENV-CONFIG-REPO]/properties/cmpgn_main.properties` | ...
 
+## Generated Tables
 
 This process creates following **tables**:
 
 | database |   table        | granularity | description
 | -------- | -------------- |--------------|--------------
 | `staging`  |   `tmp_reponses`  | `field1` , `field2`, `field3` | This table holds ...
+
+## Data Flow Diagram
+
+Please find below a simplified diagram depicting the flow of data from table to table:
+
 
