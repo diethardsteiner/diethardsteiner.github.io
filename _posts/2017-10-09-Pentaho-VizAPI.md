@@ -8,12 +8,320 @@ tags: Visualistation
 published: false
 ---
 
-**Pentaho's VizAPI** comes with the promise to create a custom visualization implementation once and make it accessable across various visualisation tools: **Analyzer**, **PDI Data Explorer** (formerly know as PET) and **CTools**. Develop once and use it **everywhere**. This sounds nice in theory, but does it really live up to this promise? We shall find out in this article:
+**Pentaho's VizAPI** comes with the promise to create a custom visualization implementation once and make it accessable across various visualisation tools: **Analyzer**, **PDI Data Explorer** (formerly know as PET) and **CTools**. Develop once and use it **everywhere** (within Pentaho's stack). This sounds nice in theory, but does it really live up to this promise? We shall find out in this article: We will try to create a custom D3 Sankey visualisation.
+
+# D3 Sankey Example
+
+Some useful resources:
+
+- [Sankey from csv with d3.js](http://bl.ocks.org/d3noob/c9b90689c1438f57d649)
+- [Google Charts](https://developers.google.com/chart/interactive/docs/gallery/sankey)
+- [How to Set Up D3.js with Webpack and Babel](https://code.likeagirl.io/how-to-set-up-d3-js-with-webpack-and-babel-7bd3f5e20df7)
+- [ES6 and D3.js](https://learningd3.com/blog/using-es6-with-d3/)
+- [D3 Custom Bundle](https://bl.ocks.org/mbostock/bb09af4c39c79cffcde4)
+
+## Overview of Library Structure
+
+The **Pentaho Platform JavaScript API** provides various high level concepts for data handline, visualistation, configuration etc.
+
+**The APIs are organized as follows** ([Source](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho)):
+
+- Core 
+  - Environment: [`pentaho.environment`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.environment)
+  - Debugging: [`pentaho.debug`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.debug)
+  - Utilities: [`pentaho.util`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.util)
+  - JavaScript Language support: [`pentaho.lang`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.lang)
+  - Configuration: [`pentaho.config`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.config)
+  - Type information: [`pentaho.typeInfo`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.typeInfo)
+  - Instance information: [`pentaho.instanceInfo`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.instanceInfo)
+  - Localization: [`pentaho.i18n`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.i18n)
+  - Services: [`pentaho.service`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.service)
+- Data: [`pentaho.data`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data)
+- Type: [`pentaho.type`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type)
+- Visualization: [`pentaho.visual`](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual)
+
+Let's focus on the **Visualisation** namespace. This namespace contains the **types** that constitute the Pentaho Visualization API:
+
+> **Note**: Later on when sourcing the npm module you will realise that this namespace can be found under `node_modules/@pentaho/viz-api/pentaho/visual/`.
+
+- action
+  - Execute
+  - Select
+  - Update
+- [base](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.base): The base namespace contains the types used to define the base visualization. Classes:
+  - `AbstractModel`
+  - `Application`
+  - `Model`
+  - `View`
+- color:
+  - Level
+  - Palette
+  - PaletteProperty
+- config
+- models: selection of stock/**out-of-the-box visualizations**. For example, `pentaho/visual/models/line`, is the identifier of the stock Line visualization **model**. [Source](http://pentaho.github.io/pentaho-platform-plugin-common-ui/platform/visual/configuration). The **corresponding** CCC-based **view** of a stock visualization is a sub-module of `pentaho/ccc/visual`. For example, `pentaho/ccc/visual/line`, is the identifier of the CCC view corresponding to the stock Line visualization model.
+- [role](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.role): The role namespace contains classes for describing visual roles — an important type of property of visualization models.
+  - [property](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.role.Property): The Property class represents a visual role of a visualization and defines its capabilities. A visual role is described by `modes` and `isVisualKey`.
+- samples
+- scene
+
+## HTML, Model and View
+
+A **visualization** is made up of following components ([Source](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual)):
+
+- **One Model**, which identifies the visualization and defines it in terms of its data requirements, such as the visual degrees of freedom it has (e.g. X position, color and size) and any major options that affect its rendering.
+- **One View (at least)**, which implements the actual rendering using chosen technologies (e.g. HTML, SVG, D3), and handle user interaction, dispatching actions and, for example, showing tooltips. The standard data actions are Select and Execute.
+- **One HTML page**: This is only relevant for development so that you can preview the results.
+
+The Visualization API is built on top of other Platform JavaScript APIs:
+
+- The [Data API](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data) ensures seamless integration with data sources in the Pentaho platform, as well as with other client-side component frameworks.
+
+- The [Type API](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type) provides to visualizations out-of-the-box features such as class inheritance, metadata support, configuration, validation and serialization.
+
+- The [Core APIs](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type) provide to visualizations features such as localization, theming and service registration and consumption.
+
+### What calls what
+
+This is more important for development:
+
+1. The HTML pages sources the `package.json` file.
+2. The HTML page calls the **default view**.
+3. The **default view** sources the **model**.
+
+### The NPM Package
+
+Make sure you have **nodejs** and **npm** installed. There are enough tutorials on the internet on how to install these packages, so I won't repeat it here.
+
+Create a dedicated project folder in a convenient location and navigate into it (on the command line). Next run:
+
+```bash
+# Create the package.json file.
+npm init
+# Accept the default for the other fields or write whatever you want.
+
+# Add and install the Visualization API dev dependency.
+# (the runtime dependency is provided by the platform)
+npm install https://github.com/pentaho/pentaho-platform-plugin-common-ui/releases/download/v3.0.0-beta3/pentaho-viz-api-v3.0.0.tgz --save-dev
+
+# If you are planning to use D3 for your Viz
+# Add and install the D3 dependency
+# (also set it as a bundled dependency)
+npm install d3 --save --save-bundle
+```
+
+Your **package file** should be similar to the one shown below:
+
+```json
+{
+  "name": "pentaho-visual-samples-sankey-d3",
+  "version": "1.0.0",
+  "config": {
+    "pentaho/typeInfo": {
+      "pentaho-visual-samples-sankey-d3/model": {
+        "base": "pentaho/visual/base/model"
+      }
+    }
+  },
+  "dependencies": {
+    "d3": "^4.13.0",
+    "d3-sankey": "^0.7.1"
+  },
+  "bundleDependencies": [
+    "d3",
+    "d3-sankey"
+  ],
+  "devDependencies": {
+    "@pentaho/viz-api": "https://github.com/pentaho/pentaho-platform-plugin-common-ui/releases/download/v3.0.0-beta3/pentaho-viz-api-v3.0.0.tgz"
+  }
+}
+```
+
+Since the **D3 Sankey Module** is not include dy default in the standard D3 NPM package, we add it like so:
+
+```
+npm install d3-sankey --save --save-bundle
+```
+
+### Data
+
+The Viz API expects the data to be supplied as a **JSON** structure, having a definition of the columns on the top (`model` section) followed by the rows of data (`rows` section). Our sample data then looks like this:
+
+```json
+{
+  "model": [
+    {"name": "source", "type": "string", "label": "Source"},
+    {"name": "target", "type": "string", "label": "Target"},
+    {"name": "value", "type": "number", "label": "Value"}
+  ],
+  "rows": [
+    {"c": ["Barry","Elvis",2]},
+    {"c": ["Frodo","Elvis",2]},
+    {"c": ["Frodo","Sarah",2]},
+    {"c": ["Barry","Alice",2]},
+    {"c": ["Elvis","Sarah",2]},
+    {"c": ["Elvis","Alice",2]},
+    {"c": ["Sarah","Alice",4]}
+  ]
+}
+```
+
+There is also the option to add further attributes to the cells, e.g. mapping the value to a more readable representation (not related example shown below). In this case, the values have to be in an array and prefixed with an indicator:
+
+```js
+{"c": [{"v": "cars-classic", "f": "Classic Cars"}, 2746782]},
+```
+
+For our use case this is not required.
+
+### HTML
+
+The HTML page is **only used for development** and will not be deployed (only the model and the view).
+
+The first `require` sources the `package.json` and `vizapi-dev-init`:
+
+```js
+require([
+      "vizapi-dev-init",
+      "json!./package.json"
+    ]
+```
+
+Via `require` we load from the other Pentaho Platform APIs:
+
+- [Context](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type.Context): A class that holds configured types. A type context holds environmental information in the form of an environment.
+- [Table](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data.Table): The Table class implements the ITable interface.
+- And finally we load our **JSON data file** (just for development)
+
+```js
+require([
+  "pentaho/type/Context",
+  // [API Ref](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type.Context)
+  "pentaho/data/Table",
+  // [Table](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data.Table)
+  "json!./sankey.data.json"  // <= This reads our JSON data file!
+], function (Context, Table, dataSpec) {
+```
+
+Using the `Context.createAsync` [method](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type.Context#.createAsync) we creates a new context with a given environment and return a promise for it: We get the **model** and **base view types**:
+
+```js
+// Setup up a VizAPI context.
+Context.createAsync({application: "viz-api-sandbox"})
+  .then(function (context) {
+    return context.getDependencyAsync({
+      SankeyModel: "pentaho-visual-samples-sankey-d3/model", 
+      // pentaho-visual-samples-sankey-d3 is the package name defined in
+      // package.js. This is another way of referencing files in the
+      // root folder of the the app, like "./model.js"
+      BaseView: "pentaho/visual/base/view"
+      // this is the path as of node_modules/@pentaho/viz-api/
+    });
+  })
+```
+
+Using the `getDependencyAsync` [method](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type.Context#getDependencyAsync), which resolves a module dependency reference asynchronously, we get hold of the **base model** and base **view classes**:
+
+- We define `SankeyModel` and source our `model.js` file in the root folder of our app. To access the root folder, we use the `pentaho-visual-samples-sankey-d3` shorthandle, which is the app `name` defined in the `package.json` file.
+- We also source the `BaseView`.
+
+Once we have the base model and view classes loaded, we create a **Model Specification**, which defines the **data source** as well as the **Role Mappings**. Roles are e.g. categories and measures:
+
+```js
+var modelSpec = {
+  "data": new Table(dataSpec),
+  // Role Mappings
+  "category": {fields: ["source", "target"]},
+  "measure": {fields: ["value"]} 
+};
+```
+
+> **Important**: If you get the model spec wrong, there is no error thrown. 
+
+Then we declare the `SankeyModel` as a new type:
+
+```js
+var model = new types.SankeyModel(modelSpec);
+```
+
+Next we define the **Visualistation Specification**, which consists of the dom element where the visualisation should be attached to, the size of the vis and the model that goes with it:
+
+```js
+var viewSpec = {
+  width: 700,
+  height: 300,
+  domContainer: document.getElementById("viz_div"),
+  model: model
+};
+```
+
+A few other functions follow (e.g. how handle user selection) and finally the view is loaded.
+
+### The Model
+
+-  [pentaho.visual.role.Property.Type ](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.role.Property.Type)
+
+Here is are some Visual roles found via the `// VISUAL_ROLE` comments in the sample files `node_modules/@pentaho/viz-api/pentaho/visual/models`:
+
+- `category`
+- `color` (found in sample file: `heatGrid.js`)
+- `columns` (found in sample file: `categoricalContinuousAbstract.js`)
+- `multi` (found in sample file: `categoricalContinuousAbstract.js`)
+- `measures`
+- `row` (found in sample file: `abstract.js`)
+- `size` (found in sampe file: `bubble.js`)
+- `x` (found in sample file: `metricPointAbstract.js`)
+- `y` (found in sample file: `metricPointAbstract.js`)
+
+**Pedro Alves**: "As for visual roles, they are visualization specific. There isn’t a closed list of visual roles. They should be defined as needed to map the data model to your viz needs. So, for the Sankey I’d expect to have as Visual Roles Source, Target and Link Strength (or Value) (assuming my tabular representation of the data would be something like you have here `<Source, Target, Value>`. Category, Series and Measure are the “traditional” visual roles for traditional visualizations. But there’s no reason you can’t create the ones that make more sense to your viz."
+
+So in regards to the **Visual Roles**, you can just make up any name. There is **no predefined list** of Visual Roles you have to pick from. In other words, **it can be any name**, and it kind of gets its type definition by all the other attributes you add (like `isRequired` etc). So there is no special meaning associated to the name `measure`, `category` etc, but only to whatever other attributes/properties that you add to it.
+
+Data Types:
+
+- list
+- number
+- string
+- array of string etc, defined like so: `["string"]`
+- etc
+
+Some examples see [here](https://github.com/pentaho/pentaho-platform-plugin-common-ui/blob/d22b20a508f4650b998cccb38c5d2a0ed5790df9/docs/platform/visual/whats-new-beta-3.md).
+
+###  Logging the data
+
+Let's add some logging to understand the structure of the data we are reading in:
+
+```js
+// Create the visualization model.
+var modelSpec = {
+  "data": new Table(dataSpec),
+  "category": {fields: ["productFamily"]},
+  "measure": {fields: ["sales"]}
+};
+
+var model = new types.BarModel(modelSpec);
+
+console.log("----- data -----");              //
+console.log(model.data);                      // <= Debug: See the sourced dataset
+```
+
+In the **JavaScript console** you can the inspect the structure:
+
+![](images/viz-api-sankey-data-structure.png)
+
+As we can see from the log output, the data is differently structured: Instead of a **row representation** we have a **column representation** now, which makes it a bit more convenient to work with the data for **presentation** purposes.
+
+### View
+
+ The [pentaho.visual.scene.Base.buildScenesFlat](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.scene.Base) method is just to transform the data into a simplified representation required by **D3js**:
+ 
+
+```js
+var scenes = Scene.buildScenesFlat(this).children;
+```
 
 
-## Resources
+#### How to debug
 
-- [D3 Bar Chart Tutorial](http://pentaho.github.io/pentaho-platform-plugin-common-ui/): Recommended as a starting point by João Gameiro.
-- [Official Docu: Custom Visualizations](https://help.pentaho.com/Documentation/7.1/0R0/090/040/010)
+It is advicable to use the **Debugger** of your web browser and set breakpoints and watch expressions (to see that value of the variables at this point) instead of using `console.log`. The latter did not seem to be reliable in showing the correct result.
 
-... and more to come one I find some time ;)
+![](/images/viz-api-sankey/viz-api-sankey-debugger.png)
