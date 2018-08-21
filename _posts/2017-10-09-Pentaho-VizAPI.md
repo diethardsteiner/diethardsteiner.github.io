@@ -12,7 +12,7 @@ published: true
 
 # D3 Sankey Sandbox
 
-> **Note**: The code for the example shown below can be found [here](/sample-files/pentaho-viz-api/d3-sankey/).
+> **Note**: The code for the example shown below can be found [here](https://github.com/diethardsteiner/diethardsteiner.github.io/tree/master/sample-files/pentaho-viz-api/d3-sankey/).
 
 ## Overview of Library Structure
 
