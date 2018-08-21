@@ -5,20 +5,14 @@ summary: This article explains how to create custom visualizations with Pentahos
 date: 2017-10-01
 categories: Visualistation
 tags: Visualistation
-published: false
+published: true
 ---
 
 **Pentaho's VizAPI** comes with the promise to create a custom visualization implementation once and make it accessable across various visualisation tools: **Analyzer**, **PDI Data Explorer** (formerly know as PET) and **CTools**. Develop once and use it **everywhere** (within Pentaho's stack). This sounds nice in theory, but does it really live up to this promise? We shall find out in this article: We will try to create a custom D3 Sankey visualisation.
 
 # D3 Sankey Sandbox
 
-Some useful resources:
-
-- [Sankey from csv with d3.js](http://bl.ocks.org/d3noob/c9b90689c1438f57d649)
-- [Google Charts](https://developers.google.com/chart/interactive/docs/gallery/sankey)
-- [How to Set Up D3.js with Webpack and Babel](https://code.likeagirl.io/how-to-set-up-d3-js-with-webpack-and-babel-7bd3f5e20df7)
-- [ES6 and D3.js](https://learningd3.com/blog/using-es6-with-d3/)
-- [D3 Custom Bundle](https://bl.ocks.org/mbostock/bb09af4c39c79cffcde4)
+> **Note**: The code for the example shown below can be found [here](/sample-files/pentaho-viz-api/d3-sankey/).
 
 ## Overview of Library Structure
 
@@ -109,7 +103,7 @@ npm install https://github.com/pentaho/pentaho-platform-plugin-common-ui/release
 npm install d3 --save --save-bundle
 ```
 
-Your **package file** should be similar to the one shown below:
+Your `package.json` file should be similar to the one shown below:
 
 ```json
 {
@@ -612,3 +606,15 @@ Here a screenshot of using our viz with **Analyzer**:
 
 ![](/images/viz-api-sankey/d3-sankey-in-pentaho-analyzer.png)
 
+
+# Conclusion
+
+My impression so far of the **Pentaho Viz API** is pretty good. I really like the easy of development: You can use your standard web development tools and the tight NodeJS integration works like a charm. Having one way of creating a viz and using it in different apps has been a long term goal by Pentaho and with the Viz API it seems to finally properly materialise. I just hope that **Hitachi Vantara** sees the value in this tool and supports the development accordingly.
+
+Finally, some other useful resources:
+
+- [Sankey from csv with d3.js](http://bl.ocks.org/d3noob/c9b90689c1438f57d649)
+- [Google Charts](https://developers.google.com/chart/interactive/docs/gallery/sankey)
+- [How to Set Up D3.js with Webpack and Babel](https://code.likeagirl.io/how-to-set-up-d3-js-with-webpack-and-babel-7bd3f5e20df7)
+- [ES6 and D3.js](https://learningd3.com/blog/using-es6-with-d3/)
+- [D3 Custom Bundle](https://bl.ocks.org/mbostock/bb09af4c39c79cffcde4)
