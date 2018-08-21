@@ -10,7 +10,7 @@ published: false
 
 **Pentaho's VizAPI** comes with the promise to create a custom visualization implementation once and make it accessable across various visualisation tools: **Analyzer**, **PDI Data Explorer** (formerly know as PET) and **CTools**. Develop once and use it **everywhere** (within Pentaho's stack). This sounds nice in theory, but does it really live up to this promise? We shall find out in this article: We will try to create a custom D3 Sankey visualisation.
 
-# D3 Sankey Example
+# D3 Sankey Sandbox
 
 Some useful resources:
 
@@ -64,7 +64,7 @@ Let's focus on the **Visualisation** namespace. This namespace contains the **ty
 - samples
 - scene
 
-## HTML, Model and View
+# Getting Started
 
 A **visualization** is made up of following components ([Source](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual)):
 
@@ -72,7 +72,7 @@ A **visualization** is made up of following components ([Source](https://help.pe
 - **One View (at least)**, which implements the actual rendering using chosen technologies (e.g. HTML, SVG, D3), and handle user interaction, dispatching actions and, for example, showing tooltips. The standard data actions are Select and Execute.
 - **One HTML page**: This is only relevant for development so that you can preview the results.
 
-The Visualization API is built on top of other Platform JavaScript APIs:
+The Visualization API is built on top of other **Platform JavaScript APIs**:
 
 - The [Data API](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data) ensures seamless integration with data sources in the Pentaho platform, as well as with other client-side component frameworks.
 
@@ -80,7 +80,7 @@ The Visualization API is built on top of other Platform JavaScript APIs:
 
 - The [Core APIs](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type) provide to visualizations features such as localization, theming and service registration and consumption.
 
-### What calls what
+What calls what?
 
 This is more important for development:
 
@@ -88,7 +88,7 @@ This is more important for development:
 2. The HTML page calls the **default view**.
 3. The **default view** sources the **model**.
 
-### The NPM Package
+## The NPM Package
 
 Make sure you have **nodejs** and **npm** installed. There are enough tutorials on the internet on how to install these packages, so I won't repeat it here.
 
@@ -142,9 +142,9 @@ Since the **D3 Sankey Module** is not include dy default in the standard D3 NPM 
 npm install d3-sankey --save --save-bundle
 ```
 
-### Data
+## Data
 
-The Viz API expects the data to be supplied as a **JSON** structure, having a definition of the columns on the top (`model` section) followed by the rows of data (`rows` section). Our sample data then looks like this:
+The **Viz API** expects the data to be supplied as a **JSON** structure, having a definition of the columns on the top (`model` section) followed by the rows of data (`rows` section). Our sample data then looks like this:
 
 ```json
 {
@@ -173,7 +173,7 @@ There is also the option to add further attributes to the cells, e.g. mapping th
 
 For our use case this is not required.
 
-### HTML
+## HTML
 
 The HTML page is **only used for development** and will not be deployed (only the model and the view).
 
@@ -186,7 +186,7 @@ require([
     ]
 ```
 
-Via `require` we load from the other Pentaho Platform APIs:
+Via `require` we load from the other **Pentaho Platform APIs**:
 
 - [Context](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type.Context): A class that holds configured types. A type context holds environmental information in the form of an environment.
 - [Table](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data.Table): The Table class implements the ITable interface.
@@ -230,7 +230,7 @@ Once we have the base model and view classes loaded, we create a **Model Specifi
 var modelSpec = {
   "data": new Table(dataSpec),
   // Role Mappings
-  "category": {fields: ["source", "target"]},
+  "link": {fields: ["source", "target"]},
   "measure": {fields: ["value"]} 
 };
 ```
@@ -256,7 +256,7 @@ var viewSpec = {
 
 A few other functions follow (e.g. how handle user selection) and finally the view is loaded.
 
-### The Model
+## The Model
 
 -  [pentaho.visual.role.Property.Type ](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.role.Property.Type)
 
@@ -272,7 +272,7 @@ Here is are some Visual roles found via the `// VISUAL_ROLE` comments in the sam
 - `x` (found in sample file: `metricPointAbstract.js`)
 - `y` (found in sample file: `metricPointAbstract.js`)
 
-**Pedro Alves**: "As for visual roles, they are visualization specific. There isn’t a closed list of visual roles. They should be defined as needed to map the data model to your viz needs. So, for the Sankey I’d expect to have as Visual Roles Source, Target and Link Strength (or Value) (assuming my tabular representation of the data would be something like you have here `<Source, Target, Value>`. Category, Series and Measure are the “traditional” visual roles for traditional visualizations. But there’s no reason you can’t create the ones that make more sense to your viz."
+**Pedro Vale**: "As for visual roles, they are visualization specific. There isn’t a closed list of visual roles. They should be defined as needed to map the data model to your viz needs. So, for the Sankey I’d expect to have as Visual Roles Source, Target and Link Strength (or Value) (assuming my tabular representation of the data would be something like you have here `<Source, Target, Value>`. Category, Series and Measure are the “traditional” visual roles for traditional visualizations. But there’s no reason you can’t create the ones that make more sense to your viz."
 
 So in regards to the **Visual Roles**, you can just make up any name. There is **no predefined list** of Visual Roles you have to pick from. In other words, **it can be any name**, and it kind of gets its type definition by all the other attributes you add (like `isRequired` etc). So there is no special meaning associated to the name `measure`, `category` etc, but only to whatever other attributes/properties that you add to it.
 
@@ -286,6 +286,86 @@ Data Types:
 
 Some examples see [here](https://github.com/pentaho/pentaho-platform-plugin-common-ui/blob/d22b20a508f4650b998cccb38c5d2a0ed5790df9/docs/platform/visual/whats-new-beta-3.md).
 
+Our model looks like this:
+
+```js
+define([
+  "module"
+], function(module) {
+  "use strict";
+
+  return ["pentaho/visual/base/model", function(BaseModel) {
+    // Create the Bar Model subclass
+    // We extend the **Base Model** with our specific implementation 
+    var SankeyModel = BaseModel.extend({
+      $type: {
+        id: module.id,
+
+        // CSS class
+        styleClass: "pentaho-visual-samples-sankey-d3",
+
+        // The label may show up in menus
+        label: "D3 Sankey Chart",
+
+        // The default view to use to render this visualization is
+        // a sibling module named `view-d3.js`
+        defaultView: "./view-d3",   // <== DEFINE DEFAULT VIEW
+
+        // Properties
+        props: [
+          // General properties
+          // {
+          //   name: "barSize",
+          //   valueType: "number",
+          //   defaultValue: 30,
+          //   isRequired: true
+          // },
+
+          // Visual role properties
+          {
+            name: "link", // VISUAL_ROLE: you can name it anything you like
+            base: "pentaho/visual/role/property",
+            modes: [
+              // {dataType: "list"}
+              /* defaults to:
+              {dataType: "string"}
+              which accepts a single value only
+              to accept multiple values use: */
+              {dataType: ["string"]}
+            ]
+            // ordinal: 6
+          },
+          // {
+          //   name: "category",
+          //   base: "pentaho/visual/role/property",
+          //   fields: {isRequired: true}
+          // },
+          {
+            name: "measure", // VISUAL_ROLE: you can name it anything you like
+            base: "pentaho/visual/role/property",
+            modes: [{dataType: "number"}],
+            fields: {isRequired: true}
+          },
+
+          // Palette property
+          {
+            name: "palette",
+            base: "pentaho/visual/color/paletteProperty",
+            levels: "nominal",
+            isRequired: true
+          }
+        ]
+      }
+    });
+
+    console.log(" -----  Generated Model ----- ");
+    console.log(SankeyModel);
+
+    return SankeyModel;
+  }];
+});
+```
+
 ###  Logging the data
 
 Let's add some logging to understand the structure of the data we are reading in:
@@ -294,7 +374,7 @@ Let's add some logging to understand the structure of the data we are reading in
 // Create the visualization model.
 var modelSpec = {
   "data": new Table(dataSpec),
-  "category": {fields: ["productFamily"]},
+  "link": {fields: ["productFamily"]},
   "measure": {fields: ["sales"]}
 };
 
@@ -306,22 +386,229 @@ console.log(model.data);                      // <= Debug: See the sourced datas
 
 In the **JavaScript console** you can the inspect the structure:
 
-![](images/viz-api-sankey-data-structure.png)
+![](/images/viz-api-sankey/viz-api-sankey-data-structure.png)
 
 As we can see from the log output, the data is differently structured: Instead of a **row representation** we have a **column representation** now, which makes it a bit more convenient to work with the data for **presentation** purposes.
 
-### View
+## View
 
- The [pentaho.visual.scene.Base.buildScenesFlat](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.scene.Base) method is just to transform the data into a simplified representation required by **D3js**:
+### Data Transfromation
+
+Our data has to be transformed to the expected D3 Sankey data structure, which consists of an **array of unique node names** and the **links**. The links do not actually use the names of the nodes (e.g. `Elvis`) but the 0-based index (e.g. `2` for `Elvis`):
+
+```json
+{
+  "nodes": [
+    {
+      "name": "Barry"
+    },
+    {
+      "name": "Frodo"
+    },
+    {
+      "name": "Elvis"
+    },
+    {
+      "name": "Sarah"
+    },
+    {
+      "name": "Alice"
+    }
+  ],
+  "links": [
+    {
+      "source": 0,
+      "target": 2,
+      "value": 2
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "value": 2
+    },
+    {
+      "source": 1,
+      "target": 3,
+      "value": 2
+    },
+    {
+      "source": 0,
+      "target": 4,
+      "value": 2
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "value": 2
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "value": 2
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "value": 4
+    }
+  ]
+}
+```
+ The [pentaho.visual.scene.Base.buildScenesFlat](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.visual.scene.Base) method is used to transform the VizAPI data into a simplified representation required by **D3js**:
  
 
 ```js
 var scenes = Scene.buildScenesFlat(this).children;
 ```
 
+The data structure is still quite rich, so we extract only the required attributes and over several steps transform the data to match the target structure (see code for details).
 
-#### How to debug
+### D3 Sankey Code
+
+- [Source](https://www.npmjs.com/package/d3-sankey)
+
+Now that we have the data in the right structure, we can focus on generating the final visualisation. The code is based on [this example](http://bl.ocks.org/d3noob/c9b90689c1438f57d649) - Pedro Vale (thanks!) and I made some modifications to it. What follows is some brief overview skipping quite a few steps (since the purpose of this article is not to explain D3).
+
+We set the **Sankey diagram properties** with the `d3.sankey()` function, which constructs a new Sankey generator with the default settings:
+
+```js
+// Set the sankey diagram properties
+var sankey = 
+  d3.sankey()
+    .nodeWidth(36)
+    .nodePadding(40)
+    .size([width, height])
+    .nodes(graph.nodes)
+    .links(graph.links)
+    ;
+```
+
+Next we use the `sankey()` funcion to **compute the node and link positions** for the given arguments, **returning a graph** representing the Sankey layout. The returned graph has the following **properties**:
+
+- `graph.nodes`: the array of nodes
+- `graph.links`: the array of links
+
+```js
+graph = sankey();
+```
+
+Next we draw the links, the link titles, add the nodes and finally the titles for the nodes.
+
+Put the CSS styles for the visualistation into `css/view-d3.css`:
+
+```css
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  font-family: sans-serif;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+.link:hover {
+  stroke-opacity: .5;
+}
+```
+
+### How to debug
 
 It is advicable to use the **Debugger** of your web browser and set breakpoints and watch expressions (to see that value of the variables at this point) instead of using `console.log`. The latter did not seem to be reliable in showing the correct result.
 
 ![](/images/viz-api-sankey/viz-api-sankey-debugger.png)
+## View the Visualisation
+
+Install npm `static`. This will allow you to fire up a lean webserver which uses the files in your project directory as a root:
+
+```
+cd <project-dir>
+static -p 8000 
+```
+
+In your favourite web browser, enter following URL:
+
+```
+http://localhost:8000/sandbox.html
+```
+
+# Deployment
+
+##   Creating a Configuration
+
+- [Step 7 - Adding a default configuration](http://pentaho.github.io/pentaho-platform-plugin-common-ui/platform/visual/samples/bar-d3-sandbox/step7-default-configuration)
+- [Configuring a Visualistation](http://pentaho.github.io/pentaho-platform-plugin-common-ui/platform/visual/configuration)
+
+Create a new file called `config.js` and add following content:
+
+```js
+define(["module"], function(module) {
+  // Replace /config by /model.
+  // e.g. "pentaho-visual-samples-bar-d3/model".
+  var vizId = module.id.replace(/(\w+)$/, "model");
+
+  return {
+    rules: [
+      // Sample rule
+      {
+        priority: -1,
+        select: {
+          type: vizId,
+          application: "pentaho-analyzer"
+        },
+        apply: {
+          application: {
+            keepLevelOnDrilldown: false
+          }
+        }
+      }
+    ]
+  };
+});
+```
+
+`keepLevelOnDrilldown`: "In Analyzer, when drilling-down, the default behaviour is to add the child field to the visual role where the parent field is. However, the Category visual role of the Bar visualization you developed only accepts a single field being mapped to it. This results in Analyzer not allowing to drill-down. However, it is possible to configure the Analyzer-specific metadata property, `application.keepLevelOnDrilldown` to force replacing the parent field with the child field when drilling-down."
+
+Register the configuration module in the sandbox. Add this to the `config` section of the `package.json` file:
+
+```js
+"pentaho/instanceInfo": {
+  "pentaho-visual-samples-sankey-d3/config": {
+    "type": "pentaho.config.spec.IRuleSet"
+  }
+}
+```
+
+## Building the Package
+
+The package will only include  `package.json`, `model.js`, `view-d3.js`, `config.js`files and the `css`folder - any sandbox related files must not be included.
+
+For packaging your visualization you just need to zip your files and runtime dependencies. Care must be taken not to include temporary files, dev-time dependencies, etc..
+
+By using the `npm pack`command you ensure only your files **and**bundled dependencies are compressed in the resulting tgz file.
+
+```
+# Package your files.
+npm pack
+```
+
+## Adding the Package to Analyzer, CDE and PDI
+
+- [Source](http://pentaho.github.io/pentaho-platform-plugin-common-ui/platform/visual/#deploying-the-visualization)
+
+For each of these products, copy the tgz file you just built into its `system/karaf/deploy`folder. For more info see [OSGi Artifacts Deployment](http://pentaho.github.io/pentaho-platform-plugin-common-ui/platform/osgi-deployment) if you need more information. If everything went well, you should now see your visualization as a new vis option in Analyzer and PDI. In CDE it will show up as a new component.
+
+So for CDE deploy the compressed file to `pentaho-solutions/system/karaf/deploy/`.
+
+Here a screenshot of using our viz with **Analyzer**:
+
+![](/images/viz-api-sankey/d3-sankey-in-pentaho-analyzer.png)
+

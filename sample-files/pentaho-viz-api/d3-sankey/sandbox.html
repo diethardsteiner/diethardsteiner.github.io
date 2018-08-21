@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8"> 
+  <style>
+/*    .pentaho-visual-base-model {
+      border: solid 1px #005da6;
+    }*/
+  </style>
+
+  <!-- load requirejs -->
+  <script type="text/javascript" src="node_modules/requirejs/require.js"></script>
+
+  <!-- load the VizAPI dev bootstrap helper -->
+  <script type="text/javascript" src="node_modules/@pentaho/viz-api/dev-bootstrap.js"></script>
+
+  <!-- configure AMD for the sample visualization -->
+  <script>
+    require([
+      "vizapi-dev-init",
+      "json!./package.json"
+    ], function (devInit, package) {
+
+      console.log("---- package ----");
+      console.log(package);
+
+      devInit(package);
+
+      require.config({
+
+        // Source: https://stackoverflow.com/questions/38912143/how-to-load-a-d3-dependent-script-using-requirejs
+        paths: {
+          d3src: './node_modules',
+          "d3": "./node_modules/d3/build/d3",
+          "d3-sankey": "./node_modules/d3-sankey/build/d3-sankey",
+          "d3-collection": "./node_modules/d3-collection/build/d3-collection",
+          "d3-shape": "./node_modules/d3-shape/build/d3-shape",
+          "d3-array": "./node_modules/d3-array/build/d3-array",
+          "d3-path": "./node_modules/d3-path/build/d3-path"
+        },
+        map: {
+//            '*': {
+                // default d3 package includes everything, so do not import
+                // to avoid conflicts. See also:
+                // https://github.com/d3/d3-interpolate/issues/45
+                // "d3": "d3src/d3/build/d3"
+//                 "d3-shape": "d3src/d3-shape/build/d3-shape"
+//                 , "d3-array": "d3src/d3-array/build/d3-array"
+//                 , "d3-collection": "d3src/d3-collection/build/d3-collection"
+//                 , "d3-path": "d3src/d3-path/build/d3-path"
+//                 , "d3-format": "d3src/d3-format/build/d3-format"
+//                 , "d3-time": "d3src/d3-time/build/d3-time"
+//                 , "d3-time-format": "d3src/d3-time-format/build/d3-time-format"
+//                 , "d3-color": "d3src/d3-color/build/d3-color"
+//                 , "d3-interpolate": "d3src/d3-interpolate/build/d3-interpolate"
+//                // , "d3-scale": "d3src/d3-scale/build/d3-scale"
+//                 , "d3-sankey": "d3src/d3-sankey/build/d3-sankey"
+//            }
+        }
+        // list dependencies
+        // see also https://stackoverflow.com/questions/35599743/using-d3-js-and-the-sankey-plugin-in-a-require-js-module
+        , shim: {
+        //     d3-scale: ['d3']
+        	"d3-sankey": ['d3']
+         }
+      });
+
+      require([
+        "pentaho/type/Context",
+        // [API Ref](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.type.Context)
+        "pentaho/data/Table",
+        // [Table](https://help.pentaho.com/Documentation/8.1/Developer_Center/JavaScript_API/platform/pentaho.data.Table)
+        "json!./sankey.data.json"  // <= This reads our JSON data file!
+      ], function (Context, Table, dataSpec) {
+
+        // Setup up a VizAPI context.
+        Context.createAsync({application: "viz-api-sandbox"})
+          .then(function (context) {
+            // Get the model and base view types
+            return context.getDependencyAsync({
+              SankeyModel: "pentaho-visual-samples-sankey-d3/model",
+              // pentaho-visual-samples-sankey-d3 is the package name defined in
+              // package.js. This is another way of referencing files in the
+              // root folder of the the app, like "./model.js"
+              BaseView: "pentaho/visual/base/view" 
+              // this is the path as of node_modules/@pentaho/viz-api/
+            });
+          })
+          .then(function (types) {
+
+            // Create the visualization model.
+            var modelSpec = {
+              "data": new Table(dataSpec),
+              // Role Mappings
+              "link": {fields: ["source", "target"]},
+              "measure": {fields: ["value"]}               // <= Adjust for your data
+            };
+
+            var model = new types.SankeyModel(modelSpec);
+            // SankeyModel we just define a few lines further up
+
+            console.log("----- data -----");              //
+            console.log(model.data);                      // <= Debug: See the sourced dataset
+
+            // Create the visualization view
+            var viewSpec = {
+              width: 800,
+              height: 400,
+              domContainer: document.getElementById("viz_div"),
+              model: model
+            };
+
+            // These are responsibilities of the visualization container application:
+            // 1. Mark the container with the model's CSS classes, for styling purposes.
+            viewSpec.domContainer.className = model.$type.inheritedStyleClasses.join(" ");
+
+            // 2. Set the DOM container dimensions.
+            viewSpec.domContainer.style.width = viewSpec.width + "px";
+            viewSpec.domContainer.style.height = viewSpec.height + "px";
+
+            // Create the visualization view.
+            return types.BaseView.createAsync(viewSpec);
+          })
+          .then(function (view) {
+
+            console.log("----- Generated View -----");
+            console.log(view);
+            // Handle the execute action.
+            view.on("pentaho/visual/action/execute", {
+
+              "do": function (action) {
+
+                alert("Executed " + action.dataFilter.$contentKey);
+              }
+            });
+
+            // Handle the select action.
+            view.on("pentaho/visual/action/select", {
+              "finally": function (action) {
+                document.getElementById("messages_div").innerText =
+                  "Selected: " + view.model.selectionFilter.$contentKey;
+              }
+            });
+
+            // Render the visualization.
+            return view.update();
+          });
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <!-- div that will contain the visualization -->
+  <div id="viz_div"></div>
+
+  <!-- div that will display messages -->
+  <div id="messages_div"></div>
+</body>
+
+</html>

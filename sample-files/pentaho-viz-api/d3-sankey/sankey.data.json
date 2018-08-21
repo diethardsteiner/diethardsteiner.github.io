@@ -1,0 +1,16 @@
+{
+  "model": [
+    {"name": "source", "type": "string", "label": "Source"},
+    {"name": "target", "type": "string", "label": "Target"},
+    {"name": "value", "type": "number", "label": "Value"}
+  ],
+  "rows": [
+    {"c": ["Barry","Elvis",2]},
+    {"c": ["Frodo","Elvis",2]},
+    {"c": ["Frodo","Sarah",2]},
+    {"c": ["Barry","Alice",2]},
+    {"c": ["Elvis","Sarah",2]},
+    {"c": ["Elvis","Alice",2]},
+    {"c": ["Sarah","Alice",4]}
+  ]
+}

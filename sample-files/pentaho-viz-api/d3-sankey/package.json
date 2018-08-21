@@ -1,0 +1,27 @@
+{
+  "name": "pentaho-visual-samples-sankey-d3",
+  "version": "1.0.0",
+  "config": {
+    "pentaho/typeInfo": {
+      "pentaho-visual-samples-sankey-d3/model": {
+        "base": "pentaho/visual/base/model"
+      }
+    },
+    "pentaho/instanceInfo": {
+      "pentaho-visual-samples-sankey-d3/config": {
+        "type": "pentaho.config.spec.IRuleSet"
+      }
+    }
+  },
+  "dependencies": {
+    "d3": "^4.13.0",
+    "d3-sankey": "^0.7.1"
+  },
+  "bundleDependencies": [
+    "d3",
+    "d3-sankey"
+  ],
+  "devDependencies": {
+    "@pentaho/viz-api": "https://github.com/pentaho/pentaho-platform-plugin-common-ui/releases/download/v3.0.0-beta3/pentaho-viz-api-v3.0.0.tgz"
+  }
+}
