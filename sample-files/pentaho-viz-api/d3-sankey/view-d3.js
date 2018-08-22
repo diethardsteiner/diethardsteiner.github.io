@@ -79,6 +79,11 @@ define(
           // `this.domContainer` gives you access to the div
           // where your visualisation should be rendered  
           var container = d3.select(this.domContainer);
+
+          // get width and height of container that the viz will be rendered in
+          // https://stackoverflow.com/questions/21990857/d3-js-how-to-get-the-computed-width-and-height-for-an-arbitrary-element
+          const containerWidth = d3.select(this.domContainer).node().getBoundingClientRect().width;
+          const containerHeight = d3.select(this.domContainer).node().getBoundingClientRect().height;
           
           // ------- PART 2 ---------
           // the actual d3js implementation
@@ -95,8 +100,8 @@ define(
           var units = "Widgets";
 
           var margin = {top: 10, right: 10, bottom: 10, left: 10},
-              width = 800 - margin.left - margin.right,
-              height = 400 - margin.top - margin.bottom;
+              width = containerWidth - margin.left - margin.right,
+              height = containerHeight - margin.top - margin.bottom;
 
           var formatNumber = d3.format(",.0f"),    // zero decimal places
               format = function(d) { return formatNumber(d) + " " + units; },

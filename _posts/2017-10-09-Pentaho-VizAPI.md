@@ -463,6 +463,19 @@ The data structure is still quite rich, so we extract only the required attribut
 
 Now that we have the data in the right structure, we can focus on generating the final visualisation. The code is based on [this example](http://bl.ocks.org/d3noob/c9b90689c1438f57d649) - Pedro Vale (thanks!) and I made some modifications to it. What follows is some brief overview skipping quite a few steps (since the purpose of this article is not to explain D3).
 
+> **Important**: Do not set a static width and height for your viz. It's simple to get the width and height from the container that will hold your viz and then use this to scale your viz. The code section shown below is the essence to this:
+
+```js
+// get width and height of container that the viz will be rendered in
+// https://stackoverflow.com/questions/21990857/d3-js-how-to-get-the-computed-width-and-height-for-an-arbitrary-element
+const containerWidth = d3.select(this.domContainer).node().getBoundingClientRect().width;
+const containerHeight = d3.select(this.domContainer).node().getBoundingClientRect().height;
+
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+width = containerWidth - margin.left - margin.right,
+height = containerHeight - margin.top - margin.bottom;
+```
+
 We set the **Sankey diagram properties** with the `d3.sankey()` function, which constructs a new Sankey generator with the default settings:
 
 ```js
