@@ -618,7 +618,53 @@ So for CDE deploy the compressed file to `pentaho-solutions/system/karaf/deploy/
 Here a screenshot of using our viz with **Analyzer**:
 
 ![](/images/viz-api-sankey/d3-sankey-in-pentaho-analyzer.png)
+For **CDE**, HV provides an example [here](https://github.com/pentaho/pentaho-engineering-samples] at the location: 
 
+```
+Samples_for_Extending_Pentaho/javascript-apis/platform/visual-samples-bar-d3-cde
+```
+
+> **Note**: If you want to explore the samples shipped with the **Engineering Examples**, keep in mind that the master branch  is kept updated with the latest not-released version of the product, so maybe something could have changed in the meantime since the last stable version was released. You should always **checkout a specific branch** that corresponds to the Pentaho version you use, e.g. v8.1 (info kindly provided by Nelson Antunes):
+
+```bash
+git clone https://github.com/pentaho/pentaho-engineering-samples.git
+cd pentaho-engineering-samples
+git checkout 8.1
+cd Samples_for_Extending_Pentaho/javascript-apis/platform/visual-samples-bar-d3
+npm pack
+# now you can copy the tgz file to the karaf deploy folder
+cp pentaho-visual-samples-bar-d3-0.0.1.tgz ~/apps/pentaho-server-8.1/pentaho-solutions/system/karaf/deploy/
+```
+
+In CDE just add the **Visualization API Component**:
+
+- For **Visualistation ID** is made up of the `name` and the `version` defined in the `package.json` file, both separated by an underscore (`_`). This is followed by `/model`. In our case this ends up being `pentaho-visual-samples-sankey-d3_1.0.0/model`. 
+- For **Visualization Options** you kind of have to recreate to some degree the `modelSpec` we defined earlier on in `sandbox.html` (only the role mappings, not the data). So in our case we define `link` and `measure`. We cannot directly define the fields as the value of the mapping, but have to instead create two **custom parameters**, which will allow us to use native JavaScript and referance these parameters in the mapping for the visulization options.
+
+**custom parameter**: 
+
+- Name: `levelParam`, JavaScript code: `{fields: ["source", "target"]}`.
+- Name: `measureParam`, JavaScript code: `{fields: ["value"]}`
+
+**mapping** for **Visualization Options** within **Visualization API Component**:
+
+|  Arg          | Value
+| ------------- |-------
+|  `link`       | `linkParam`
+|  `measure`    |  `measureParam`     
+
+> **Note**: Leave the parameter mapping in the **Visualization API Component** empty!
+
+![](/images/viz-api-sankey/cde-comp.png)
+
+In the **Layout** panel you can just define a very simple structure, e.g. a row and a column.
+
+> **Important**: Make sure you define a **height** for the **column** otherwise your viz will not show up!
+
+![](/images/viz-api-sankey/cde-layout.png)
+And finally, we can preview our simple dashboard:
+
+![](/images/viz-api-sankey/cde-generated-content.png)
 
 # Conclusion
 

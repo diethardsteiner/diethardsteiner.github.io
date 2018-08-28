@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="sample_data" type="scripting.scripting">
+         <Initscript/>
+         <Language>beanshell</Language>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" connection="sample_data" id="sample_data" type="jsonScriptable">
+      <Name>sample_data</Name>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters/>
+      <Query><![CDATA[{
+   "resultset":[
+        ["Barry","Elvis",2]
+        , ["Frodo","Elvis",2]
+        , ["Frodo","Sarah",2]
+        , ["Barry","Alice",2]
+        , ["Elvis","Sarah",2]
+        , ["Elvis","Alice",2]
+        , ["Sarah","Alice",4]
+   ],
+
+   "metadata":[
+      {"colIndex":0,"colType":"String","colName":"source"}
+      , {"colIndex":1,"colType":"String","colName":"target"}
+      , {"colIndex":2,"colType":"Integer","colName":"value"}
+   ]
+}]]></Query>
+   </DataAccess>
+</CDADescriptor>
