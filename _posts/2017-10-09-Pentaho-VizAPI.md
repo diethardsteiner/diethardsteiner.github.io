@@ -229,7 +229,17 @@ var modelSpec = {
 };
 ```
 
-> **Important**: If you get the model spec wrong, there is no error thrown. 
+> **Important**: To catch any error messages, use the `then ... catch` approach (as shown [here](https://github.com/pentaho/pentaho-engineering-samples/blob/8.1/Samples_for_Extending_Pentaho/javascript-apis/platform/visual-samples-bar-d3/sandbox.html#L96-L98)). Nelson Antunes: "Validation will fail if something is wrong, like missing mandatory fields, incorrect data types, etc. The only exception I remember is if the spec contains unknow fields, which simply are ignored. Meaning: if declare your model as having a field name “colour” but then instantiate it with a spec that spells it as `color`, the value will be ignored and no error thrown. The `colour` field will remain with its default value. However if that default value is null and the field is required, it should still fail validation and don’t render.":
+
+```js
+.then(
+  ...
+)
+// Catch any error messages
+.catch(function(ex) {
+  alert("Error: " + ex.message);
+});
+```
 
 Then we declare the `SankeyModel` as a new type:
 
