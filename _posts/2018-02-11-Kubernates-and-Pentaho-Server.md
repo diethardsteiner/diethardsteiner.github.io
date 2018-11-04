@@ -579,3 +579,74 @@ The cluster is full functional now. We can **scale** the pentaho server apps if 
 **Symptom**: Once user logs on to the PUC, the home page starts loading and several login prompts show up. If you submit your credentials, another prompt shows up - it's an indefinite loop.
 
 **Solution**: If you exposed the **Pentaho Server** only via a Service (and not an additional Ingress object with sticky sessions), you can add `sessionAffinity: ClientIP` to the specs. This will make sure that the client always connects to the same node.
+
+## Improvements
+
+### Backend Database: PostgreSQL Deployment
+
+#### Readiness Probe
+
+While the container is functional, that in itself does not mean that the database is ready. So any attempt by our Pentaho Server to contact the DB might fail because the databases e.g. have not yet been created. Thankfully **Kubernetes** provides a feature called **Readiness Probe**, which allows you to run a check and only if this check passes the app will be marked as available.
+
+The snippet below shows how we can run a simple `SELECT 1` statement on the `jackrabbit` database to make sure it is available. The reason why we run a `SELECT 1` here instead of `SELECT * FROM [TABLE] LIMIT 1` (or so) is because at this stage no tables quite possibly exist: They only get created once **Pentaho Server** intialises.
+
+```yaml
+readinessProbe:
+  exec:
+    command: ["psql", "-w", "-U", "postgres", "-d", "jackrabbit", "-c", "SELECT 1"]
+  initialDelaySeconds: 15
+  timeoutSeconds: 2
+```
+
+- [Source](https://medium.com/@nieldw/kubernetes-probes-for-postgresql-pods-a66d707df6b4)
+
+#### Liveness Probe
+
+This probe will kick in after the readyness probe and check that the app is running correctly. Again, the check can be defined by you in various ways. If the check fails, **Kubernetes** will restart the container.
+
+```yaml
+livenessProbe:
+  exec:
+    command: ["psql", "-w", "-U", "postgres", "-d", "jackrabbit", "-c", "SELECT 1"]
+  initialDelaySeconds: 45
+  timeoutSeconds: 2
+```
+
+### Pentaho Server Deployment
+
+####  InitContainer
+
+With our original setup you might get an error message in PUC like this one:
+
+```
+undefinedapi/mantle/isAuthenticated is invalid or violates the same-origin security restriction
+```
+
+When you check the logs of the **Pentaho Servers**, you might see that one instance is fine, but the other instance show an error like this:
+
+```
+2018-11-04 14:25:59,419 ERROR [org.apache.jackrabbit.core.DefaultSecurityManager] Failed to instantiate AccessManager (org.apache.jackrabbit.core.security.DefaultAccessManager)
+javax.jcr.InvalidItemStateException: Could not find child ed22d35f-e1d4-4b7d-a21c-5f1b38518d2f of node 3e9386a3-91b7-45fb-9fb7-61f87694df8f
+
+2018-11-04 14:25:59,436 ERROR [org.apache.jackrabbit.core.security.authorization.acl.EntryCollector] Failed to process access control modifications
+javax.jcr.RepositoryException: Failed to instantiate AccessManager (org.apache.jackrabbit.core.security.DefaultAccessManager)
+```
+
+It could be that this **Pentaho Server** instance was created while the **PostgreSQL** DB was still being initalised. So how do we tell the pentaho server deployment to wait for the postgresql db to be completely initialised? Enter the `InitContainer`: You can have one or more InitContainers, which will be executed sequentially, and have any dependencies checked within them.
+
+The snippet below shows how you can use the `pg_isready` utility to check if our backend **PostgreSQL** database is indeed ready:
+
+```yaml
+spec:
+  # make sure backend db is ready 
+  initContainers:
+  - name: check-db-ready
+    image: postgres:9.6.5
+    command: ['sh', '-c', 
+      'until pg_isready -h backenddb -d jackrabbit -p 5432; 
+      do echo waiting for database; sleep 2; done;']
+```
+
+> **Note**: Remember that for the **PostgreSQL** deployment we also configured a **readiness probe**. You might wonder why this is not sufficient: If the Pentaho Server talks to the PostgreSQL service and a *not ready* message gets returned, this might just make the Pentaho Server fail. This is indeed what I experienced. So by adding an **initContainer**, we have a check on the Pentaho Server side as well if the backend db is ready.
+
+- [Source](https://medium.com/@xcoulon/initializing-containers-in-order-with-kubernetes-18173b9cc222)
