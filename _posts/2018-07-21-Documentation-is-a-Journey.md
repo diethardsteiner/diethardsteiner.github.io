@@ -20,6 +20,9 @@ I’ve lately introduced a **new approach** with my team that seems to have help
 
 The **proposed outline of a documentation** for a Wiki page is as follows:
 
+--------------
+--------------
+
 # User Story
 
 As a campaign manager I want to see the response rate ...
@@ -35,11 +38,11 @@ As a campaign manager I want to see the response rate ...
 The response rate is calculated this way: `(reponses / recipients) * 100`
 
 # Notes
+
 In the initial meeting Mr Summer expressed that there are complications with source data ...
 
-
-
 # Required Attributes
+
 To fulfil this user story, we need the following data points:
 
 - response time
@@ -53,8 +56,6 @@ To fulfil this user story, we need the following data points:
 | name         | description
 | ------------ |------------------
 | `cmpgn`      | main campaign database holding details on recipients, responses 
-
-
 
 ## Tables
 
@@ -105,5 +106,16 @@ This process creates following **tables**:
 ## Data Flow Diagram
 
 Please find below a simplified diagram depicting the flow of data from table to table:
+
+
+
+--------------
+--------------
+
+For all the user stories there should be a **cover page** with a summary like so (also showing completeness):
+
+| US number | US title | Synthetic data generated | Code complete | Unit tested | Documented | Peer reviewed | QA’d |
+|--------------|--------------|--------------|--------------|--------------|--------------|--------------|--------------|
+| US 1 | Prepare Campaign Results | [x] | [x] | [x] | [ ] | [ ] | [ ] | [ ] 
 
 
