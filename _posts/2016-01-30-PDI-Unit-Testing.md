@@ -356,15 +356,35 @@ After:
 OPT="$OPT $PENTAHO_DI_JAVA_OPTIONS -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -Djava.library.path=$LIBPATH -DKETTLE_HOME=$KETTLE_HOME -DKETTLE_REPOSITORY=$KETTLE_REPOSITORY -DKETTLE_USER=$KETTLE_USER -DKETTLE_PASSWORD=$KETTLE_PASSWORD -DKETTLE_PLUGIN_PACKAGES=$KETTLE_PLUGIN_PACKAGES -DKETTLE_LOG_SIZE_LIMIT=$KETTLE_LOG_SIZE_LIMIT -DKETTLE_JNDI_ROOT=$KETTLE_JNDI_ROOT -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER"
 ```
 
-## It's possible to create assign a dataset to a step without setting up a unit test - is this valid?
+## It's possible to assign a dataset to a step without setting up a unit test - is this valid?
 
 Yes. The **PDI Datasets** plugin was not only create for unit testing. You can as well just assign a dataset to a step in scenarios where it is otherwise difficult to design the transformation because input data is missing, e.g. for Pentaho Map Reduce, where you could assign a dataset to a **MapReduce Input** step.
 
 ## Unit Tests, Datasets and Dataset Groups and their relationship to Transformations
 
-A **Unit Test** is specific to **one** transformation.
-A **Dataset** can be used in **various** transformations.
-A **Dataset** is a child of a **Dataset Group**, which has the **Database Connection** defined for the related **Datasets**.
+- A **Unit Test** is specific to **one** transformation.
+- A **Dataset** can be used in **various** transformations.
+- A **Dataset** is a child of a **Dataset Group**, which has the **Database Connection** defined for the related **Datasets**.
+
+# Update Oct 2018
+
+## Improvements
+
+### Metastore Unit Test File stores absolute path to ktr: Relative Path
+
+- [Ticket](https://github.com/mattcasters/pentaho-pdi-dataset/issues/6)
+
+Use pre-defined variable `UNIT_TESTS_BASE_PATH` to define the path to the folder where you store the unit test jobs and transformations.
+
+### Do not store Pentaho Dataset Plugin Settings in ktr or kjb
+
+- [Ticket](https://github.com/mattcasters/pentaho-pdi-dataset/issues/24)
+
+Due to the plugin not being officially supported by **Hitachi Vantara**, storing the settings directly in the kjb and ktr files could cause issues with their support. This request was to store these settings seperatley in sidecar file (it ended up being stored in a PDI Metastore. This was already the case before actually, just that the settings were stored in the ktr and kjb files as well).
+
+### Custom Location for PDI Metastore Folder
+
+Since all the settings for the PDI Datasets Plugin are stored in the **PDI Metastore**, it would be convenient if you could add the metastore to your git repo. This can be achieved by setting the predefined `PENTAHO_METASTORE_FOLDER` PDI parameter.  It's only Carte which doesn't respect variable `PENTAHO_METASTORE_FOLDER`, the other tools handle it just fine. Matt provided a patch for this [here](https://github.com/mattcasters/kettle-needful-things/releases/tag/0.1.0): This is just a plugin, so just add it to the `plugin` folder.
 
 
 
