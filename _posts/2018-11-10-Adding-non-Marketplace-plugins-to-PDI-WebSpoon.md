@@ -24,4 +24,15 @@ hiromuhota/webspoon:latest-full
 
 Your local folder must have the unzipped version of the plugin. And this is it.
 
+
+Alternatively, you can also make use of the predefined PDI parameter `KETTLE_PLUGIN_BASE_FOLDERS`:
+ 
+```bash
+sudo docker run -d \
+-p 8080:8080 \
+-e KETTLE_PLUGIN_BASE_FOLDERS=plugins,/root/.kettle/plugins \
+-v ~/.kettle/plugins:/root/.kettle/plugins \
+hiromuhota/webspoon:latest-full:z
+```
+
 Special thanks for Hiromu for providing WebSpoon itself as well as help on using it.

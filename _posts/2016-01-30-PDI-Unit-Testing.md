@@ -386,6 +386,9 @@ Due to the plugin not being officially supported by **Hitachi Vantara**, storing
 
 Since all the settings for the PDI Datasets Plugin are stored in the **PDI Metastore**, it would be convenient if you could add the metastore to your git repo. This can be achieved by setting the predefined `PENTAHO_METASTORE_FOLDER` PDI parameter.  It's only Carte which doesn't respect variable `PENTAHO_METASTORE_FOLDER`, the other tools handle it just fine. Matt provided a patch for this [here](https://github.com/mattcasters/kettle-needful-things/releases/tag/0.1.0): This is just a plugin, so just add it to the `plugin` folder.
 
+### Open Transformation and Test
+
+Also new in that release is opening a transformation from the viewpoint of the unit test: On the flask there is a Unit Test menu : **Open Transformation and Test**.
 
 
 
