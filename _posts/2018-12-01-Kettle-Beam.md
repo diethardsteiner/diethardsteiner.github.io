@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Pentaho Data Integration: The easy way to create Beam Pipelines"
+title: "Pentaho Data Integration/Kettle: The easy way to create Beam Pipelines"
 summary: This article explains how to get started with creating Beam pipelines in PDI
 date: 2018-12-01
 categories: PDI
@@ -25,6 +25,10 @@ From the start I never quite understood why one company would try to create an A
 So here we are today looking at the rapidly evolving **Kettle Beam** project, that **Matt Casters** put a massive effort in (burning a lot of midngiht oil):
 
 > **Important**: Kettle Beam Plugin is currently under heavy development and it's only a few days old (2018-12-01). It goes without saying that you must not use this plugin in production.
+
+**Special thanks** goes to **Matt Casters** for providing a lot of info for this article.
+
+**THIS ARTICLE IS STILL DEVELOPING ...**
 
 # Download Pentaho Data Integration (PDI)
 
@@ -257,14 +261,37 @@ Before gettings started make sure you have GCP account set up and you have the r
 1. Pick the correct project or create a new one.
 2. Create a new **service account** via the [GCP IAM - Service Accounts page]. Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine ( and also to set `GOOGLE_APPLICATION_CREDENTIALS`).
 3. Define the `GOOGLE_APPLICATION_CREDENTIALS` environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json`.
-4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles)). Give this role everything you can find related to API, Storage, Dataflow.
+4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles)). Give this role everything you can find related to API, Storage, Dataflow. Not complete list of required permissions: `compute.machineTypes.get`, `dataflow.*`, `storage.*`, `firebase.projects.get`, `resourcemanager.projects.get`.
 5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the service account and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
 6. Create a **storage bucket**: Go to the [GCP Storage page](https://console.cloud.google.com/storage/browser) and click on **Create bucket**. Name it `kettle-beam-storage`. Once created, you should be automatically forwarded to the **Bucket Details** page: Click on **Create folder** and name it `input`. Create two other ones: `binaries`, `output`.
 7. Still on the **Bucket Details** page, click on the `input` folder and click on **Upload files**. Upload the input file for your PDI Beam pipeline.
-8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Your sevice account should already be listed there.
+8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Your service account should already be listed there. We also have to add some additional roles to the service account here: Click on the Down Arrow in the **Roles** column and choose following additional roles: `Dataflow Admin`, `Storage Admin`, `Storage Object Viewer`:
+![](/images/kettle-beam/kettle-beam-10.png)
 9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
 ![](/images/kettle-beam/kettle-beam-9.png)
-10. **Grant service account permissions on DataFlow**: Go to the [GCP Dataflow page](https://console.cloud.google.com/dataflow) and ?? [OPEN] I didn't see any options here. See also [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions) for more info. Two accounts required: **Cloud Dataflow Service Account** and **Controller Service Account**. By default, workers use your project’s Compute Engine service account as the controller service account.  This service account ( `<project-number>-compute@developer.gserviceaccount.com`) is automatically created when you enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console.
+  Following APIs are required (most of them are enabled by default):
+    - Cloud Datastore API
+    - Cloud Filestore API: used for creating and managing cloud file servers.
+    - Cloud Firestore API (NoSQL document database) - not enabled by default
+    - Firebase Rules API
+    - Cloud OS Login API
+    - Cloud Resource Manager API
+    - Compute Engine API
+    - Compute Engine Instance Group API
+    - Dataflow API
+    - Google Cloud APIs
+    - Google Cloud Deployment Manager v2 API
+    - Google Cloud Storage
+    - Google Cloud Storage JSON API
+    - Google Compute Engine Instance Group Updater API
+    - Service Management API
+    - Service Usage API
+    - Stackdriver Debugger API
+    - Stackdriver Logging API
+    - Stackdriver Monitoring API
+    - Stackdriver Trace API
+    
+1. **Grant service account permissions on DataFlow**: Go to the [GCP Dataflow page](https://console.cloud.google.com/dataflow) and ?? [OPEN] I didn't see any options here. See also [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions) for more info. Two accounts required: **Cloud Dataflow Service Account** and **Controller Service Account**. By default, workers use your project’s Compute Engine service account as the controller service account.  This service account ( `<project-number>-compute@developer.gserviceaccount.com`) is automatically created when you enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console.
 
 **Additional info**:
 
