@@ -5,7 +5,7 @@ summary: This article explains how to get started with creating Beam pipelines i
 date: 2018-12-01
 categories: PDI
 tags: PDI, Beam
-published: false
+published: true
 ---
 
 Resources:
@@ -24,7 +24,7 @@ From the start I never quite understood why one company would try to create an A
 
 So here we are today looking at the rapidly evolving **Kettle Beam** project, that **Matt Casters** put a massive effort in (burning a lot of midngiht oil):
 
-> **Important**: Kettle Beam Plugin is currently under heavy development and it's only a few days old (2018-12-01). It goes without saying that you must not use this plugin in production.
+> **Important**: Kettle Beam Plugin is **currently under heavy development** and it's only a few days old (2018-12-01). It goes without saying that **you must not use this plugin in production**.
 
 **Special thanks** goes to **Matt Casters** for providing a lot of info for this article.
 
@@ -36,7 +36,7 @@ You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projec
 
 # Building the plugin
 
-Install Maven:
+Install Maven, in example like so (adjust to your own setup):
 
 ```
 # ########## MAVEN ##########
@@ -210,7 +210,7 @@ Double click on the **Beam Output** step. Let's configure it:
 
 ## Add Transfromation Steps
 
-Some steps require special implementation, like Sort etc.
+Some steps require a special implementation, like Sort etc.
 As it is extremely early days with this project, these steps are supported:
 
 - Memory Group by work with Sum and Count.
@@ -225,7 +225,7 @@ Via the main menu choose **Beam > Create a Beam Job Config**. We will create a j
 - **Name**: `Direct`
 - **Description**: anything you fancy
 - **Runner**: The options here are `Direct`, `DataFlow`, `Flink` and `Spark`. Just pick `Direct` for now.
-- **User Agent**: `Kettle` [OPEN] Is this a free-form field or is something specific expected here?
+- **User Agent**: `Kettle`. This a free-form field.
 - **Temporary Location**: `/tmp` (in this case in can be a local directory)
 - **Google Cloud Plaform - Dataflow**: We can leave this section empty
 - **Variables/Parameters to set**: We list here any parmaters and values that we want to use as part of our Beam pipeline.
@@ -242,7 +242,7 @@ You can execute the **PDI Beam Pipeline** via **Beam > Run this transformation o
 
 ## Engine: Direct
 
-Direct uses the Direct Beam engine so you can test with this one locally. We have already created the Beam Job configuration previously for the local runner, so you are ready to go.
+**Direct** uses the **Direct Beam engine**, which enables you to test your **PDI Beam Pipeline** locally. We have already created the Beam Job configuration previously for the local runner, so you are ready to go.
 
 ## Engine: Google Cloud Platform DataFlow
 
@@ -310,7 +310,7 @@ GOOGLE_CLOUD_PROJECT=yourproject # this one is no longer needed
 # since now include in the PDI Beam job config
 ```
 
-### Testing Basic Connection GCP from within Spoon
+### Testing Basic GCP Connection from within Spoon
 
 Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog pick **Google Cloud Storage** from the **Location** pull-down menu. You will notice that the folder path automatically changes to `gs://`, but no files or folders are shown. Just add your bucket name to the folder path (e.g `gs://kettle-beam-storage/`) and hit Enter. Now the folder should be displayed:
 
