@@ -24,9 +24,11 @@ From the start I never quite understood why one company would try to create an A
 
 So here we are today looking at the rapidly evolving **Kettle Beam** project, that **Matt Casters** put a massive effort in (burning a lot of midngiht oil):
 
+> **Important**: Kettle Beam Plugin is currently under heavy development and it's only a few days old (2018-12-01). It goes without saying that you must not use this plugin in production.
+
 # Download Pentaho Data Integration (PDI)
 
-...
+You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projects/pentaho/files/). Just pick the latest version 8.1 (at the time of this writing). Once downloaded, unzip it in a convenient folder and that's basically all there is to installation. Inside the PDI folder you find the `spoon.sh` file (or `spoon.bat` on Windows), which will start the GUI of the designer.
 
 # Building the plugin
 
@@ -118,11 +120,11 @@ echo "If KETTLE BEAM version number changes this will break!"
 echo "***************************************"
 cd ${GIT_HOME}/kettle-beam-core
 git pull
-mvn clean install
+mvn --offline clean install
 cp target/kettle-beam-core-0.0.4-SNAPSHOT.jar ${PDI_HOME}/lib
 cd ${GIT_HOME}/kettle-beam
 git pull
-mvn clean install
+mvn --offline clean install
 cp target/kettle-beam-0.0.4-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam/
 cp target/lib/* ${PDI_HOME}/lib
 rm -r ${PDI_HOME}/system/karaf/caches
@@ -159,7 +161,7 @@ So via the main menu choose **Beam > Create a file definition**. The goal here i
 
 Click **Ok**.
 
-In a similar vain, create the **file output definition**.
+In a similar vain, create the **file output definition**. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
 
 ## Add the Beam Input Step
 
@@ -200,9 +202,17 @@ Double click on the **Beam Output** step. Let's configure it:
 - **File prefix**:
 - **File suffix**:
 - **Windowed** (unsupported):
-- **File definition to use**: Pick the output schema/definition you created earlier on.
+- **File definition to use**: Pick the output schema/definition you created earlier on. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
 
 ## Add Transfromation Steps
+
+Some steps require special implementation, like Sort etc.
+As it is extremely early days with this project, these steps are supported:
+
+- Memory Group by work with Sum and Count.
+
+Beyond that all steps should work as long as you don't bring together data streams.
+For bringing streams together Matt is planning to implement support for Merge Join.
 
 ## Set up the Beam Job Configuration
 
@@ -220,9 +230,7 @@ Via the main menu choose **Beam > Create a Beam Job Config**. We will create a j
 
 # How to test the PDI Beam Pipeline locally
 
-Chances are you don't have a full Beam environment on your developer machine. Luckily, **Matt Casters** also create the **Pentaho Datasets Plugin**, which allows you to create **unit tests**.
-
-... 
+To create **unit tests** for your PDI Beam Pipeline, you can use **Matt Casters** [Pentaho PDI Datasets](https://github.com/mattcasters/pentaho-pdi-dataset) Plugin. See also my blog post [here](http://diethardsteiner.github.io/big/data/2016/01/30/PDI-Unit-Testing.html) for further info.
 
 # Execution your PDI Beam Pipeline
 
@@ -230,22 +238,70 @@ You can execute the **PDI Beam Pipeline** via **Beam > Run this transformation o
 
 ## Engine: Direct
 
+Direct uses the Direct Beam engine so you can test with this one locally. We have already created the Beam Job configuration previously for the local runner, so you are ready to go.
+
 ## Engine: Google Cloud Platform DataFlow
 
-Before gettings started make sure you have GCP account set up. Then locally on your machine set following **environment variables** so that **PDI** can pick up the **credentials**:
+> **Note**: This works as well with **PDI CE** (Community Edition, the one you downloaded from SourceForge) - no **EE** subscription required.
 
+### GCP Setup
+
+Background info:
+
+- [Deploying a Pipeline](https://cloud.google.com/dataflow/docs/guides/deploying-a-pipeline)
+- [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started)
+- [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions)
+
+Before gettings started make sure you have GCP account set up and you have the required credentials file:
+
+1. Pick the correct project or create a new one.
+2. Create a new **service account** via the [GCP IAM - Service Accounts page]. Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine ( and also to set `GOOGLE_APPLICATION_CREDENTIALS`).
+3. Define the `GOOGLE_APPLICATION_CREDENTIALS` environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json`.
+4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles)). Give this role everything you can find related to API, Storage, Dataflow.
+5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the service account and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
+6. Create a **storage bucket**: Go to the [GCP Storage page](https://console.cloud.google.com/storage/browser) and click on **Create bucket**. Name it `kettle-beam-storage`. Once created, you should be automatically forwarded to the **Bucket Details** page: Click on **Create folder** and name it `input`. Create two other ones: `binaries`, `output`.
+7. Still on the **Bucket Details** page, click on the `input` folder and click on **Upload files**. Upload the input file for your PDI Beam pipeline.
+8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Your sevice account should already be listed there.
+9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
+![](/images/kettle-beam/kettle-beam-9.png)
+10. **Grant service account permissions on DataFlow**: Go to the [GCP Dataflow page](https://console.cloud.google.com/dataflow) and ?? [OPEN] I didn't see any options here. See also [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions) for more info. Two accounts required: **Cloud Dataflow Service Account** and **Controller Service Account**. By default, workers use your project’s Compute Engine service account as the controller service account.  This service account ( `<project-number>-compute@developer.gserviceaccount.com`) is automatically created when you enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console.
+
+**Additional info**:
+
+These are the roles required on Google Storage for this to work ([Source](https://forums.pentaho.com/threads/231062-Pentaho-8-1-is-available/)): 
+
+- Storage Admin
+- Storage Object Admin
+- Storage Object Creator
+- Storage Object Viewer
+
+Then locally on your machine set following **environment variables** so that **PDI** can pick up the **credentials**:
+ 
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/google-key.json
 GOOGLE_CLOUD_PROJECT=yourproject # this one is no longer needed
 # since now include in the PDI Beam job config
 ```
 
+### Testing Basic Connection GCP from within Spoon
 
-The first time you run it in **GCP DataFlow ** it will be quite slow:
-In the **Beam Job Configuration** within the **DataFlow** settings you define under **Staging location** where to store the **binaries** (example: `gs://kettledataflow/binaries`). The first time your run your pipeline the Google DataFlow runner will upload the Kettle binaries from the lib folder to this **Staging folder**. This allows you to also include any specific **PDI plugins** that you require for your project.
+Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog pick **Google Cloud Storage** from the **Location** pull-down menu. You will notice that the folder path automatically changes to `gs://`, but no files or folders are shown. Just add your bucket name to the folder path (e.g `gs://kettle-beam-storage/`) and hit Enter. Now the folder should be displayed:
 
+![](/images/kettle-beam/kettle-beam-8.png)
 
-Note that any other file paths you define should also follow this pattern, e.g. `gs://ketteldataflow/input/sales-data.csv`.
+### PDI Config
+
+For your transformation create a dedicated **GCP DataFlow** config, e.g.:
+
+![](/images/kettle-beam/kettle-beam-7.png)
+
+The first time you run the **PDI Beam pipeline** in **GCP DataFlow ** it will be quite slow:
+
+In the **Beam Job Configuration** within the **DataFlow** settings you define under **Staging location** where to store the **binaries** (example: `gs://kettledataflow/binaries`). The first time your run your pipeline the **Google DataFlow** runner will upload the **PDI/Kettle binaries** from the lib folder to this **Staging folder**. This allows you to also include any specific **PDI plugins** that you require for your project.
+
+Note that any other file paths you define should also follow this VFS pattern, e.g. `gs://ketteldataflow/input/sales-data.csv`.
+
+... content still developing ...
 
 ## Analysing the Stats
 
