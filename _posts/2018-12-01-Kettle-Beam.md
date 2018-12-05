@@ -248,7 +248,7 @@ You can execute the **PDI Beam Pipeline** via **Beam > Run this transformation o
 
 > **Note**: This works as well with **PDI CE** (Community Edition, the one you downloaded from SourceForge) - no **EE** subscription required.
 
-### GCP Setup
+### Setting up a Service Account
 
 Background info:
 
@@ -265,8 +265,7 @@ Before gettings started make sure you have GCP account set up and you have the r
 5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the service account and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
 6. Create a **storage bucket**: Go to the [GCP Storage page](https://console.cloud.google.com/storage/browser) and click on **Create bucket**. Name it `kettle-beam-storage`. Once created, you should be automatically forwarded to the **Bucket Details** page: Click on **Create folder** and name it `input`. Create two other ones: `binaries`, `output`.
 7. Still on the **Bucket Details** page, click on the `input` folder and click on **Upload files**. Upload the input file for your PDI Beam pipeline.
-8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Your service account should already be listed there. We also have to add some additional roles to the service account here: Click on the Down Arrow in the **Roles** column and choose following additional roles: `Dataflow Admin`, `Storage Admin`, `Storage Object Viewer`:
-![](/images/kettle-beam/kettle-beam-10.png)
+8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Here your service account should be listed.
 9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
 ![](/images/kettle-beam/kettle-beam-9.png)
   Following APIs are required (most of them are enabled by default):
@@ -310,6 +309,43 @@ GOOGLE_CLOUD_PROJECT=yourproject # this one is no longer needed
 # since now include in the PDI Beam job config
 ```
 
+### Working with the Google Cloud SDK Command Line Tools
+
+You might have the [Cloud SDK](https://cloud.google.com/sdk/docs/quickstart-linux) command line tools already installed. 
+
+In case you are wondering with which user you are running the commands, execute this:
+
+```bash
+$ gcloud auth list 
+            Credentialed Accounts
+ACTIVE  ACCOUNT
+*       diethard.steiner@bissolconsulting.com
+
+To set the active account, run:
+    $ gcloud config set account `ACCOUNT`
+``` 
+
+If you created the project earlier on, you can list all projects like so:
+
+```bash
+$ gcloud projects list
+```
+
+You can switch to the `kettle-beam` project run:
+
+```bash
+$ gcloud config set project kettle-beam
+$ gcloud config list project
+[core]
+project = kettle-beam
+
+Your active configuration is: [default]
+```
+
+> **Note**: `GOOGLE_APPLICATION_CREDENTIALS` are not used by the gcloud client tools and there is no way to set this. See also [here](https://serverfault.com/questions/848580/how-to-use-google-application-credentials-with-gcloud-on-a-server). It is only used for **service accounts**.
+
+There many command options available which you can explore by yourself easily.
+
 ### Testing Basic GCP Connection from within Spoon
 
 Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog pick **Google Cloud Storage** from the **Location** pull-down menu. You will notice that the folder path automatically changes to `gs://`, but no files or folders are shown. Just add your bucket name to the folder path (e.g `gs://kettle-beam-storage/`) and hit Enter. Now the folder should be displayed:
@@ -321,6 +357,18 @@ Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog 
 For your transformation create a dedicated **GCP DataFlow** config, e.g.:
 
 ![](/images/kettle-beam/kettle-beam-7.png)
+> **Important**: Prefix all paths with `gs://` (also for the **Temporary Location**). Also pay attention to the **Project ID**: This is not the name but - well as it says - the ID (which can be different). If you are not sure what the project ID is, simply click on the project picker at the top of the Web UI and the pop-up will show you the project name with the ID:
+
+![](/images/kettle-beam/kettle-beam-11.png)
+
+Alternatively, you can query the **project ID** with the command line tool:
+
+```bash
+$ gcloud projects list
+PROJECT_ID            NAME                PROJECT_NUMBER
+k8s-pentaho-server    k8s-pentaho-server  619953174803
+kettle-beam-224314    kettle-beam         684324837668
+```
 
 The first time you run the **PDI Beam pipeline** in **GCP DataFlow ** it will be quite slow:
 
@@ -328,7 +376,43 @@ In the **Beam Job Configuration** within the **DataFlow** settings you define un
 
 Note that any other file paths you define should also follow this VFS pattern, e.g. `gs://ketteldataflow/input/sales-data.csv`.
 
-... content still developing ...
+### Running the PDI Beam Pipeline
+
+This is no differnt from any other PDI Beam execution - just pick the correct config.
+
+Once started, you should after a bit see this screen:
+
+![](/images/kettle-beam/kettle-beam-14.png)
+
+Just click **Yes** and the make your way to the **GCP admin console**. Go to the **DataFlow** section. You should see your **PDI Beam Pipeline** there now:
+
+![](/images/kettle-beam/kettle-beam-12.png)
+
+Click on your **Job** and you should see some more details:
+
+![](/images/kettle-beam/kettle-beam-13.png)
+
+
+### How to check if it is working
+
+As mentioned above, the first time your execute the process on **GCP DataFlow**, it will take a bit for the binaries to be uploaded to **GCP Storage**: This might give the impression that nothing is happening. The best thing to do in this case is to check if the jar files are showing up in the `binaries` folder in the **GCP Storage bucket**. You can do this via the web interface or by running e.g. following command:
+
+```bash
+$ gsutil du -sh gs://kettle-beam-storage/binaries
+397.17 MiB  gs://kettle-beam-storage/binaries
+```
+
+As you can see, all the uploaded jar files amount to nearly 400MB.
+
+### Common Errors
+
+If there are permission issues, Spoon will show the error message in a pop-up, e.g.: 
+
+```
+Failed to create a workflow job: (7b5183c85358d0cf): Could not create workflow; user does not have write access to project: kettle-beam Causes: (7b5183c85358d196): Permission 'dataflow.jobs.create' denied on project: 'kettle-beam'
+```
+
+In my case I did originally specify the project name instead of the project ID in the Beam job config. Changing this resolved the problem.
 
 ## Analysing the Stats
 
