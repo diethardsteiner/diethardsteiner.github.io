@@ -231,6 +231,11 @@ Via the main menu choose **Beam > Create a Beam Job Config**. We will create a j
 - **Variables/Parameters to set**: We list here any parmaters and values that we want to use as part of our Beam pipeline.
 
 ![](/images/kettle-beam/kettle-beam-6.png)
+## Batch VS Stream
+
+So how do I configure the pipeline to use streaming and not batch processing you might wonder? 
+
+Currently the **PDI Beam plugin** doesn't have any unbound input data sources yet. Kafka will be the first probably ( see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (unending) input source, it will automatically stream the data.
 
 # How to test the PDI Beam Pipeline locally
 
@@ -357,6 +362,7 @@ Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog 
 For your transformation create a dedicated **GCP DataFlow** config, e.g.:
 
 ![](/images/kettle-beam/kettle-beam-7.png)
+
 > **Important**: Prefix all paths with `gs://` (also for the **Temporary Location**). Also pay attention to the **Project ID**: This is not the name but - well as it says - the ID (which can be different). If you are not sure what the project ID is, simply click on the project picker at the top of the Web UI and the pop-up will show you the project name with the ID:
 
 ![](/images/kettle-beam/kettle-beam-11.png)
@@ -392,6 +398,13 @@ Click on your **Job** and you should see some more details:
 
 ![](/images/kettle-beam/kettle-beam-13.png)
 
+And then check the output:
+
+![](/images/kettle-beam/kettle-beam-15.png)
+
+The job/PDI Beam pipeline you saw the screenshot of above was extremely simple (just input and output) - if we add another step to transform the data, in example a **Memory Group By** step, the resulting graph will look like this:
+
+![](/images/kettle-beam/kettle-beam-16.png)
 
 ### How to check if it is working
 
@@ -404,7 +417,14 @@ $ gsutil du -sh gs://kettle-beam-storage/binaries
 
 As you can see, all the uploaded jar files amount to nearly 400MB.
 
+What the **logs**:
+
+- Within Spoon/Stdout
+- In the **GCP DataFlow Web Console** you find an option to see the log for your job.
+
 ### Common Errors
+
+#### Errors shown within Spoon
 
 If there are permission issues, Spoon will show the error message in a pop-up, e.g.: 
 
@@ -413,6 +433,14 @@ Failed to create a workflow job: (7b5183c85358d0cf): Could not create workflow; 
 ```
 
 In my case I did originally specify the project name instead of the project ID in the Beam job config. Changing this resolved the problem.
+
+#### Errors shown within GCP Dataflow Web Console
+
+```
+java.io.FileNotFoundException: No files matched spec: gs://...
+```
+
+Make sure you have permissions to see the file! Open **Spoon** and go to **New > Open URL**. For **Location** pick **Google Cloud Storage** and paste the whole path into the **Folder** input field and hit enter. If you have the correct permissions you should see the folder/file.
 
 ## Analysing the Stats
 
