@@ -38,7 +38,7 @@ You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projec
 
 Install Maven, in example like so (adjust to your own setup):
 
-```
+```bash
 # ########## MAVEN ##########
 # https://maven.apache.org/install.html
 # 
@@ -62,7 +62,7 @@ mvn -v
 
 Install the Pentaho settings.xml for maven in `~/.m2`:
 
-```
+```bash
 cd ~/.m2
 wget https://raw.githubusercontent.com/pentaho/maven-parent-poms/master/maven-support-files/settings.xml
 ```
@@ -86,7 +86,7 @@ cp target/kettle-beam-core-0.0.4-SNAPSHOT.jar ~/apps/pdi-ce-8.1/lib
 
 Clone the plugin and start the build:
 
-```
+```bash
 cd ~/git
 git clone git@github.com:mattcasters/kettle-beam.git
 cd kettle-beam
@@ -174,10 +174,12 @@ Next, in the **Design** tab on the left, expand the **Big Data** folder (or alte
 
 Drag and drop the **Beam Input** step onto the **canvas** and double click on it:
 
-- Input location: The directory where your input files are stored. This could be a directory on HDFS or any other file storage. Ideally parameterise this.
-- File definitoin to use: Pick the schema we created earlier on.
+- **Input location**: The directory where your input files are stored. This could be a directory on HDFS or any other file storage. Ideally parameterise this.
+- **File definitoin to use**: Pick the schema we created earlier on.
 
 ![](/images/kettle-beam/kettle-beam-4.png)
+
+> **Note**: The **Beam Input** step uses the **Beam API** for now (TextIO or some such) to read the data. This is not directly done by PDI, which makes a lot of sense since the [Beam I/O Transforms](https://beam.apache.org/documentation/io/built-in/) are more than just simple readers and writers. OPEN: What advantages do they bring?
 
 > **Important**: The input dataset must not have a header!
 
@@ -186,12 +188,26 @@ This won't work:
 ```
 date,country,city,department,sales_amount
 2018-12-01,UK,London,Groceries,22909
+2018-12-01,UK,London,Furniture,16237
+2018-12-01,UK,London,Perfumes,2889
+2018-12-01,UK,Glasgow,Groceries,17238
+2018-12-02,UK,London,Groceries,21321
+2018-12-02,UK,London,Furniture,17823
+2018-12-02,UK,London,Perfumes,3210
+2018-12-02,UK,Glasgow,Groceries,15223
 ```
 
 This will work:
 
 ```
 2018-12-01,UK,London,Groceries,22909
+2018-12-01,UK,London,Furniture,16237
+2018-12-01,UK,London,Perfumes,2889
+2018-12-01,UK,Glasgow,Groceries,17238
+2018-12-02,UK,London,Groceries,21321
+2018-12-02,UK,London,Furniture,17823
+2018-12-02,UK,London,Perfumes,3210
+2018-12-02,UK,Glasgow,Groceries,15223
 ```
 
 ## Add the Beam Output Step
@@ -213,14 +229,44 @@ Double click on the **Beam Output** step. Let's configure it:
 Some steps require a special implementation, like Sort etc.
 As it is extremely early days with this project, these steps are supported:
 
+- Filter Rows
 - Memory Group by work with Sum and Count.
+- Merge Join
+- Stream Lookup
+- Switch/Case
 
-Beyond that all steps should work as long as you don't bring together data streams.
-For bringing streams together Matt is planning to implement support for Merge Join.
+Beyond that all steps should work.
+
+A very **simple example**:
+
+![](/images/kettle-beam/kettle-beam-18.png)
+
+
+## Windowing Functions
+
+Any serious streaming engine supports even-time-based **windowing functions**, so it's no surprise that **Apache Beam** has this fully baked in as well (see [here](https://beam.apache.org/documentation/programming-guide/#windowing) for details)).
+
+Currently this functionality is not yet supported by the **PDI Beam Plugin**: A request was raised [here](https://github.com/mattcasters/kettle-beam/issues/13) for it.
 
 ## Set up the Beam Job Configuration
 
-Via the main menu choose **Beam > Create a Beam Job Config**. We will create a job configuration for the **Direct runner**:
+[Apache Beam](https://beam.apache.org/) is an **abstraction layer** for **data pipelines**: What this means is that you design your data pipeline once and can execute it on a **varity of engines**. Currently Beam supports following engines/runtimes:
+
+- Direct: Local engine meant for development environments only
+- DataFlow
+- Flink
+- Apex
+- Spark
+- Gearpump
+- Samza
+
+Out of these engines, the **PDI Beam Plugin** currently supports:
+
+- Direct: this is already available
+- DataFlow: this is already available
+- Spark: this will be made available next
+
+We will first set up a configuration to run the **Beam pipeline** locally. Don't worry, you don't have to install anything additionally, this is the beauty of it: The **PDI Beam plugin** already ships with the **Beam Direct** engine/runtime. Via the main menu choose **Beam > Create a Beam Job Config**. We will create a job configuration for the **Direct runner**:
 
 - **Name**: `Direct`
 - **Description**: anything you fancy
@@ -231,9 +277,9 @@ Via the main menu choose **Beam > Create a Beam Job Config**. We will create a j
 - **Variables/Parameters to set**: We list here any parmaters and values that we want to use as part of our Beam pipeline.
 
 ![](/images/kettle-beam/kettle-beam-6.png)
-## Batch VS Stream
+## Batch VS Streaming
 
-So how do I configure the pipeline to use streaming and not batch processing you might wonder? 
+So how do I configure the pipeline to use **streaming** and not **batch** processing you might wonder? 
 
 Currently the **PDI Beam plugin** doesn't have any unbound input data sources yet. Kafka will be the first probably ( see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (unending) input source, it will automatically stream the data.
 
@@ -249,9 +295,34 @@ You can execute the **PDI Beam Pipeline** via **Beam > Run this transformation o
 
 **Direct** uses the **Direct Beam engine**, which enables you to test your **PDI Beam Pipeline** locally. We have already created the Beam Job configuration previously for the local runner, so you are ready to go.
 
+Check for the output files:
+
+```
+$ ls -l /tmp/kettle-beam-output-0000*
+/tmp/kettle-beam-output-00000-of-00005
+/tmp/kettle-beam-output-00001-of-00005
+/tmp/kettle-beam-output-00002-of-00005
+/tmp/kettle-beam-output-00003-of-00005
+/tmp/kettle-beam-output-00004-of-00005
+```
+
+Check the content of the files:
+
+```
+$ cat /tmp/kettle-beam-output-0000*
+2018-12-01,Groceries,40147
+2018-12-01,Furniture,16237
+2018-12-01,Fragrance,2889
+2018-12-02,Furniture,17823
+2018-12-02,Fragrance,3210
+2018-12-02,Groceries,36544
+```
+
 ## Engine: Google Cloud Platform DataFlow
 
 > **Note**: This works as well with **PDI CE** (Community Edition, the one you downloaded from SourceForge) - no **EE** subscription required.
+
+As you might know by know, Google initially donated the Beam abstraction layer code to the open source community. **GCP Dataflow** is more than just this abstraction layer: It is a managed service which apart from the engine/runtime also provisions worker nodes and does some clever stuff under the hood to optimise the dataflow. So this is pretty impressive: You don't have to include any logic in your setup to provision nodes and to scale your process.
 
 ### Setting up a Service Account
 
@@ -357,7 +428,7 @@ Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog 
 
 ![](/images/kettle-beam/kettle-beam-8.png)
 
-### PDI Config
+### PDI: Beam Job Config
 
 For your transformation create a dedicated **GCP DataFlow** config, e.g.:
 
@@ -381,6 +452,18 @@ The first time you run the **PDI Beam pipeline** in **GCP DataFlow ** it will be
 In the **Beam Job Configuration** within the **DataFlow** settings you define under **Staging location** where to store the **binaries** (example: `gs://kettledataflow/binaries`). The first time your run your pipeline the **Google DataFlow** runner will upload the **PDI/Kettle binaries** from the lib folder to this **Staging folder**. This allows you to also include any specific **PDI plugins** that you require for your project.
 
 Note that any other file paths you define should also follow this VFS pattern, e.g. `gs://ketteldataflow/input/sales-data.csv`.
+
+**Up and coming:**
+
+- [GCP Scaling options](https://github.com/mattcasters/kettle-beam/issues/11) to define the **number of workers**, the **maximum number of workers** and the **GCP worker machine type**.
+
+```
+options.setNumWorkers( );
+options.setMaxNumWorkers( );
+options.setWorkerMachineType( );
+```
+
+These options will be available to be set via the UI at some point.
 
 ### Running the PDI Beam Pipeline
 
@@ -406,9 +489,9 @@ The job/PDI Beam pipeline you saw the screenshot of above was extremely simple (
 
 ![](/images/kettle-beam/kettle-beam-16.png)
 
-### How to check if it is working
+### How to check if the Pipeline is working
 
-As mentioned above, the first time your execute the process on **GCP DataFlow**, it will take a bit for the binaries to be uploaded to **GCP Storage**: This might give the impression that nothing is happening. The best thing to do in this case is to check if the jar files are showing up in the `binaries` folder in the **GCP Storage bucket**. You can do this via the web interface or by running e.g. following command:
+As mentioned above, the first time your execute the process on **GCP DataFlow**, it will take a bit for the **binaries** to be uploaded to the **GCP Storage**: This might give the impression that nothing is happening. The best thing to do in this case is to check if the jar files are showing up in the `binaries` folder in the **GCP Storage bucket**. You can do this via the web interface or by running e.g. following command:
 
 ```bash
 $ gsutil du -sh gs://kettle-beam-storage/binaries
@@ -417,7 +500,7 @@ $ gsutil du -sh gs://kettle-beam-storage/binaries
 
 As you can see, all the uploaded jar files amount to nearly 400MB.
 
-What the **logs**:
+Also watch the **logs**:
 
 - Within Spoon/Stdout
 - In the **GCP DataFlow Web Console** you find an option to see the log for your job.
@@ -436,6 +519,8 @@ In my case I did originally specify the project name instead of the project ID i
 
 #### Errors shown within GCP Dataflow Web Console
 
+Read this article: [Troubleshooting Your Pipeline](https://cloud.google.com/dataflow/docs/guides/troubleshooting-your-pipeline).
+
 ```
 java.io.FileNotFoundException: No files matched spec: gs://...
 ```
@@ -445,3 +530,25 @@ Make sure you have permissions to see the file! Open **Spoon** and go to **New >
 ## Analysing the Stats
 
 Via the GCP interface you can analyse the various stats around **Counters** (see **Custom Counters** section). Each **PDI step** gets its own counter here.
+
+![](/images/kettle-beam/kettle-beam-19.png)
+
+The screenshot above shows that one record was passed through the **Value Mapper** step.
+
+Currently the **Memory Group By** step doesn't provide custom counters, see [this issue](https://github.com/mattcasters/kettle-beam-core/issues/10).
+
+# Job Orchestration
+
+Within the Kettle/PDI world orchestration is achieved via creating **Kettle jobs**. 
+
+**Up and coming**: [Job Entry to execute Kettle Beam transformations](https://github.com/mattcasters/kettle-beam/issues/10)
+
+# Using other PDI Plugins
+
+The PDI/**Kettle core functionality** can be **extended** via **plugins**: There are many plugins available, most of them can be conveniently source via the **Marketplace**. See also [Support for plugins](https://github.com/mattcasters/kettle-beam-core/issues/8) for the PDI Beam pipelines.
+
+![](/images/kettle-beam/kettle-beam-17.png)
+
+# Deployment to Higher Level Environments
+
+Submitting a **PDI Beam pipeline** from  Spoon is nice for development and testing. But let's say we have script/CI server that automatically deploys a PDI Beam pipeline into production. How would this work? See [this issue](https://github.com/mattcasters/kettle-beam/issues/14).
