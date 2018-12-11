@@ -26,15 +26,41 @@ So here we are today looking at the rapidly evolving **Kettle Beam** project, th
 
 > **Important**: Kettle Beam Plugin is **currently under heavy development** and it's only a few days old (2018-12-01). It goes without saying that **you must not use this plugin in production**.
 
-**Special thanks** goes to **Matt Casters** for providing a lot of info for this article.
+> **Special thanks**: goes to **Matt Casters** for providing a lot of info for this article and spending a lot of his spare time in writing this very plugin we discuss here.
+
+> **Info**: For those of you who are confused why I mentioned **Kettle** quite often at the same time as **PDI** ... the reason is simple: Kettle used to be the original name to this data integration tool - before Pentaho made it part of their stack and it subsequently called it Pentaho Data Integration (PDI).
 
 **THIS ARTICLE IS STILL DEVELOPING ...**
 
-# Download Pentaho Data Integration (PDI)
+Well, why not start the article with the **art of the possible**? This is a **Kettle Beam Pipeline** Matt Casters generated to demo one of the first working more complex setups. At the top you see how the pipeline looks in Kettle/PDI's graphic design tool called **Spoon** (the pipeline is called a transformation there) and at he bottom you see the graph of the same pipeline in **Google Cloud Platform DataFlow**:
 
-You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projects/pentaho/files/). Just pick the latest version 8.1 (at the time of this writing). Once downloaded, unzip it in a convenient folder and that's basically all there is to installation. Inside the PDI folder you find the `spoon.sh` file (or `spoon.bat` on Windows), which will start the GUI of the designer.
+![](/images/kettle-beam/kettle-beam-20.jpeg)
 
-# Building the plugin
+As you can see creating a **Beam Pipeline** in **Spoon** does not involve writing a single line of code ... it's all drag and drop of predefined components (steps), which you can configure.
+
+# Download Kettle/Pentaho Data Integration (PDI)
+
+You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projects/pentaho/files/). Just pick the latest version 8.2. Once downloaded, unzip it in a convenient folder and that's basically all there is to installation. Inside the PDI folder you find the `spoon.sh` file (or `spoon.bat` on Windows), which will start the GUI of the designer.
+
+> **Note**: The **Kettle Beam Plugin** required Kettle/PDI v8.1 or v8.2.
+
+# Adding the Kettle Beam Plugin
+
+## Downloading the precompiled Plugin
+
+This is the easiest way of installing the plugin:
+
+1. **Download** the plugin from [here](https://s3-eu-west-1.amazonaws.com/kettle-eu/kettle-beam-20181210.zip).
+2. **Unzip** the the file.
+3. **Copy** the folder into the `plugin` folder within the **PDI folder**.
+4. **Start** Spoon: 
+
+```bash
+$ cd $PDI_DIR
+$ ./spoon.sh
+```
+
+##  Building the Plugin from Source
 
 Install Maven, in example like so (adjust to your own setup):
 
@@ -67,7 +93,7 @@ cd ~/.m2
 wget https://raw.githubusercontent.com/pentaho/maven-parent-poms/master/maven-support-files/settings.xml
 ```
 
-## Phase 1: kettle-beam-core
+### Phase 1: kettle-beam-core
 
 ```bash
 cd ~/git
@@ -82,7 +108,7 @@ Copy the `target/kettle-beam-[VERSION].jar` your the PDI `lib/` folder, e.g.:
 cp target/kettle-beam-core-0.0.4-SNAPSHOT.jar ~/apps/pdi-ce-8.1/lib
 ```
 
-## Phase 2: kettle-beam
+### Phase 2: kettle-beam
 
 Clone the plugin and start the build:
 
@@ -111,7 +137,7 @@ cp target/lib/* ~/apps/pdi-ce-8.1/lib
 rm -r ~/apps/pdi-ce-8.1/system/karaf/caches
 ```
 
-## Rapid rebuild
+### Rapid rebuild
 
 Since this project is in rapid development, you will have to rebuild the plugin regulary. Here is a small (but not perfect) **utility script** to rebuild the plugin (adjust variables):
 
@@ -179,7 +205,9 @@ Drag and drop the **Beam Input** step onto the **canvas** and double click on it
 
 ![](/images/kettle-beam/kettle-beam-4.png)
 
-> **Note**: The **Beam Input** step uses the **Beam API** for now (TextIO or some such) to read the data. This is not directly done by PDI, which makes a lot of sense since the [Beam I/O Transforms](https://beam.apache.org/documentation/io/built-in/) are more than just simple readers and writers. OPEN: What advantages do they bring?
+> **Note**: The **Beam Input** step uses the **Beam API** (TextIO or some such) to read the data. This is not directly done by PDI, which makes a lot of sense since the [Beam I/O Transforms](https://beam.apache.org/documentation/io/built-in/) are more than just simple readers and writers.
+
+> **Note**: *Wildcards* are allowed as part of the **Input location**, e.g. `/path/to/my/file*`. This way you can source multiple files at once.
 
 > **Important**: The input dataset must not have a header!
 
@@ -220,7 +248,7 @@ Double click on the **Beam Output** step. Let's configure it:
 
 - **Output location**: `${PARAM_OUTPUT_DIR}`
 - **File prefix**:
-- **File suffix**:
+- **File suffix**: Can be used in example to add a file extension, e.g. `.csv`
 - **Windowed** (unsupported):
 - **File definition to use**: Pick the output schema/definition you created earlier on. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
 
@@ -271,12 +299,20 @@ We will first set up a configuration to run the **Beam pipeline** locally. Don't
 - **Name**: `Direct`
 - **Description**: anything you fancy
 - **Runner**: The options here are `Direct`, `DataFlow`, `Flink` and `Spark`. Just pick `Direct` for now.
-- **User Agent**: `Kettle`. This a free-form field.
-- **Temporary Location**: `/tmp` (in this case in can be a local directory)
-- **Google Cloud Plaform - Dataflow**: We can leave this section empty
-- **Variables/Parameters to set**: We list here any parmaters and values that we want to use as part of our Beam pipeline.
+
+In the **General** tab define:
+
+- **User Agent**: this can be any name you fancy
+- **Temporary Storage Location**: e.g. `/tmp`  (in this case in can be a local directory)
+- **Plugin folders to stage**: comma separated list of plugins that should be included as well. Don't worry about this for now. We discuss this later.
 
 ![](/images/kettle-beam/kettle-beam-6.png)
+
+Finally click on the **Parameters** tab: We list here any parmaters and values that we want to use as part of our Beam pipeline:
+
+![](/images/kettle-beam/kettle-beam-21.jpeg)
+
+
 ## Batch VS Streaming
 
 So how do I configure the pipeline to use **streaming** and not **batch** processing you might wonder? 
@@ -430,11 +466,41 @@ Restart **Spoon** and choose **File > Open URL**. From the **Open File** dialog 
 
 ### PDI: Beam Job Config
 
-For your transformation create a dedicated **GCP DataFlow** config, e.g.:
+For your transformation create a dedicated **GCP DataFlow** config. Define:
+
+- **Name**
+- **Description**: optional
+- **Runner**: Pick `DataFlow`.
 
 ![](/images/kettle-beam/kettle-beam-7.png)
+In the **General** tab define:
 
-> **Important**: Prefix all paths with `gs://` (also for the **Temporary Location**). Also pay attention to the **Project ID**: This is not the name but - well as it says - the ID (which can be different). If you are not sure what the project ID is, simply click on the project picker at the top of the Web UI and the pop-up will show you the project name with the ID:
+- **User Agent**: this can be any name you fancy
+- **Temporary Storage Location**: e.g. `gs://kettle-beam-storage/tmp`
+- **Plugin folders to stage**: comma separated list of plugins that should be included as well. Don't worry about this for now. We discuss this later.
+
+> **Important**: Prefix all paths with `gs://` (also for the **Temporary Location**). 
+
+Next click on the **Google Cloud Platform DataFlow** tab. There is a massive list of settings available. At the minimum you have to define the first three ones:
+
+- **Project ID**: see comment further down
+- **App Name**
+- **Staging Location**
+- **Initial number of workers**
+- **Maximum number of workers**
+- **Auto scaling algorithm**
+- **Worker Machine Type**
+- **Worker Disk Type**
+- **Disk Size (GB)**
+- **Region**
+- **Zone**
+- **Streaming?**
+
+![](/images/kettle-beam/kettle-beam-23.png)
+
+The optional settings give you more control over the auto-scaling which is built-in with **GCP DataFlow**. One of the great things about **GCP DataFlow** is that you do not have to implement any logic for auto-scaling: This service takes care of it for you.
+
+> **Important**: Pay attention to the **Project ID**: This is not the name but - well as it says - the ID (which can be different). If you are not sure what the project ID is, simply click on the project picker at the top of the Web UI and the pop-up will show you the project name with the ID:
 
 ![](/images/kettle-beam/kettle-beam-11.png)
 
@@ -452,18 +518,6 @@ The first time you run the **PDI Beam pipeline** in **GCP DataFlow ** it will be
 In the **Beam Job Configuration** within the **DataFlow** settings you define under **Staging location** where to store the **binaries** (example: `gs://kettledataflow/binaries`). The first time your run your pipeline the **Google DataFlow** runner will upload the **PDI/Kettle binaries** from the lib folder to this **Staging folder**. This allows you to also include any specific **PDI plugins** that you require for your project.
 
 Note that any other file paths you define should also follow this VFS pattern, e.g. `gs://ketteldataflow/input/sales-data.csv`.
-
-**Up and coming:**
-
-- [GCP Scaling options](https://github.com/mattcasters/kettle-beam/issues/11) to define the **number of workers**, the **maximum number of workers** and the **GCP worker machine type**.
-
-```
-options.setNumWorkers( );
-options.setMaxNumWorkers( );
-options.setWorkerMachineType( );
-```
-
-These options will be available to be set via the UI at some point.
 
 ### Running the PDI Beam Pipeline
 
@@ -527,15 +581,50 @@ java.io.FileNotFoundException: No files matched spec: gs://...
 
 Make sure you have permissions to see the file! Open **Spoon** and go to **New > Open URL**. For **Location** pick **Google Cloud Storage** and paste the whole path into the **Folder** input field and hit enter. If you have the correct permissions you should see the folder/file.
 
-## Analysing the Stats
+### Analysing the Stats
 
 Via the GCP interface you can analyse the various stats around **Counters** (see **Custom Counters** section). Each **PDI step** gets its own counter here.
 
 ![](/images/kettle-beam/kettle-beam-19.png)
+The screenshot above shows that one record (OPEN - this can't be - it seems to reflect the init phase shown in the Spoon logs below only) was passed through the **Value Mapper** step.
 
-The screenshot above shows that one record was passed through the **Value Mapper** step.
+Within **Spoon** you get some more detailled logging:
 
-Currently the **Memory Group By** step doesn't provide custom counters, see [this issue](https://github.com/mattcasters/kettle-beam-core/issues/10).
+```
+2018/12/11 21:41:41 - Spoon -   ----------------- Metrics refresh @ 2018/12/11 21:41:41 -----------------------
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=init, name=OUTPUT} Attempted: 1 Committed: 1
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=read, name=Beam Input} Attempted: 8 Committed: 8
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=read, name=Value Mapper} Attempted: 8 Committed: 8
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=read, name=Memory Group by} Attempted: 8 Committed: 8
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=written, name=OUTPUT} Attempted: 6 Committed: 6
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=read, name=OUTPUT} Attempted: 6 Committed: 6
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=written, name=Value Mapper} Attempted: 8 Committed: 8
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=init, name=OUTPUT} Attempted: 1 Committed: 1
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=written, name=Beam Input} Attempted: 8 Committed: 8
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=init, name=Memory Group by} Attempted: 1 Committed: 1
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=init, name=Value Mapper} Attempted: 1 Committed: 1
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=init, name=Beam Input} Attempted: 1 Committed: 1
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=read, name=OUTPUT} Attempted: 6 Committed: 6
+2018/12/11 21:41:41 - Spoon - Name: MetricName{namespace=written, name=OUTPUT} Attempted: 6 Committed: 6
+```
+
+## Apache Spark
+
+### PDI Job Configuration
+
+Define:
+
+- **Name**
+- **Description**: optional
+- **Runner**: Pick `Spark`.
+
+In the **General** tab define:
+
+- **User Agent**: this can be any name you fancy
+- **Temporary Storage Location**: 
+- **Plugin folders to stage**: comma separated list of plugins that should be included as well. Don't worry about this for now. We discuss this later.
+
+![](/images/kettle-beam/kettle-beam-24.png)
 
 # Job Orchestration
 
