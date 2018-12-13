@@ -641,3 +641,5 @@ The PDI/**Kettle core functionality** can be **extended** via **plugins**: There
 # Deployment to Higher Level Environments
 
 Submitting a **PDI Beam pipeline** from  Spoon is nice for development and testing. But let's say we have script/CI server that automatically deploys a PDI Beam pipeline into production. How would this work? See [this issue](https://github.com/mattcasters/kettle-beam/issues/14).
+
+Matt Casters suggest to simply point to an install directory of PDI instead (I guess via the plugin paths that you can define), which means no messing around with complicated packaging exercises.
