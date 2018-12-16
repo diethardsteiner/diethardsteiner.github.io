@@ -329,7 +329,6 @@ Sample generated transformation:
 
 ![Screen Shot 2016-11-22 at 20.43.02](/images/Screen%20Shot%202016-11-22%20at%2020.43.02.png)
 
-
 ## How to save the Unit Tests in a given Project Folder
 
 By default the **unit test definitions** are stored in the **Pentaho Metastore** under the user's home directory:
@@ -389,6 +388,25 @@ Since all the settings for the PDI Datasets Plugin are stored in the **PDI Metas
 ### Open Transformation and Test
 
 Also new in that release is opening a transformation from the viewpoint of the unit test: On the flask there is a Unit Test menu : **Open Transformation and Test**.
+
+# Update Dec 2018
+
+## CSV Test Files Support
+
+Ideally you want to store your test files as part of your **Git repo**. Certainly you don't want to use any binary file format like Excel for this, since this will just bload your repo when you can something (as it has to save a new version of the whole file again instead of just the changes). CSV or text files are rather convenient for this purpose. And in most cases you can still manipulate them via spreadsheet apps if you do it correctly.
+
+In the latest release the **Dataset Groups** dialog received an additional option to specify a folder containing CSV files:
+
+![](/images/pdi-datasets-1.png)
+## Environment Integration
+
+Ideally when you fire up Spoon (or use Kitchen) you want PDI to be aware where your **unit test definitions** and **test data** live. Now this feature is available via the [Kettle Environment](https://github.com/mattcasters/kettle-environment) plugin:
+
+![](/images/pdi-datasets-2.png)
+It allows you define an **Environment base folder** (this is where your code lives),  the **Metastore base folder** (this is where your unit test definitions live among other things) and also your **Datasets CSV Folder** (test data folder). So everything is conveniently managed via this plugin.
+
+
+
 
 
 
