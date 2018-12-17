@@ -12,7 +12,9 @@ Resources:
 
 - [Github: kettle-beam repo](https://github.com/mattcasters/kettle-beam)
 - [Github: kettle-beam-core repo](https://github.com/mattcasters/kettle-beam-core)
+- [Github: examples](https://github.com/mattcasters/kettle-beam-examples)
 - [Video: Kettle on Beam : first results](https://www.youtube.com/watch?feature=youtu.be&v=DlTOVh55Rag&app=desktop#dialog)
+- [Kettle on Beam : A second update](https://www.youtube.com/watch?v=PnIkAdAeGzs)
 
 # Introduction
 
@@ -50,9 +52,11 @@ You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projec
 
 This is the easiest way of installing the plugin:
 
-1. **Download** the plugin from [here](https://s3-eu-west-1.amazonaws.com/kettle-eu/kettle-beam-20181210.zip).
-2. **Unzip** the the file.
-3. **Copy** the folder into the `plugin` folder within the **PDI folder**.
+> **Important**: This will work with PDI 8.2 only!
+
+1. Go to the [GitHub release page](https://github.com/mattcasters/kettle-beam/releases/tag/0.0.5). At the time of this writing the latest release is 0.0.5. Instructions for any later version might vary from these ones here since it is such a fast moving project.
+2. **Download** [the archive](https://s3-eu-west-1.amazonaws.com/kettle-eu/kettle-beam-20181216.zip) (it's listed more towards the end of the GitHub project description) and extract it. Copy the `kettle-beam` folder into the `pdi/plugins` folder.
+3. Next **download** [this PDI Engine Configuration patch](https://github.com/mattcasters/kettle-beam/releases/download/0.0.5/pdi-engine-configuration-8.2.0.0-342.zip),  and place it in the `pdi` folder (not the `pdi/plugins` folder!) and extract it. It will ask you if it should overwrite existing files in Karaf to which you reply yes.
 4. **Start** Spoon: 
 
 ```bash

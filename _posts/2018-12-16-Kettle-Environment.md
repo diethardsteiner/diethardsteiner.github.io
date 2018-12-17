@@ -18,3 +18,7 @@ In this brief blog post we will focus on the **Kettle Environment Plugin**:
 - Where do the config details get stored? **A**: Config is stored in separate metastore in `~/.kettle/environment`. 
 - If I ran kitchen in another environment, how would I pick up the environment details from the command line? **A**: Check out the [kettle-needful-things](https://github.com/mattcasters/kettle-needful-things) project for a "better pan/kitchen" called Maitre. You might need other things in that project...
 - SpoonGit Project: How do I pick this? **A**: This is still not fully developed.
+
+Matt Casters provides an example usage here:
+
+- [Github: Kettle Beam examples](https://github.com/mattcasters/kettle-beam-examples)
