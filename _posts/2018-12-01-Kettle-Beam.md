@@ -636,6 +636,18 @@ Within the Kettle/PDI world orchestration is achieved via creating **Kettle jobs
 
 **Up and coming**: [Job Entry to execute Kettle Beam transformations](https://github.com/mattcasters/kettle-beam/issues/10)
 
+# Run configuration
+
+The patch provided with the latest version of Kettle Beam Plugin ensures an even tighter integration with the standard PDI functionality: Now you can create a **Run configuration** for your **Kettle Beam Pipelines**!
+
+Simply go to the **View** tab on the left hand side and right click on **Run configurations**: Select **New**. On the **Run configuration** dialog provide a name, description, pick as **Engine** `Beam` and from the **Kettle Beam Job Configuration** choose a configuration you created earlier on. Example:
+
+![](/images/kettle-beam/kettle-beam-25.png)
+
+Once created, you can just click on the standard Play/Execute icon and in the **Run configuration** you can just pick the runner we previously defined:
+
+![](/images/kettle-beam/kettle-beam-26.png)
+
 # Using other PDI Plugins
 
 The PDI/**Kettle core functionality** can be **extended** via **plugins**: There are many plugins available, most of them can be conveniently source via the **Marketplace**. See also [Support for plugins](https://github.com/mattcasters/kettle-beam-core/issues/8) for the PDI Beam pipelines.
@@ -647,3 +659,22 @@ The PDI/**Kettle core functionality** can be **extended** via **plugins**: There
 Submitting a **PDI Beam pipeline** from  Spoon is nice for development and testing. But let's say we have script/CI server that automatically deploys a PDI Beam pipeline into production. How would this work? See [this issue](https://github.com/mattcasters/kettle-beam/issues/14).
 
 Matt Casters suggest to simply point to an install directory of PDI instead (I guess via the plugin paths that you can define), which means no messing around with complicated packaging exercises.
+
+# Installing the Kettle Beam Examples
+
+Matt Casters also provides a Git repo with a few Kettle Beam Examples. Apart from covering Beam, it also showcases good practices by using **unit testing** and **environment specification**. It is a totally self contained git repo.
+
+To properly use this git repo, you have to install following PDI plugins:
+
+- [GitSpoon](https://github.com/HiromuHota/pdi-git-plugin)
+- [Pentaho PDI Datasets Plugin](https://github.com/mattcasters/kettle-environment)
+- [Kettle Beam Plugin](https://github.com/mattcasters/kettle-beam)
+
+Next clone the [Kettle Beam Examples Git repo](https://github.com/mattcasters/kettle-beam-examples) to a convenient location (somewhere outside the PDI directory).
+
+Once you start up **Spoon**, you should be presented with an **Environments** dialog. Click the `+` icon to create a new environment.
+
+![](/images/kettle-beam/kettle-env-1.png)
+
+All you have to do is provide a **name**, **description** and **environment base folder** (last one is directory in which the git repo is stored) and job done.
+
