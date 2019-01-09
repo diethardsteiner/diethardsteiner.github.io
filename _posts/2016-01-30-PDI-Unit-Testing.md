@@ -8,6 +8,8 @@ tags: Big Data, PDI
 published: true
 ---
 
+> **Note**: There is a new article available [here](http://diethardsteiner.github.io/pdi/2019/01/09/PDI-Unit-Testing.html) since the version below has been reworked and added to so many times that it by now does not really provide a very concise overview any more.
+
 About a year ago **Matt Casters**, lead developer of **Pentaho Data Integration** (PDI), managed to get the approval by **Pentaho** to open source one of his internal projects focusing on adding **unit testing** functionality to PDI. This is a first look at what is available so far (as of Feb 2016 it is not feature complete), which should provide you a brief understanding of what has been achieved so far and hopefully get you on board to support this project!
 
 ## Preparing the Sample

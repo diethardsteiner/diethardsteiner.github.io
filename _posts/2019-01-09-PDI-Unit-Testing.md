@@ -37,7 +37,7 @@ Use the following convention:
 
 - **File extension**: `.csv`
 - **Delimiter**: `,`
-- **Enclosure**: `"` (for strings only)
+- **Enclosure**: `"` (for strings only, not mandatory)
 - H**eader row**: required
 
 #### Database Tables
