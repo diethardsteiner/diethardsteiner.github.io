@@ -6,7 +6,7 @@ date: 2018-12-01
 categories: PDI
 tags: PDI, Beam
 published: true
----
+===============
 
 Resources:
 
@@ -64,7 +64,7 @@ $ cd $PDI_DIR
 $ ./spoon.sh
 ```
 
-##  Building the Plugin from Source
+## Building the Plugin from Source
 
 Install Maven, in example like so (adjust to your own setup):
 
@@ -256,7 +256,7 @@ Double click on the **Beam Output** step. Let's configure it:
 - **Windowed** (unsupported):
 - **File definition to use**: Pick the output schema/definition you created earlier on. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
 
-## Add Transfromation Steps
+## Add Transformation Steps
 
 Some steps require a special implementation, like Sort etc.
 As it is extremely early days with this project, these steps are supported:
@@ -273,12 +273,20 @@ A very **simple example**:
 
 ![](/images/kettle-beam/kettle-beam-18.png)
 
+### Beam Publish and Beam Subscribe steps for GCP Pub/Sub
 
-## Windowing Functions
+These steps are available for realtime processing on the **Google Cloud Platform**.
+
+### Windowing Functions
 
 Any serious streaming engine supports even-time-based **windowing functions**, so it's no surprise that **Apache Beam** has this fully baked in as well (see [here](https://beam.apache.org/documentation/programming-guide/#windowing) for details)).
 
 Currently this functionality is not yet supported by the **PDI Beam Plugin**: A request was raised [here](https://github.com/mattcasters/kettle-beam/issues/13) for it.
+
+Update 2019-01-08: Fixed, Sliding, Session and Global window types implemented.
+Make sure you activated the "Windowed writes?" feature in the **Beam Output** step (to see the output).
+
+![](/images/kettle-beam/kettle-beam-27.png)
 
 ## Set up the Beam Job Configuration
 
@@ -634,7 +642,7 @@ In the **General** tab define:
 
 Within the Kettle/PDI world orchestration is achieved via creating **Kettle jobs**. 
 
-**Up and coming**: [Job Entry to execute Kettle Beam transformations](https://github.com/mattcasters/kettle-beam/issues/10)
+While a dedicated job entry was initially planned (see [Job Entry to execute Kettle Beam transformations](https://github.com/mattcasters/kettle-beam/issues/10)), this idea was retired in favour of a dedicated [Run Configuration](Run Configuration).
 
 # Run configuration
 
