@@ -21,7 +21,12 @@ Once you open a transformation, you should see a flask icon in the top left corn
 
 ## Additional Configuration
 
-Most of the **unit test** configuration details will be stored in the **PDI Metastore**. By default this is stored in `~/.pentaho/metastore`. If you use a custom location for the PDI Metastore the default installation of PDI does not pick up the `PENTAHO_METASTORE_FOLDER` environment variable. You have to change the `OPT` section `spoon.sh`: just add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` at the end.
+Most of the **unit test** configuration details will be stored in the **PDI Metastore**. By default this is stored in `~/.pentaho/metastore`. If you use a custom location for the PDI Metastore the default installation of PDI does not pick up the `PENTAHO_METASTORE_FOLDER` environment variable. You have to change the `OPT` section `spoon.sh`: just add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` at the end. You can also add the two other parameters related to PDI unit testing: `DATASETS_BASE_PATH` (path to the folder containing the CSV unit test datasets) and `UNIT_TESTS_BASE_PATH` (location from which the unit test should be executed from). Alternatively you can define them in `kettle.properties` as well.
+
+
+```bash
+-DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER -DDATASETS_BASE_PATH=$DATASETS_BASE_PATH -DUNIT_TESTS_BASE_PATH=$UNIT_TESTS_BASE_PATH
+```
 
 ## Creating a Unit Test
 
@@ -38,7 +43,7 @@ Use the following convention:
 - **File extension**: `.csv`
 - **Delimiter**: `,`
 - **Enclosure**: `"` (for strings only, not mandatory)
-- H**eader row**: required
+- **Header row**: required
 
 #### Database Tables
 
@@ -57,7 +62,9 @@ The first thing we have to set up is a **dataset group**, which mainly specifies
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-3.png)
 
-Provide a **name** for the group, **description** and then pick **CSV** as the **Data set group type**. This will enable us to source CSV files from a Git repo instead of relying on a database. Finally provide the path to the folder containing the CSV files (currently specifying parameter does not seem to work for this setting).
+Provide a **name** for the group, **description** and then pick **CSV** as the **Data set group type**. This will enable us to source CSV files from a Git repo instead of relying on a database. Finally provide the path to the folder containing the CSV files.
+
+Use can set the environment variable `DATASETS_BASE_PATH` to point to the folder containing the CSV files. If you set `DATASETS_BASE_PATH` you don't need to specify it in the dataset group. (In fact currently specifying a parameter for this folder in the dataset group dialog does not work - [Github Issue](https://github.com/mattcasters/pentaho-pdi-dataset/issues/34).
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-4.png)
 
@@ -91,7 +98,10 @@ There is also an option to have PDI generate the DDL (`CREATE TABLE` statement) 
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-6.png)
 
-Provide the **name**, **description**, **type of test** and **base test path**. Last one should be defined via the predefined `${UNIT_TESTS_BASE_PATH}` parameter (Note: This does not seem to be working right now: Once you specify a parameter, the **unit test** cannot be retrieved any more - bug raised). Depending on your setup you might also have to specify other settings. Click Ok.
+Provide the **name**, **description**, **type of test** and **base test path**. Last one should be defined via the predefined `${UNIT_TESTS_BASE_PATH}` parameter. Depending on your setup you might also have to specify other settings. Click Ok.
+
+> **Note**: If you use any other parameter name than `UNIT_TESTS_BASE_PATH` the unit test will not be visible in Spoon. It is recommended that you stick to using `UNIT_TESTS_BASE_PATH`. If you ever used a different parameter and want to revert the situation, just navigate on the terminal to the location of the metastore and find the related XML file for your unit test. Open it in a text editor and replace the parameter.
+
 
 ### Define Input and Golden Output Dataset
 
