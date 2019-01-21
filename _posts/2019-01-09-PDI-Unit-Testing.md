@@ -82,9 +82,11 @@ There are a few ways to create these datasets:
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-5.png)
 
-Provide the **name**, **description**, **table name** (as stored in the unit testing database or if CSV file, just the file name without the extension) and pick one **Data Set Group**. Finally, define the **metadata** of the table. The **field name** is the name of the field within the PDI transformation whereas the **column name** is the actual column name  (this allows you to do a mapping between the PDI and outside world).
+Provide the **name**, **description**, **table name** (as stored in the unit testing database or if CSV file, just the file name without the extension) and pick one **Data Set Group**. Finally, define the **metadata** of the table. The **field name** is the name of the field within the PDI transformation whereas the **column name** is the actual column name in the database or CSV file (this allows you to do a mapping between the PDI and outside world).
 
 There is also an option to have PDI generate the DDL (`CREATE TABLE` statement) for the database table: Click on the Create Table button. Amend it if required and then execute it.
+
+> **Note**: If you are working in a locked down environment where e.g. you don't have access direct access to the database and want to attach a dataset to the  **Table Input** step, make sure that when you define your unit test dataset, that the field column is set to the same name as the field returned by the **Table Input** step (because since PDI without a working DB connection cannot source any metadata, all the **Pentaho PDI dataset** plugin can rely on is this mapping that you provide in the dataset dialog).
 
 #### Derive Dataset Metadata from the Step Metadata
 
