@@ -45,6 +45,8 @@ Use the following convention:
 - **Enclosure**: `"` (for strings only, not mandatory)
 - **Header row**: required
 
+> **Note**: If your data includes double quotation marks ("), then they have to be escaped with yet another double quotation mark ("").
+
 #### Database Tables
 
 > **Best Practice**: I recommend storing unit test data in CSV files within the git repository. The PDI Unit Testing plugin can directly read CSV files instead of relying on a shared database connection. So the next section is just for background info.
@@ -115,6 +117,12 @@ Provide the **name**, **description**, **type of test** and **base test path**. 
 Your steps should then have labels attached to them like shown in the screenshot below:
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-7.png)
+
+#### Mapping only certain fields for Golden Dataset
+
+In some scenarios it might not be possible to test all the generated fields of a stream with the golden dataset: Your transformation could generate UUIDs, current time, file paths based on dynamic elements etc. Currently it is impossible to unit test these elements. You can do not, however, have to always map all the fields of a given output step to the golden dataset! Example: Our transformation generates a JSON file. Because the JSON structure is rather complex we do not use the native JSON output step, but generate the JSON via a JavaScript step and feed the result into the Text Output step. Apart from these, we also pass on metadata, like the output path of the file etc. When we attach the golden dataset to the Text Output step, in the mapping, we only map final_out (which contains the JSON content), but no other fields. This will be sufficient to perform our unit test.
+
+![](/images/pdi-unit-testing/pdi-unit-testing-11.png)
 
 ### Where has my Unit Test gone?
 
