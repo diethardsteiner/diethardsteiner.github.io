@@ -106,6 +106,8 @@ Provide the **name**, **description**, **type of test** and **base test path**. 
 
 > **Note**: If you use any other parameter name than `UNIT_TESTS_BASE_PATH` the unit test will not be visible in Spoon. It is recommended that you stick to using `UNIT_TESTS_BASE_PATH`. If you ever used a different parameter and want to revert the situation, just navigate on the terminal to the location of the metastore and find the related XML file for your unit test. Open it in a text editor and replace the parameter.
 
+> **Note**: `UNIT_TESTS_BASE_PATH` will usually point to the folder where all your jobs and transformations are stored. If your transformation is stored in example in `${UNIT_TESTS_BASE_PATH}/base-layer`, then in your unit test you have to define the base as: `${UNIT_TESTS_BASE_PATH}/base-layer`, so it has to point exactly to the same folder as your transformation is stored in.
+
 
 ### Define Input and Golden Output Dataset
 
@@ -120,7 +122,7 @@ Your steps should then have labels attached to them like shown in the screenshot
 
 #### Mapping only certain fields for Golden Dataset
 
-In some scenarios it might not be possible to test all the generated fields of a stream with the golden dataset: Your transformation could generate UUIDs, current time, file paths based on dynamic elements etc. Currently it is impossible to unit test these elements. You can do not, however, have to always map all the fields of a given output step to the golden dataset! Example: Our transformation generates a JSON file. Because the JSON structure is rather complex we do not use the native JSON output step, but generate the JSON via a JavaScript step and feed the result into the Text Output step. Apart from these, we also pass on metadata, like the output path of the file etc. When we attach the golden dataset to the Text Output step, in the mapping, we only map final_out (which contains the JSON content), but no other fields. This will be sufficient to perform our unit test.
+In some scenarios it might not be possible to test all the generated fields of a stream with the golden dataset: Your transformation could generate UUIDs, current time, file paths based on dynamic elements etc. Currently it is impossible to unit test these elements. You can do not have to, however, always map all the fields of a given output step to the golden dataset! Example: Our transformation generates a JSON file. Because the JSON structure is rather complex we do not use the native JSON output step, but generate the JSON via a JavaScript step and feed the result into the Text Output step. Apart from these, we also pass on metadata, like the output path of the file etc. When we attach the golden dataset to the Text Output step, in the mapping, we only map final_out (which contains the JSON content), but no other fields. This will be sufficient to perform our unit test.
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-11.png)
 
