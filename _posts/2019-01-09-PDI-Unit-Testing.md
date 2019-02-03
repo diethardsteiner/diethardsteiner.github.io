@@ -21,7 +21,12 @@ Once you open a transformation, you should see a flask icon in the top left corn
 
 ## Additional Configuration
 
-Most of the **unit test** configuration details will be stored in the **PDI Metastore**. By default this is stored in `~/.pentaho/metastore`. If you use a custom location for the PDI Metastore the default installation of PDI does not pick up the `PENTAHO_METASTORE_FOLDER` environment variable. You have to change the `OPT` section `spoon.sh`: just add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` at the end.
+Most of the **unit test** configuration details will be stored in the **PDI Metastore**. By default this is stored in `~/.pentaho/metastore`. If you use a custom location for the PDI Metastore the default installation of PDI does not pick up the `PENTAHO_METASTORE_FOLDER` environment variable. You have to change the `OPT` section `spoon.sh`: just add ` -DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER` at the end. You can also add the two other parameters related to PDI unit testing: `DATASETS_BASE_PATH` (path to the folder containing the CSV unit test datasets) and `UNIT_TESTS_BASE_PATH` (location from which the unit test should be executed from). Alternatively you can define them in `kettle.properties` as well.
+
+
+```bash
+-DPENTAHO_METASTORE_FOLDER=$PENTAHO_METASTORE_FOLDER -DDATASETS_BASE_PATH=$DATASETS_BASE_PATH -DUNIT_TESTS_BASE_PATH=$UNIT_TESTS_BASE_PATH
+```
 
 ## Creating a Unit Test
 
@@ -38,7 +43,9 @@ Use the following convention:
 - **File extension**: `.csv`
 - **Delimiter**: `,`
 - **Enclosure**: `"` (for strings only, not mandatory)
-- H**eader row**: required
+- **Header row**: required
+
+> **Note**: If your data includes double quotation marks ("), then they have to be escaped with yet another double quotation mark ("").
 
 #### Database Tables
 
@@ -57,7 +64,9 @@ The first thing we have to set up is a **dataset group**, which mainly specifies
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-3.png)
 
-Provide a **name** for the group, **description** and then pick **CSV** as the **Data set group type**. This will enable us to source CSV files from a Git repo instead of relying on a database. Finally provide the path to the folder containing the CSV files (currently specifying parameter does not seem to work for this setting).
+Provide a **name** for the group, **description** and then pick **CSV** as the **Data set group type**. This will enable us to source CSV files from a Git repo instead of relying on a database. Finally provide the path to the folder containing the CSV files.
+
+Use can set the environment variable `DATASETS_BASE_PATH` to point to the folder containing the CSV files. If you set `DATASETS_BASE_PATH` you don't need to specify it in the dataset group. (In fact currently specifying a parameter for this folder in the dataset group dialog does not work - [Github Issue](https://github.com/mattcasters/pentaho-pdi-dataset/issues/34).
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-4.png)
 
@@ -75,9 +84,11 @@ There are a few ways to create these datasets:
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-5.png)
 
-Provide the **name**, **description**, **table name** (as stored in the unit testing database or if CSV file, just the file name without the extension) and pick one **Data Set Group**. Finally, define the **metadata** of the table. The **field name** is the name of the field within the PDI transformation whereas the **column name** is the actual column name  (this allows you to do a mapping between the PDI and outside world).
+Provide the **name**, **description**, **table name** (as stored in the unit testing database or if CSV file, just the file name without the extension) and pick one **Data Set Group**. Finally, define the **metadata** of the table. The **field name** is the name of the field within the PDI transformation whereas the **column name** is the actual column name in the database or CSV file (this allows you to do a mapping between the PDI and outside world).
 
 There is also an option to have PDI generate the DDL (`CREATE TABLE` statement) for the database table: Click on the Create Table button. Amend it if required and then execute it.
+
+> **Note**: If you are working in a locked down environment where e.g. you don't have access direct access to the database and want to attach a dataset to the  **Table Input** step, make sure that when you define your unit test dataset, that the field column is set to the same name as the field returned by the **Table Input** step (because since PDI without a working DB connection cannot source any metadata, all the **Pentaho PDI dataset** plugin can rely on is this mapping that you provide in the dataset dialog).
 
 #### Derive Dataset Metadata from the Step Metadata
 
@@ -91,7 +102,12 @@ There is also an option to have PDI generate the DDL (`CREATE TABLE` statement) 
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-6.png)
 
-Provide the **name**, **description**, **type of test** and **base test path**. Last one should be defined via the predefined `${UNIT_TESTS_BASE_PATH}` parameter (Note: This does not seem to be working right now: Once you specify a parameter, the **unit test** cannot be retrieved any more - bug raised). Depending on your setup you might also have to specify other settings. Click Ok.
+Provide the **name**, **description**, **type of test** and **base test path**. Last one should be defined via the predefined `${UNIT_TESTS_BASE_PATH}` parameter. Depending on your setup you might also have to specify other settings. Click Ok.
+
+> **Note**: If you use any other parameter name than `UNIT_TESTS_BASE_PATH` the unit test will not be visible in Spoon. It is recommended that you stick to using `UNIT_TESTS_BASE_PATH`. If you ever used a different parameter and want to revert the situation, just navigate on the terminal to the location of the metastore and find the related XML file for your unit test. Open it in a text editor and replace the parameter.
+
+> **Note**: `UNIT_TESTS_BASE_PATH` will usually point to the folder where all your jobs and transformations are stored. If your transformation is stored in example in `${UNIT_TESTS_BASE_PATH}/base-layer`, then in your unit test you have to define the base as: `${UNIT_TESTS_BASE_PATH}/base-layer`, so it has to point exactly to the same folder as your transformation is stored in.
+
 
 ### Define Input and Golden Output Dataset
 
@@ -103,6 +119,12 @@ Provide the **name**, **description**, **type of test** and **base test path**. 
 Your steps should then have labels attached to them like shown in the screenshot below:
 
 ![](/images/pdi-unit-testing/pdi-unit-testing-7.png)
+
+#### Mapping only certain fields for Golden Dataset
+
+In some scenarios it might not be possible to test all the generated fields of a stream with the golden dataset: Your transformation could generate UUIDs, current time, file paths based on dynamic elements etc. Currently it is impossible to unit test these elements. You can do not have to, however, always map all the fields of a given output step to the golden dataset! Example: Our transformation generates a JSON file. Because the JSON structure is rather complex we do not use the native JSON output step, but generate the JSON via a JavaScript step and feed the result into the Text Output step. Apart from these, we also pass on metadata, like the output path of the file etc. When we attach the golden dataset to the Text Output step, in the mapping, we only map final_out (which contains the JSON content), but no other fields. This will be sufficient to perform our unit test.
+
+![](/images/pdi-unit-testing/pdi-unit-testing-11.png)
 
 ### Where has my Unit Test gone?
 
