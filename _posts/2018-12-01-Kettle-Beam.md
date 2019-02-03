@@ -331,6 +331,35 @@ So how do I configure the pipeline to use **streaming** and not **batch** proces
 
 Currently the **PDI Beam plugin** doesn't have any unbound input data sources yet. Kafka will be the first probably ( see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (unending) input source, it will automatically stream the data.
 
+## Fat Jar Builder
+
+Some of the engines like **Apache Spark** and **Flink** expect all files to be supplied as a **fat jar**: You can find of this as a compressed file containing all dependencies to run your data process.
+
+- [Initial Kettle Beam Issue](https://github.com/mattcasters/kettle-beam/issues/26)
+- [Integration with Spoon, Pan, Kitchen, Maitre, ...](https://github.com/mattcasters/kettle-beam/issues/25)
+
+Once you have a **fat jar** you can just run transformations on Spark.
+Put the transformation in `hdfs://` somewhere and run it. That's it.
+
+**More details from the GitHub Issue** (written by Matt):
+
+For those runners which need to be executed on a remote server using the environment of the runner, we need remote execution possibilities.
+This is the case for Beam runners like Spark and Flink and possibly Apex.
+
+Carte plugins/services needed:
+
+* start a Beam transformation
+* accept statistics for an executing Beam Pipeline for a transformation
+* get the status of an executing Beam transformation
+
+The way this would work is like this:
+
+* A client (Spoon, Job, ...) would execute the Transformation using the Beam Runtime Configuration.
+* This would contact Carte on the master and pass the transformation over.
+* The Beam Carte plugin would execute the transformation using the Main class (SparkMain) passing the details of the Carte server.
+* During execution the pipeline metrics are sent periodically to the Carte server on the master.
+* During execution the client (Spoon, Job, ...) would periodically get the status and metrics of the Beam transformation from the Carte server.
+
 # How to test the PDI Beam Pipeline locally
 
 To create **unit tests** for your PDI Beam Pipeline, you can use **Matt Casters** [Pentaho PDI Datasets](https://github.com/mattcasters/pentaho-pdi-dataset) Plugin. See also my blog post [here](http://diethardsteiner.github.io/big/data/2016/01/30/PDI-Unit-Testing.html) for further info.
