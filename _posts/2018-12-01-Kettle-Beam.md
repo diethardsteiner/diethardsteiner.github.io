@@ -6,8 +6,11 @@ date: 2018-12-01
 categories: PDI
 tags: PDI, Beam
 published: true
-===============
+typora-root-url:/home/dsteiner/git/diethardsteiner.github.io
+typora-copy-images-to: ../images/kettle-beam
+---
 
+---
 Resources:
 
 - [Github: kettle-beam repo](https://github.com/mattcasters/kettle-beam)
@@ -109,7 +112,11 @@ mvn clean install
 Copy the `target/kettle-beam-[VERSION].jar` your the PDI `lib/` folder, e.g.:
 
 ```bash
-cp target/kettle-beam-core-0.0.4-SNAPSHOT.jar ~/apps/pdi-ce-8.1/lib
+export PDI_HOME=~/apps/pdi-ce-8.2
+export KETTLE_BEAM_VERSION=0.2.0
+rm -rf ${PDI_HOME}/plugins/kettle-beam
+mkdir ${PDI_HOME}/plugins/kettle-beam
+cp target/kettle-beam-core-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam
 ```
 
 ### Phase 2: kettle-beam
@@ -127,18 +134,17 @@ Next:
 
 1. Create a **new directory** called `kettle-beam` in `[PDI-ROOT]/plugins/`
 2. Copy `target/kettle-beam-[VERSION].jar` to `[PDI-ROOT]/plugins/kettle-beam/`.
-3. All the files from the `target/lib` folder also have to go into `[PDI-ROOT]/lib` folder. However, there are already some existing `jackson*` jar files there (`lib/jackson-annotations-*.jar`, `jackson-core-*` and `databind-*`). Just keep the latest version of them there and not both versions, otherwise some weird things can happen.
+3. All the files from the `target/lib` folder also have to go into `[PDI-ROOT]/plugins/kettle-beam` folder. **Old instructions** - do not follow: All the files from the `target/lib` folder also have to go into `[PDI-ROOT]/lib` folder. However, there are already some existing `jackson*` jar files there (`lib/jackson-annotations-*.jar`, `jackson-core-*` and `databind-*`). Just keep the latest version of them there and not both versions, otherwise some weird things can happen.
 4. Delete `[PDI-ROOT]/system/karaf/caches` as well for good measure.
 
 
 Example:
 
 ```bash
-mkdir ~/apps/pdi-ce-8.1/plugins/kettle-beam
-cp target/kettle-beam-0.0.4-SNAPSHOT.jar ~/apps/pdi-ce-8.1/plugins/kettle-beam/
-cp target/lib/* ~/apps/pdi-ce-8.1/lib
+cp target/kettle-beam-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam
+cp -r target/lib ${PDI_HOME}/plugins/kettle-beam
 # remove jackson duplicates
-rm -r ~/apps/pdi-ce-8.1/system/karaf/caches
+rm -r ${PDI_HOME}/system/karaf/caches
 ```
 
 ### Rapid rebuild
@@ -147,20 +153,21 @@ Since this project is in rapid development, you will have to rebuild the plugin 
 
 ```bash
 #!/bin/bash
-export PDI_HOME=~/apps/pdi-ce-8.1
+export PDI_HOME=~/apps/pdi-ce-8.2
 export GIT_HOME=~/git/
+export KETTLE_BEAM_VERSION=0.1.0
 echo "***************** NOTE ****************"
 echo "If KETTLE BEAM version number changes this will break!"
 echo "***************************************"
 cd ${GIT_HOME}/kettle-beam-core
 git pull
 mvn --offline clean install
-cp target/kettle-beam-core-0.0.4-SNAPSHOT.jar ${PDI_HOME}/lib
+cp target/kettle-beam-core-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/lib
 cd ${GIT_HOME}/kettle-beam
 git pull
 mvn --offline clean install
-cp target/kettle-beam-0.0.4-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam/
-cp target/lib/* ${PDI_HOME}/lib
+cp target/kettle-beam-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam/
+cp target/lib ${PDI_HOME}/lib
 rm -r ${PDI_HOME}/system/karaf/caches
 ```
 
@@ -200,7 +207,7 @@ In a similar vain, create the **file output definition**. This one is actually n
 ## Add the Beam Input Step
 
 Next, in the **Design** tab on the left, expand the **Big Data** folder (or alternatively search for `Beam`): 
-![kettle-beam-1](../../diethardsteiner.github.io/images/kettle-beam/kettle-beam-1.png)
+![kettle-beam-1](/images/kettle-beam/kettle-beam-1.png)
 
 Drag and drop the **Beam Input** step onto the **canvas** and double click on it:
 
@@ -273,20 +280,33 @@ A very **simple example**:
 
 ![](/images/kettle-beam/kettle-beam-18.png)
 
-### Beam Publish and Beam Subscribe steps for GCP Pub/Sub
+### GCP Big Query Input and Output
+
+
+
+### GCP Pub/Sub
 
 These steps are available for realtime processing on the **Google Cloud Platform**.
 
+### Event Time
+
+If your stream does not have the event time defined (the GCP Pub/Sub step should automatically set it), then you can explicitly set it via the **Beam Timestamp** step.
+
+![kettle-beam-29](/images/kettle-beam/kettle-beam-29.png)
+
 ### Windowing Functions
+
+- [Beam Windowing](https://beam.apache.org/documentation/programming-guide/#windowing)
 
 Any serious streaming engine supports even-time-based **windowing functions**, so it's no surprise that **Apache Beam** has this fully baked in as well (see [here](https://beam.apache.org/documentation/programming-guide/#windowing) for details)).
 
-Currently this functionality is not yet supported by the **PDI Beam Plugin**: A request was raised [here](https://github.com/mattcasters/kettle-beam/issues/13) for it.
+Fixed, Sliding, Session and Global window types are currently supported within the **Kettle BEAM Plugin**. 
 
-Update 2019-01-08: Fixed, Sliding, Session and Global window types implemented.
-Make sure you activated the "Windowed writes?" feature in the **Beam Output** step (to see the output).
+![kettle-beam-28](/images/kettle-beam/kettle-beam-28.png)
 
-![](/images/kettle-beam/kettle-beam-27.png)
+Make sure you activated the "**Windowed writes?**" feature in the **Beam Output** step (to see the output).
+
+![kettle-beam-27](/images/kettle-beam/kettle-beam-27.png)
 
 ## Set up the Beam Job Configuration
 
@@ -320,9 +340,7 @@ In the **General** tab define:
 
 ![](/images/kettle-beam/kettle-beam-6.png)
 
-Finally click on the **Parameters** tab: We list here any parmaters and values that we want to use as part of our Beam pipeline:
-
-![](/images/kettle-beam/kettle-beam-21.jpeg)
+Finally click on the **Parameters** tab: We list here any parmaters and values that we want to use as part of our Beam pipeline.
 
 
 ## Batch VS Streaming
@@ -392,7 +410,7 @@ Before gettings started make sure you have GCP account set up and you have the r
 8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Here your service account should be listed.
 9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
 ![](/images/kettle-beam/kettle-beam-9.png)
-  Following APIs are required (most of them are enabled by default):
+    Following APIs are required (most of them are enabled by default):
     - Cloud Datastore API
     - Cloud Filestore API: used for creating and managing cloud file servers.
     - Cloud Firestore API (NoSQL document database) - not enabled by default
@@ -413,7 +431,7 @@ Before gettings started make sure you have GCP account set up and you have the r
     - Stackdriver Logging API
     - Stackdriver Monitoring API
     - Stackdriver Trace API
-    
+   
 1. **Grant service account permissions on DataFlow**: Go to the [GCP Dataflow page](https://console.cloud.google.com/dataflow) and ?? [OPEN] I didn't see any options here. See also [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions) for more info. Two accounts required: **Cloud Dataflow Service Account** and **Controller Service Account**. By default, workers use your project’s Compute Engine service account as the controller service account.  This service account ( `<project-number>-compute@developer.gserviceaccount.com`) is automatically created when you enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console.
 
 **Additional info**:
@@ -426,7 +444,7 @@ These are the roles required on Google Storage for this to work ([Source](https:
 - Storage Object Viewer
 
 Then locally on your machine set following **environment variables** so that **PDI** can pick up the **credentials**:
- 
+
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/google-key.json
 GOOGLE_CLOUD_PROJECT=yourproject # this one is no longer needed
@@ -447,7 +465,7 @@ ACTIVE  ACCOUNT
 
 To set the active account, run:
     $ gcloud config set account `ACCOUNT`
-``` 
+```
 
 If you created the project earlier on, you can list all projects like so:
 
