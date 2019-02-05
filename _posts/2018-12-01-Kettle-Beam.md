@@ -57,9 +57,9 @@ This is the easiest way of installing the plugin:
 
 > **Important**: This will work with PDI 8.2 only!
 
-1. Go to the [GitHub release page](https://github.com/mattcasters/kettle-beam/releases/tag/0.0.5). At the time of this writing the latest release is 0.0.5. Instructions for any later version might vary from these ones here since it is such a fast moving project.
+1. Go to the [GitHub release page](https://github.com/mattcasters/kettle-beam/releases/). At the time of this writing the latest release is 0.0.5. Instructions for any later version might vary from these ones here since it is such a fast moving project.
 2. **Download** [the archive](https://s3-eu-west-1.amazonaws.com/kettle-eu/kettle-beam-20181216.zip) (it's listed more towards the end of the GitHub project description) and extract it. Copy the `kettle-beam` folder into the `pdi/plugins` folder.
-3. Next **download** [this PDI Engine Configuration patch](https://github.com/mattcasters/kettle-beam/releases/download/0.0.5/pdi-engine-configuration-8.2.0.0-342.zip),  and place it in the `pdi` folder (not the `pdi/plugins` folder!) and extract it. It will ask you if it should overwrite existing files in Karaf to which you reply yes.
+3. Next **download** [this PDI Engine Configuration patch](https://github.com/mattcasters/kettle-beam/releases/download/0.0.5/pdi-engine-configuration-8.2.0.0-342.zip),  and place it in the `pdi` folder (not the `pdi/plugins` folder!) and extract it. Your file manager will ask you if it should overwrite existing files in Karaf to which you reply yes.
 4. **Start** Spoon: 
 
 ```bash
@@ -109,15 +109,9 @@ cd kettle-beam-core
 mvn clean install
 ```
 
-Copy the `target/kettle-beam-[VERSION].jar` your the PDI `lib/` folder, e.g.:
+On successful build `mvn install` basically puts the jar file into the local cache (`~/.m2/repository/kettle-beam/kettle-beam-core`).
 
-```bash
-export PDI_HOME=~/apps/pdi-ce-8.2
-export KETTLE_BEAM_VERSION=0.2.0
-rm -rf ${PDI_HOME}/plugins/kettle-beam
-mkdir ${PDI_HOME}/plugins/kettle-beam
-cp target/kettle-beam-core-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam
-```
+There is nothing to copy at this stage to the PDI plugin folder!
 
 ### Phase 2: kettle-beam
 
@@ -132,18 +126,31 @@ mvn clean install
 
 Next:
 
-1. Create a **new directory** called `kettle-beam` in `[PDI-ROOT]/plugins/`
+1. Create a **new directory** called `kettle-beam` in `[PDI-ROOT]/plugins/`. 
 2. Copy `target/kettle-beam-[VERSION].jar` to `[PDI-ROOT]/plugins/kettle-beam/`.
-3. All the files from the `target/lib` folder also have to go into `[PDI-ROOT]/plugins/kettle-beam` folder. **Old instructions** - do not follow: All the files from the `target/lib` folder also have to go into `[PDI-ROOT]/lib` folder. However, there are already some existing `jackson*` jar files there (`lib/jackson-annotations-*.jar`, `jackson-core-*` and `databind-*`). Just keep the latest version of them there and not both versions, otherwise some weird things can happen.
+3. All the files from the `target/lib` folder also have to go into `[PDI-ROOT]/plugins/kettle-beam/lib` folder.
 4. Delete `[PDI-ROOT]/system/karaf/caches` as well for good measure.
+
+
+
+You will notice that on successful build the `kettle-beam-core` jar is available in the `target/lib` folder. This is the reason why previously you did not have to copy anything from the core repo to the PDI plugins folder.
+
+
 
 
 Example:
 
 ```bash
+export PDI_HOME=~/apps/pdi-ce-8.2
+export KETTLE_BEAM_VERSION=0.3.0
+
+rm -rf ${PDI_HOME}/plugins/kettle-beam
+mkdir ${PDI_HOME}/plugins/kettle-beam
+
 cp target/kettle-beam-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam
+
 cp -r target/lib ${PDI_HOME}/plugins/kettle-beam
-# remove jackson duplicates
+
 rm -r ${PDI_HOME}/system/karaf/caches
 ```
 
@@ -155,19 +162,18 @@ Since this project is in rapid development, you will have to rebuild the plugin 
 #!/bin/bash
 export PDI_HOME=~/apps/pdi-ce-8.2
 export GIT_HOME=~/git/
-export KETTLE_BEAM_VERSION=0.1.0
+export KETTLE_BEAM_VERSION=0.3.0
 echo "***************** NOTE ****************"
 echo "If KETTLE BEAM version number changes this will break!"
 echo "***************************************"
 cd ${GIT_HOME}/kettle-beam-core
 git pull
 mvn --offline clean install
-cp target/kettle-beam-core-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/lib
 cd ${GIT_HOME}/kettle-beam
 git pull
 mvn --offline clean install
-cp target/kettle-beam-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam/
-cp target/lib ${PDI_HOME}/lib
+cp target/kettle-beam-${KETTLE_BEAM_VERSION}-SNAPSHOT.jar ${PDI_HOME}/plugins/kettle-beam
+cp -r target/lib ${PDI_HOME}/plugins/kettle-beam
 rm -r ${PDI_HOME}/system/karaf/caches
 ```
 
@@ -430,7 +436,7 @@ Background info:
 Before gettings started make sure you have GCP account set up and you have the required credentials file:
 
 1. Pick the correct project or create a new one.
-2. Create a new **service account** via the [GCP IAM - Service Accounts page]. Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine ( and also to set `GOOGLE_APPLICATION_CREDENTIALS`).
+2. Create a new **service account** via the [GCP IAM - Service Accounts page]. Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine (and also to set `GOOGLE_APPLICATION_CREDENTIALS`).
 3. Define the `GOOGLE_APPLICATION_CREDENTIALS` environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json`.
 4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles)). Give this role everything you can find related to API, Storage, Dataflow. Not complete list of required permissions: `compute.machineTypes.get`, `dataflow.*`, `storage.*`, `firebase.projects.get`, `resourcemanager.projects.get`.
 5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the service account and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
@@ -506,6 +512,7 @@ You can switch to the `kettle-beam` project run:
 
 ```bash
 $ gcloud config set project kettle-beam
+# Check which project is active
 $ gcloud config list project
 [core]
 project = kettle-beam
@@ -515,7 +522,20 @@ Your active configuration is: [default]
 
 > **Note**: `GOOGLE_APPLICATION_CREDENTIALS` are not used by the gcloud client tools and there is no way to set this. See also [here](https://serverfault.com/questions/848580/how-to-use-google-application-credentials-with-gcloud-on-a-server). It is only used for **service accounts**.
 
-There many command options available which you can explore by yourself easily.
+There are many command options available which you can explore by yourself easily.
+
+### Setting up the Storage Bucket
+
+OPEN ... manually ... automatically ...
+
+A sample folder structure within the bucket looks like this:
+
+- **binaries**: To store all the Kettle/PDI binaries
+- **input**: To store any input data files your process consumes
+- **output**: To store any output data files your process produces
+- **tmp**: To store any temporary files that your process creates
+
+![Screenshot from 2019-02-05 20-48-12](/images/kettle-beam/Screenshot from 2019-02-05 20-48-12.png)
 
 ### Testing Basic GCP Connection from within Spoon
 
@@ -574,9 +594,9 @@ kettle-beam-224314    kettle-beam         684324837668
 
 The first time you run the **PDI Beam pipeline** in **GCP DataFlow ** it will be quite slow:
 
-In the **Beam Job Configuration** within the **DataFlow** settings you define under **Staging location** where to store the **binaries** (example: `gs://kettledataflow/binaries`). The first time your run your pipeline the **Google DataFlow** runner will upload the **PDI/Kettle binaries** from the lib folder to this **Staging folder**. This allows you to also include any specific **PDI plugins** that you require for your project.
+In the **Beam Job Configuration** within the **DataFlow** settings you define under **Staging location** where to store the **binaries** (example: `gs://kettle-beam-storage/binaries`). The first time your run your pipeline the **Google DataFlow** runner will upload the **PDI/Kettle binaries** from the lib folder to this **Staging folder**. This allows you to also include any specific **PDI plugins** that you require for your project.
 
-Note that any other file paths you define should also follow this VFS pattern, e.g. `gs://ketteldataflow/input/sales-data.csv`.
+Note that any other file paths you define should also follow this VFS pattern, e.g. `gs://kettle-beam-storage/input/sales-data.csv`.
 
 ### Running the PDI Beam Pipeline
 
@@ -617,6 +637,18 @@ Also watch the **logs**:
 
 - Within Spoon/Stdout
 - In the **GCP DataFlow Web Console** you find an option to see the log for your job.
+
+### GCP Pub/Sub
+
+#### Creating a Queue
+
+On the **GCP cloud console** navigate to **Pub/Sub > Topic** via the main menu. If you haven't created a topic yet, a small splash screen will be shown asking you to create a topic. Go ahead and create one. This is a very simple setup.
+
+
+
+
+
+
 
 ### Common Errors
 
