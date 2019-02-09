@@ -1,4 +1,5 @@
 ---
+typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
 layout: post
 title: "Pentaho Data Integration/Kettle: Environment Plugin"
 summary: This article explains how to get started with a dynamic environment setup
