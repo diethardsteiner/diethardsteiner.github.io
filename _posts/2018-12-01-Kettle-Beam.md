@@ -10,7 +10,6 @@ tags: PDI, Beam
 published: true
 ---
 
----
 Resources:
 
 - [Github: kettle-beam repo](https://github.com/mattcasters/kettle-beam)
