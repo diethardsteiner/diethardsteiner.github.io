@@ -1,5 +1,5 @@
 ---
-typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
+typora-root-url:  /home/dsteiner/git/diethardsteiner.github.io
 typora-copy-images-to: ../images/kettle-beam
 layout: post
 title: "Pentaho Data Integration/Kettle: The easy way to create Beam Pipelines"
