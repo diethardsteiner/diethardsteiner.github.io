@@ -6,7 +6,7 @@ date: 2018-12-01
 categories: PDI
 tags: PDI, Beam
 published: true
-typora-root-url:/home/dsteiner/git/diethardsteiner.github.io
+typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
 typora-copy-images-to: ../images/kettle-beam
 ---
 
@@ -564,7 +564,7 @@ Next click on the **Google Cloud Platform DataFlow** tab. There is a massive lis
 
 - **Project ID**: see comment further down
 - **App Name**
-- **Staging Location**
+- **Staging Location**: where the PDI/Kettle binaries should be stored, e.g. `gs://kettle-beam-storage/tmp`.
 - **Initial number of workers**
 - **Maximum number of workers**
 - **Auto scaling algorithm**
