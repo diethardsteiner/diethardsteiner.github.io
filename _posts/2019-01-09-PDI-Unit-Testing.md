@@ -211,3 +211,7 @@ The resulting ...
 
 - **dataset name** (as defined within Spoon): `tr_my_trans-my_first_unit_test-mysql_country_data` (use hyphens to separate artefact names)
 - **CSV file**: either name the file exactly the same as the dataset name (e.g. `tr_my_trans-my_first_unit_test-mysql_country_data.csv`) store in folders like so `tr_my_trans/my_first_unit_test/mysql_country_data.csv`. You can in fact define paths as well as part of the dataset definition - it works just fine.
+
+# References
+
+- [Basic Documentation](https://github.com/mattcasters/pentaho-pdi-dataset/wiki/Basic-documentation)

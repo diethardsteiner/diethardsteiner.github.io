@@ -285,9 +285,17 @@ A very **simple example**:
 
 ![](/images/kettle-beam/kettle-beam-18.png)
 
+### Beam Input and Beam Output
+
+![Screenshot from 2019-02-09 17-29-22](/images/kettle-beam/Screenshot from 2019-02-09 17-29-22.png)
+
+Basic step to read in and write out text files.
+
 ### GCP Big Query Input and Output
 
+![Screenshot from 2019-02-09 17-29-00](/images/kettle-beam/Screenshot from 2019-02-09 17-29-00.png)
 
+Write data to and read data from GCP Big Query.
 
 ### GCP Pub/Sub
 
@@ -312,6 +320,12 @@ Fixed, Sliding, Session and Global window types are currently supported within t
 Make sure you activated the "**Windowed writes?**" feature in the **Beam Output** step (to see the output).
 
 ![kettle-beam-27](/images/kettle-beam/kettle-beam-27.png)
+
+### Kafka Input and Output
+
+![Screenshot from 2019-02-09 17-30-27](/images/kettle-beam/Screenshot from 2019-02-09 17-30-27.png)
+
+
 
 ## Set up the Beam Job Configuration
 
@@ -364,24 +378,24 @@ Some of the engines like **Apache Spark** and **Flink** expect all files to be s
 Once you have a **fat jar** you can just run transformations on Spark.
 Put the transformation in `hdfs://` somewhere and run it. That's it.
 
-**More details from the GitHub Issue** (written by Matt):
+**More details from the GitHub Issue** (written by [Matt Casters](https://github.com/mattcasters/kettle-beam/issues/25)):
 
 For those runners which need to be executed on a remote server using the environment of the runner, we need remote execution possibilities.
 This is the case for Beam runners like Spark and Flink and possibly Apex.
 
 Carte plugins/services needed:
 
-* start a Beam transformation
-* accept statistics for an executing Beam Pipeline for a transformation
-* get the status of an executing Beam transformation
+- start a Beam transformation
+- accept statistics for an executing Beam Pipeline for a transformation
+- get the status of an executing Beam transformation
 
 The way this would work is like this:
 
-* A client (Spoon, Job, ...) would execute the Transformation using the Beam Runtime Configuration.
-* This would contact Carte on the master and pass the transformation over.
-* The Beam Carte plugin would execute the transformation using the Main class (SparkMain) passing the details of the Carte server.
-* During execution the pipeline metrics are sent periodically to the Carte server on the master.
-* During execution the client (Spoon, Job, ...) would periodically get the status and metrics of the Beam transformation from the Carte server.
+- A client (Spoon, Job, ...) would execute the Transformation using the Beam Runtime Configuration.
+- This would contact Carte on the master and pass the transformation over.
+- The Beam Carte plugin would execute the transformation using the Main class (SparkMain) passing the details of the Carte server.
+- During execution the pipeline metrics are sent periodically to the Carte server on the master.
+- During execution the client (Spoon, Job, ...) would periodically get the status and metrics of the Beam transformation from the Carte server.
 
 # How to test the PDI Beam Pipeline locally
 
