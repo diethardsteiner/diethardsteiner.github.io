@@ -1,4 +1,5 @@
 ---
+typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
 layout: post
 title: "Pentaho Data Integration/Kettle: Environment Plugin"
 summary: This article explains how to get started with a dynamic environment setup
@@ -6,7 +7,6 @@ date: 2018-12-16
 categories: PDI
 tags: PDI
 published: true
-typora-root-url: "/home/dsteiner/git/diethardsteiner.github.io"
 ---
 
 Lately things are getting better around PDI/Kettle: This data integration tool has been around for over a decade, however, basic features like built-in **environment configuration** and **unit testing** have been missing ... until now that is, since Kettle founder **Matt Casters** recently has been building plugins to support this functionality.
