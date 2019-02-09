@@ -1,4 +1,6 @@
 ---
+typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
+typora-copy-images-to: ../images/kettle-beam
 layout: post
 title: "Pentaho Data Integration/Kettle: The easy way to create Beam Pipelines"
 summary: This article explains how to get started with creating Beam pipelines in PDI
@@ -6,8 +8,6 @@ date: 2018-12-01
 categories: PDI
 tags: PDI, Beam
 published: true
-typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
-typora-copy-images-to: ../images/kettle-beam
 ---
 
 ---
