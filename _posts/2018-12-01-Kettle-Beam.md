@@ -141,7 +141,7 @@ Example:
 
 ```bash
 export PDI_HOME=~/apps/pdi-ce-8.2
-export KETTLE_BEAM_VERSION=0.3.0
+export KETTLE_BEAM_VERSION=0.4.0
 
 rm -rf ${PDI_HOME}/plugins/kettle-beam
 mkdir ${PDI_HOME}/plugins/kettle-beam
@@ -161,7 +161,7 @@ Since this project is in rapid development, you will have to rebuild the plugin 
 #!/bin/bash
 export PDI_HOME=~/apps/pdi-ce-8.2
 export GIT_HOME=~/git/
-export KETTLE_BEAM_VERSION=0.3.0
+export KETTLE_BEAM_VERSION=0.4.0
 echo "***************** NOTE ****************"
 echo "If KETTLE BEAM version number changes this will break!"
 echo "***************************************"
@@ -306,7 +306,9 @@ These steps are available for realtime processing on the **Google Cloud Platform
 
 If your stream does not have the event time defined (the GCP Pub/Sub step should automatically set it), then you can explicitly set it via the **Beam Timestamp** step.
 
-![kettle-beam-29](/images/kettle-beam/kettle-beam-29.png)
+The **Get timestamp from stream?** option will return the even time field if it is already defined within the stream.
+
+![Screenshot from 2019-02-10 17-54-50](/images/kettle-beam/Screenshot from 2019-02-10 17-54-50.png)
 
 ### Windowing Functions
 
@@ -318,7 +320,9 @@ Any serious streaming engine supports even-time-based **windowing functions**, s
 
 Fixed, Sliding, Session and Global window types are currently supported within the **Kettle BEAM Plugin**. 
 
-![kettle-beam-28](/images/kettle-beam/kettle-beam-28.png)
+![Screenshot from 2019-02-10 17-54-27](/images/kettle-beam/Screenshot from 2019-02-10 17-54-27.png)
+
+Apart from setting the **window size** and **sliding window size**, you can also have this step output the **window start and end time**, which is useful for when you want to aggregate the data returned within a given window.
 
 Make sure you activated the "**Windowed writes?**" feature in the **Beam Output** step (to see the output).
 
@@ -491,7 +495,7 @@ Before gettings started make sure you have GCP account set up and you have the r
 7. Still on the **Bucket Details** page, click on the `input` folder and click on **Upload files**. Upload the input file for your PDI Beam pipeline.
 8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Here your service account should be listed.
 9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
-  ![](/images/kettle-beam/kettle-beam-9.png)
+    ![](/images/kettle-beam/kettle-beam-9.png)
    Following APIs are required (most of them are enabled by default):
    - BigQuery API (if using BigQuery only)
    - BigQuery Data Transfer API (if using BigQuery only)
@@ -569,7 +573,7 @@ project = kettle-beam
 Your active configuration is: [default]
 ```
 
-> **Note**: `GOOGLE_APPLICATION_CREDENTIALS` are not used by the gcloud client tools and there is no way to set this. See also [here](https://serverfault.com/questions/848580/how-to-use-google-application-credentials-with-gcloud-on-a-server). It is only used for **service accounts**.
+> **Note**: `GOOGLE_APPLICATION_CREDENTIALS` are not used by the gcloud client tools and there is no way to set this. See also [here](https://serverfault.com/questions/848580/how-to-use-google-application-credentials-with-gcloud-on-a-server). It is used for **service accounts** only.
 
 There are many command options available which you can explore by yourself easily.
 
@@ -613,7 +617,7 @@ Next click on the **Google Cloud Platform DataFlow** tab. There is a massive lis
 
 - **Project ID**: see comment further down
 - **App Name**
-- **Staging Location**: where the PDI/Kettle binaries should be stored, e.g. `gs://kettle-beam-storage/tmp`.
+- **Staging Location**: where the PDI/Kettle binaries should be stored, e.g. `gs://kettle-beam-storage/binaries`.
 - **Initial number of workers**
 - **Maximum number of workers**
 - **Auto scaling algorithm**
@@ -693,7 +697,15 @@ Also watch the **logs**:
 
 On the **GCP cloud console** navigate to **Pub/Sub > Topic** via the main menu. If you haven't created a topic yet, a small splash screen will be shown asking you to create a topic. Go ahead and create one. This is a very simple setup.
 
+You should end up on the **Topics** page. On the top right hand side click on **Show Info Panel**. Then click on the topic name (in the table where all the topics are listed). Pay attention to the **Permissions** section in the **Info Panel**. It looks quite likely similar to this one:
 
+![Screenshot from 2019-02-10 21-15-15](/images/kettle-beam/Screenshot from 2019-02-10 21-15-15.png)
+
+
+
+Note that our **service account** is not listed there. So let's add it then via the **Add members** option. Assign at least the role **Pub/Sub Admin**. Confirm by clicking **Add**.
+
+![Screenshot from 2019-02-10 21-17-30](/images/kettle-beam/Screenshot from 2019-02-10 21-17-30.png)
 
 ### GCP Big Query
 
@@ -707,7 +719,7 @@ A dataset name will show up under your pinned project. Click on it. Next click o
 
 #### Errors shown within Spoon
 
-#### Permissions Error
+##### Permissions Error
 
 If there are permission issues, Spoon will show the error message in a pop-up, e.g.: 
 
@@ -717,14 +729,25 @@ Failed to create a workflow job: (7b5183c85358d0cf): Could not create workflow; 
 
 In my case I did originally specify the project name instead of the project ID in the Beam job config. Changing this resolved the problem.
 
-#### Missing Roles
+##### Failed to construct instance from factory method DataflowRunner
 
 ```
 The was an error building or executing the pipeline:
 Failed to construct instance from factory method DataflowRunner#fromOptions(interface org.apache.beam.sdk.options.PipelineOptions)
 ```
 
-It's usually a security error. If you're using extra services, more roles are needed for your service account. In my case I was missing the role to write into BigQuery.
+It's usually a security error. If you're using new services, more roles are needed for your service account. 
+
+What to do:
+
+1. Run a **unit test** and make sure that everything works.
+2. Execute the pipeline using the **Direct Runner**. You might get an error like this one:
+
+![Screenshot from 2019-02-10 19-49-44](/images/kettle-beam/Screenshot from 2019-02-10 19-49-44.png)
+
+
+
+
 
 #### Errors shown within GCP Dataflow Web Console
 
