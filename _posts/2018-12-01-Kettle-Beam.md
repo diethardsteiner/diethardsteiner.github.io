@@ -187,7 +187,15 @@ sh ./spoon.sh
 
 Create a new **transformation** via the main menu: File > New > Transformation.
 
-## Create an Input and Output File Definition
+## Input and Output Transforms
+
+- [Apache Beam API: Built-in I/O Transforms](https://beam.apache.org/documentation/io/built-in/): This provides a full list of currently supported Input and Output options by the Beam API. The goal is that one day Kettle supports all of them.
+
+### TextIO
+
+This covers reading and writing comma, pipe etc separated files via the Apache Beam API.
+
+#### Create an Input and Output File Definition
 
 If the plugin was installed correctly, you should see a **Beam** entry in the **menu bar**. 
 
@@ -209,7 +217,7 @@ Click **Ok**.
 
 In a similar vain, create the **file output definition**. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
 
-## Add the Beam Input Step
+#### Add the Beam Input Step
 
 Next, in the **Design** tab on the left, expand the **Big Data** folder (or alternatively search for `Beam`): 
 ![kettle-beam-1](/images/kettle-beam/kettle-beam-1.png)
@@ -254,7 +262,7 @@ This will work:
 2018-12-02,UK,Glasgow,Groceries,15223
 ```
 
-## Add the Beam Output Step
+#### Add the Beam Output Step
 
 Again from the **Design** tab add the **Beam Output** step to the canvas and link it up to the **Beam Input** step. You can create a link/hop by hovering over the input step, which will bring up HuD dialog, then click on the icon shown below and drag the hop to the output step:
 
@@ -268,46 +276,41 @@ Double click on the **Beam Output** step. Let's configure it:
 - **Windowed** (unsupported):
 - **File definition to use**: Pick the output schema/definition you created earlier on. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
 
-## Add Transformation Steps
+### Google Big Query
 
-Some steps require a special implementation, like Sort etc.
-As it is extremely early days with this project, these steps are supported:
-
-- Filter Rows
-- Memory Group by work with Sum and Count.
-- Merge Join
-- Stream Lookup
-- Switch/Case
-
-Beyond that all steps should work.
-
-A very **simple example**:
-
-![](/images/kettle-beam/kettle-beam-18.png)
-
-### Beam Input and Beam Output
-
-![Screenshot from 2019-02-09 17-29-22](/images/kettle-beam/Screenshot from 2019-02-09 17-29-22.png)
-
-Basic step to read in and write out text files.
-
-### GCP Big Query Input and Output
+- [Apache Beam API Ref](https://beam.apache.org/documentation/io/built-in/google-bigquery/)
 
 ![Screenshot from 2019-02-09 17-29-00](/images/kettle-beam/Screenshot from 2019-02-09 17-29-00.png)
 
 Write data to and read data from GCP Big Query.
 
-### GCP Pub/Sub
+### Google Cloud Pub/Sub
 
 These steps are available for realtime processing on the **Google Cloud Platform**.
 
+![Screenshot from 2019-02-09 17-33-04](/images/kettle-beam/Screenshot from 2019-02-09 17-33-04.png)
+
+### Apache Kafka
+
+![Screenshot from 2019-02-09 17-30-27](/images/kettle-beam/Screenshot%20from%202019-02-09%2017-30-27.png)
+
+
+
+## Windowing
+
+- [Apache Beam API: Windowing](https://beam.apache.org/documentation/programming-guide/#windowing)
+
 ### Event Time
+
+![Screenshot from 2019-02-09 17-33-34](/images/kettle-beam/Screenshot from 2019-02-09 17-33-34.png)
 
 If your stream does not have the event time defined (the GCP Pub/Sub step should automatically set it), then you can explicitly set it via the **Beam Timestamp** step.
 
 ![kettle-beam-29](/images/kettle-beam/kettle-beam-29.png)
 
 ### Windowing Functions
+
+![Screenshot from 2019-02-09 17-34-01](/images/kettle-beam/Screenshot from 2019-02-09 17-34-01.png)
 
 - [Beam Windowing](https://beam.apache.org/documentation/programming-guide/#windowing)
 
@@ -321,9 +324,36 @@ Make sure you activated the "**Windowed writes?**" feature in the **Beam Output*
 
 ![kettle-beam-27](/images/kettle-beam/kettle-beam-27.png)
 
-### Kafka Input and Output
+## Triggers
 
-![Screenshot from 2019-02-09 17-30-27](/images/kettle-beam/Screenshot from 2019-02-09 17-30-27.png)
+- [Apache Beam API: Triggers](https://beam.apache.org/documentation/programming-guide/#triggers)
+
+No support yet within Kettle. Create a Github ticket if you have a use case.
+
+## Standard Transformation Steps
+
+This section discusses steps that were not explicitely relabeled or converted to Kettle Beam steps.
+
+Some steps require a special implementation, like Sort etc.
+As it is extremely early days with this project, these steps are supported:
+
+- Filter Rows
+- Memory Group by work with Sum and Count.
+- Merge Join
+- Stream Lookup
+- Switch/Case
+
+The Group By step is not supported.
+
+
+
+> **Note**: True sorting isn't supported by the Beam API. The **Memory Group By** step does not require the input to be sorted. If you use the **Pentaho PDI Datasets** plugin for **unit testing**, you will have to sort the datasets via the built-in datasets sort definition (not the standard PDI Sort step) since you are using the Kettle engine to execute the unit test.
+
+Beyond that all steps should work.
+
+A very **simple example**:
+
+![](/images/kettle-beam/kettle-beam-18.png)
 
 
 
@@ -366,7 +396,9 @@ Finally click on the **Parameters** tab: We list here any parmaters and values t
 
 So how do I configure the pipeline to use **streaming** and not **batch** processing you might wonder? 
 
-Currently the **PDI Beam plugin** doesn't have any unbound input data sources yet. Kafka will be the first probably ( see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (unending) input source, it will automatically stream the data.
+The **PDI Beam plugin** supports both bound and unbound input data sources. Kafka support was only recently released ( see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (never ending) input source, it will automatically stream the data. 
+
+In the **Beam Job Configuration** for **Google Cloud Platform Dataflow** there is an option to switch on **Streaming**. Note that it is not necessary to tick this one since Beam can figure out automatically if the input data source is bound or unbound.
 
 ## Fat Jar Builder
 
@@ -377,6 +409,8 @@ Some of the engines like **Apache Spark** and **Flink** expect all files to be s
 
 Once you have a **fat jar** you can just run transformations on Spark.
 Put the transformation in `hdfs://` somewhere and run it. That's it.
+
+Currently you have to define a temporary folder to store the flat file (while it is being build). In future a carte server will start on e.g. the Spark master and take care of this.
 
 **More details from the GitHub Issue** (written by [Matt Casters](https://github.com/mattcasters/kettle-beam/issues/25)):
 
@@ -452,35 +486,37 @@ Before gettings started make sure you have GCP account set up and you have the r
 2. Create a new **service account** via the [GCP IAM - Service Accounts page]. Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine (and also to set `GOOGLE_APPLICATION_CREDENTIALS`).
 3. Define the `GOOGLE_APPLICATION_CREDENTIALS` environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json`.
 4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles)). Give this role everything you can find related to API, Storage, Dataflow. Not complete list of required permissions: `compute.machineTypes.get`, `dataflow.*`, `storage.*`, `firebase.projects.get`, `resourcemanager.projects.get`.
-5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the service account and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
+5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the **service account** and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
 6. Create a **storage bucket**: Go to the [GCP Storage page](https://console.cloud.google.com/storage/browser) and click on **Create bucket**. Name it `kettle-beam-storage`. Once created, you should be automatically forwarded to the **Bucket Details** page: Click on **Create folder** and name it `input`. Create two other ones: `binaries`, `output`.
 7. Still on the **Bucket Details** page, click on the `input` folder and click on **Upload files**. Upload the input file for your PDI Beam pipeline.
 8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Here your service account should be listed.
 9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
-![](/images/kettle-beam/kettle-beam-9.png)
-    Following APIs are required (most of them are enabled by default):
-    - Cloud Datastore API
-    - Cloud Filestore API: used for creating and managing cloud file servers.
-    - Cloud Firestore API (NoSQL document database) - not enabled by default
-    - Firebase Rules API
-    - Cloud OS Login API
-    - Cloud Resource Manager API
-    - Compute Engine API
-    - Compute Engine Instance Group API
-    - Dataflow API
-    - Google Cloud APIs
-    - Google Cloud Deployment Manager v2 API
-    - Google Cloud Storage
-    - Google Cloud Storage JSON API
-    - Google Compute Engine Instance Group Updater API
-    - Service Management API
-    - Service Usage API
-    - Stackdriver Debugger API
-    - Stackdriver Logging API
-    - Stackdriver Monitoring API
-    - Stackdriver Trace API
-   
-1. **Grant service account permissions on DataFlow**: Go to the [GCP Dataflow page](https://console.cloud.google.com/dataflow) and ?? [OPEN] I didn't see any options here. See also [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions) for more info. Two accounts required: **Cloud Dataflow Service Account** and **Controller Service Account**. By default, workers use your project’s Compute Engine service account as the controller service account.  This service account ( `<project-number>-compute@developer.gserviceaccount.com`) is automatically created when you enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console.
+  ![](/images/kettle-beam/kettle-beam-9.png)
+   Following APIs are required (most of them are enabled by default):
+   - BigQuery API (if using BigQuery only)
+   - BigQuery Data Transfer API (if using BigQuery only)
+   - Cloud Datastore API
+   - Cloud Filestore API: used for creating and managing cloud file servers.
+   - Cloud Firestore API (NoSQL document database) - not enabled by default
+   - Firebase Rules API
+   - Cloud OS Login API
+   - Cloud Resource Manager API
+   - Compute Engine API
+   - Compute Engine Instance Group API
+   - Dataflow API
+   - Google Cloud APIs
+   - Google Cloud Deployment Manager v2 API
+   - Google Cloud Storage
+   - Google Cloud Storage JSON API
+   - Google Compute Engine Instance Group Updater API
+   - Service Management API
+   - Service Usage API
+   - Stackdriver Debugger API
+   - Stackdriver Logging API
+   - Stackdriver Monitoring API
+   - Stackdriver Trace API
+
+10. **Grant service account permissions on DataFlow**: Go to the [GCP Dataflow page](https://console.cloud.google.com/dataflow) and ?? [OPEN] I didn't see any options here. See also [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions) for more info. Two accounts required: **Cloud Dataflow Service Account** and **Controller Service Account**. By default, workers use your project’s Compute Engine service account as the controller service account.  This service account ( `<project-number>-compute@developer.gserviceaccount.com`) is automatically created when you enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console.
 
 **Additional info**:
 
@@ -659,13 +695,19 @@ On the **GCP cloud console** navigate to **Pub/Sub > Topic** via the main menu. 
 
 
 
+### GCP Big Query
 
+On the **GCP cloud console** navigate to **Big Query** or alternatively click on [this link](https://console.cloud.google.com/bigquery). On the left hand side click on **Resources** and then **Add Data**: Choose **Pin project** and choose your project. Your project name should be displayed below ... click on it. Now on the right hand side you should see a **Create dataset** button. Click on it. Fill out the required details in the upcoming dialog.
+
+A dataset name will show up under your pinned project. Click on it. Next click on **Create Table**. In the upcoming dialog set *Create table from* to **Empty Table** (since we want to populate it via the Beam BigQuery Output step). Provide all the other details. More info on the official [Quickstart Guide](https://cloud.google.com/bigquery/docs/quickstarts/quickstart-web-ui?hl=en_US).
 
 
 
 ### Common Errors
 
 #### Errors shown within Spoon
+
+#### Permissions Error
 
 If there are permission issues, Spoon will show the error message in a pop-up, e.g.: 
 
@@ -674,6 +716,15 @@ Failed to create a workflow job: (7b5183c85358d0cf): Could not create workflow; 
 ```
 
 In my case I did originally specify the project name instead of the project ID in the Beam job config. Changing this resolved the problem.
+
+#### Missing Roles
+
+```
+The was an error building or executing the pipeline:
+Failed to construct instance from factory method DataflowRunner#fromOptions(interface org.apache.beam.sdk.options.PipelineOptions)
+```
+
+It's usually a security error. If you're using extra services, more roles are needed for your service account. In my case I was missing the role to write into BigQuery.
 
 #### Errors shown within GCP Dataflow Web Console
 
@@ -747,6 +798,10 @@ Simply go to the **View** tab on the left hand side and right click on **Run con
 Once created, you can just click on the standard Play/Execute icon and in the **Run configuration** you can just pick the runner we previously defined:
 
 ![](/images/kettle-beam/kettle-beam-26.png)
+
+# Pentaho PDI Datasets Plugin
+
+This plugin not only comes in handy for **unit testing**, but also for developing **Kettle Beam pipelines**. Many of the input data sources and output destinations are not quickly accessible. Plus you don't really want to pull e.g. 100k records from BigQuery. Instead you can just define a PDI dataset for easy and quick development. See my Unit Testing blog post for details.
 
 # Using other PDI Plugins
 
