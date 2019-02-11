@@ -271,10 +271,29 @@ Again from the **Design** tab add the **Beam Output** step to the canvas and lin
 Double click on the **Beam Output** step. Let's configure it:
 
 - **Output location**: `${PARAM_OUTPUT_DIR}`
+
 - **File prefix**:
+
 - **File suffix**: Can be used in example to add a file extension, e.g. `.csv`
-- **Windowed** (unsupported):
+
+- **Windowed writes**: Use this in conjunction with the **Beam Window** step.
+
 - **File definition to use**: Pick the output schema/definition you created earlier on. This one is actually not required any more, Kettle will fetch the metadata automatically from the incoming stream.
+
+![Screenshot from 2019-02-11 22-09-23](/images/kettle-beam/Screenshot from 2019-02-11 22-09-23.png)
+
+The reason why we only define the main part of the filename because apparent when you check the created output files:
+
+```bash
+$ ls /tmp/
+event-data-00000-of-00005.csv
+event-data-00001-of-00005.csv
+event-data-00002-of-00005.csv
+event-data-00003-of-00005.csv
+event-data-00004-of-00005.csv
+```
+
+As you can see, because of the multithreaded nature of Beam more than one output file gets created.
 
 ### Google Big Query
 
@@ -438,6 +457,8 @@ The way this would work is like this:
 # How to test the PDI Beam Pipeline locally
 
 To create **unit tests** for your PDI Beam Pipeline, you can use **Matt Casters** [Pentaho PDI Datasets](https://github.com/mattcasters/pentaho-pdi-dataset) Plugin. See also my blog post [here](http://diethardsteiner.github.io/big/data/2016/01/30/PDI-Unit-Testing.html) for further info.
+
+This plugin not only comes in handy for **unit testing**, but also for developing **Kettle Beam pipelines**. Many of the input data sources and output destinations are not quickly accessible. Plus you don't really want to pull e.g. 100k records from BigQuery. Instead you can just define a PDI dataset for easy and quick development. See my Unit Testing blog post for details.
 
 # Execution your PDI Beam Pipeline
 
@@ -821,10 +842,6 @@ Simply go to the **View** tab on the left hand side and right click on **Run con
 Once created, you can just click on the standard Play/Execute icon and in the **Run configuration** you can just pick the runner we previously defined:
 
 ![](/images/kettle-beam/kettle-beam-26.png)
-
-# Pentaho PDI Datasets Plugin
-
-This plugin not only comes in handy for **unit testing**, but also for developing **Kettle Beam pipelines**. Many of the input data sources and output destinations are not quickly accessible. Plus you don't really want to pull e.g. 100k records from BigQuery. Instead you can just define a PDI dataset for easy and quick development. See my Unit Testing blog post for details.
 
 # Using other PDI Plugins
 
