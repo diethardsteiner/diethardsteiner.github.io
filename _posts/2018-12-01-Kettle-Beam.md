@@ -353,7 +353,7 @@ Make sure you activated the "**Windowed writes?**" feature in the **Beam Output*
 
 No support yet within Kettle. Create a Github ticket if you have a use case.
 
-## Standard Transformation Steps
+## Standard PDI Transformation Steps
 
 This section discusses steps that were not explicitely relabeled or converted to Kettle Beam steps.
 
@@ -373,6 +373,15 @@ The Group By step is not supported.
 > **Note**: True sorting isn't supported by the Beam API. The **Memory Group By** step does not require the input to be sorted. If you use the **Pentaho PDI Datasets** plugin for **unit testing**, you will have to sort the datasets via the built-in datasets sort definition (not the standard PDI Sort step) since you are using the Kettle engine to execute the unit test.
 
 Beyond that all steps should work.
+
+
+Generic steps like Data Grid, CSV Input, Table Input, ... are meant for small, non-parallel data sets. A generic step now uses a single threaded transformation. [Issue 30](https://github.com/mattcasters/kettle-beam/issues/30)
+
+Data for Kettle **input steps** needs to fit in memory.
+
+**Output steps** use **Row Set Size** of transformation for batching. Batching every **Row Set Size** rows to push through the single threader. This will dramatically improve performance of output steps like "Table Output" and "Neo4j Output". [Issue 31](https://github.com/mattcasters/kettle-beam/issues/31)
+
+Setting the step copies to `BEAM_OUTPUT` reduces the number of threads to 1 by doing a grouping/flattening before the step. In other words it’s an option to reduce parallelism to a single thread. [Issue 29](https://github.com/mattcasters/kettle-beam/issues/29#issuecomment-463380614).
 
 A very **simple example**:
 
@@ -824,6 +833,10 @@ In the **General** tab define:
 - **Plugin folders to stage**: comma separated list of plugins that should be included as well. Don't worry about this for now. We discuss this later.
 
 ![](/images/kettle-beam/kettle-beam-24.png)
+
+## Direct Flink Runner
+
+[Reference](https://github.com/mattcasters/kettle-beam/releases/tag/0.4.0)
 
 # Job Orchestration
 
