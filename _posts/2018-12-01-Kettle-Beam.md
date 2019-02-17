@@ -738,6 +738,13 @@ A dataset name will show up under your pinned project. Click on it. Next click o
 
 ### Common Errors
 
+#### Recommended Approach 
+
+What to do:
+
+1. Run a **unit test** and make sure that everything works (using the pentaho-pdi-datasets plugin). If this didn't highlight any errors, next try:
+2. Execute the pipeline using the **Direct Runner**. 
+
 #### Errors shown within Spoon
 
 ##### Permissions Error
@@ -757,22 +764,31 @@ The was an error building or executing the pipeline:
 Failed to construct instance from factory method DataflowRunner#fromOptions(interface org.apache.beam.sdk.options.PipelineOptions)
 ```
 
-It's usually a security error. If you're using new services, more roles are needed for your service account. 
+There could be several reasons for this error. Simply press the **Details** button within the **Error** window: 
 
-What to do:
+![Screenshot from 2019-02-17 17-16-13](/images/kettle-beam/Screenshot from 2019-02-17 17-16-13.png)
 
-1. Run a **unit test** and make sure that everything works.
-2. Execute the pipeline using the **Direct Runner**. You might get an error like this one:
+And then you should find the detailed error message, like here in example:
+
+![Screenshot from 2019-02-17 17-16-50](/images/kettle-beam/Screenshot from 2019-02-17 17-16-50.png)
+
+```
+...
+JobName  invalid; the name must consist of only the characters [-a-z0-9],  starting with a letter and ending with a letter or number
+...
+```
 
 ![Screenshot from 2019-02-10 19-49-44](/images/kettle-beam/Screenshot from 2019-02-10 19-49-44.png)
-
-
-
-
 
 #### Errors shown within GCP Dataflow Web Console
 
 Read this article: [Troubleshooting Your Pipeline](https://cloud.google.com/dataflow/docs/guides/troubleshooting-your-pipeline).
+
+Example 1:
+
+![kettle-beam-30](/images/kettle-beam/kettle-beam-30.png)
+
+Example 2:
 
 ```
 java.io.FileNotFoundException: No files matched spec: gs://...
