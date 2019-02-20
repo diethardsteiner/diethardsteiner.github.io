@@ -30,6 +30,14 @@ Matt Casters provides an example usage here:
 
 - [Github: Kettle Beam examples](https://github.com/mattcasters/kettle-beam-examples)
 
+# Maitre
+
+Maitre is a replacement for both `kitchen.sh` and `pan.sh`. Example Usage:
+
+```bash
+sh maitre.sh -e ENV-NAME -f '${ENVIRONMENT_HOME}/load-nodes/load-customers.ktr'
+```
+
 # Installing the Kettle Beam Examples
 
 Matt Casters also provides a Git repo with a few Kettle Beam Examples. Apart from covering Beam, it also showcases good practices by using **unit testing** and **environment specification**. It is a totally self contained git repo.
