@@ -303,6 +303,12 @@ As you can see, because of the multithreaded nature of Beam more than one output
 
 Write data to and read data from GCP Big Query.
 
+The **BigQuery Output** step also offers these options ([issue 28](https://github.com/mattcasters/kettle-beam/issues/28)):
+
+- fail if table is not empty
+- truncate table before insert
+- append data
+
 ### Google Cloud Pub/Sub
 
 These steps are available for realtime processing on the **Google Cloud Platform**.
@@ -319,13 +325,13 @@ These steps are available for realtime processing on the **Google Cloud Platform
 
 - [Apache Beam API: Windowing](https://beam.apache.org/documentation/programming-guide/#windowing)
 
-### Event Time
+### Event Time (Beam Timestamp)
 
 ![Screenshot from 2019-02-09 17-33-34](/images/kettle-beam/Screenshot from 2019-02-09 17-33-34.png)
 
 If your stream does not have the event time defined (the GCP Pub/Sub step should automatically set it), then you can explicitly set it via the **Beam Timestamp** step.
 
-The **Get timestamp from stream?** option will return the even time field if it is already defined within the stream.
+The **Get timestamp from stream?** option will return the event time field if it is already defined within the stream.
 
 ![Screenshot from 2019-02-10 17-54-50](/images/kettle-beam/Screenshot from 2019-02-10 17-54-50.png)
 
@@ -353,7 +359,7 @@ Make sure you activated the "**Windowed writes?**" feature in the **Beam Output*
 
 No support yet within Kettle. Create a Github ticket if you have a use case.
 
-## Standard PDI Transformation Steps
+## Generic PDI Transformation Steps
 
 This section discusses steps that were not explicitely relabeled or converted to Kettle Beam steps.
 
@@ -375,7 +381,7 @@ The Group By step is not supported.
 Beyond that all steps should work.
 
 
-Generic steps like Data Grid, CSV Input, Table Input, ... are meant for small, non-parallel data sets. A generic step now uses a single threaded transformation. [Issue 30](https://github.com/mattcasters/kettle-beam/issues/30)
+Generic steps like Data Grid, CSV Input, Table Input, ... are **meant for small, non-parallel data sets**. A generic step now uses a single threaded transformation. [Issue 30](https://github.com/mattcasters/kettle-beam/issues/30)
 
 Data for Kettle **input steps** needs to fit in memory.
 
@@ -737,11 +743,34 @@ Note that our **service account** is not listed there. So let's add it then via 
 
 ![Screenshot from 2019-02-10 21-17-30](/images/kettle-beam/Screenshot from 2019-02-10 21-17-30.png)
 
+#### Create a Subscription
+
+On your topic page, in the top menu you click on the **Create Subscription** link:
+
+![kettle-beam-31](/images/kettle-beam/kettle-beam-31.png)
+
+On the next page provide a **subscription name**. All the other setting can remain on their defaults. Finally click **Create**.
+
+The **subscription name** is required to configure the Kettle Beam **GCP Pub/Sub: Subscribe** step and is expected to be in this format:
+
+```
+projects/<project>/subscriptions/<subscription>
+# Example
+projects/kettle-beam-224314/subscriptions/test
+```
+
+Note:
+
+- The batch process writing data into pub/sub has to run at the same time as the process reading from it.
+- To kill the constanly running subscriber job, do the following:
+
+![kettle-beam-32](/images/kettle-beam/kettle-beam-32.png)
+
 ### GCP Big Query
 
 On the **GCP cloud console** navigate to **Big Query** or alternatively click on [this link](https://console.cloud.google.com/bigquery). On the left hand side click on **Resources** and then **Add Data**: Choose **Pin project** and choose your project. Your project name should be displayed below ... click on it. Now on the right hand side you should see a **Create dataset** button. Click on it. Fill out the required details in the upcoming dialog.
 
-A dataset name will show up under your pinned project. Click on it. Next click on **Create Table**. In the upcoming dialog set *Create table from* to **Empty Table** (since we want to populate it via the Beam BigQuery Output step). Provide all the other details. More info on the official [Quickstart Guide](https://cloud.google.com/bigquery/docs/quickstarts/quickstart-web-ui?hl=en_US).
+A dataset name will show up under your pinned project. Click on it. Next click on **Create Table** (on the right). In the upcoming dialog set *Create table from* to **Empty Table** (since we want to populate it via the Beam BigQuery Output step). Provide all the other details. More info on the official [Quickstart Guide](https://cloud.google.com/bigquery/docs/quickstarts/quickstart-web-ui?hl=en_US).
 
 
 
@@ -789,6 +818,16 @@ JobName  invalid; the name must consist of only the characters [-a-z0-9],  start
 
 ![Screenshot from 2019-02-10 19-49-44](/images/kettle-beam/Screenshot from 2019-02-10 19-49-44.png)
 
+
+
+##### Unable to confirm BigQuery dataset presence ...
+
+```
+Unable to confirm BigQuery dataset presence for table "kettle-beam-224314:sensor_data.amount". If the dataset is created by an earlier stage of the pipeline, this validation can be disabled using #withoutValidation.
+```
+
+Check that you have all the relevant **BigQuery permissions** assigned to your **role**!
+
 #### Errors shown within GCP Dataflow Web Console
 
 Read this article: [Troubleshooting Your Pipeline](https://cloud.google.com/dataflow/docs/guides/troubleshooting-your-pipeline).
@@ -804,6 +843,33 @@ java.io.FileNotFoundException: No files matched spec: gs://...
 ```
 
 Make sure you have permissions to see the file! Open **Spoon** and go to **New > Open URL**. For **Location** pick **Google Cloud Storage** and paste the whole path into the **Folder** input field and hit enter. If you have the correct permissions you should see the folder/file.
+
+##### Error in String to Kettle Row conversion function   
+
+```
+java.lang.RuntimeException: Error in String to Kettle Row conversion function         org.kettle.beam.core.fn.StringToKettleRowFn.processElement(StringToKettleRowFn.java:65) Caused by: org.apache.beam.sdk.util.UserCodeException: java.lang.RuntimeException: Error executing StepFn
+```
+
+Scroll a bit further down in the error log and you should find something like this (or many other error reasons ... all you have to look for is some text containing `org.kettle.*`) :
+
+```
+Unable to load step plugin with ID JsonInput, this plugin isn't in the plugin registry or classpath
+```
+
+**Solution**: Edit the **Beam Job Configuration** and list the required plugin (in this example `JsonInput` requires the `kettle-json-plugin` PDI plugins folder to be staged, so mention `kettle-json-plugin` in the Beam Job Settings).
+
+Other possible error:
+
+```
+Caused by: java.lang.RuntimeException: Error adding timestamp to rows
+        org.kettle.beam.core.fn.TimestampFn.processElement(TimestampFn.java:130)
+Caused by: java.lang.IllegalArgumentException: No instant converter found for type: java.time.Instant
+        org.joda.time.convert.ConverterManager.getInstantConverter(ConverterManager.java:165)
+```
+
+
+
+
 
 ### Analysing the Stats
 
@@ -850,15 +916,26 @@ In the **General** tab define:
 
 ![](/images/kettle-beam/kettle-beam-24.png)
 
-## Direct Flink Runner
+## Flink Runner
 
 [Reference](https://github.com/mattcasters/kettle-beam/releases/tag/0.4.0)
+
+Two modes are supported:
+
+- **Local Direct Flink Runner**
+- **Flink Runner** ([Issue 32](https://github.com/mattcasters/kettle-beam/issues/32)): Execution via **Flink Master** on a clustered setup.
+
+Matt: If you want to play with Flink that's easy as well.  Download 1.7.2 and unzip. Follow local setup show in the [official documentation](https://ci.apache.org/projects/flink/flink-docs-release-1.7/tutorials/local_setup.html). Create [this script](https://github.com/mattcasters/kettle-beam/blob/master/flink-notes-matt.txt) in the 1.7.2 folder. Follow instructions in the comments of this script, create some folders, ...
 
 # Job Orchestration
 
 Within the Kettle/PDI world orchestration is achieved via creating **Kettle jobs**. 
 
 While a dedicated job entry was initially planned (see [Job Entry to execute Kettle Beam transformations](https://github.com/mattcasters/kettle-beam/issues/10)), this idea was retired in favour of a dedicated [Run Configuration](Run Configuration).
+
+When you configure a **Transformation** job entry you can set the **Run configuration** to your **Beam Job Configuration**:
+
+![kettle-beam-33](/images/kettle-beam/kettle-beam-33.png)
 
 # Run configuration
 
