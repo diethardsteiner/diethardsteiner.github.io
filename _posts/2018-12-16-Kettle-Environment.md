@@ -26,6 +26,9 @@ In this brief blog post we will focus on the **Kettle Environment Plugin**:
 - Can I create a **new environment** from the **command line**? **A**: Release 1.4.0 introduced an extension point to allow creation of new environments from the command line via `maitre.sh`.
 - Does this plugin integration with **GitSpoon**? **A**: Yes, as of release 1.3.0.
 
+The environments plugin does not change the `KETTLE_HOME` variable. The `KETTLE_HOME` directory is meant for system settings not environment settings. The issue lies in the fact that Spoon itself uses `KETTLE_HOME` which makes it hard to reliably switch to a different `KETTLE_HOME` all the time. You can still put e.g. database connection settings into `kettle.properties`, however, that information would be for all environments, which is not what you usually want.
+
+
 Matt Casters provides an example usage here:
 
 - [Github: Kettle Beam examples](https://github.com/mattcasters/kettle-beam-examples)
