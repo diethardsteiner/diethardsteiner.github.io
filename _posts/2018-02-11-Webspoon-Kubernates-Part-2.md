@@ -4,7 +4,7 @@ title: "Kubernetes: Manual and Automatic Volume Provisioning"
 summary: This article explains how to easily deploy a stateful web app with Kubernetes on Google Cloud Platform
 date: 2018-02-11
 categories: PDI
-tags: PDI, Kubernetes, Google Cloud Platform
+tags: [PDI, Kubernetes, GCP]
 published: true
 ---
 

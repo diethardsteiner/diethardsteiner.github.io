@@ -3,8 +3,8 @@ layout: post
 title:  "Pentaho Sparkl Tips"
 summary: This article is a list of various important points when working with Sparkl
 date:   2014-08-10
-categories: Review
-tags: Pentaho
+categories: CTools
+tags: Sparkl
 published: true
 ---
 

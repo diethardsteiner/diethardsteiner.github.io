@@ -3,7 +3,7 @@ layout: post
 title:  "Pentaho GIS Plugins"
 summary: 
 date: 2015-05-23
-categories: GIS
+categories: GIS Spatial-analysis PDI
 tags: GIS
 published: false
 ---

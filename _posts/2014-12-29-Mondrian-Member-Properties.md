@@ -3,8 +3,8 @@ layout: post
 title:  "OLAP Cube Member Properties"
 summary: Have you ever wondered what Member Properties in a multidimensional cube are really good for?
 date:   2014-12-29
-categories: mondrian
-tags: OLAP, Mondrian, MDX
+categories: Mondrian
+tags: OLAP Mondrian MDX
 published: true
 ---
 

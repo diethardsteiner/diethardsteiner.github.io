@@ -3,8 +3,8 @@ layout: post
 title: "Pentaho Standardised Git Repo Setup First Release"
 summary: A few comments on the first release
 date: 2017-11-14
-categories: Git
-tags: Git
+categories: PDI
+tags: [Git, Pattern]
 published: true
 ---
 

@@ -3,8 +3,8 @@ layout: post
 title: "Kubernetes: Scaling Pentaho Server"
 summary: This article explains how to scale Pentaho Server with Kubernetes on Google Cloud Platform
 date: 2018-04-01
-categories: Pentaho-Server
-tags: Pentaho-Server, Kubernetes, Google Cloud Platform
+categories: Pentaho-server
+tags: [pentaho-server, Kubernetes, GCP]
 published: true
 ---
 
@@ -212,11 +212,13 @@ $ sudo vi /etc/confd/templates/myconfig.conf.tmpl
 
 Insert following content and save the file:
 
+{% raw %}
 ```yaml
 [myconfig]
 database_url = {{getv "/myapp/database/url"}}
 database_user = {{getv "/myapp/database/user"}}
 ```
+{% endraw %}
 
 > **Note**: Variables can be sourced via using a set of double curly brackets and calling the `getv` function inside them (passing the variable name as an argument).
 

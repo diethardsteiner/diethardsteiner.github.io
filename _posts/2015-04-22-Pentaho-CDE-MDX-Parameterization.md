@@ -3,8 +3,8 @@ layout: post
 title:  "Pentaho CDE: MDX Parameterization"
 summary: In this article we will discuss how to parameterize a MDX query in your Pentaho dashboard.
 date:   2015-04-22
-categories: CDE
-tags: CDE, MDX
+categories: CTools
+tags: CDE MDX
 published: true
 ---
 

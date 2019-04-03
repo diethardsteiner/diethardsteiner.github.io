@@ -4,7 +4,7 @@ title:  "Pentaho Data Integration: DB Rollback on Error"
 summary: In this article we will discuss how implement a transactional behaviour in PDI
 date:   2015-04-28
 categories: PDI
-tags: PDI
+tags: PDI error-handling
 published: true
 ---
 

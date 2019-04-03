@@ -3,8 +3,8 @@ layout: post
 title:  "Pentaho CCC Chart Label Formatting"
 summary: This article explains various options on how to format a chart label
 date:   2015-04-15
-categories: CCC
-tags: CDE, CCC
+categories: CTools
+tags: CDE CCC
 published: true
 ---
 

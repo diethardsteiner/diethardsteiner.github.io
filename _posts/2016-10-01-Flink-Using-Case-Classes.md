@@ -3,7 +3,7 @@ layout: post
 title: "Apache Flink Streaming: Using Case Classes"
 summary: This article explains how to use case classes to properly type the data sets
 date: 2016-10-01
-categories: Flink
+categories: Streaming
 tags: Flink
 published: true
 --- 

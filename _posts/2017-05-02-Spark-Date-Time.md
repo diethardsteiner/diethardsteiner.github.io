@@ -3,7 +3,7 @@ layout: post
 title:  "Apache Spark: Mapping Scala Date to Spark SQL Date"
 summary: 
 date: 2017-05-02
-categories: Spark
+categories: Streaming
 tags: Spark
 published: true
 ---  

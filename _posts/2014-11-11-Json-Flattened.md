@@ -4,7 +4,7 @@ title:  "Pentaho Data Integration: Rows to Json Output"
 summary: A short article on how to output a flattened Json structure.
 date:   2014-11-11
 categories: PDI
-tags: Pentaho, PDI
+tags: Pentaho PDI JSON
 published: true
 ---
 

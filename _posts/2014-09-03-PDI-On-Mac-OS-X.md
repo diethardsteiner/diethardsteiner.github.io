@@ -3,8 +3,8 @@ layout: post
 title:  "Tips for using Pentaho Data Integration on Mac OS X"
 summary: This is a short article on some of the problems you might encounter when working with Pentaho Data Integration on Mac OS X
 date:   2014-08-10
-categories: Review
-tags: Pentaho
+categories: PDI
+tags: macOS
 published: true
 ---
 

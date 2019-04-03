@@ -2,8 +2,8 @@
 layout: post
 title: "CDE Prototyping: Scriptable JavaScript JSON Data Source"
 date:   2015-03-18
-categories: CDE
-tags: CDE, CDA
+categories: CTools
+tags: CDE CDA
 published: true
 ---
 

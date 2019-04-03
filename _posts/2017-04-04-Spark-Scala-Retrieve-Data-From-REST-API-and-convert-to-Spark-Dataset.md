@@ -3,7 +3,7 @@ layout: post
 title:  "Apache Spark: Retrieving Data from a REST API and converting JSON to a Spark Dataset"
 summary: This is a very short article explaining how to retrieve data from a REST API and converting the retrieved JSON data to a Spark Dataset
 date: 2017-04-04
-categories: Spark
+categories: Streaming
 tags: Spark
 published: true
 --- 

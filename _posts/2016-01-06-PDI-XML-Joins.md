@@ -3,7 +3,7 @@ layout: post
 title: Generate XML Documents with Pentaho Data Integration
 summary: 
 categories: PDI
-tags: PDI
+tags: PDI XML
 published: true
 ---
 

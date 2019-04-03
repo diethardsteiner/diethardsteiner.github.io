@@ -14,8 +14,11 @@ published: true
 For **database connections** as well as various other sensistive accounts **encrypting** the **password** instead of storing it in plain-text within e.g. properties files is advisable. **PDI** ships with a handy **encryption tool** which is very easy to use:
 
 ```bash
-$ ./encr.sh -kettle <your-password>
+$ ./encr.sh -kettle '<your-password>'
 ```
+
+> **Note**: Enclose your password in single quotation mark so any special characters do not get interpreted by the shell.
+
 This command will return the encrypted password.
 
 You get the general usage info by just typing:

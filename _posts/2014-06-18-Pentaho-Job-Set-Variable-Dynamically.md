@@ -3,8 +3,8 @@ layout: post
 title:  "Setting a variable value dynamically in a Pentaho Data Integration job"
 summary: This article explains an easy way to define a variable in a Pentaho Kettle job
 date:   2014-06-18
-categories: Data-Integration
-tags: Pentaho Data-Integration
+categories: PDI
+tags: Pentaho PDI
 published: true
 ---
 

@@ -4,7 +4,7 @@ title:  "Mondrian: The meaning of column, columnName and captionColumn Level Att
 summary: This article explains the various level attributes in detail.
 date:   2014-08-12
 categories: Mondrian
-tags: Pentaho
+tags: Pentaho Mondrian
 published: true
 ---
 

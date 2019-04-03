@@ -3,8 +3,8 @@ layout: post
 title: "Big Data Geospatial Analysis with Apache Spark, GeoMesa and Accumulo - Part 1: Installation"
 summary: This article walks you through the installation procudure for GeoMesa.
 date: 2017-06-18
-categories: Geospatial
-tags: Geospatial, Spark
+categories: GIS Spatial-analysis
+tags: Spark
 published: true
 ---  
 

@@ -4,7 +4,7 @@ title:  "The ultimate guide to Pentaho CCC Context Charts (aka Viewfinder or Sub
 summary: In this article we will take a look at how to create context charts with Pentaho CCC.
 date:   2015-03-23
 categories: CCC
-tags: CCC, CDE
+tags: CCC CDE
 published: true
 ---
 

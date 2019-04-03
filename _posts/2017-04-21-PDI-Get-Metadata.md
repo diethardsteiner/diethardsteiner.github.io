@@ -4,7 +4,7 @@ title: "Pentaho Data Integration: Automatically source Metadata for ETL Metadata
 summary: This article discusses various approaches on how to automatically source metadata from files and database tables to inject it later on into transformation templates
 date: 2017-04-21
 categories: PDI
-tags: PDI, Metadata
+tags: PDI
 published: true
 ---  
 

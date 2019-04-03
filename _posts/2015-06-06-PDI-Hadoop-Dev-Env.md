@@ -4,7 +4,7 @@ title:  "Setting up a Hadoop Dev Environment for Pentaho Data Integration"
 summary: This article explains how to set up a vanilla Hadoop Distribution and configure Pentaho Data Integration to access it
 date:   2015-06-06
 categories: PDI
-tags: PDI, Hadoop
+tags: PDI Hadoop
 published: true
 ---
 

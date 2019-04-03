@@ -3,7 +3,7 @@ layout: post
 title:  "Adventures with Apache Spark: Creating a Snapshot Table"
 summary: This article discusses how to create a snapshot table for OLAP analysis with Apache Spark.
 date: 2017-03-05
-categories: Spark
+categories: Streaming
 tags: Spark
 published: true
 --- 

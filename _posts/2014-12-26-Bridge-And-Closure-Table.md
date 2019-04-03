@@ -3,8 +3,8 @@ layout: post
 title:  "Advanced Data Modeling Techniques"
 summary: In this article we will focus on some advanced data modeling techniques to cover many-to-many and parent-to-child relationships
 date:   2014-12-26
-categories: mondrian
-tags: OLAP, Mondrian, Pentaho, Kimball, MDX
+categories: Mondrian
+tags: OLAP Mondrian Pentaho Kimball MDX
 published: true
 ---
 

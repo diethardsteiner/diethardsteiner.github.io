@@ -3,8 +3,8 @@ layout: post
 title:  "Creating DI Execution Logs for Pentaho Data Integration on Hadoop"
 summary: This article explains how to set up a simple custom PDI logging framework for Hadoop
 date: 2016-02-04
-categories: Big Data
-tags: Big Data, PDI
+categories: PDI
+tags: Big-data PDI
 published: true
 ---
 

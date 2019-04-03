@@ -3,8 +3,8 @@ layout: post
 title:  "Mondrian MDX: Intrinsic Member Properties"
 summary: In this very short article I want to shed some light on intrinsic member proerties
 date:   2015-02-27
-categories: OLAP
-tags: MDX, Mondrian
+categories: Mondrian
+tags: MDX Mondrian
 published: true
 ---
 

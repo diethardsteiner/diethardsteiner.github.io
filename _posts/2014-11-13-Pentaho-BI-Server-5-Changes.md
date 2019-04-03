@@ -3,8 +3,8 @@ layout: post
 title:  "Migrating from Pentaho BI Server v4 to v5: Path and API changes"
 summary: This article is not meant to be a migration guide, but more a collection of various aspects of this migration that I thought might be worth noting and which I have not seen mentioned elsewhere.
 date:   2014-11-13
-categories: biserver
-tags: Pentaho, Server
+categories: Pentaho-server
+tags: Migration API
 published: true
 ---
 

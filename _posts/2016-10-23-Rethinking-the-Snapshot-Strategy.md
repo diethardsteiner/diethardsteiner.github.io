@@ -3,8 +3,8 @@ layout: post
 title: "Rethinking the Snapshot Strategy"
 summary: This article discusses a different strategy for creating a snapshot
 date: 2016-10-23
-categories: Data Modeling
-tags: Data Modeling
+categories: Data-modeling
+tags: Data-modeling
 published: true
 --- 
 

@@ -3,7 +3,7 @@ layout: post
 title:  "Adventures with Apache Spark: How to clone a record"
 summary: This article discusses how to clone a row
 date: 2017-03-04
-categories: Spark
+categories: Streaming
 tags: Spark
 published: true
 --- 

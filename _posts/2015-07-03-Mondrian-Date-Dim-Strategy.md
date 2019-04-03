@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Mondrian Data Dimension
+title: Mondrian Date Dimension
 summary: 
 date: 2015-05-23
 categories: Mondrian

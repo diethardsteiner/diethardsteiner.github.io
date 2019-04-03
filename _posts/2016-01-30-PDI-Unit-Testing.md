@@ -3,8 +3,8 @@ layout: post
 title:  "Unit testing Pentaho Data Integration jobs and transformations"
 summary: This article explains how to unit test Pentaho Data Integration jobs and transformations
 date: 2016-01-30
-categories: Big Data
-tags: Big Data, PDI
+categories: PDI
+tags: PDI unit-testing
 published: true
 ---
 

@@ -3,8 +3,8 @@ layout: post
 title: "Big Data Geospatial Analysis with Apache Spark, GeoMesa and Accumulo - Part 5: Visualising your work"
 summary: This article walks you through practical GeoMesa examples.
 date: 2017-07-15
-categories: Geospatial
-tags: Geospatial, Spark
+categories: GIS Spatial-analysis Streaming
+tags: Spark
 published: false
 ---  
 

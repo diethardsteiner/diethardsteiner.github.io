@@ -4,7 +4,7 @@ title: "Pentaho Data Integration: Continuous Integration and Delivery with Jenki
 summary: This article explains how to configure PDI to run with Spark
 date: 2017-06-03
 categories: PDI
-tags: PDI, Jenkins
+tags: PDI CI Jenkins
 published: false
 ---
 

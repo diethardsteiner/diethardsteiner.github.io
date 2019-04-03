@@ -3,7 +3,7 @@ layout: post
 title:  "Pentaho London User Meetup 22nd of July"
 summary: Join us at this meetup, listing to interesting talks and exchange ideas
 date:   2014-07-12
-categories: Pentaho
+categories: Meetup
 tags: Pentaho Meetup
 published: true
 ---

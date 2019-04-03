@@ -3,7 +3,7 @@ layout: post
 title: "Real Time Streaming with Apache Flink, ElasticSearch and Kibana: Simple Twitter Example"
 summary: This article provides a short intro into the fascinating world of Apache Flink
 date: 2016-09-18
-categories: Flink
+categories: Streaming
 tags: Flink
 published: true
 --- 

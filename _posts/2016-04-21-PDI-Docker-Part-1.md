@@ -4,7 +4,7 @@ title:  "Using Pentaho Data Integration with Docker: Part 1"
 summary: This provides detailled instructions on how to use PDI with Docker
 date: 2016-04-21
 categories: PDI
-tags: PDI, Docker
+tags: PDI Docker
 published: true
 ---
 

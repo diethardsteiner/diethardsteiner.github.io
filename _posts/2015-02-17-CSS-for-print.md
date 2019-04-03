@@ -4,7 +4,7 @@ title:  "Using CSS to create PDF Reports"
 summary: This article explains how to create a PDF report using CSS, Pentaho BA-Server and WeasyPrint
 date:   2015-02-17
 categories: Reporting
-tags: CCC, CDE, CGG, WaesyPrint
+tags: CCC CDE CGG WaesyPrint
 published: true
 ---
 

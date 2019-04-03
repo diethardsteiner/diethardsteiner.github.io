@@ -3,8 +3,8 @@ layout: post
 title:  "Installing Columnar DB MonetDB"
 summary: Very brief instructions on how to install MonetDB
 date: 2014-07-01
-categories: Pentaho
-tags: Pentaho Database
+categories: Databases
+tags: MonetDB
 published: true
 ---
 

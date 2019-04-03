@@ -3,7 +3,7 @@ layout: post
 title:  "Announcing the MDX Maestro Challenge Series"
 summary: MDX Challenges every 3 weeks
 date: 2016-05-17
-categories: PDI
+categories: MDX
 tags: MDX
 published: true
 ---

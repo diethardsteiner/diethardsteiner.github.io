@@ -3,7 +3,7 @@ layout: post
 title: "20 Seconds for Embedding a CDE Dashboard"
 summary: This article discusses how to embed a CDE dashboard in an external site
 date: 2017-04-27
-categories: CDE
+categories: CTools
 tags: CDE
 published: true
 ---

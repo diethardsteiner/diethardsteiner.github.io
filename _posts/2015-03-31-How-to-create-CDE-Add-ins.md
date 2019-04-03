@@ -3,7 +3,7 @@ layout: post
 title:  "Creating a Pentaho CDE Table Add-In "
 summary: This article explains how to create an add-in for the CDE Table Component to achieve a custom cell presentation behaviour
 date:   2015-03-31
-categories: CDE
+categories: CTools
 tags: CDE
 published: true
 ---

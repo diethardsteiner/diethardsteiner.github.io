@@ -3,8 +3,8 @@ layout: post
 title:  "Mondrian 4: Generate Date Dimension Automatically"
 summary: Mondrian 4 has a new feature which will allow you to create and populate the date dimension automatically. Learn how it's done. 
 date: 2015-01-03
-categories: mondrian
-tags: OLAP, Mondrian, MDX
+categories: Mondrian
+tags: OLAP Mondrian MDX
 published: false
 ---
 

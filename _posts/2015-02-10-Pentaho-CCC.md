@@ -4,7 +4,7 @@ title:  "The ultimate guide to using CCC and CGG with PRD"
 summary: This article explains how you can use CCC charts with Pentaho Reporting solutions.
 date:   2015-02-10
 categories: PRD
-tags: CCC, CDE, CGG, PRD
+tags: CCC CDE CGG PRD
 published: true
 ---
 

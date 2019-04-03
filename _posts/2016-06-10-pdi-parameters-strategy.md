@@ -4,7 +4,7 @@ title:  "Pentaho Data Integration: Flexible Parameter Setup for Big Projects"
 summary: This provides detailled instructions on how to set up PDI Data Services
 date: 2016-06-10
 categories: PDI
-tags: PDI, Patterns
+tags: PDI Patterns
 published: true
 ---
 

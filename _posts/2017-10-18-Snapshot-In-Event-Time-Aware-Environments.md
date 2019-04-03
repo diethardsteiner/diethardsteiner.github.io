@@ -3,8 +3,8 @@ layout: post
 title: "Big Data Snapshots In Event Time Aware Tools"
 summary: This article discusses creating snapshots with emerging streaming tools
 date: 2017-10-18
-categories: Data Modeling
-tags: Data Modeling
+categories: Data-modeling
+tags: Data-modeling
 published: false
 ---
 

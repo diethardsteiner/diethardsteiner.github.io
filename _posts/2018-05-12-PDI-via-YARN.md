@@ -4,7 +4,7 @@ title: "Pentaho Data Integration on YARN"
 summary: This article explains how to use YARN to manage PDI processes
 date: 2018-05-12
 categories: PDI
-tags: PDI, YARN
+tags: [PDI, YARN]
 published: false
 ---
 

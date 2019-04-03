@@ -3,8 +3,8 @@ layout: post
 title: "Big Data Geospatial Analysis with Apache Spark, GeoMesa and Accumulo - Part 2: Basics"
 summary: This article walks you through the basics of Accumulo and GeoMesa.
 date: 2017-06-19
-categories: Geospatial
-tags: Geospatial, Spark
+categories: GIS Spatial-analysis Streaming
+tags: Geospatial Spark
 published: true
 ---  
 

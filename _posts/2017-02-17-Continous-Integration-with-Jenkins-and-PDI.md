@@ -4,7 +4,7 @@ title: "Agile Data Integration: Continuous Integration with Jenkins and PDI"
 summary: This article provides a short intro into using Jenkins with PDI
 date: 2017-02-17
 categories: PDI
-tags: PDI, CI
+tags: PDI CI
 published: true
 --- 
 

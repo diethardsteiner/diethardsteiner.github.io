@@ -3,7 +3,7 @@ layout: post
 title: "Pentaho Data Integration: Unit Testing"
 summary: This article explains how to use the Pentaho PDI Datasets plugin for unit testing
 date: 2019-01-09
-categories: PDI
+categories: [PDI, Best-practices]
 tags: PDI
 published: true
 ---

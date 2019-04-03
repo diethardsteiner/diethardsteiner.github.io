@@ -4,7 +4,7 @@ title: "Kubernetes: Deployment Example WebSpoon"
 summary: This article explains how to easily deploy Webspoon with Kubernetes on Google Cloud Platform
 date: 2018-02-03
 categories: PDI
-tags: PDI, Kubernetes, Google Cloud Platform
+tags: [PDI, Kubernetes, GCP]
 published: true
 ---
 

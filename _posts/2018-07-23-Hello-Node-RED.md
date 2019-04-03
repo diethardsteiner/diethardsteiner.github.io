@@ -3,8 +3,8 @@ layout: post
 title:  "Hello Node-RED!"
 summary: Introduction to Node-RED
 date: 2018-07-23
-categories: node-red
-tags: node-red
+categories: NodeRED
+tags: NodeRED
 published: true
 ---
 
@@ -178,11 +178,13 @@ Next we want to create the **HTML** snippet that returns our message. Add yet an
 - **Set property**: `msg.payload`
 - **Template** content:
 
+{% raw %}
 ```html
 <style> {{{css}}} </style> 
 <h1>My response:</h1>
 <div id="hello">{{payload}}</div>
 ```
+{% endraw %}
 
 ![](/images/node-red/template-html.png)
 

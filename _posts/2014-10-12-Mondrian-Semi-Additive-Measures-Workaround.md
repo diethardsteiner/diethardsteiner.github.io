@@ -4,7 +4,7 @@ title:  "Mondrian semi-additive measures"
 summary: This article explains a workaround you can use to implement semi-additive measures in Mondrian
 date:   2014-08-12
 categories: Mondrian
-tags: Pentaho, MDX, OLAP
+tags: Pentaho MDX OLAP
 published: true
 ---
 

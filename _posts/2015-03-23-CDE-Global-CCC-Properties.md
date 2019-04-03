@@ -1,17 +1,17 @@
 ---
 layout: post
-title:  "Pentaho CDE: Global CCC Properties"
-summary: This article explains how to create global properties for CCC Charts.
+title:  "Pentaho CDE: Global  Properties"
+summary: This article explains how to create global properties for  Charts.
 date:   2015-03-23
-categories: CCC
-tags: CCC, CDE
+categories: CTools
+tags:  CDE
 published: true
 ---
 
 
-This article is a brief walkthrough on how to define global **CCC Chart Properties**. We start with some simple examples and work our way towards creating these global properties.
+This article is a brief walkthrough on how to define global ** Chart Properties**. We start with some simple examples and work our way towards creating these global properties.
 
-## Replacing CDE CCC Chart Properties (or: How to copy CCC JavaScript code directly into CDE)
+## Replacing CDE  Chart Properties (or: How to copy  JavaScript code directly into CDE)
 
 Sometimes when you prototype your chart outside CDE in plain HTML you would like to just copy the JavaScript chart definition into CDE without having to fill out all the properties.
 
@@ -25,9 +25,9 @@ function(){
 }
 ```
 
-You will also see that there are a few additional properties like `dataAccessId` (to define the query), which are not available in standard CCC.
+You will also see that there are a few additional properties like `dataAccessId` (to define the query), which are not available in standard .
 
-Our code in CCC JavaScript looks like this (partial extract only):
+Our code in  JavaScript looks like this (partial extract only):
 
 ```javascript
 ...
@@ -42,7 +42,7 @@ new pvc.LineChart({
 ...
 ```
 
-In this case in **CDE** we add a **CCC Line Chart** component (so later on we do not have to define the chart type in our code again). We set the standard properties like **Name**, **Datasource**, **HTMLObject**, **crosstabMode** and **seriesInRows**. Then we can add our CCC JavaScript in **CDE** to the **PreExecution** function like this:
+In this case in **CDE** we add a ** Line Chart** component (so later on we do not have to define the chart type in our code again). We set the standard properties like **Name**, **Datasource**, **HTMLObject**, **crosstabMode** and **seriesInRows**. Then we can add our  JavaScript in **CDE** to the **PreExecution** function like this:
 
 ```javascript
 function(){
@@ -61,13 +61,13 @@ function(){
 
 > **Note**: CDE sets default values for quite some chart properties. This is why **we override the complete CDE chart definition**.
 
-> Integrating **Extension Points** is a bit more work because they are stored as an **array** within **CDE** whereas in **CCC** it is defined as an **object**. We will take a look at this in the next section. **UPDATE**: You can define Extension Points on the same level as the standard properties (so very easily), but there is a small caveat to this (read more about it later on).
+> Integrating **Extension Points** is a bit more work because they are stored as an **array** within **CDE** whereas in **** it is defined as an **object**. We will take a look at this in the next section. **UPDATE**: You can define Extension Points on the same level as the standard properties (so very easily), but there is a small caveat to this (read more about it later on).
 
 ## Extending CDE Chart Properties
 
 Instead of completely overriding the chart definition, we sometimes just want to extend it: If there are common properties, we want to override them, otherwise we want to keep the current value.
 
-Integrating **Extension Points** is a bit more work because they are stored as an **array** within **CDE** whereas in **CCC** it is defined as an **object** (usually):
+Integrating **Extension Points** is a bit more work because they are stored as an **array** within **CDE** whereas in **** it is defined as an **object** (usually):
 
 ```javascript
 function(){
@@ -83,11 +83,11 @@ function(){
 		, valuesFont: '10px Verdana, Geneva, sans-serif'	
 	};
 	
-	// Add/override CCC options
+	// Add/override  options
 	$.extend(cccOptions, myCccProperties);
 	
 	// extension points
-	// are stored in CDE as array and not as an object like in CCC
+	// are stored in CDE as array and not as an object like in 
 	var extensionPoints = Dashboards.propertiesArrayToObject(cccOptions.extensionPoints);
 	
 	var myCccExtensionPoints = {
@@ -102,7 +102,7 @@ function(){
 		, area_interpolate: 'monotone'	
 	}
 	
-	// Add/override CCC options
+	// Add/override  options
 	$.extend(extensionPoints myCccExtensionPoints);
 	
 	// Update the CDE extension points list with the new settings
@@ -135,16 +135,16 @@ function(){
 		, area_interpolate: 'monotone'	
 	};
 	
-	// Add/override CCC options
+	// Add/override  options
 	$.extend(cccOptions, myCccProperties);
 }
 ```
 
-## CDE: Global CCC Properties ##
+## CDE: Global  Properties ##
 
 When creating a dashboard with various charts, usually certain chart properties are the same across all the charts. You might also want to achieve a certain design across all your charts. In this case, it would be ideal to define these properties globally. 
 
-Let's see how this can be done with **CCC** in **CDE**:
+Let's see how this can be done with **** in **CDE**:
 
 Create a JavaScript file with the basic settings used across all charts. Encapsulate this in a function. E.g.:
 
@@ -177,7 +177,7 @@ function initGlobalCccProperties(chartDefinition){
 		, line_interpolate: 'monotone'
 		, area_interpolate: 'monotone'	
 
-	// Add/override CCC options
+	// Add/override  options
 	$.extend(cccOptions, globalCccProperties);	
 } 
 ```
@@ -199,11 +199,11 @@ function initGlobalCccProperties(chartDefinition){
 		, valuesFont: '10px Verdana, Geneva, sans-serif'	
 	};
 	
-	// Add/override CCC options
+	// Add/override  options
 	$.extend(cccOptions, globalCccProperties);
 	
 	// extension points
-	// are stored in CDE as array and not as an object like in CCC
+	// are stored in CDE as array and not as an object like in 
 	var extensionPoints = Dashboards.propertiesArrayToObject(cccOptions.extensionPoints);
 	
 	var globalCccExtensionPoints = {
@@ -218,7 +218,7 @@ function initGlobalCccProperties(chartDefinition){
 		, area_interpolate: 'monotone'	
 	}
 	
-	// Add/override CCC options
+	// Add/override  options
 	$.extend(extensionPoints, globalCccExtensionPoints);
 	
 	// Update the CDE extension points list with the new settings
@@ -228,7 +228,7 @@ function initGlobalCccProperties(chartDefinition){
 
 In your **CDE** dashboard include this JavaScript file as an external resource.
 
-Then we can add our function ( e.g. `initGlobalCccProperties`) in the **CDE CCC Chart Component** to the **PreExecution** function like this:
+Then we can add our function ( e.g. `initGlobalCccProperties`) in the **CDE  Chart Component** to the **PreExecution** function like this:
 
 ```javascript
 function(){
@@ -238,7 +238,7 @@ function(){
 
 Now this chart component will make use of the global settings.
 
-**Duarte Cunha Leão**, lead architect of **CCC**, provides following advice:
+**Duarte Cunha Leão**, lead architect of ****, provides following advice:
 
 > Other caveats also exist in cases where the intended global style extension behaviour, or that of subsequent local styles, would be to "add" instead of "replace".
 Extension points like `mark_event`, `mark_add`, `mark_call`, action handlers, like `clickAction`, `selectionChangedAction`, etc, are usually meant to have an "additive" behaviour. For extension points, there's a syntax that simultaneously supports extension points with more than one argument and calling them more than once:
@@ -252,7 +252,7 @@ Extension points like `mark_event`, `mark_add`, `mark_call`, action handlers, li
 
 > So, you could, in principle, have an `chartDefinition` extend method that would be smart enough to combine these additive-like extension properties properly. For the action handlers, the only way is for you to wrap a function that calls the previous value, and the new value. However, because of multiple executions, note that what you set in the chart definition in one execution, is still there in the following execution. So you have to have additional care to not combine with previous values, or in branching situations where you set options in one case but not in the following - the previous execution's option values remain there - you might need to reset them.
 
-Some more info about this can be found [here](http://forums.pentaho.com/showthread.php?150121-CCCv2-clickAction-How-to-handling-the-right-click-action&p=354722#post354722).
+Some more info about this can be found [here](http://forums.pentaho.com/showthread.php?150121-v2-clickAction-How-to-handling-the-right-click-action&p=354722#post354722).
 
 The basic idea is that an extension point can listen to more than one event (e.g. `mouseover` and `contextmenu`). This is achieved by using a special syntax for the extension point, basically defining an **array** with functions: 
 

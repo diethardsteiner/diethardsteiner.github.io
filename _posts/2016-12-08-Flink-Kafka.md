@@ -3,8 +3,8 @@ layout: post
 title: "Real Time Streaming with Apache Flink and Kafka: Simple Example"
 summary: This article provides a short intro into the fascinating world of Apache Flink
 date: 2016-12-08
-categories: Flink
-tags: Flink
+categories: Streaming
+tags: Flink Kafka
 published: true
 --- 
 

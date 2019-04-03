@@ -3,7 +3,7 @@ layout: post
 title: "Pentaho VizAPI: Create a custom visualization once and use it everywhere"
 summary: This article explains how to create custom visualizations with Pentahos VizAPI
 date: 2017-10-01
-categories: Visualistation
+categories: Pentaho-server
 tags: Visualistation
 published: true
 ---

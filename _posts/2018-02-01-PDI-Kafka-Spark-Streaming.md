@@ -4,7 +4,7 @@ title: "Pentaho Data Integration v8: Real-time Streaming with Kafka and Spark"
 summary: This article explains how to easily create a PDI job to stream data into HDFS via Kafka and Hadoop
 date: 2018-02-01
 categories: PDI
-tags: PDI, Spark, Kafka
+tags: [PDI, Spark, Kafka]
 published: false
 ---
 

@@ -3,8 +3,8 @@ layout: post
 title:  "D3js: Supercharge your charts with related information"
 summary: Learn how to create charts with event information
 date:   2014-10-15
-categories: Dashboards
-tags: Pentaho, D3js, Protovis
+categories: CTools
+tags: Pentaho D3js Protovis
 published: true
 ---
 

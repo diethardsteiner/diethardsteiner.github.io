@@ -3,8 +3,8 @@ layout: post
 title: GeoServer and Pentaho C-Tools
 summary: 
 date: 2015-07-09
-categories: GIS
-tags: QGIS, PostGIS, GeoServer
+categories: CTools GIS Spatial-analysis
+tags: QGIS PostGIS GeoServer
 published: false
 ---
 

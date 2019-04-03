@@ -3,7 +3,7 @@ layout: post
 title: "Getting Started With Flink Streaming API"
 summary: This article provides a short intro into the fascinating world of Apache Flink
 date: 2016-09-09
-categories: Flink
+categories: Streaming
 tags: Flink
 published: true
 --- 

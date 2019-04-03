@@ -4,7 +4,7 @@ title:  "PDI Data Services"
 summary: This provides detailled instructions on how to set up PDI Data Services
 date: 2016-05-02
 categories: PDI
-tags: PDI, Docker
+tags: PDI Docker
 published: true
 ---
 

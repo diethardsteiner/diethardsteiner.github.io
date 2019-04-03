@@ -3,8 +3,8 @@ layout: post
 title: "Documentation is a Journey"
 summary: This article explains how to encourage developers to write documentation
 date: 2018-07-21
-categories: Documentation
-tags: Documentation
+categories: Best-practices
+tags: documentation
 published: true
 ---
 

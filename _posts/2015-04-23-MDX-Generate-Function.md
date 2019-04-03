@@ -3,8 +3,8 @@ layout: post
 title:  "Pentaho Mondrian: The MDX Generate Function"
 summary: In this article we will discuss how to use the MDX Generate function
 date:   2015-04-23
-categories: CDE
-tags: CDE, MDX
+categories: CTools
+tags: CDE MDX
 published: true
 ---
 

@@ -5,8 +5,8 @@ layout: post
 title: "Pentaho Data Integration/Kettle: The easy way to create Beam Pipelines"
 summary: This article explains how to get started with creating Beam pipelines in PDI
 date: 2018-12-01
-categories: PDI
-tags: PDI, Beam
+categories: [PDI, Streaming]
+tags: [PDI, Beam]
 published: true
 ---
 

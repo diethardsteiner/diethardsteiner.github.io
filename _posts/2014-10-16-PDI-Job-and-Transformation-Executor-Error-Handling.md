@@ -3,8 +3,8 @@ layout: post
 title:  "Pentaho Kettle: Implementing Error Handling for Job and Transformation Executor Steps"
 summary: Learn how to implement correct error handling for job and transformation executor steps
 date:   2014-10-16
-categories: Data-Integration
-tags: Pentaho, Data-Integration
+categories: PDI
+tags: Pentaho error-handling
 published: true
 ---
 

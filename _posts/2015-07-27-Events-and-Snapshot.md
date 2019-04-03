@@ -3,7 +3,7 @@ layout: post
 title:  "Big Data Snapshot and Accumulating Snapshot"
 summary: This article explains how to implement an accumulating snapshot on Hadoop
 date: 2015-07-27
-categories: data-modeling
+categories: Data-modeling
 tags: Kimball
 published: true
 --- 

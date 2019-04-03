@@ -3,8 +3,8 @@ layout: post
 title: "Pentaho Data Integration: Advances in Real Time Streaming - Real Time SQL"
 summary: This article discusses the latest developments on real time streaming with PDI
 date: 2016-10-30
-categories: PDI
-tags: PDI, Real time streaming
+categories: PDI Streaming
+tags: PDI
 published: true
 ---  
 

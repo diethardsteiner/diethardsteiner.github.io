@@ -3,8 +3,8 @@ layout: post
 title:  "Creating nested JSON structures in Pentaho Data Integration"
 summary: This article discusses creating nested JSON structures with Pentaho Kettle.
 date:   2014-08-10
-categories: JSON
-tags: Pentaho
+categories: PDI
+tags: JSON
 published: true
 ---
 

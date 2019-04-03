@@ -3,7 +3,7 @@ layout: post
 title:  "A short exercise in Apache Spark REPL: Joining fact and dimension data"
 summary: This article provides a short intro into the fascinating world of Apache Spark
 date: 2016-09-04
-categories: Spark
+categories: Streaming
 tags: Spark
 published: true
 --- 

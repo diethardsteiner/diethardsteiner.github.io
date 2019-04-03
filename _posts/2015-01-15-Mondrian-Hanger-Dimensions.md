@@ -3,8 +3,8 @@ layout: post
 title:  "Mondrian 4: Hanger Dimensions (Actual VS Budget and other Scenarios)"
 summary: Hanger dimensions in Mondrian 4 open up a new world of possibilities. Before we dive into this topic, we will first have a look at calculated members and then discuss a few use cases for hanger dimensions.
 date:   2015-01-15
-categories: mondrian
-tags: OLAP, Mondrian, MDX
+categories: Mondrian
+tags: OLAP Mondrian MDX
 published: true
 ---
 
