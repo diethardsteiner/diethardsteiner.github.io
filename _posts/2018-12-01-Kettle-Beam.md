@@ -101,6 +101,8 @@ wget https://raw.githubusercontent.com/pentaho/maven-parent-poms/master/maven-su
 
 ### Phase 1: kettle-beam-core
 
+> **Update 2019-05-20**: The `kettle-beam-core` repo got merged into the `kettle-beam` repo (see also [here](https://github.com/mattcasters/kettle-beam-core/issues/19)), hence this step is not required any more. 
+
 ```bash
 cd ~/git
 git clone https://github.com/mattcasters/kettle-beam-core.git
@@ -367,7 +369,7 @@ Some steps require a special implementation, like Sort etc.
 As it is extremely early days with this project, these steps are supported:
 
 - Filter Rows
-- Memory Group by work with Sum and Count.
+- Memory Group by work with Sum and Count. See also [here](https://github.com/mattcasters/kettle-beam-core/issues/2).
 - Merge Join
 - Stream Lookup
 - Switch/Case
