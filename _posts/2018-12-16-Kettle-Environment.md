@@ -84,6 +84,39 @@ Download release file from [here](https://github.com/mattcasters/kettle-needful-
 * Copy library `lib/picocli-.jar` into the `lib/` folder of your PDI distribution
 * Copy scripts `Maitre.bat` and/or `maitre.sh` into your PDI distribution
 
+## Create an Environment
+
+Use following command to create an environment called `test`:
+
+```bash
+sh maitre.sh \
+  --create-environment test=/home/project-a/test
+```
+
+Instead of the long form `--create-environment` you can also use the short form `-C` flag:
+
+```bash
+sh maitre.sh \
+  -C test=/home/project-a/test
+```
+
+In addition you can also define variables via the `-V` flag:
+
+
+```bash
+sh maitre.sh \
+  -C test=/home/project-a/test \
+  -V PARAM_COLOR=red \
+  -V PARAM_TEMP=30
+```
+
+In case you mention passwords a variable values, it's good practise to obfuscate (or encrypt - see also [here](https://wiki.pentaho.com/display/EAI/PDI+Two-Way+Password+Encoding+plugins)) them:
+
+```bash
+sh encr.sh -kettle 'mypassword'
+```
+
+
 ## Example Usage
 
 Create a simple transformation call `test.ktr` and save it in the `transformations` folder within the `kettle-beam-examples` git repo folder. The transformation should look like this (just logging the variables that get set via the environments plugin):
@@ -97,6 +130,8 @@ In my case the name of the environment is `kettle-beam-examples-dev-env`. To exe
 ```
 
 > **Important**: Make sure to pass the variable between **single quotes** so that the environment variable is not instantly replaced with its actual value.
+
+> **Note**: As of version 0.8.0 of the kettle-needful-things plugin `${ENVIRONMENT_HOME}` does not have to be specified any more.
 
 Maitre expects the environment details to be available in `~/.kettle/environment`. If you move to a new environment, the environments file might not be in this location. You can export the config file to a **JSON file** and store it in a dedicated git repo so you can version control it. You can use Maitre to import this JSON file in the new environment (importing here basically means that Maitre will copy it from your custom location to `~/.kettle/environment`). Alternatively you could also set `KETTLE_HOME` to the custom location within your git repo (as long as you structure it correctly) and hence avoid the import step.
 
