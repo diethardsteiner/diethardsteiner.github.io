@@ -1,5 +1,5 @@
 ---
-typora-root-url:  /home/dsteiner/git/diethardsteiner.github.io
+typora-root-url:  /Users/diethardsteiner/git/diethardsteiner.github.io
 typora-copy-images-to: ../images/kettle-beam
 layout: post
 title: "Pentaho Data Integration/Kettle: The easy way to create Beam Pipelines"
@@ -44,29 +44,94 @@ As you can see creating a **Beam Pipeline** in **Spoon** does not involve writin
 
 # Download Kettle/Pentaho Data Integration (PDI)
 
-You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projects/pentaho/files/). Just pick the latest version 8.2. Once downloaded, unzip it in a convenient folder and that's basically all there is to installation. Inside the PDI folder you find the `spoon.sh` file (or `spoon.bat` on Windows), which will start the GUI of the designer.
+You can find the **PDI package** on [Sourceforge](https://sourceforge.net/projects/pentaho/files/). Just pick version 8.2. Once downloaded, unzip it in a convenient folder and that's basically all there is to installation. Inside the PDI folder you find the `spoon.sh` file (or `spoon.bat` on Windows), which will start the GUI of the designer.
 
-> **Note**: The **Kettle Beam Plugin** required Kettle/PDI v8.1 or v8.2.
+> **Note**: The **Kettle Beam Plugin** requires Kettle/PDI v8.1 or v8.2.
 
-# Adding the Kettle Beam Plugin
+# Setup
 
-## Downloading the precompiled Plugin
+There are various ways of get ready for using the Kettle Beam Plugin: If you want to skip most of the required setup, it's best you go for the Docker Image. 
 
-This is the easiest way of installing the plugin:
+## The Easiest Way: Using the Kettle Remix Build
 
-> **Important**: This will work with PDI 8.2 only!
+Download the build from the [Kettle.be](http://www.kettle.be) website. Make sure you pick the `kettle-neo4j-remix-beam-*` version. Just extract the file and you'll get the standard `data-integration` folder with all the goodies in it.
 
-1. Go to the [GitHub release page](https://github.com/mattcasters/kettle-beam/releases/). At the time of this writing the latest release is 0.0.5. Instructions for any later version might vary from these ones here since it is such a fast moving project.
-2. **Download** [the archive](https://s3-eu-west-1.amazonaws.com/kettle-eu/kettle-beam-20181216.zip) (it's listed more towards the end of the GitHub project description) and extract it. Copy the `kettle-beam` folder into the `pdi/plugins` folder.
-3. Next **download** [this PDI Engine Configuration patch](https://github.com/mattcasters/kettle-beam/releases/download/0.0.5/pdi-engine-configuration-8.2.0.0-342.zip),  and place it in the `pdi` folder (not the `pdi/plugins` folder!) and extract it. Your file manager will ask you if it should overwrite existing files in Karaf to which you reply yes.
-4. **Start** Spoon: 
+## Adding the Kettle Beam Plugin
+
+In case you don't want to use the Kettle remix build, you can download the vanilla version of Kettle/PDI from [here](https://sourceforge.net/projects/pentaho/files/Pentaho%208.3/client-tools/): Look for `pdi-ce-*.zip`. The next steps cover adding the required plugin and patch. 
+
+### Downloading the precompiled Plugin
+
+This is the easiest way to install the plugin:
+
+> **Important**: This will work with PDI 8.2 and later only!
+
+Go to the [GitHub release page](https://github.com/mattcasters/kettle-beam/releases/). At the time of this writing the latest release is 0.6.0. Instructions for any later version might vary from these ones here since it is such a fast moving project. Follow the instructions outlined in the release notes: 
+
+- **Beam Plugin**: Download the `kettle-beam-<version>.zip` file, extract it and move the extracted `kettle-beam` folder to the `<pdi-root>/plugins` folder. 
+
+```bash
+# example:
+cp -r ~/Downloads/kettle-beam ~/apps/pdi-ce-8.2/plugins/
+```
+
+
+- **PDI Engine Configuration Patch**: If there is no option to download it, you will have to compile it from source (see instructions below): place it in the `pdi` folder (not the `pdi/plugins` folder!) and extract it. Your file manager will ask you if it should overwrite existing files in Karaf to which you reply yes.
+
+**Start** Spoon: 
 
 ```bash
 $ cd $PDI_DIR
 $ ./spoon.sh
 ```
 
-## Building the Plugin from Source
+#### Compiling PDI Engine Configuration Patch from Source
+
+```
+git clone https://github.com/mattcasters/pentaho-kettle.git
+cd pentaho-kettle
+git checkout 8.2.0.1
+cd plugins/engine-configuration
+mvn clean install
+```
+
+Let's try to find where the build artifacts got stored (or instead read the log messages Maven produced):
+
+```
+$ find . -name '*pdi-engine-configuration*.jar'
+./impl/target/pdi-engine-configuration-impl-8.2.0.0-SNAPSHOT.jar
+./impl/target/pdi-engine-configuration-impl-8.2.0.0-SNAPSHOT-sources.jar
+./ui/target/pdi-engine-configuration-ui-8.2.0.0-SNAPSHOT-sources.jar
+./ui/target/pdi-engine-configuration-ui-8.2.0.0-SNAPSHOT.jar
+./api/target/pdi-engine-configuration-api-8.2.0.0-SNAPSHOT.jar
+./api/target/pdi-engine-configuration-api-8.2.0.0-SNAPSHOT-sources.jar
+# or
+$ find ~/.m2 -name pdi-engine-configuration
+/Users/diethardsteiner/.m2/repository/org/pentaho/di/plugins/pdi-engine-configuration
+```
+
+Next we copy the jar files across to the respective Kettle Karaf folder
+
+```bash
+# run this from following folder: pentaho-kettle/plugins/engine-configuration
+KETTLE_VERSION=8.2.0.0
+KETTLE_CLIENT_HOME=~/apps/pdi-ce-8.2
+# create required directories
+mkdir -p ${KETTLE_CLIENT_HOME}/system⁩/karaf⁩/system⁩/org⁩/pentaho⁩/di⁩/plugins⁩/pdi-engine-configuration-api⁩/${KETTLE_VERSION}
+mkdir -p ${KETTLE_CLIENT_HOME}/⁩system⁩/karaf⁩/system⁩/org⁩/pentaho⁩/di⁩/plugins⁩/pdi-engine-configuration-impl⁩/${KETTLE_VERSION}⁩
+mkdir -p ${KETTLE_CLIENT_HOME}/system⁩/karaf⁩/system⁩/org⁩/pentaho⁩/di⁩/plugins⁩/pdi-engine-configuration-ui⁩/${KETTLE_VERSION}
+# copy files across
+cp ./api/target/pdi-engine-configuration-api-${KETTLE_VERSION}-SNAPSHOT.jar \
+${KETTLE_CLIENT_HOME}/system⁩/karaf⁩/system⁩/org⁩/pentaho⁩/di⁩/plugins⁩/pdi-engine-configuration-api⁩/${KETTLE_VERSION}
+
+cp ./impl/target/pdi-engine-configuration-impl-${KETTLE_VERSION}-SNAPSHOT.jar \
+${KETTLE_CLIENT_HOME}/⁩system⁩/karaf⁩/system⁩/org⁩/pentaho⁩/di⁩/plugins⁩/pdi-engine-configuration-impl⁩/${KETTLE_VERSION}⁩
+
+cp ./ui/target/pdi-engine-configuration-ui-${KETTLE_VERSION}-SNAPSHOT.jar \
+${KETTLE_CLIENT_HOME}/system⁩/karaf⁩/system⁩/org⁩/pentaho⁩/di⁩/plugins⁩/pdi-engine-configuration-ui⁩/${KETTLE_VERSION}⁩
+```
+
+### Building the Beam Plugin from Source
 
 Install Maven, in example like so (adjust to your own setup):
 
@@ -99,7 +164,7 @@ cd ~/.m2
 wget https://raw.githubusercontent.com/pentaho/maven-parent-poms/master/maven-support-files/settings.xml
 ```
 
-### Phase 1: kettle-beam-core
+#### Phase 1: kettle-beam-core
 
 > **Update 2019-05-20**: The `kettle-beam-core` repo got merged into the `kettle-beam` repo (see also [here](https://github.com/mattcasters/kettle-beam-core/issues/19)), hence this step is not required any more. 
 
@@ -114,7 +179,7 @@ On successful build `mvn install` basically puts the jar file into the local cac
 
 There is nothing to copy at this stage to the PDI plugin folder!
 
-### Phase 2: kettle-beam
+#### Phase 2: kettle-beam
 
 Clone the plugin and start the build:
 
@@ -136,9 +201,6 @@ Next:
 
 You will notice that on successful build the `kettle-beam-core` jar is available in the `target/lib` folder. This is the reason why previously you did not have to copy anything from the core repo to the PDI plugins folder.
 
-
-
-
 Example:
 
 ```bash
@@ -155,7 +217,7 @@ cp -r target/lib ${PDI_HOME}/plugins/kettle-beam
 rm -r ${PDI_HOME}/system/karaf/caches
 ```
 
-### Rapid rebuild
+#### Rapid rebuild
 
 Since this project is in rapid development, you will have to rebuild the plugin regulary. Here is a small (but not perfect) **utility script** to rebuild the plugin (adjust variables):
 
@@ -774,7 +836,9 @@ On the **GCP cloud console** navigate to **Big Query** or alternatively click on
 
 A dataset name will show up under your pinned project. Click on it. Next click on **Create Table** (on the right). In the upcoming dialog set *Create table from* to **Empty Table** (since we want to populate it via the Beam BigQuery Output step). Provide all the other details. More info on the official [Quickstart Guide](https://cloud.google.com/bigquery/docs/quickstarts/quickstart-web-ui?hl=en_US).
 
+Tips:
 
+- **Dates**: BigQuery tables with DATE columns will fail on Beam BigQuery Input step because the `SimpleDateFormat` object in `BQSchemaAndRecordToKettleFn.java` won't parse the value coming from the table in the format `yyyy-MM-dd`, despite `setLenient = TRUE`. Just source them as String and check for length equal to 10 and then parse the short format. ([Source](https://github.com/mattcasters/kettle-beam/issues/40#issuecomment-501398177)).
 
 ### Common Errors
 
@@ -928,6 +992,24 @@ Two modes are supported:
 - **Flink Runner** ([Issue 32](https://github.com/mattcasters/kettle-beam/issues/32)): Execution via **Flink Master** on a clustered setup.
 
 Matt: If you want to play with Flink that's easy as well.  Download 1.7.2 and unzip. Follow local setup show in the [official documentation](https://ci.apache.org/projects/flink/flink-docs-release-1.7/tutorials/local_setup.html). Create [this script](https://github.com/mattcasters/kettle-beam/blob/master/flink-notes-matt.txt) in the 1.7.2 folder. Follow instructions in the comments of this script, create some folders, ...
+
+If you're using master code you can use the following script to run a Kettle transformation on Flink (`.ktr`):
+
+
+```bash
+TRANS=$1
+
+bin/flink run \
+  --class org.kettle.beam.pipeline.flink.MainFlink \
+  --parallelism 6 \
+  ~/software/kettle-8.2-beam-2.13-fat.jar \
+  "${TRANS}" \
+  file:///home/kettle/metadata/metastore.json \
+  "Flink server"
+```
+
+"Flink server" is the name of my Beam Run Config.
+The fat jar is generated by Spoon and put on the Flink master (you can load it into `hdfs://` somewhere as well).
 
 # Job Orchestration
 
