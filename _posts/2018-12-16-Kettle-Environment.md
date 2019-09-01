@@ -1,5 +1,5 @@
 ---
-typora-root-url: /home/dsteiner/git/diethardsteiner.github.io
+typora-root-url: /Users/diethardsteiner/git/diethardsteiner.github.io
 layout: post
 title: "Pentaho Data Integration/Kettle: Environment Plugin"
 summary: This article explains how to get started with a dynamic environment setup
@@ -7,6 +7,7 @@ date: 2018-12-16
 categories: PDI
 tags: PDI
 published: true
+typora-copy-images-to: ../images/kettle-environment-plugin
 ---
 
 Lately things are getting better around PDI/Kettle: This data integration tool has been around for over a decade, however, basic features like built-in **environment configuration** and **unit testing** have been missing ... until now that is, since Kettle founder **Matt Casters** recently has been building plugins to support this functionality.
@@ -29,11 +30,11 @@ In this brief blog post we will focus on the **Kettle Environment Plugin**:
 
 The issue lies in the fact that Spoon itself uses `KETTLE_HOME` which makes it hard to reliably switch to a different `KETTLE_HOME` all the time. You can still put e.g. database connection settings into `kettle.properties`, however, that information would be for all environments, which is not what you usually want.
 
-# Environment Example Setup
+# Environment Example Setup Via GUI
 
 Matt Casters also provides a Git repo with a few Kettle Beam Examples. Apart from covering Beam, it also showcases good practices by using **unit testing** and **environment specification**. It is a totally self contained git repo.
 
-To properly use this git repo, you have to install following **PDI plugins**:
+To properly use this git repo, you have to install following **PDI plugins** (or alternatively download **Kettle Remix** from [here](http://www.kettle.be) which has all these plugins already built-in):
 
 - [Kettle Environments Plugin](https://github.com/mattcasters/kettle-environment)
 - [Maitre - Kettle Needful Things Plugin](https://github.com/mattcasters/kettle-needful-things)
@@ -93,7 +94,13 @@ Create a simple transformation call `test.ktr` and save it in the `transformatio
 In my case the name of the environment is `kettle-beam-examples-dev-env`. To execute our transformation for this git repo/project with this environment with **Maitre** run the following:
 
 ```bash
-./maitre.sh -e kettle-beam-examples-dev-env -f '${ENVIRONMENT_HOME}/transformations/tr_test.ktr'
+./maitre.sh \
+  -e kettle-beam-examples-dev-env \
+  -f '${ENVIRONMENT_HOME}/transformations/tr_test.ktr'
+# since version 0.8 of the plugin
+./maitre.sh \
+  -e kettle-beam-examples-dev-env \
+  -f 'transformations/tr_test.ktr'
 ```
 
 > **Important**: Make sure to pass the variable between **single quotes** so that the environment variable is not instantly replaced with its actual value.
@@ -110,6 +117,8 @@ To import this file (to `~/.kettle/environments`), run the following command:
 
 ```bash
 ./maitre.sh -I ~/Downloads/kettle-beam-examples-dev-env.json 
+# or
+./maitre.sh --import-environment ~/Downloads/kettle-beam-examples-dev-env.json
 ```
 
 Take a look at the [Maitre Docu](https://github.com/mattcasters/kettle-needful-things/wiki/Maitre) for more command line options, or alternatively run:
@@ -119,6 +128,18 @@ Take a look at the [Maitre Docu](https://github.com/mattcasters/kettle-needful-t
 ```
 
 
+
+## Environment Setup via Command Line
+
+An environment can be created via the command line as well. Maitre offers the `--create-environment` option (You can also use the **-C** shortcut option) to define the environment and the `--add-variable-to-environment` option (or `-V` shorthand) to set variables in the environment.
+
+```bash
+sh maitre.sh \
+  -C Examples=/home/kettle/examples \
+  -V P1_HOSTNAME=192.168.1.15 \
+  -V P1_USERNAME=peter \
+  -V "P1_PASSWORD=Encrypted 2be98afc86aa7f2e4bf0bb66189c5f88d"
+```
 
 
 
