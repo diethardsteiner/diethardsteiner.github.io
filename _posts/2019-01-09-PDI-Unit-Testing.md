@@ -1,4 +1,6 @@
 ---
+typora-root-url: ..
+typora-copy-images-to: ../images/pdi-unit-testing
 layout: post
 title: "Pentaho Data Integration: Unit Testing"
 summary: This article explains how to use the Pentaho PDI Datasets plugin for unit testing
@@ -107,6 +109,8 @@ Provide the **name**, **description**, **type of test** and **base test path**. 
 > **Note**: If you use any other parameter name than `UNIT_TESTS_BASE_PATH` the unit test will not be visible in Spoon. It is recommended that you stick to using `UNIT_TESTS_BASE_PATH`. If you ever used a different parameter and want to revert the situation, just navigate on the terminal to the location of the metastore and find the related XML file for your unit test. Open it in a text editor and replace the parameter.
 
 > **Note**: `UNIT_TESTS_BASE_PATH` will usually point to the folder where all your jobs and transformations are stored. If your transformation is stored in example in `${UNIT_TESTS_BASE_PATH}/base-layer`, then in your unit test you have to define the base as: `${UNIT_TESTS_BASE_PATH}/base-layer`, so it has to point exactly to the same folder as your transformation is stored in.
+>
+> **Note**: If the **absolute hardcoded path** is used and for some reason the directory is not available any more (e.g. it got delete or you switch to a different laptop with a differen file system structure), Spoon tends to freeze when loading the transformation. Resolve this by editing the unit test xml file in `${PENTAHO_METASTORE_FOLDER}/metastore/pentaho/Kettle Transformation Unit Test`. You will want to adjust the path listed in the `transformation_filename` section. I usually tend to define the relative path from the `${UNIT_TESTS_BASE_PATH}`, e.g. `./utilities/tr_get_current_time.ktr`.
 
 
 ### Define Input and Golden Output Dataset

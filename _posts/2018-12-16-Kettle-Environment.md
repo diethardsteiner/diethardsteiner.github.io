@@ -1,5 +1,6 @@
 ---
-typora-root-url: /Users/diethardsteiner/git/diethardsteiner.github.io
+typora-root-url: ..
+typora-copy-images-to: ../images/kettle-environment-plugin
 layout: post
 title: "Pentaho Data Integration/Kettle: Environment Plugin"
 summary: This article explains how to get started with a dynamic environment setup
@@ -7,7 +8,6 @@ date: 2018-12-16
 categories: PDI
 tags: PDI
 published: true
-typora-copy-images-to: ../images/kettle-environment-plugin
 ---
 
 Lately things are getting better around PDI/Kettle: This data integration tool has been around for over a decade, however, basic features like built-in **environment configuration** and **unit testing** have been missing ... until now that is, since Kettle founder **Matt Casters** recently has been building plugins to support this functionality.
@@ -28,7 +28,15 @@ In this brief blog post we will focus on the **Kettle Environment Plugin**:
 
 > **Important**: The environments plugin does not change the `KETTLE_HOME` variable. The `KETTLE_HOME` directory is meant for system settings not environment settings. 
 
-The issue lies in the fact that Spoon itself uses `KETTLE_HOME` which makes it hard to reliably switch to a different `KETTLE_HOME` all the time. You can still put e.g. database connection settings into `kettle.properties`, however, that information would be for all environments, which is not what you usually want.
+Matt: "The issue lies in the fact that Spoon itself uses `KETTLE_HOME` which makes it hard to reliably switch to a different `KETTLE_HOME` all the time. You can still put e.g. database connection settings into `kettle.properties`, however, that information would be for all environments, which is not what you usually want."
+
+So instead of defining your **variables** in the `kettle.properties` file (which resides under `KETTLE_HOME`), you  can define them now in the **environment specification**. The environment specification itself will be deployed to the `KETTLE_HOME` folder (as stated above in more detail). 
+
+> **In a nutshell**: Don't use `kettle.properties` any more.
+
+
+
+What's the point of having the KETTLE_HOME folder in the environment definition?
 
 # Environment Example Setup Via GUI
 
@@ -72,6 +80,16 @@ Good practice/Nice to have:
 > **Note**: The paths that you set in this dialog will be available later on also via the upper case parameters mentioned in the brackets. So e.g. when you specify the **Environment base folder**, this path will be available via the `ENVIRONMENT_HOME` variable once this environment is selected.
 
 The last section of the dialog allows you to define additional parameters that you want to use within this environment for your jobs and transformations. In this case it is not required, but it is very likely that for your project you will define these extra parameters.
+
+| Variable                 | Description                                                  | Example                                                      |
+| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ENVIRONMENT_HOME         | You can think of this directory as the deployment directory of your pdi code. | `~/git/ds-kettle-beam-examples/dskbe-code/pdi/jobs-and-transformations` |
+| KETTLE_HOME              | Directory where the `.kettle` folder is located. Don't include the `.kettle` folder in your path. | `~/git/ds-kettle-beam-examples/dskbe-config-dev/pdi`         |
+| PENTAHO_METASTORE_FOLDER | Directory where the `metastore` folder is located. Don't include the `metastore` folder your path. | `~/git/ds-kettle-beam-examples/dskbe-code/pdi`               |
+| UNIT_TESTS_BASE_PATH     | Directory that should be used as the base path of the unit tests. Usually this is the same as the environment home. | `${ENVIRONMENT_HOME}`                                        |
+| DATASETS_BASE_PATH       | Directory where you store you dataset (e.g. for unit tests)  | `~/git/ds-kettle-beam-examples/dskbe-code/pdi/unit-test-datasets` |
+
+
 
 # Maitre
 

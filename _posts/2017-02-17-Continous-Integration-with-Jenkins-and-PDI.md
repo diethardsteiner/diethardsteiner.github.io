@@ -27,14 +27,16 @@ sh ./startup.sh
 
 Go to `localhost:8080/jenkins` and enter the password (which can be found under `~/.jenkins/secrets/initialAdminPassword`.
 
-After logging in you will be presented with an option to install **plugins**. At this stage you want to install the [Git plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin).
+After logging in you will be presented with an option to install **plugins**. 
+
+At this stage you want to install the [Git plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin).
 
 
 # Schedule PDI Job
 
 
 Sources:
- 
+
 - [Pentaho Data Integration scheduling with Jenkins](http://opendevelopmentnotes.blogspot.co.uk/2014/09/pentaho-data-integration-scheduling.html)
 
 
@@ -142,20 +144,20 @@ This section allows us to define variables:
 	
 	```
 	pdi-ce-6.1
- 	pdi-ce-7.0
- 	```
-    
+	 	pdi-ce-7.0
+	```
+  
     The idea here is that we can test against various versions of PDI. Do not use commas here, just put each PDI installation name on a new line.
 - Click on **Add axis > User-defined Axis**. Specify `PDI_FILE_NAME` and specify any transformation that you want to test, just the filename, not the whole path, e.g.:
 	
 	```
 	test-ok.ktr
- 	test-error.ktr
- 	```
- 
+	 	test-error.ktr
+	```
+
  	**Note**: If there is a space in the filename, enclose it in double quotation marks.
- 
-    
+
+
 - Tick the **Combination Filter** and set it to `!(PDI_ROOT_FOLDER_NAME=="dummy")`. This is just makes sure that this folder is excluded - this is just an example, it doesn't really do anything in our setup here.
 
 **Build Environment**:

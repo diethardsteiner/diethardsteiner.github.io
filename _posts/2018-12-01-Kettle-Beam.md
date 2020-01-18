@@ -1,5 +1,5 @@
 ---
-typora-root-url:  /Users/diethardsteiner/git/diethardsteiner.github.io
+typora-root-url: ..
 typora-copy-images-to: ../images/kettle-beam
 layout: post
 title: "Pentaho Data Integration/Kettle: The easy way to create Beam Pipelines"
@@ -293,7 +293,7 @@ Drag and drop the **Beam Input** step onto the **canvas** and double click on it
 
 ![](/images/kettle-beam/kettle-beam-4.png)
 
-> **Note**: The **Beam Input** step uses the **Beam API** (TextIO or some such) to read the data. This is not directly done by PDI, which makes a lot of sense since the [Beam I/O Transforms](https://beam.apache.org/documentation/io/built-in/) are more than just simple readers and writers.
+> **Note**: The **Beam Input** step uses the **Beam API** (TextIO) to read the data. This is not directly done by PDI, which makes a lot of sense since the [Beam I/O Transforms](https://beam.apache.org/documentation/io/built-in/) are more than just simple readers and writers.
 
 > **Note**: *Wildcards* are allowed as part of the **Input location**, e.g. `/path/to/my/file*`. This way you can source multiple files at once.
 
@@ -498,13 +498,15 @@ Finally click on the **Parameters** tab: We list here any parmaters and values t
 
 So how do I configure the pipeline to use **streaming** and not **batch** processing you might wonder? 
 
-The **PDI Beam plugin** supports both bound and unbound input data sources. Kafka support was only recently released ( see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (never ending) input source, it will automatically stream the data. 
+The **PDI Beam plugin** supports both **bound and unbound input data sources**. Kafka support was only recently released (see [ticket](https://github.com/mattcasters/kettle-beam-core/issues/3)). Once Beam sees it has an unbound (never ending) input source, it will automatically stream the data, so basically there is no action or specifial defintion from the user required.
 
 In the **Beam Job Configuration** for **Google Cloud Platform Dataflow** there is an option to switch on **Streaming**. Note that it is not necessary to tick this one since Beam can figure out automatically if the input data source is bound or unbound.
 
 ## Fat Jar Builder
 
 Some of the engines like **Apache Spark** and **Flink** expect all files to be supplied as a **fat jar**: You can find of this as a compressed file containing all dependencies to run your data process.
+
+References:
 
 - [Initial Kettle Beam Issue](https://github.com/mattcasters/kettle-beam/issues/26)
 - [Integration with Spoon, Pan, Kitchen, Maitre, ...](https://github.com/mattcasters/kettle-beam/issues/25)
@@ -574,7 +576,7 @@ $ cat /tmp/kettle-beam-output-0000*
 
 > **Note**: This works as well with **PDI CE** (Community Edition, the one you downloaded from SourceForge) - no **EE** subscription required.
 
-As you might know by know, Google initially donated the Beam abstraction layer code to the open source community. **GCP Dataflow** is more than just this abstraction layer: It is a managed service which apart from the engine/runtime also provisions worker nodes and does some clever stuff under the hood to optimise the dataflow. So this is pretty impressive: You don't have to include any logic in your setup to provision nodes and to scale your process.
+As you might know by now, Google initially donated the Beam abstraction layer code to the open source community. **GCP Dataflow** is more than just this abstraction layer: It is a **managed service** which apart from the engine/runtime also provisions worker nodes and does some clever stuff under the hood to optimise the dataflow. So this is pretty impressive: You don't have to include any logic in your setup to provision nodes and to scale your process.
 
 ### Setting up a Service Account
 
@@ -584,17 +586,18 @@ Background info:
 - [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started)
 - [Google Cloud Dataflow Security and Permissions](https://cloud.google.com/dataflow/docs/concepts/security-and-permissions)
 
-Before gettings started make sure you have GCP account set up and you have the required credentials file:
+Before getting started make sure you have a **GCP account** set up and you have the required credentials file:
 
-1. Pick the correct project or create a new one.
-2. Create a new **service account** via the [GCP IAM - Service Accounts page]. Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine (and also to set `GOOGLE_APPLICATION_CREDENTIALS`).
-3. Define the `GOOGLE_APPLICATION_CREDENTIALS` environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json`.
-4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles)). Give this role everything you can find related to API, Storage, Dataflow. Not complete list of required permissions: `compute.machineTypes.get`, `dataflow.*`, `storage.*`, `firebase.projects.get`, `resourcemanager.projects.get`.
-5. Assign your **service account** to the **custom role**. Go back to the **IAM** page, click on the **pencil** icon left next to the **service account** and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
-6. Create a **storage bucket**: Go to the [GCP Storage page](https://console.cloud.google.com/storage/browser) and click on **Create bucket**. Name it `kettle-beam-storage`. Once created, you should be automatically forwarded to the **Bucket Details** page: Click on **Create folder** and name it `input`. Create two other ones: `binaries`, `output`.
+1. Log on to the [GCP Console](https://console.cloud.google.com/) and pick the correct **project** or create a new one.
+2. Create a new **service account** via the [GCP IAM - Service Accounts page](https://console.cloud.google.com/iam-admin/serviceaccounts). Further info: [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started). Make sure to tick the **Create key (optional)** option at the end. This is the key (JSON file) that we require to authenticate from our local machine (and also to set `GOOGLE_APPLICATION_CREDENTIALS`). Note: If you created the service account a longer time ago and just want to retrieve the key again, just click on the 3 dots action icon on the right hand side to get an option to create a new key. 
+    ![gcp_create_new_service_account](/images/kettle-beam/gcp_create_new_service_account.png)
+3. Define the `GOOGLE_APPLICATION_CREDENTIALS` environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json` (ideally in your `.bashrc` or `.zprofile` or whatever shell you use).
+4. Create a **custom role** called `kettle-beam-role` via the [GCP Roles page](https://console.cloud.google.com/iam-admin/roles). Find further instructions [here](https://cloud.google.com/iam/docs/creating-custom-roles). Assign to this role everything you can find related to API, Storage, Dataflow. Not complete list of required permissions: `compute.machineTypes.get`, `dataflow.*`, `storage.*`, `firebase.projects.get`, `resourcemanager.projects.get`.
+5. Assign your **service account** to the **custom role**: Go back to the **IAM** page, click on the **pencil** icon left next to the **service account** and click on the **Role** pull-down menu. Type `beam` into the filter and then select our `kettle-beam-role`.
+6. Create a **storage bucket**: Go to the [GCP Storage page](https://console.cloud.google.com/storage/browser) and click on the **Create bucket** icon. Name it `kettle-beam-storage`. Once created, you should be automatically forwarded to the **Bucket Details** page: Click on **Create folder** and name it `input`. Create two other ones: `binaries`, `output`.
 7. Still on the **Bucket Details** page, click on the `input` folder and click on **Upload files**. Upload the input file for your PDI Beam pipeline.
 8. **Grant service account permissions on your storage bucket**: Still on the **Bucket Details** page, click on the **Permissions** tab. Here your service account should be listed.
-9. Enable the **Compute Engine API** for your project from the [APIs page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
+9. Enable the **Compute Engine API** for your project from the [APIs Library page](https://console.cloud.google.com/project/_/apiui/apis/library) in the Google Cloud Platform Console. Pick your project and search for `Compute Engine API`. After a few clicks you come to the full info page. Give it a minute or so to show the **Manage** etc buttons. In my case the **API enabled** status was already shown:
     ![](/images/kettle-beam/kettle-beam-9.png)
    Following APIs are required (most of them are enabled by default):
    - BigQuery API (if using BigQuery only)
@@ -641,7 +644,19 @@ GOOGLE_CLOUD_PROJECT=yourproject # this one is no longer needed
 
 ### Working with the Google Cloud SDK Command Line Tools
 
-You might have the [Cloud SDK](https://cloud.google.com/sdk/docs/quickstart-linux) command line tools already installed. 
+Install the [Cloud SDK](https://cloud.google.com/sdk/docs/quickstarts) command line tools.
+
+On macOS, you can also install it via Homebrew:
+
+```shell
+brew cask install google-cloud-sdk
+```
+
+Follow the install instructions on the GCP website. Once done your local environment should be properly configured. Validate the config:
+
+```shell
+gcloud config list
+```
 
 In case you are wondering with which user you are running the commands, execute this:
 
@@ -678,8 +693,6 @@ Your active configuration is: [default]
 There are many command options available which you can explore by yourself easily.
 
 ### Setting up the Storage Bucket
-
-OPEN ... manually ... automatically ...
 
 A sample folder structure within the bucket looks like this:
 
