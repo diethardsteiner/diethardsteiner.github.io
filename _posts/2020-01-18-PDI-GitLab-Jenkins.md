@@ -293,19 +293,19 @@ You have to install the **Jenkins GitLab plugin** and Git plugin. Last one is in
 
 1. Via the **GitLab web UI** create a dedicated `jenkins` user with Admin privileges (or alternatively add this user as a member to each group or project) and also set the **password** for this user.
   
-  ![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-1.png)
+  ![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-1.png)
   
 2. Get the **API Key**: Login with the `jenkins` user. Click on the avatar in the top right corner and go to **Settings**.
   
-  ![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-2.png)
+  ![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-2.png)
   
 3. From the left hand side menu choose **Access Tokens**: Provide a name and tick **api**.
   
-  ![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-3.png)
+  ![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-3.png)
   
 4. Then click on **Create personal access token**. Go to the top of the page to **copy** the generated **token**.
 
-![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-4.png)
+![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-4.png)
 
 #### Configure Jenkins
 
@@ -335,10 +335,10 @@ You have to install the **Jenkins GitLab plugin** and Git plugin. Last one is in
 
 6. In the credentials section click on **Add** and pick **Jenkins**. From the pop-up window choose **GitLab API token** from the **Kind** pull-down menu and paste the API token copied earlier in the **API Token** field. Finally provide a unique identifier (ID - can be anything you like) and click **Add**. Then just above the **Add** button (now in the GitLab section again) click on the pull down menu for **Credentials** and choose the ID you created earlier on.
 
-![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-6.png)
+![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-6.png)
 
 The settings should looks similar to the ones shown on the screenshot below:
-![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-5.png)
+![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-5.png)
 
 Click on **Test Connection**. If all is ok, click on **Save**.
 
