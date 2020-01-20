@@ -5,16 +5,18 @@ summary: This article explains how to set up an environment for automatically te
 date: 2020-01-18
 categories: CI
 tags: PDI
-published: false
+published: true
 ---
+
+This article starts a short series on how to set up and configure an environment for automated testing of your data processing pipeline.
 
 ## Prerequisites
 
-Whilst there are many different tools out there to choose from (for data processing, CI server and git server), I picked the ones that I am more familiar with. This is a fairly classic setup. Your environment might be totally different and your tools might support a lot of the functionality shown here as integrated services - in which case I think you can just read this article to get a general idea about automated testing and then apply the learnings to your particular setup. If you are, however, working with all or some of the tools that I picked for this example, the article will help you to set up a prototype environment.
+Whilst there are many different tools out there to choose from (for data processing, CI server and git server), I picked the ones that I am more familiar with. This is a fairly classic setup. Your environment might be totally different and your tools might support a lot of the functionality shown here as integrated services - in which case I think you can just read this article to get a general idea about automating testing and then apply the learnings to your particular setup. If you are, however, working with all or some of the tools that I picked for this example, the article will help you to set up a prototype environment.
 
 The tools I picked for this practical example are:
 
-- **Data Integration Tool**: Kettle/Pentaho Data Integration/Project Hob (yes, so many names!)
+- **Data Integration Tool**: Kettle/Pentaho Data Integration/Project Hob (yes, so many names for the same tool!)
 - **CI Server**: Jenkins
 - **Git Server**: GitLab CE
 
@@ -24,16 +26,16 @@ Instructions below are provided in case you want to prototype a local environmen
 
 **Hitachi Vantara** is quite late in the game of providing a **Docker image**. Well, to be precise, they don't provide the Docker image, but instructions on how to build one yourself, but this is a big step forward into the right direction. Alexander Schurman - one of the most outstanding experts on everything Pentaho that I know - created the blueprint for these Docker instructions. I'll go for the simplest setup here to keep it brief:
 
-Let's create a folder where all the files that we want to load into the container are located, e.g.:
+Let's create a dedicated folder to store any files that we want to load into the container, e.g.:
 
 ```
-/Users/diethardsteiner/docker-storage/pdi_base
+/Users/diethardsteiner/docker-storage/pdi-base
 ```
 
 We define an variable called `DOCKER_PDI_BUILD_BASE` to hold this path:
 
 ```
-DOCKER_PDI_BUILD_BASE=/Users/diethardsteiner/docker-storage/pdi_base
+DOCKER_PDI_BUILD_BASE=/Users/diethardsteiner/docker-storage/pdi-base
 ```
 
 Download the open source/**CE** version of **PDI** or alternatively **Project Hop**:
@@ -73,21 +75,23 @@ Open the **Terminal** and navigate to the `DOCKER_PDI_BUILD_BASE` folder, then r
 docker build -t pentaho/pdi:8.3 .
 ```
 
-Now we have a base **Docker image** ready and can add an **additional layer** with **customisations** for each client:
+Now we have a base **Docker image** ready and can add an **additional layer** with **customisations** for each client (I created this very simple layer as an example - you could of course add a lot more customisation: Normally you'd add specific JDBC drivers, plugins, properties etc):
 
 Again, we create a folder to store any files that we want to load into the container, e.g.:
 
 ```
-/Users/diethardsteiner/docker-storage/pdi_cloud
+/Users/diethardsteiner/docker-storage/pdi-client-a
 ```
 
-We define an environment called `DOCKER_PDI_CLOUD` to hold this path:
+We define an environment called `DOCKER_PDI_CLIENT_A` to hold this path:
 
 ```
-DOCKER_PDI_CLOUD=/Users/diethardsteiner/docker-storage/pdi_cloud
+DOCKER_PDI_CLIENT_A=/Users/diethardsteiner/docker-storage/pdi-client-a
 ```
 
-Inside this folder create a folder called `resources` and within this one a file called `load_and_execute.sh`: This will serve as the `ENTRY POINT` to our container. With the help of this shell script we can "send" our data pipeline (so Kettle jobs and transformations) to the container, which then will be submitted to `kitchen.sh`, PDI's command line client.
+Inside this folder create a folder called `resources` and within this one a file called `load_and_execute.sh`: This will serve as the `ENTRYPOINT` to our container. With the help of this shell script we can "send" our data pipeline code/instructions (so Kettle jobs and transformations) to the container, which then will be submitted to `kitchen.sh`, PDI's command line client.
+
+To achieve this, we will mount a **volume** to the container that is also available on our workstation (so it's shared between both environments). We can place our jobs and transformations that we want to run via the container in this shared folder. We will define the container in such a way that it accepts an **environment variable** called `PROJECT_STARTUP_JOB`. The purpose of this variable is to define the name (and location) of the job we want to execute (this job will be stored in the shared folder). Then in our `load_and_execute.sh` we can refer to this variable.
 
 > **Note**: The idea behind this setup is that the container runs when a job has to be executed. Once this is completed, the container shuts down again.
 
@@ -99,10 +103,12 @@ The `load_and_execute.sh` should contain following content:
 # "PROJECT_STARTUP_JOB"
 # path to Kettle job from within volume
 #
-# "LOG_LEVEL"
+# "KETTLE_LOG_LEVEL"
 # values are [Basic / Debug] 
 #######################################################################
 
+
+BASENAME="${0##*/}"
 
 # Standard function to print an error and exit with a failing return code 
 error_exit () {
@@ -113,15 +119,18 @@ error_exit () {
 # retrieve files from volume
 # ... done via Dockerfile via specifying a volume ... 
 
-# Create a temporary directory and unpack the zip file
-kitchen.sh -file=${PROJECT_STARTUP_JOB}
+# Run main job
+kitchen.sh \
+  -file=/opt/pentaho/project/${PROJECT_STARTUP_JOB} \
+  -level=${KETTLE_LOG_LEVEL}
 ```
 
-Next create this `Dockerfile` in `DOCKER_PDI_CLOUD`:
+Next create this `Dockerfile` in `DOCKER_PDI_CLIENT_A`:
 
 ```
-# Dockerfile to build slim Pentaho 8.3 Image for Execution
 FROM pentaho/pdi:8.3
+ENV PROJECT_STARTUP_JOB=
+ENV KETTLE_LOG_LEVEL=Basic
 USER root
 COPY --chown=pentaho:pentaho ./resources/ ${PENTAHO_HOME}
 RUN apk update; apk add --no-cache wget python groff; rm -rf /var/cache/apk/*
@@ -131,30 +140,26 @@ USER pentaho
 ENTRYPOINT ["/opt/pentaho/load_and_execute.sh"]
 ```
 
-Build the image:
+Build the **image**:
 
 ```
-docker build -t pentaho/pdi-cloud:8.3 .
+docker build -t pentaho/pdi-client-a:8.3 .
 ```
 
-Start the container:
+To test this setup I created a very simple job and transformation that reads in a text file with one integer value, adds 1 to it and writes the result out to a text file. I saved the job and transformation in `/Users/diethardsteiner/docker-storage/pdi-project` which I will map to the **Docker volume**.
+
+Start the container and run my data process I issued following command:
 
 ```
 docker run \
-  --detach \
+  -it\
+  --rm \
+  --env PROJECT_STARTUP_JOB=main.kjb \
+  --env KETTLE_LOG_LEVEL=Basic \
   -v /Users/diethardsteiner/docker-storage/pdi-project:/opt/pentaho/project \
-  --name pdi-cloud \
-  pentaho/pdi-cloud:8.3
+  --name pdi-client-a \
+  pentaho/pdi-client-a:8.3
 ```
-
-docker run \
-  -it \
-  -v /Users/diethardsteiner/docker-storage/pdi-project:/opt/pentaho/project \
-  --name pdi-cloud \
-  pentaho/pdi-cloud:8.3
-  
-unzip: can't open /opt/pentaho/project/project.zip[.zip]
-load_and_execute.sh - Failed to unpack zip file.
 
 ### Running Jenkins via Docker
 
@@ -216,7 +221,7 @@ Use the `admin` user and the auto-generated password from the log.
 
 ### Running GitLab via Docker
 
-I'll be using GitLab Community as an example For info on the Docker image see [here](https://docs.gitlab.com/ee/install/docker.html) and more specifically [here](https://hub.docker.com/r/gitlab/gitlab-ce) and finally - most importantly - this [guide](https://docs.gitlab.com/omnibus/docker/) on how to use the image.
+I'll be using **GitLab Community Edition** as an example. For info on the **Docker image** see [here](https://docs.gitlab.com/ee/install/docker.html) and more specifically [here](https://hub.docker.com/r/gitlab/gitlab-ce) and finally - most importantly - this [guide](https://docs.gitlab.com/omnibus/docker/) on how to use the image.
 
 Pull a specific version of the image:
 
@@ -244,7 +249,7 @@ The initialisation process may take a long time. You can track this process with
 docker logs -f gitlab
 ```
 
-The web interface will be available via:
+The **web interface** will be available via:
 
 ```
 http://localhost:80
@@ -328,7 +333,7 @@ You have to install the **Jenkins GitLab plugin** and Git plugin. Last one is in
 
   In my case I used the IP `172.17.0.3`.
 
-6. In the credentials section click on *Add** and pick **Jenkins**. From the pop-up window choose **GitLab API token** from the **Kind** pull-down menu and paste the API token copied earlier in the **API Token** field. Finally provide a unique identifier (ID - can be anything you like) and click **Add**. Then just above the **Add** button (now in the GitLab section again) click on the pull down menu for **Credentials** and choose the ID you created earlier on.
+6. In the credentials section click on **Add** and pick **Jenkins**. From the pop-up window choose **GitLab API token** from the **Kind** pull-down menu and paste the API token copied earlier in the **API Token** field. Finally provide a unique identifier (ID - can be anything you like) and click **Add**. Then just above the **Add** button (now in the GitLab section again) click on the pull down menu for **Credentials** and choose the ID you created earlier on.
 
 ![](./images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-6.png)
 
