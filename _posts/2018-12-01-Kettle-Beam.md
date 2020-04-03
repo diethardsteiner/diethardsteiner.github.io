@@ -359,6 +359,11 @@ event-data-00004-of-00005.csv
 
 As you can see, because of the multithreaded nature of Beam more than one output file gets created.
 
+### ParquetIO
+
+- [GitHub Issue](https://github.com/mattcasters/kettle-beam/issues/58)
+- [Beam Reference](https://beam.apache.org/releases/javadoc/2.19.0/org/apache/beam/sdk/io/parquet/ParquetIO.html)
+
 ### Google Big Query
 
 - [Apache Beam API Ref](https://beam.apache.org/documentation/io/built-in/google-bigquery/)
@@ -382,6 +387,11 @@ These steps are available for realtime processing on the **Google Cloud Platform
 ### Apache Kafka
 
 ![Screenshot from 2019-02-09 17-30-27](/images/kettle-beam/Screenshot%20from%202019-02-09%2017-30-27.png)
+
+Intersting related posts:
+
+- [More Kafka Consumer Options](https://github.com/mattcasters/kettle-beam/issues/51)
+- [Beam Kafka Consumer not committing offset to the configured consumer group](https://github.com/mattcasters/kettle-beam/issues/53)
 
 
 

@@ -343,3 +343,10 @@ The settings should looks similar to the ones shown on the screenshot below:
 Click on **Test Connection**. If all is ok, click on **Save**.
 
 We have set up Kettle, GitLab and Jenkins - all running in **Docker containers**. We successfully configured Jenkins and GitLab so that they can talk to each other. The next step is to apply automated testing principles to a project, which we will cover in **part 2** of this series.
+
+# Artefacts
+
+Git repos:
+
+- [pdi-base](https://github.com/diethardsteiner/pdi-base)
+- [pdi-client-a](https://github.com/diethardsteiner/pdi-client-a)
