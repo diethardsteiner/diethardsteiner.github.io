@@ -12,7 +12,7 @@ This article focuses on generating the **junit** compatible test report that can
 
 We collect the result and log of our tests with a dedicated process and then generate the **XML** based test report. The related junit5 **XSD Schema** can be found [here](https://github.com/junit-team/junit5/blob/master/platform-tests/src/test/resources/jenkins-junit.xsd). 
 
-The XML document starts with a `teststuite` tag containing some summary info:
+The XML document starts with a `testsuite` tag containing some summary info:
 
 ```xml
 <testsuite name="TestSuitName" tests="NumberOfTests" failures="ErrorCount" skipped="0" errors="0">
@@ -58,9 +58,10 @@ What follows is a sample implementation with Kettle/PDI/Project Hob. I'd guess t
 
 You can download the example yourself and go through it, so I will discuss it only on a high level here:
 
-SCREENSHOT
-
 ![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-7.png)
+
+This PDI process (transformation) will load all the tests defined in the `test-suite.xml` file and then execute each one of them: Each test can define a PDI job or PDI transformation as the test subject. In the below screenshot we can see the sub-transformation which actually executes the job-to-be-tested:
 
 ![](/images/pdi-gitlab-jenkins/pdi-gitlab-jenkins-8.png)
 
+All the execution stats get collected and propagated to the parent job. Once all tests are executed, the parent job constructs the **JUnit based test report** for all the tests.
