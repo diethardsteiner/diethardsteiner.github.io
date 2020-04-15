@@ -44,13 +44,13 @@ Chances are that you've previously used Kettle/PDI, so this section is more a su
 **UI Changes**: 
 
 - A new **quick search** function allows you to easily search for transforms/steps and functions that were previously available via the context menu (e.g. preview the output of a step). **Quick search** can be activated by left clicking on the canvas. This replaces the context menu that could previously be activated by right clicking on a step  as well as the left hand side steps panel. Give **Quick Search** a try - it's a joy to use!
-	![](/images/project-hop-2.png)
+	![](/images/project-hop/project-hop-2.png)
 - All UI elements are all working now. Previously some UI element, like the repository picker, were not working on some environments.
 - You will notice a few other changes ... go ahead and explore the GUI yourself to get an impression of the changes.
 
 **Full power to the Metastore**: Previously only a few configuration details were stored in the Metastore. Now **database connections**, **Carte details**, **Pipeline Run Command** and **Partition Schema** are also stored in the Metastore, which makes the configuration much more uniform. There are a few new menu entries available to work with the Metastore:  
 
-![](/images/project-hop-1.png)
+![](/images/project-hop/project-hop-1.png)
 
 **One command line utility**: Previously the **kitchen** utility was used to execute jobs /workflows and the **pan** utility to execute transformations/pipelines. The new kid in town, **hop-run**, consolidates the functionality of both.
 
