@@ -14,7 +14,7 @@ published: true
 
 - [Project Homepage](https://www.project-hop.org)
 - [GitHub](https://github.com/project-hop/hop/)
-- [Jira](http://project-hop.atlassian.net)
+- [Jira](http://project-hop.atlassian.net): To create a new bug report, simply press `C`  once on the Kanban board.
 - [Forum](https://forums.project-hop.org)
 - [Chat](https://chat.project-hop.org) 
 
@@ -22,7 +22,7 @@ published: true
 
 **Hop** is a new **open source** **data integration** tool which builds on long history:
 
-**Hop 0.10** marks the first official release of **Project Hop**, which was founded last year by **Matt Casters** and **KnowBI** (Bart is sponsoring the project). It's a fork of PDI. It offers a good chance to clean up and improve features that have been on the backlog for decades. It's also a great opportunity to introduce new concepts and ideas. The first release has been mainly about cleaning up the code base and making it more modular as well as introducing UI improvements, both of which are very welcome by long-term PDI/Kettle users.
+**Hop 0.10** marks the first official release of **Project Hop**, which was founded last year by **Matt Casters** and **KnowBI** (Bart and Hans). It's a fork of PDI. It offers a good chance to clean up and improve features that have been on the backlog for decades. It's also a great opportunity to introduce new concepts and ideas. The first release has been mainly about cleaning up the code base and making it more modular as well as introducing UI improvements, both of which are very welcome by long-term PDI/Kettle users.
 
 Which brings us to the point where we should explain what PDI and Kettle are: **KETTLE** was originally developed by **Matt Caters** as an **open source** ETL tool and subsequently integrated into the **Pentaho** stack and renamed to **Pentaho Data Integration** (PDI). Many years later **Pentaho** was acquired by **Hitachi** and since then one could get the impression that development efforts on the product have stalled quite a bit. 
 
