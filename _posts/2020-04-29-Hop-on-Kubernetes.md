@@ -261,6 +261,11 @@ If you are really super curious, you can log onto the the running container:
 kubectl exec -it hop-server-7f65f9bdd4-rjfg8 -c hop-server -- /bin/bash
 ```
 
+
+## Clean up
+
+Don't forget to remove your deployment and the cluster (either via the GCP GUI or the command line).
+
 # Conclusion
 
 And that's it really. With a small amount of effort we've create **short-lived** and **long-lived** hop deployments that are easily repeatable (and easy to further automate). Certainly this is only a starting point, but I hope that this article provided you at least a good idea on how this setup works and sparked your motivation to explore this interesting topic further.
