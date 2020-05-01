@@ -14,7 +14,8 @@ published: true
 
 - [Project Homepage](https://www.project-hop.org)
 - [GitHub](https://github.com/project-hop/hop/)
-- [Jira](http://project-hop.atlassian.net): To create a new bug report, simply press `C`  once on the Kanban board.
+- [Docu on GitHub](https://github.com/project-hop/hop-doc)
+- [Jira](http://project-hop.atlassian.net): To create a new bug report or feature request, simply press `C`  once on the Kanban board.
 - [Forum](https://forums.project-hop.org)
 - [Chat](https://chat.project-hop.org) 
 
@@ -89,6 +90,57 @@ Hop	| PDI	| Purpose
 `hop-server.sh`	| `carte.sh`	| utility to start webserver
 `hop-translator.sh`	| not available	| utility to help translate UI text
 
+### Hop Config
+
+PDI used to store most config artefacts in `~/.kettle`. For Hop these artefacts live under `~/.hop`.
+An alternative path can be configured via the  `HOP_HOME`  env variable, e.g.:
+
+```bash
+export HOP_HOME=/tmp
+./hop-gui.sh
+```
+
+
+The project will add the environment plugin  as well (see [here](https://project-hop.atlassian.net/browse/HOP-130)).
+
+To set the path to the Metastore use:
+
+```
+export HOP_METASTORE_FOLDER=/path/to/metastore
+```
+
+Currently the command line utilities are not picking up this env variable (see related [Jira ticket](https://project-hop.atlassian.net/browse/HOP-228)).
+
+## GUI
+
+**Defining Parameters**: In PDI this is done via the job or transformation settings. In Hop, use the **Search** function to bring up **Edit Pipeline** or **Edit Workflow**.
+
+## Can I open PDI files in Hop and vice versa?
+
+No, not necessarily. It's very likely that the file XML structure changes, as it already did with Hop workflows (e.g. the `entry` tag was replaced with the `action` tag). Overall I find this is also the correct direction since this gives the Hop team the option to introduce new features without depending on any PDI development.
+
+# How execute Hop Workflows and Pipelines
+
+As we learnt, there is only one command in the **Hop** world to execute a **workflow** or a **pipeline**. Example:
+
+```
+${DEPLOYMENT_PATH}/hop/hop-run.sh \
+  --file=${HOP_FILE_PATH} \
+  --runconfig=${HOP_RUN_CONFIG} \
+  --level=${HOP_LOG_LEVEL} \
+  --parameters=${HOP_RUN_PARAMETERS} \
+  2>&1 | tee ${HOP_LOG_PATH}
+```
+
+
+```
+./hop-run.sh \
+  --file=/path/to/workflow.hwf \
+  --runconfig=your-run-config \
+  --parameters=PARAM_TEST=Hello,PARAM_TEST_2=Goodbye
+```
+
+
 # It's all about Community
 
 **Project Hop** needs a vibrant community. It's an open source project where everyone can contribute, e.g. by:
@@ -98,4 +150,10 @@ Hop	| PDI	| Purpose
 - help coding/implementing features
 - etc
 
-Give **Project Hop** a try and maybe this sparks your enthusiasm to contribute to this project! 
+Give **Project Hop** a try and maybe this sparks your enthusiasm to contribute to this project!
+
+# Other useful bits
+
+## How to check the version
+
+Look for the `lib/hop*.jar` file. 
