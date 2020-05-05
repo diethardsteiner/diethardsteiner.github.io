@@ -4,7 +4,7 @@ typora-copy-images-to: ../images/project-hop
 layout: post
 title: "Project Hop: Create Environment Definitions"
 summary: A brief overview of how to create environment definitions for Hop projects
-date: 2020-04-15
+date: 2020-05-05
 categories: [Hop]
 tags: 
 published: true
