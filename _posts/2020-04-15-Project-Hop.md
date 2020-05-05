@@ -103,13 +103,7 @@ export HOP_HOME=/tmp
 
 The project will add the environment plugin  as well (see [here](https://project-hop.atlassian.net/browse/HOP-130)).
 
-To set the path to the Metastore use:
-
-```
-export HOP_METASTORE_FOLDER=/path/to/metastore
-```
-
-Currently the command line utilities are not picking up this env variable (see related [Jira ticket](https://project-hop.atlassian.net/browse/HOP-228)).
+Note that there is no concept of a `HOP_METASTORE_FOLDER` environment variable. "The Environments plugin is now included in the distribution. It is better to create an environment and set the metastore there then changing it on startup." (see related [Jira ticket](https://project-hop.atlassian.net/browse/HOP-228)).
 
 ## GUI
 
