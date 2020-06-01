@@ -18,6 +18,10 @@ published: true
 - [Jira](http://project-hop.atlassian.net): To create a new bug report or feature request, simply press `C`  once on the Kanban board.
 - [Forum](https://forums.project-hop.org)
 - [Chat](https://chat.project-hop.org) 
+- [WebHop](https://github.com/HiromuHota/hop/tree/web)
+- [Docker](https://hub.docker.com/u/projecthop)
+- [Beam Examples](https://github.com/project-hop/hop/tree/master/plugins/engines/beam/src/main/resources/demo): Once cloned you can point to that directory as an `ENVIRONMENT_HOME`.
+- [Hop Ultimate Import Tool](https://github.com/uwegeercken/hop-uit): Converts PDI/Kettle jobs and transformations to Hop pipelines and workflows.
 
 # History
 
@@ -41,6 +45,12 @@ Chances are that you've previously used Kettle/PDI, so this section is more a su
 **Long live the container**: As a consequence of the above, Hop is a much better fit for a containerised world than PDI. Now we can build slim Docker images that only include what we require. It's a world without all the ballast.
 
 **Start-up Time**: Another consequence of the new lean setup is that the start-up time is significantly reduced. Finally I don't have to brew a coffee any more while waiting for the GUI to start up. (This doesn't only apply to the GUI, also the command line utilities are much faster).
+
+**Apache Beam** support out-of-the box: Now this is a big one! It opens the door to a wide variety of engines (Flink, Spark, etc). Hop is one of the first GUI driven pipeline designers for Apache Beam!
+
+**Environment** support built-in! Define all the variables in one file and Hop will pick it up. Gone are the days when you had to built your custom solution for this!
+
+**Unit testing support** built-in! Also know as Hop datasets, this feature accelerates quick prototyping and testing.
 
 **UI Changes**: 
 
@@ -103,7 +113,7 @@ export HOP_HOME=/tmp
 
 The project will add the environment plugin  as well (see [here](https://project-hop.atlassian.net/browse/HOP-130)).
 
-Note that there is no concept of a `HOP_METASTORE_FOLDER` environment variable. "The Environments plugin is now included in the distribution. It is better to create an environment and set the metastore there then changing it on startup." (see related [Jira ticket](https://project-hop.atlassian.net/browse/HOP-228)).
+Note that there is no concept of a `HOP_METASTORE_FOLDER` environment variable.
 
 ## GUI
 

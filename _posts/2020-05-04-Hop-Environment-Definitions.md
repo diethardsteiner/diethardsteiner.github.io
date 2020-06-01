@@ -14,7 +14,7 @@ The team behind **Project Hop** has done an excellent job in cleaning up and imp
 
 In this article we will dive into the **environment management** aspect of **Hop**. Usually our data processes are propagated through various environments (e.g. development, test, UAT, production). As a developer we should always aim to make our data processes configurable as much as possible, so that they can be easily adjusted to changing database connection details, paths etc. Configurable elements (like e.g. path) are usually represented by Parameters (`${PARAMATER}`), sometimes also called properties or variables (I am talking in general here, there might be fine nuances between them). The values of these parameters can be provided via a **Hop Environment Definition** (this is not an exclusive mechanism, there are various other ways available as well). The beauty of this approach is that we can define upfront which environment definition we want to use before running our data process. And this all done in a very easy way, because it is all built into Hop now.
 
-The hop package contains a utility called `hop-conif.sh` which helps with managing the environment definitions. Let's have a look which functions it provides:
+The hop package contains a utility called `hop-conf.sh` which helps with managing the environment definitions. Let's have a look which functions it provides:
 
 ```
 % ./hop-conf.sh --help
@@ -77,6 +77,10 @@ Here a description of a few interesting properties:
 
 -	`HOP_PLUGIN_CLASSES`: The classes variable is for development and integration is you want to direct the plugin registry straight to a list of plugins without scanning jar files for them and when the classes are already in the classpath. 
 -	`HOP_PLUGIN_PACKAGES`: A list of packages to scan during boot time.
+
+
+Let's also understand in which order **Hop** applies variables: OS / config.json / Environment / Run Configuration / Pipeline-Workflow.
+
 
 I will mainly talk you through the process of using custom locations for the config artefacts because this is the more complicated approach:
 
@@ -199,3 +203,9 @@ To create a new environment, you can use these arguments:
 ```
 
 > **Note**: Pay attention to the dashes for the fully spelled out arguments! Some have a single dash whereas others have double dashes.
+
+# Other noteworthy environment variables
+
+Variable	| Purpose
+---	|------
+`HOP_AUDIT_DIRECTORY`	| It's where it keeps history, shell sizes, usage, lists, ...
