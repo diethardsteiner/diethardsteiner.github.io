@@ -622,7 +622,7 @@ There is a massive list of settings available. Since we only run a very simple p
 - **XP plugin classes**
 - **Streaming Hop transforms flush intervals (ms)**
 - **Hop streaming transforms buffer size**
-- **Fat jar location**
+- **Fat jar location**: When using GCP DataFlow, Hop will automatically upload all the required binaries to the service, however, you can also create a fat jar (Hop main menu **Tools > Generate a Hop fat jar**). Once generated, you can specify the path to this file here.
 
 
 

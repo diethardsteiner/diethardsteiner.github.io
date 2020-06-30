@@ -10,6 +10,12 @@ tags:
 published: true
 ---
 
+
+
+**THIS ARTICLE IS OUTDATED**: A new version is available [here](http://diethardsteiner.github.io/hop/2020/07/01/Hop-Project-and-Environment-Configuration.html)
+
+
+
 The team behind **Project Hop** has done an excellent job in cleaning up and improving the configuration of what was previously know as KETTLE/PDI. Finally we have built-in **environment management** available, a feature I've been waiting for for a decade. I must say **Hop** is shaping up really nicely: There is a lot of focus on Hop as a product instead of ticking marketing/sales checkboxes. It feels like a product that we as developers will be proud and happy to work with!
 
 In this article we will dive into the **environment management** aspect of **Hop**. Usually our data processes are propagated through various environments (e.g. development, test, UAT, production). As a developer we should always aim to make our data processes configurable as much as possible, so that they can be easily adjusted to changing database connection details, paths etc. Configurable elements (like e.g. path) are usually represented by Parameters (`${PARAMATER}`), sometimes also called properties or variables (I am talking in general here, there might be fine nuances between them). The values of these parameters can be provided via a **Hop Environment Definition** (this is not an exclusive mechanism, there are various other ways available as well). The beauty of this approach is that we can define upfront which environment definition we want to use before running our data process. And this all done in a very easy way, because it is all built into Hop now.
@@ -43,7 +49,7 @@ Usage: <main class> [-h] [-ec] [-ed] [-ee] [-el] [-em] [-eo]
   -h, --help   Displays this help message and quits.
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
                A comma separated list of KEY=VALUE pairs
-  ```
+```
 
 
 > **Note**: The `--environments-home` flag can only be used in tandem with `-environment-create` or `-environment-delete` or `-environment-modify`. It can't be used on its own just to set the path to the environments folder, this is what `HOP_CONFIG_DIRECTORY` is for.
@@ -204,8 +210,15 @@ To create a new environment, you can use these arguments:
 
 > **Note**: Pay attention to the dashes for the fully spelled out arguments! Some have a single dash whereas others have double dashes.
 
-# Other noteworthy environment variables
+# Noteworthy environment variables
 
 Variable	| Purpose
 ---	|------
-`HOP_AUDIT_DIRECTORY`	| It's where it keeps history, shell sizes, usage, lists, ...
+`HOP_CONFIG_DIRECTORY`	| Main Hop configuration directory
+`HOP_METADATA_FOLDER`	| Location of the metadata folder (replaces `HOP_METASTORE_FOLDER`).
+`HOP_AUDIT_DIRECTORY`	| Hop stores history, shell sizes, usage, lists, ... there
+`HOP_HOME`	| depricated
+`HOP_OPTIONS`	| Any JRE options you want to set
+`HOP_SHARED_JDBC_DIRECTORY`	| Directory to pick JDBC driver up from. Currently this does not work for *generic connections*: "that's the only connection type that is still included in the engine/core and not a plugin". [Related ticket](https://project-hop.atlassian.net/browse/HOP-424)
+
+PROJECT_HOME

@@ -22,9 +22,8 @@ That's all well and good - you might say - but I still have to manually supply t
 
 Following steps are available:
 
-`Get File Names` - Does what is says on the tin. No surprises here!
-
-`File Metadata` (from the Marketplace)
+- `Get File Names` - Does what is says on the tin. No surprises here!
+- `File Metadata` (from the Marketplace, or alternatively [GitHub](https://github.com/pentaho-services/file-metadata-plugin))
 
 This step utilises libraries from the [Apache Tika](https://tika.apache.org/) project a "toolkit [that] detects and extracts metadata and text from over a thousand different file types (such as PPT, XLS, and PDF)".
 

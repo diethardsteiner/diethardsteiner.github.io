@@ -102,18 +102,13 @@ Hop	| PDI	| Purpose
 
 ### Hop Config
 
-PDI used to store most config artefacts in `~/.kettle`. For Hop these artefacts live under `~/.hop`.
+PDI used to store most config artefacts in `~/.kettle`. For Hop these artefacts live under `<hop>/config`.
 An alternative path can be configured via the  `HOP_HOME`  env variable, e.g.:
 
 ```bash
 export HOP_HOME=/tmp
 ./hop-gui.sh
 ```
-
-
-The project will add the environment plugin  as well (see [here](https://project-hop.atlassian.net/browse/HOP-130)).
-
-Note that there is no concept of a `HOP_METASTORE_FOLDER` environment variable.
 
 ## GUI
 
