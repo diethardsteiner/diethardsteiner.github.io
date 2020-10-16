@@ -217,8 +217,7 @@ Variable	| Purpose
 `HOP_CONFIG_DIRECTORY`	| Main Hop configuration directory
 `HOP_METADATA_FOLDER`	| Location of the metadata folder (replaces `HOP_METASTORE_FOLDER`).
 `HOP_AUDIT_DIRECTORY`	| Hop stores history, shell sizes, usage, lists, ... there
-`HOP_HOME`	| depricated
+`HOP_HOME`	| deprecated
 `HOP_OPTIONS`	| Any JRE options you want to set
 `HOP_SHARED_JDBC_DIRECTORY`	| Directory to pick JDBC driver up from. Currently this does not work for *generic connections*: "that's the only connection type that is still included in the engine/core and not a plugin". [Related ticket](https://project-hop.atlassian.net/browse/HOP-424)
-
-PROJECT_HOME
+`PROJECT_HOME`	| Path to the Hop project directory

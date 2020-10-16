@@ -12,6 +12,17 @@ published: true
 
 **Project Hop** received a major improvement as part of the [Environments: Support for separation of config and code](https://project-hop.atlassian.net/browse/HOP-467) ticket. I will briefly guide you through the steps to configure your **Hop project** correctly so that it works smoothly across environments (e.g. dev, test, prod).
 
+There are two high level concepts:
+
+- **Project**: Contains all your Hop pipelines, workflows, metadata, (unit test) datasets. Can also contain other code artefacts.
+- **Environment**: The configuration related to a specific enviornment (e.g. dev, test, prod) for your project.
+
+This achieves the separation of code and configuration.
+
+Let's see how this hangs toghether in the **Hop** world:
+
+
+
 ![](/images/project-hop-env/hop-config.png)
 
 The **configuration levels** and their **relationships** are as follows (top to down):
@@ -190,6 +201,58 @@ And `hop-run.sh` naturally has full support for these configuration artefacts as
   --project=project-a \
   --environment=project-a-dev \
   --runconfig=classic
+```
+
+> **Note**: You do not have to specify the project if you specify the environment. Hop knows which environment belongs to which project. This works as long as the environment name is not shared across projects.
+
+> **Note**: Creating or deleting projects or environments via the Hop commands never deletes or replaces existing files or directories.
+
+# Deployment to higher level environments
+
+You will start out work in the dev environment and then propaged your solution to (e.g.) a test and then prod environment. The project config file should not change for these environments, the environment config file, however, will very likely change.
+
+
+
+So not that we have established that the **project configuration file** will **stay the same** for **all environments**, all we have to do is to let **Hop** know where the root of the project is once we deployed the code:
+
+```bash
+echo "Registering project config with Hop"
+
+${DEPLOYMENT_PATH}/hop/hop-conf.sh \
+--project=${HOP_PROJECT_NAME} \
+--project-create \
+--project-home="${HOP_PROJECT_DIRECTORY}" \
+--project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
+```
+
+For the **environment configuration file** you have **two options**:
+
+- Prepare a config file upfront
+- Create a config file on the fly
+
+For both options, we have to first let **Hop** know where the config file will reside. If the file doesn't exist at this stage, Hop will create it:
+
+```bash
+echo "Registering environment config with Hop"
+
+${DEPLOYMENT_PATH}/hop/hop-conf.sh \
+--environment=${HOP_ENVIRONMENT_NAME} \
+--environment-create \
+--environment-project=${HOP_PROJECT_NAME} \
+--environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
+```
+
+In case the config file was not part of your deployment, you can populate it dynamically like so:
+
+```bash
+# Set variables for the env config
+./hop-conf.sh \
+--config-file="/path/to/config/file.json" \
+--config-file-set-variables=VAR_ENV_TEST1=c,VAR_ENV_TEST2=d
+# Or you can of course also fetch the values from the env if it's set up that way
+./hop-conf.sh \
+--config-file="/path/to/config/file.json" \
+--config-file-set-variables=VAR_ENV_TEST1=${ENV_TEST1},VAR_ENV_TEST2=${ENV_TEST2}
 ```
 
 ## Predefined Variables
