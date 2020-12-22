@@ -1,0 +1,23 @@
+{
+  "variables" : [ {
+    "name" : "VAR_INPUT_FILE_PATH",
+    "value" : "/tmp/sales.csv",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_JDBC_CONNECTION_STRING",
+    "value" : "jdbc:postgresql://localhost:5432/test",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_DRIVER_CLASS",
+    "value" : "org.postgresql.Driver",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_USERNAME",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_PASSWORD",
+    "value" : "",
+    "description" : ""
+  } ]
+}

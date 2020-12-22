@@ -1,0 +1,27 @@
+{
+  "variables" : [ {
+    "name" : "VAR_INPUT_FILE_PATH",
+    "value" : "/tmp/sales.csv",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_HOST",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_PORT",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_USERNAME",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_PASSWORD",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "VAR_TARGET_DB_NAME",
+    "value" : "",
+    "description" : ""
+  } ]
+}

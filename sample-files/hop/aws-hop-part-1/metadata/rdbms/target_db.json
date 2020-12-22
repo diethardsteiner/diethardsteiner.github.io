@@ -1,0 +1,27 @@
+{
+  "rdbms": {
+    "REDSHIFT": {
+      "databaseName": "${VAR_TARGET_DB_NAME}",
+      "pluginId": "REDSHIFT",
+      "accessType": 0,
+      "hostname": "${VAR_TARGET_DB_HOST}",
+      "password": "${VAR_TARGET_DB_PASSWORD}",
+      "port": "${VAR_TARGET_DB_PORT}",
+      "pluginName": "Redshift",
+      "attributes": {
+        "EXTRA_OPTION_REDSHIFT.tcpKeepAlive": "true",
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "${VAR_TARGET_DB_USERNAME}"
+    }
+  },
+  "name": "target_db"
+}
