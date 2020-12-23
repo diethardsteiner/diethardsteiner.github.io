@@ -7,7 +7,7 @@ summary: We will install Hop on an EC2 instance and source data from S3 and writ
 date: 2020-12-14
 categories: [Hop]
 tags: 
-published: false
+published: true
 ---
 
 The goal of this article is to explain how to use **Apache Hop** on **AWS**. 
@@ -32,7 +32,9 @@ We will create a dedicated **VPC** with:
 
 As you can see our analytic database is on fairly stable "feet" (if one EC2 instance in one AZ goes down the other instance in the other AZ will take over), however, Hop in this setup is a single point of failure - something we can live with in the **development environment**.
 
-OPEN - architectural diagram
+Simplified resources diagram:
+
+![](/images/aws-hop-part1/aws-architecture-diagram.png)
 
 For each of the resources that we create, we add an extra **tag** named `project` with the value `hop-tutorial` so that we can later on easily search for all the resources we stood up for this project (and hence can easily delete them). I will not necessarily mention this step again later on.
 
@@ -688,20 +690,4 @@ hat-target=# SELECT * FROM sales;
 
 As you can see the data go successfully loaded into **Redshift**.
 
-# Hop REST Endpoints
-
-We will start **Hop Server** to provide some **REST endpoints**.
-
-Let's start the server (in an easy way):
-
-```sh
-./hop-server.sh 127.0.0.1 8080
-```
-
-OPEN
-
-# Creating the CloudFormation Template
-
-We put quite some work in creating our environment on AWS. It was all GUI-driven, which is quite nice the first time round, but at some point we want to just press a button and set everything up in one go ( = automate the process). This is where AWS **CloudFormation** comes in. 
-
-It allows you to define the environment in text form (JSON or YAML). Normally you'd do this from scratch, but since we've already got our environment running, we don't really want to write this all by hand again. Luckily AWS CloudFormation can auto-generate a **CloudFormation template** based one existing resources (see also [here](New – Import Existing Resources into a CloudFormation Stack)) .
+This concludes our tutorial. I hope you enjoyed the journey!
