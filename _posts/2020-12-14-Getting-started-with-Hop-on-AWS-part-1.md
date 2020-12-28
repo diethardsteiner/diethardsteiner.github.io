@@ -318,9 +318,9 @@ Finally click on **Create role**.
 
 **AWS Console**: Compute > EC2 > Intances > Launch Instances
 
-| EC2 Instance Name       | Region    | AZ   |
-| ----------------------- | --------- | ---- |
-| `ec2-hat-dev-ew2-a-hop` | eu-west-2 | a    |
+| EC2 Instance Name            | Region    | AZ   |
+| ---------------------------- | --------- | ---- |
+| `instance-hat-dev-ew2-a-hop` | eu-west-2 | a    |
 
 Based on your requirements, pick a suitable **AMI**. I just went with this one: 
 
