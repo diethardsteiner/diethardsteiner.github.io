@@ -1,6 +1,10 @@
-source 'https://rubygems.org'
-gem 'github-pages'
+# frozen_string_literal: true
 
-gem "json", "~> 2.3"
+source "https://rubygems.org"
 
-gem "jekyll", "~> 3.7"
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+# gem "rails"
+
+# gem "jekyll", "~> 4.2"
+gem "github-pages", group: :jekyll_plugins
