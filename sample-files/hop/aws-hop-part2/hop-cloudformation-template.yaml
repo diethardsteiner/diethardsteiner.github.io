@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: '10.1.0.0/16'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: Name
+        Value:  !Join ['-', ['vpc', !Ref 'AWS::StackName', !Ref 'AWS::Region' ]] 
+           
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
+    Properties:
+      Tags:
+      - Key: Name
+        Value: !Join ['-', ['igw', !Ref 'AWS::StackName', !Ref 'AWS::Region' ]]
+        
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+      
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: '10.1.1.0/24'
+      # pick the first AZ in the AZ list of this region
+      AvailabilityZone: !Select [ 0, !GetAZs ]      
+      Tags:
+      - Key: Name
+        Value: !Join ['-', ['sn', !Ref 'AWS::StackName', !Ref 'AWS::Region', 'public' ]]
+        
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: !Join ['-', ['rt', !Ref 'AWS::StackName', !Ref 'AWS::Region', 'public' ]]
+        
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+      
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+      
+  HopSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupName: !Join ['-', ['secgroup', !Ref 'AWS::StackName', !Ref 'AWS::Region', 'hop' ]]
+      GroupDescription: 'Allow access from SSH, HTTP and HTTPS traffic'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  
+  S3LandingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ['-', ['s3', !Ref 'AWS::StackName', !Ref 'AWS::Region', 'landing' ]]
+      AccessControl: BucketOwnerFullControl
+
+  HopRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        # Allow or deny permission
+        - Effect: Allow 
+          # who can assume the role
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          # actions that are allowed or denied
+          Action:
+          - sts:AssumeRole
+      # path to the role
+      Path: "/"
+  
+  # Define allowed actions: S3 list, get, put, delete
+  # A policy associates a policy document with one or more IAM roles
+  HopRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: root
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        # Allow list action on bucket level
+        - Effect: Allow
+          Action: ['s3:ListBucket']
+          Resource: !GetAtt S3LandingBucket.Arn
+        # Allow get, put and delete object on object level
+        - Effect: Allow
+          Action: ['s3:ListBucket','s3:GetObject','s3:PutObject','s3:DeleteObject']
+          Resource: !Join ['', [!GetAtt S3LandingBucket.Arn, '/*']]
+      Roles:
+      - !Ref HopRole
+  
+  HopInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - !Ref HopRole
+
+  HopInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: PublicRoute
+    Properties:
+      ImageId: 'ami-08b993f76f42c3e2f' # image id only valid for region eu-west-2
+      # ImageId: !FindInMap [ AmazonLinuxAMI, !Ref 'AWS::Region', AMI]
+      InstanceType: t2.small
+      # the instance profile we want to use
+      IamInstanceProfile: !Ref HopInstanceProfile
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        # the subnet we want the instance to reside in
+        SubnetId: !Ref PublicSubnetA
+        AssociatePublicIpAddress: true
+        # the security group we want to link to the instance
+        GroupSet: [!Ref HopSecurityGroup]
+      # the key we want to use to connect to the instance
+      KeyName: 'pdi-s3-upload-test'
+      Tags:
+      - Key: Name
+        Value: !Join ['-', ['instance', !Ref 'AWS::StackName', !Ref 'AWS::Region', 'hop' ]]
+      # the startup script
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo amazon-linux-extras install java-openjdk11
+          cd /home/ec2-user
+          wget -O hop.zip https://artifactory.project-hop.org/artifactory/hop-snapshots-local/org/hop/hop-assemblies-client/0.40-SNAPSHOT/hop-assemblies-client-0.40-20201028.102851-81.zip
+          unzip hop.zip
+          cd hop/lib
+          wget https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/1.2.43.1067/RedshiftJDBC4-no-awssdk-1.2.43.1067.jar
+          chown -R ec2-user:ec2-user /home/ec2-user/hop
+          # tell cloudformation we are finished
+          /opt/aws/bin/cfn-signal -e 0 --resource HopInstance --stack ${AWS::StackName} --region ${AWS::Region}
+    # Instruction to CloudFormation that this HopInstance is only complete if we get 1 signal back within 5 minutes.
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT5M
